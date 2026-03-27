@@ -7,7 +7,28 @@ on:
       - 'github-runner/Dockerfile'
 
 jobs:
+  security:
+    # Run on cloud runner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Scan Dockerfile for misconfigurations"
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: config
+          scan-ref: github-runner/Dockerfile
+
+      - name: "Scan base image for vulnerabilities"
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: image
+          image-ref: myoung34/github-runner:2.333.0
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
   docker-image:
+    needs: security
     # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
     runs-on: [self-hosted, pi5]
     defaults:

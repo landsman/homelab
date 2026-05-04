@@ -18,6 +18,8 @@ pull:
 restart:
 	docker compose restart
 
+# Requires one-time `sudo tailscale set --operator=containers` so this user
+# can run `tailscale serve` without sudo.
 serve:
 	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)
 

@@ -16,10 +16,10 @@ UI:
 
 MeTube listens on `0.0.0.0:8003` for LAN access. Tailscale `serve` additionally proxies it over HTTPS on the tailnet so remote clients get a clean URL with no port and a valid cert.
 
-One-time setup (by admin user with sudo) — grant this user permission to run `tailscale serve` without sudo:
+One-time setup (by admin user with sudo) — grant the `containers` user permission to run `tailscale serve` without sudo:
 
 ```bash
-sudo tailscale set --operator=<username>
+sudo tailscale set --operator=containers
 ```
 
 Then on the Pi:

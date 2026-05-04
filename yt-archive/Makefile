@@ -21,7 +21,7 @@ restart:
 # Requires one-time `sudo tailscale set --operator=containers` so this user
 # can run `tailscale serve` without sudo.
 serve:
-	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)
+	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)$(SERVE_PATH)
 
 unserve:
 	tailscale serve --https=443 --set-path=$(SERVE_PATH) off

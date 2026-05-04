@@ -65,6 +65,15 @@ Pi (Docker only)
 
 The `EPHEMERAL=true` env var tells the runner to deregister itself after a single job, ensuring a clean environment for every run.
 
+## Surviving `docker system prune`
+
+Ephemeral runners briefly enter "stopped" state between jobs, so a raw `docker system prune` will sweep them mid-cycle. Both runner services carry the `preserve=true` label in `compose.yml`, which is honored by:
+
+- The scheduled cleanup — `../docker/Makefile` `prune` target passes `--filter "label!=preserve=true"`
+- Interactive shells — install [`../docker/docker-prune-guard.sh`](../docker/docker-prune-guard.sh) via `make -C ../docker guard-install` to wrap `docker system prune` / `docker container prune` with the same filter
+
+Without one of these in place, ad-hoc prune commands will delete the runner containers.
+
 ## Scaling to multiple repositories
 
 By default the runner is scoped to a single repository (`RUNNER_SCOPE=repo`). To cover additional repos you would need one Compose service per repository, each with its own `REPO_URL`.

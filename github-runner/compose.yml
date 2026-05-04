@@ -9,6 +9,8 @@ services:
   music:
     image: custom-runner-nodejs:latest
     restart: always
+    # preserve=true keeps this container alive across `docker system prune`
+    # (see ../docker/docker-prune-guard.sh and ../docker/Makefile `prune` target)
     labels:
       preserve: "true"
     environment:
@@ -24,6 +26,8 @@ services:
   raspberry-pi:
     image: custom-runner-nodejs:latest
     restart: always
+    # preserve=true keeps this container alive across `docker system prune`
+    # (see ../docker/docker-prune-guard.sh and ../docker/Makefile `prune` target)
     labels:
       preserve: "true"
     environment:

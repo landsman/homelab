@@ -1,6 +1,6 @@
 LOG_DIR := $(HOME)/logs/docker
 
-.PHONY: install lazydocker prune cron-install
+.PHONY: install lazydocker prune cron-install guard-install
 
 VERSION = 0.24.4
 
@@ -13,6 +13,12 @@ lazydocker:
 prune: ## System prune, preserve labeled containers
 	@mkdir -p $(LOG_DIR)
 	@docker system prune -f --filter "label!=preserve=true" 2>&1 | tee -a $(LOG_DIR)/docker-prune.log
+
+guard-install: ## Source docker-prune-guard.sh from ~/.bashrc
+	@grep -q "docker-prune-guard.sh" $(HOME)/.bashrc 2>/dev/null \
+		&& echo "Already installed in ~/.bashrc" \
+		|| (echo "source $(PWD)/docker-prune-guard.sh" >> $(HOME)/.bashrc \
+			&& echo "Added to ~/.bashrc. Run: source ~/.bashrc")
 
 cron-install: ## Install cron job to prune daily at 3:30am
 	@crontab -l 2>/dev/null | grep -q "homelab/docker.*make prune" \

@@ -9,6 +9,8 @@ services:
   music:
     image: custom-runner-nodejs:latest
     restart: always
+    labels:
+      preserve: "true"
     environment:
       RUNNER_SCOPE: repo
       REPO_URL: ${SUPABASE_REPO_URL}
@@ -22,6 +24,8 @@ services:
   raspberry-pi:
     image: custom-runner-nodejs:latest
     restart: always
+    labels:
+      preserve: "true"
     environment:
       RUNNER_SCOPE: repo
       REPO_URL: ${RASPBERRY_REPO_URL}

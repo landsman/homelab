@@ -13,3 +13,4 @@ services:
       - DOWNLOAD_DIR=/downloads
       - STATE_DIR=/downloads/.metube
       - DEFAULT_THEME=auto
+      - URL_PREFIX=/yt-archive/

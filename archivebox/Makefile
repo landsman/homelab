@@ -34,7 +34,8 @@ restore:
 		alpine tar xzf /backup/$(FILE) -C /data
 
 cron-install:
+	@mkdir -p $(BACKUP_DIR)
 	@crontab -l 2>/dev/null | grep -q "archivebox.*make backup" \
 		&& (echo "Cron job already exists. To view: crontab -l | grep archivebox" && exit 1) \
-		|| (crontab -l 2>/dev/null; echo "0 3 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -
+		|| (crontab -l 2>/dev/null; echo "0 7 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -
 	@echo "Cron job installed."

@@ -189,4 +189,14 @@ export const SERVICES: Service[] = [
     section: SERVICE_SECTION.HOMELAB,
     keywords: ['spotify', 'lastfm', 'mp3'],
   },
+  {
+    name: 'YT Archive',
+    url: 'https://nas.dog-macaroni.ts.net/yt-archive/',
+    healthCheckUrl: 'https://nas.dog-macaroni.ts.net/yt-archive/version',
+    versionPath: 'version',
+    type: SERVICE_TYPE.SIMPLE_CHECK,
+    section: SERVICE_SECTION.HOMELAB,
+    icon: 'metube',
+    keywords: ['youtube', 'metube', 'download', 'archive'],
+  },
 ]

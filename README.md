@@ -9,15 +9,16 @@ Playground for my local homelab.
 
 ## Apps
 
-- [Welcome Page](welcome-page)
+- [Welcome Page](welcome-page) as the default dashboard when opening a new browser tab ([extension](https://chromewebstore.google.com/detail/simple-new-tab-url/pkklffjkfmhpoiepobbldnadjflciinb))
 - [Rootless Docker](docker)
-- [Self-hosted GitHub runner](github-runner)
-- [Forgejo - GitHub alternative](forgejo)
-- [Database](database)
-- [Readeck](readeck)
-- [Mealie](mealie)
-- [Gotenberg](gotenberg)
-- [ArchiveBox](archivebox)
+- [Self-hosted GitHub runner](github-runner) for safe deployments using whitelisted IPs
+- [Forgejo](forgejo) amazing GitHub alternative
+- [Database](database) for storing data from several external services
+- [Readeck](readeck) read later, offline snapshots of articles
+- [YouTube Archive](yt-archive) 
+- [Mealie](mealie) for managing recipes
+- [Gotenberg](gotenberg) for rendering PDFs
+- [ArchiveBox](archivebox) for archiving whole websites
 - [IP service](ip-service)
 
 ## Useful links

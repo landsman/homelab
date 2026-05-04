@@ -41,6 +41,7 @@ backup:
 
 restore:
 	@test -n "$(FILE)" || (echo "Usage: make restore FILE=yt-archive-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
+	@test -f "$(BACKUP_DIR)/$(FILE)" || (echo "Error: Backup file $(BACKUP_DIR)/$(FILE) not found." && exit 1)
 	@test -d "$(DATA_DIR)" || (echo "Error: $(DATA_DIR) does not exist. Run 'make up' first." && exit 1)
 	docker run --rm \
 		-v $(DATA_DIR):/data \
@@ -48,6 +49,7 @@ restore:
 		alpine tar xzf /backup/$(FILE) -C /data
 
 cron-install:
+	@mkdir -p $(BACKUP_DIR)
 	@crontab -l 2>/dev/null | grep -q "yt-archive.*make backup" \
 		&& (echo "Cron job already exists. To view: crontab -l | grep yt-archive" && exit 1) \
 		|| (crontab -l 2>/dev/null; echo "0 6 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -

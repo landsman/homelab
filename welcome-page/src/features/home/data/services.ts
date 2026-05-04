@@ -160,6 +160,11 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         shortcut: Hotkey.SHIFT_E,
       },
       {
+        name: 'YT Archive',
+        url: 'https://nas.dog-macaroni.ts.net/yt-archive/',
+        icon: ServiceIcon.METUBE,
+      },
+      {
         name: 'Raspberry Connect',
         url: 'https://connect.raspberrypi.com',
         icon: ServiceIcon.RASPBERRY_CONNECT,

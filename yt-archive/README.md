@@ -41,7 +41,19 @@ Lock down further with a tailnet ACL in the Tailscale admin if needed.
 
 ## Storage
 
-- `./downloads/` — finished media + `.metube/` state (queue, history)
+- `./downloads/` — finished media + `.metube/` state (queue, history, subscriptions)
+
+## Backup
+
+Backs up only `./downloads/.metube/` (state JSONs — queue, completed, subscriptions). Media files in `./downloads/` are not included.
+
+```bash
+make backup    # run backup manually
+make restore FILE=yt-archive-backup-YYYYMMDD_HHMMSS.tar.gz
+make cron-install   # daily 02:00 cron
+```
+
+Backups stored in `/home/containers/backup/yt-archive` as `yt-archive-backup-YYYYMMDD_HHMMSS.tar.gz`. Last 14 days retained, older auto-pruned.
 
 ## Update
 

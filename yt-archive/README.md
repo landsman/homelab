@@ -50,7 +50,7 @@ Backs up only `./downloads/.metube/` (state JSONs — queue, completed, subscrip
 ```bash
 make backup    # run backup manually
 make restore FILE=yt-archive-backup-YYYYMMDD_HHMMSS.tar.gz
-make cron-install   # daily 02:00 cron
+make cron-install   # daily 06:00 cron
 ```
 
 Backups stored in `/home/containers/backup/yt-archive` as `yt-archive-backup-YYYYMMDD_HHMMSS.tar.gz`. Last 14 days retained, older auto-pruned.

@@ -1,0 +1,16 @@
+services:
+  metube:
+    image: alexta69/metube:2026.04.28
+    container_name: yt-archive
+    restart: unless-stopped
+    ports:
+      - "8003:8081"
+    volumes:
+      - ./downloads:/downloads
+    environment:
+      - UID=1000
+      - GID=1000
+      - DOWNLOAD_DIR=/downloads
+      - STATE_DIR=/downloads/.metube
+      - DEFAULT_THEME=auto
+      - URL_PREFIX=/yt-archive/

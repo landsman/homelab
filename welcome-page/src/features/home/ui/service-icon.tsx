@@ -1,3 +1,5 @@
+import { Image } from '../../../app/components/image'
+
 interface ServiceIconProps {
   service: {
     name: string
@@ -17,7 +19,7 @@ export function ServiceIcon({ service }: ServiceIconProps) {
       }`}
     >
       {iconPath ? (
-        <img src={iconPath} alt={service.name} aria-hidden="true" className="w-5 h-5" />
+        <Image src={iconPath} alt={service.name} aria-hidden="true" className="w-5 h-5" />
       ) : (
         <span className="text-sm font-semibold text-(--text-dim)">
           {service.name[0].toUpperCase()}

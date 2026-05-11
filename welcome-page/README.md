@@ -74,7 +74,19 @@ UI:
 - Tailscale (HTTPS, no port): `https://<pi-host>.<tailnet>.ts.net/welcome-page/`
 - Cloudflare Tunnel: existing subdomain
 
-> Note: `make serve` proxies `/welcome-page` on the tailnet to `http://localhost:8080/welcome-page` — the app must be reachable at that subpath on the origin. Wire Vite `base: '/welcome-page/'`, TanStack Router `basepath`, and an nginx location for `/welcome-page/` before this URL works end-to-end.
+### Runtime base path (`BASE_PATH`)
+
+The image is path-agnostic: assets are built with relative URLs and the SPA reads its mount point from `window.__BASE_PATH__`, which nginx rewrites at container start from the `BASE_PATH` env var.
+
+```bash
+# default — serve at root
+docker compose up -d
+
+# mount under /welcome-page/ (matches `make serve` above)
+BASE_PATH=/welcome-page/ docker compose up -d
+```
+
+The trailing slash matters. The router basepath, asset URLs (`<Img>` component), and proxy fetch paths all derive from this value, so a single image can be repointed without rebuilding. Upstream proxies (tailscale, cloudflare) must either preserve or strip the prefix consistently with what `BASE_PATH` is set to.
 
 ## Ports
 

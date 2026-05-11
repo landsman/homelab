@@ -6,4 +6,9 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - '8080:80'
+    environment:
+      # Runtime subpath the SPA is mounted at. '/' = root. Set e.g.
+      # '/welcome-page/' (trailing slash required) when fronted by tailscale
+      # serve --set-path=/welcome-page. Same image, no rebuild needed.
+      BASE_PATH: ${BASE_PATH:-/}
     restart: unless-stopped

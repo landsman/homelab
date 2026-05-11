@@ -49,3 +49,36 @@ make lint    # ESLint only
 1. Add an entry to `src/features/status-page/services.ts`
 2. Drop a 20×20 SVG logo in `public/icons/<name>.svg`
 3. Set `section: 'homelab'` to put it in the Homelab section instead of External Services
+
+## Access (Tailscale)
+
+Nginx listens on `0.0.0.0:8080` for LAN access. Tailscale `serve` additionally proxies it over HTTPS on the tailnet so remote clients get a clean URL with no port and a valid cert. Runs alongside the Cloudflare Tunnel — handy for comparing latency between the two paths.
+
+One-time setup (by admin user with sudo) — grant the `containers` user permission to run `tailscale serve` without sudo:
+
+```bash
+sudo tailscale set --operator=containers
+```
+
+Then on the Pi:
+
+```bash
+make serve         # publish over tailnet HTTPS
+make serve-status  # show current serve config
+make unserve       # stop publishing
+```
+
+UI:
+
+- LAN: `http://<pi-host>:8080`
+- Tailscale (HTTPS, no port): `https://<pi-host>.<tailnet>.ts.net/welcome-page/`
+- Cloudflare Tunnel: existing subdomain
+
+> Note: `make serve` proxies `/welcome-page` on the tailnet to `http://localhost:8080/welcome-page` — the app must be reachable at that subpath on the origin. Wire Vite `base: '/welcome-page/'`, TanStack Router `basepath`, and an nginx location for `/welcome-page/` before this URL works end-to-end.
+
+## Ports
+
+| Port          | Container | Notes                                        |
+| ------------- | --------- | -------------------------------------------- |
+| 8080          | 80        | nginx (LAN)                                  |
+| 443 (tailnet) | —         | `tailscale serve` → 8080 at `/welcome-page/` |

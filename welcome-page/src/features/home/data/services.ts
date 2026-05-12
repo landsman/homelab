@@ -23,6 +23,12 @@ export const HOME_CATEGORIES: HomeCategory[] = [
       { name: 'Bluesky', url: 'https://bsky.app', icon: ServiceIcon.BLUESKY, shortcut: Hotkey.B },
       { name: 'X', url: 'https://x.com', icon: ServiceIcon.X },
       {
+        name: 'Polymarket',
+        url: 'https://polymarket.com',
+        icon: ServiceIcon.POLYMARKET,
+        shortcut: Hotkey.E,
+      },
+      {
         name: 'Discord',
         url: 'https://discord.com/app',
         icon: ServiceIcon.DISCORD,

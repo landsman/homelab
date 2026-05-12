@@ -25,6 +25,7 @@ export enum ServiceIcon {
   READECK = 'readeck',
   CLAUDE = 'claude',
   PERPLEXITY = 'perplexity',
+  POLYMARKET = 'polymarket',
   NOTEBOOKML = 'notebookml',
   GITHUB = 'github',
   FORGEJO = 'forgejo',

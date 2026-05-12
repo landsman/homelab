@@ -34,6 +34,7 @@ lint-fix: ## Auto-fix ESLint issues
 
 test: ## Run unit tests
 	npm test
+	sh tests/deploy/run.sh
 
 format: ## Format all files with Prettier
 	npm run format:fix
@@ -46,6 +47,7 @@ qa: ## Run all quality checks (typecheck, format, lint, test)
 	npm run format
 	npm run lint
 	npm test
+	sh tests/deploy/run.sh
 
 preview: build ## Build then preview the production build locally
 	npm run preview -- --port 4173

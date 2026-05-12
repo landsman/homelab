@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { HotKey } from '../common/hotkey/hot-key.tsx'
+import { Image } from '../../app/components/image'
 
 interface SearchBarProps {
   query: string
@@ -14,7 +15,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function S
   return (
     <div className="flex justify-end w-full">
       <div className="relative w-full">
-        <img
+        <Image
           src="/icons/ui/search.svg"
           alt=""
           className="absolute left-3 top-1/2 -translate-y-1/2 w-[13px] h-[13px] text-[var(--text-muted)] pointer-events-none opacity-50 invert"

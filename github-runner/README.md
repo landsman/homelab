@@ -12,6 +12,7 @@ Each job spawns a fresh `custom-runner-nodejs` container that registers with Git
 - [Deno](https://deno.land) for Deno tasks
 - [Supabase CLI](https://github.com/supabase/cli) — latest ARM64 binary
 - `postgresql-client` — `psql` for Supabase Vault secret upserts in CI
+- `shellcheck` — shell script linter for `make qa` (welcome-page deploy scripts)
 
 ## Prerequisites
 

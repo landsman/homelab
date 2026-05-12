@@ -1,4 +1,4 @@
-import { PROXY_PATHS } from '../../../proxy.config'
+import { PROXY_PATHS } from '../../../app/config/routing/proxy-paths'
 import type { StatusPageData, Incident, StatusComponent } from './types'
 
 // Slack's status API only returns services affected by active incidents — it has no endpoint

@@ -1,5 +1,5 @@
 import type { StatusPageData, StatusComponent } from './types'
-import { PROXY_PATHS } from '../../../proxy.config'
+import { PROXY_PATHS } from '../../../app/config/routing/proxy-paths'
 
 interface UptimeKumaMonitor {
   id: number

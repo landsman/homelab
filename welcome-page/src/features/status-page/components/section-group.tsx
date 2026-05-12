@@ -13,6 +13,7 @@ import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortab
 import type { Service, ServiceSection } from '../services'
 import { SERVICE_SECTION } from '../services'
 import { StatusCard } from './status-card'
+import { Image } from '../../../app/components/image'
 import { SortableCard } from './sortable-card'
 
 const SECTION_LABELS: Record<ServiceSection, string> = {
@@ -107,7 +108,7 @@ export function SectionGroup({
             : 'hover:bg-white/5'
         }`}
       >
-        <img
+        <Image
           src="/icons/ui/chevron-down.svg"
           alt=""
           className={`absolute left-3 top-1/2 -translate-y-1/2 w-[13px] h-[13px] transition-transform duration-200 shrink-0 opacity-50 invert ${isCollapsed ? '-rotate-90' : ''}`}

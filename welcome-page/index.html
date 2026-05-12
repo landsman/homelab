@@ -7,6 +7,13 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Homelab Status</title>
+    <!-- Runtime base path; nginx rewrites both <base href> and __BASE_PATH__
+         at container start from the BASE_PATH env. Dev/build default is '/'.
+         Keep each on one line so the substitute script's sed patterns match. -->
+    <!-- prettier-ignore -->
+    <base href="/">
+    <!-- prettier-ignore -->
+    <script>window.__BASE_PATH__ = '/';</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

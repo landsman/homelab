@@ -13,16 +13,11 @@ help: ## Show this help
 install: ## Install deps
 	npm ci
 
-LOCK_PLATFORMS := linux/x64 linux/arm64 linux/arm darwin/x64 darwin/arm64 win32/x64 win32/arm64 freebsd/x64 android/arm64
-
-lock-regen: ## Regenerate package-lock.json with optional native deps for all CI platforms
+lock-regen: ## Regenerate package-lock.json with all-platform optional native deps (uses linux docker)
 	rm -f package-lock.json
-	@for pair in $(LOCK_PLATFORMS); do \
-		os=$${pair%/*}; cpu=$${pair#*/}; \
-		echo "→ $$os/$$cpu"; \
-		npm install --package-lock-only --include=optional --os=$$os --cpu=$$cpu --no-audit --silent || exit 1; \
-	done
-	@echo "✓ lockfile regenerated with all platforms"
+	docker run --rm -v "$$PWD":/app -w /app node:20-alpine \
+		sh -c "rm -rf node_modules && npm install --include=optional --no-audit"
+	@echo "✓ lockfile regenerated; run 'make install' to refresh local node_modules"
 
 dev: ## Start local dev server (hot reload)
 	npm run dev

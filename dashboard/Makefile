@@ -5,13 +5,24 @@ PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 
 ### DEV
-.PHONY: help dev install build preview typecheck lint lint-fix shellcheck format format-check test qa
+.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test qa
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install deps
 	npm ci
+
+LOCK_PLATFORMS := linux/x64 linux/arm64 linux/arm darwin/x64 darwin/arm64 win32/x64 win32/arm64 freebsd/x64 android/arm64
+
+lock-regen: ## Regenerate package-lock.json with optional native deps for all CI platforms
+	rm -f package-lock.json
+	@for pair in $(LOCK_PLATFORMS); do \
+		os=$${pair%/*}; cpu=$${pair#*/}; \
+		echo "→ $$os/$$cpu"; \
+		npm install --package-lock-only --include=optional --os=$$os --cpu=$$cpu --no-audit --silent || exit 1; \
+	done
+	@echo "✓ lockfile regenerated with all platforms"
 
 dev: ## Start local dev server (hot reload)
 	npm run dev

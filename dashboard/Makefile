@@ -5,13 +5,19 @@ PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 
 ### DEV
-.PHONY: help dev install build preview typecheck lint lint-fix shellcheck format format-check test qa
+.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test qa
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install deps
 	npm ci
+
+lock-regen: ## Regenerate package-lock.json with all-platform optional native deps (uses linux docker)
+	rm -f package-lock.json
+	docker run --rm -v "$$PWD":/app -w /app node:20-alpine \
+		sh -c "rm -rf node_modules && npm install --include=optional --no-audit"
+	@echo "✓ lockfile regenerated; run 'make install' to refresh local node_modules"
 
 dev: ## Start local dev server (hot reload)
 	npm run dev

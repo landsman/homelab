@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
+    runs-on: [self-hosted, pi5]
     defaults:
       run:
         working-directory: welcome-page
@@ -24,6 +25,13 @@ jobs:
 
       - name: "Install dependencies"
         run: make install
+
+      - name: "Install shellcheck"
+        run: |
+          if ! command -v shellcheck >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          fi
+        working-directory: .
 
       - name: "Format check"
         run: make qa

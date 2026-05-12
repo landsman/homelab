@@ -9,6 +9,7 @@ import { fetchGoogleWorkspace } from '../api/google-workspace'
 import { fetchIncidentio } from '../api/incidentio'
 import { fetchSlack } from '../api/slack'
 import { fetchSimpleCheck } from '../api/simple-check'
+import { fetchUptimeKuma } from '../api/uptime-kuma'
 
 export type { StatusComponent, Incident, StatusPageData }
 
@@ -31,6 +32,9 @@ async function fetchStatusPage(service: Service): Promise<StatusPageData> {
       .with({ type: SERVICE_TYPE.SLACK }, () => fetchSlack())
       .with({ type: SERVICE_TYPE.SIMPLE_CHECK }, s =>
         fetchSimpleCheck(s.healthCheckUrl ?? s.url, s.versionPath)
+      )
+      .with({ type: SERVICE_TYPE.UPTIME_KUMA }, s =>
+        fetchUptimeKuma(s.url, s.uptimeKumaSlug ?? 'status')
       )
       .with({ type: SERVICE_TYPE.REDIRECT }, () => ({
         status: { indicator: 'none', description: '?' },

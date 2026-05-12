@@ -1,0 +1,29 @@
+name: "ip service ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'ip-service/**'
+
+jobs:
+  build:
+    # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
+    runs-on: [self-hosted, pi5]
+    defaults:
+      run:
+        working-directory: ip-service
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: "Install dependencies"
+        run: make install
+
+      - name: "Format check"
+        run: make qa
+
+      - name: "Build"
+        run: make docker-build

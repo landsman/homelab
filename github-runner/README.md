@@ -2,7 +2,7 @@
 
 Ephemeral GitHub Actions self-hosted runner for Raspberry Pi 5 (ARM64).
 
-Each job spawns a fresh `supabase-runner` container that registers with GitHub, runs the job, and exits. 
+Each job spawns a fresh `custom-runner-nodejs` container that registers with GitHub, runs the job, and exits. 
 **No runner software is installed on the Pi itself — only Docker is required**.
 
 ## What's inside the image
@@ -11,6 +11,8 @@ Each job spawns a fresh `supabase-runner` container that registers with GitHub, 
 - [Node.js](https://nodejs.org) 22 — for `npx` / Sentry CLI
 - [Deno](https://deno.land) for Deno tasks
 - [Supabase CLI](https://github.com/supabase/cli) — latest ARM64 binary
+- `postgresql-client` — `psql` for Supabase Vault secret upserts in CI
+- `shellcheck` — shell script linter for `make qa` (welcome-page deploy scripts)
 
 ## Prerequisites
 
@@ -22,7 +24,7 @@ Each job spawns a fresh `supabase-runner` container that registers with GitHub, 
 
 ```bash
 cp .env.example .env
-# Edit .env and fill in REPO_URL and GITHUB_TOKEN
+# Edit .env and fill in REPO_URLs and GITHUB_TOKEN
 ```
 
 Generate a **classic PAT** for `GITHUB_TOKEN` ([docs](https://github.com/myoung34/docker-github-actions-runner/wiki/Usage)):
@@ -63,6 +65,15 @@ Pi (Docker only)
 ```
 
 The `EPHEMERAL=true` env var tells the runner to deregister itself after a single job, ensuring a clean environment for every run.
+
+## Surviving `docker system prune`
+
+Ephemeral runners briefly enter "stopped" state between jobs, so a raw `docker system prune` will sweep them mid-cycle. Both runner services carry the `preserve=true` label in `compose.yml`, which is honored by:
+
+- The scheduled cleanup — `../docker/Makefile` `prune` target passes `--filter "label!=preserve=true"`
+- Interactive shells — install [`../docker/docker-prune-guard.sh`](../docker/docker-prune-guard.sh) via `make -C ../docker guard-install` to wrap `docker system prune` / `docker container prune` with the same filter
+
+Without one of these in place, ad-hoc prune commands will delete the runner containers.
 
 ## Scaling to multiple repositories
 

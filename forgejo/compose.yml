@@ -1,7 +1,7 @@
 services:
   # app, gui
   forgejo:
-    image: codeberg.org/forgejo/forgejo:13
+    image: codeberg.org/forgejo/forgejo:15
     container_name: forgejo
     restart: unless-stopped
     environment:
@@ -45,7 +45,7 @@ services:
 
   # runner daemon
   runner:
-    image: code.forgejo.org/forgejo/runner:6
+    image: code.forgejo.org/forgejo/runner:12
     container_name: forgejo-runner
     restart: unless-stopped
     depends_on:
@@ -63,6 +63,8 @@ services:
 
 volumes:
   forgejo:
+    external: true
+    name: forgejo_forgejo
   dind-certs:
   runner:
 

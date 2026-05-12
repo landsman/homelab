@@ -13,7 +13,8 @@ env:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
+    runs-on: [self-hosted, pi5]
     permissions:
       contents: read
       packages: write

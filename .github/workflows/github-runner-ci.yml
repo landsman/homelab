@@ -1,0 +1,22 @@
+name: "github runner ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'github-runner/**'
+      - '!github-runner/README.md'
+
+jobs:
+  build:
+    # intentionally run this one job in cloud runner
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: github-runner
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "try to build docker image"
+        run: make build

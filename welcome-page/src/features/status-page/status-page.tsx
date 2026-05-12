@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { SERVICES, type ServiceSection, SERVICE_SECTION } from './services'
 import { usePersistence } from './hooks/use-persistence'
 import { SectionGroup } from './components/section-group'
-import { SearchBar } from './components/search-bar'
+import { SearchBar } from '../search/search-bar'
 
 const SECTION_ORDER: ServiceSection[] = [SERVICE_SECTION.EXTERNAL, SERVICE_SECTION.HOMELAB]
 

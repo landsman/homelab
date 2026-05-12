@@ -1,0 +1,17 @@
+services:
+  archivebox:
+    image: archivebox/archivebox:0.7.3
+    container_name: archivebox
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - archivebox-data:/data
+    environment:
+      - ALLOWED_HOSTS=*
+      - PUID=1000
+      - PGID=1000
+      - MEDIA_MAX_SIZE=750m
+
+volumes:
+  archivebox-data:

@@ -1,11 +1,11 @@
 IMAGE          := welcome-page
-TAG            := latest
+REGISTRY_IMAGE ?= ghcr.io/landsman/homelab-status
+TAG            ?= latest
 PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
-REGISTRY_IMAGE ?= $(IMAGE)
 
 ### DEV
-.PHONY: help dev install build preview lint format qa
+.PHONY: help dev install build preview typecheck lint lint-fix shellcheck format format-check test qa
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -16,24 +16,41 @@ install: ## Install deps
 dev: ## Start local dev server (hot reload)
 	npm run dev
 
+dev-docker: ## Build + start Docker container (IP endpoints) then launch dev server
+	docker compose up -d --build
+	npm run dev
+
 build: ## Build static assets into dist/
 	npm run build
+
+typecheck: ## Run TypeScript type checker
+	npm run typecheck
 
 lint: ## Run ESLint (includes filename-case check)
 	npm run lint
 
-test:
+lint-fix: ## Auto-fix ESLint issues
+	npm run lint:fix
+
+shellcheck: ## Run ShellCheck on docker/ and tests/deploy/ shell scripts
+	shellcheck docker/*.sh tests/deploy/*.sh
+
+test: ## Run unit tests
 	npm test
+	sh tests/deploy/run.sh
 
 format: ## Format all files with Prettier
 	npm run format:fix
-	npm run lint:fix
 
-qa: ## Check requirement format
-	npx tsc -b --noEmit
+format-check: ## Check formatting without writing
+	npm run format
+
+qa: shellcheck ## Run all quality checks (typecheck, format, lint, shellcheck, test)
+	npm run typecheck
 	npm run format
 	npm run lint
 	npm test
+	sh tests/deploy/run.sh
 
 preview: build ## Build then preview the production build locally
 	npm run preview -- --port 4173
@@ -66,10 +83,27 @@ stop: ## Stop the running container
 	docker compose stop
 
 up: ## Run the container locally on PORT (default: 8080)
-	docker compose up -d
+	REGISTRY_IMAGE=$(REGISTRY_IMAGE) TAG=$(TAG) docker compose up -d
 
 down: ## Stop and remove Compose containers
 	docker compose down
 
 logs: ## Follow Compose logs
 	docker compose logs -f
+
+### TAILSCALE
+.PHONY: serve unserve serve-status
+
+LOCAL_PORT ?= 8080
+SERVE_PATH ?= /welcome-page
+
+# Requires one-time `sudo tailscale set --operator=containers` so this user
+# can run `tailscale serve` without sudo.
+serve: ## Publish over tailnet HTTPS at $(SERVE_PATH)
+	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)
+
+unserve: ## Stop publishing over tailnet
+	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
+
+serve-status: ## Show current tailscale serve config
+	tailscale serve status

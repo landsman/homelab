@@ -30,6 +30,9 @@ sudo passwd containers
 
 # Enable lingering so the daemon starts at boot without an active session
 sudo loginctl enable-linger containers
+
+# This gives Docker a "fallback" for permanent storage that is persistent
+sudo apt-get install -y fuse-overlayfs
 ```
 
 Add your SSH public key so you can log in without a password:
@@ -194,9 +197,59 @@ ln -s /mnt/raid0/containers/docker ~/docker
 ln -s /mnt/raid0/containers ~/dev
 ```
 
+### Make Docker wait for the RAID mount
+
+If the RAID isn't mounted when Docker starts at boot, Docker silently falls back to `~/.local/share/docker` and creates empty volumes. Prevent this with a systemd drop-in:
+
+```bash
+mkdir -p ~/.config/systemd/user/docker.service.d
+printf '[Unit]\nRequiresMountsFor=/mnt/raid0\n' > ~/.config/systemd/user/docker.service.d/wait-for-raid.conf
+systemctl --user daemon-reload
+```
+
+Docker will now refuse to start if `/mnt/raid0` is not mounted.
+
 ---
 
+## Maintenance
+
+Create cleanup cron. It will remove old containers and images at 3:30 AM every day:
+
+```bash
+make install-cron
+```
+
+
 ## Troubleshooting
+
+### Volumes missing after reboot (old data in `~/.local/share/docker`)
+
+Changing `data-root` does **not** move existing volumes — they stay in `~/.local/share/docker/volumes/`. If containers start fresh after switching to NVMe storage, copy volumes manually:
+
+```bash
+# For each volume, stop its containers first, then:
+docker run --rm \
+  -v ~/.local/share/docker/volumes/<volume_name>/_data:/olddata \
+  -v /mnt/raid0/containers/docker/volumes/<volume_name>/_data:/newdata \
+  alpine sh -c "cp -a /olddata/. /newdata/"
+```
+
+For compose projects, declare the volume as `external` so Compose reuses the existing volume instead of creating a new empty one:
+
+```yaml
+volumes:
+  my-volume:
+    external: true
+    name: <actual_volume_name>   # e.g. projectname_volumekey
+```
+
+Once all volumes are migrated and confirmed working, remove the old storage:
+
+```bash
+rm -rf ~/.local/share/docker
+```
+
+---
 
 ### `dial unix /run/user/1000/docker.sock: no such file or directory`
 

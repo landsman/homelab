@@ -1,13 +1,42 @@
 services:
-  supabase:
+  # build a custom runner image with the required tooling
+  custom-runner-nodejs:
     build: .
-    image: supabase-runner:latest
+    image: custom-runner-nodejs:${NODEJS_VERSION:-latest}
+    profiles: [nodejs]
+
+  # https://github.com/landsman/music
+  music:
+    image: custom-runner-nodejs:latest
     restart: always
+    # preserve=true keeps this container alive across `docker system prune`
+    # (see ../docker/docker-prune-guard.sh and ../docker/Makefile `prune` target)
+    labels:
+      preserve: "true"
     environment:
       RUNNER_SCOPE: repo
       REPO_URL: ${SUPABASE_REPO_URL}
       ACCESS_TOKEN: ${ACCESS_TOKEN}
       LABELS: self-hosted,pi5
       EPHEMERAL: "true"
+      DISABLE_AUTO_UPDATE: "true"
+    volumes:
+      - /run/user/1001/docker.sock:/var/run/docker.sock
+
+  # https://github.com/landsman/raspberry-pi
+  raspberry-pi:
+    image: custom-runner-nodejs:latest
+    restart: always
+    # preserve=true keeps this container alive across `docker system prune`
+    # (see ../docker/docker-prune-guard.sh and ../docker/Makefile `prune` target)
+    labels:
+      preserve: "true"
+    environment:
+      RUNNER_SCOPE: repo
+      REPO_URL: ${RASPBERRY_REPO_URL}
+      ACCESS_TOKEN: ${ACCESS_TOKEN}
+      LABELS: self-hosted,pi5
+      EPHEMERAL: "true"
+      DISABLE_AUTO_UPDATE: "true"
     volumes:
       - /run/user/1001/docker.sock:/var/run/docker.sock

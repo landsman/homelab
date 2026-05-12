@@ -1,4 +1,5 @@
 import { Tooltip } from '../../../app/components/tooltip'
+import { Image } from '../../../app/components/image'
 
 interface DragHandleProps extends React.HTMLAttributes<HTMLDivElement> {
   isAbsolute?: boolean
@@ -22,7 +23,7 @@ export function DragHandle({
         {...props}
         className="cursor-grab active:cursor-grabbing p-1.5 rounded-md touch-none text-[var(--text-muted)] hover:text-[var(--text-dim)] hover:bg-white/10 transition-colors bg-[var(--card)] pointer-events-auto"
       >
-        <img src="/icons/ui/drag-handle.svg" alt="" className="w-4 h-4 opacity-70 invert" />
+        <Image src="/icons/ui/drag-handle.svg" alt="" className="w-4 h-4 opacity-70 invert" />
       </div>
     </Tooltip>
   )

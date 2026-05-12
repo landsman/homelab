@@ -45,7 +45,7 @@ export function ConfigModal({ onClose }: ConfigModalProps) {
           </span>
           <button
             onClick={onClose}
-            className="text-[var(--text-muted)] hover:text-slate-300 transition-colors"
+            className="cursor-pointer text-[var(--text-muted)] hover:text-slate-300 transition-colors"
             aria-label="Close"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">

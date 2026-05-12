@@ -7,6 +7,7 @@ export const SERVICE_TYPE = {
   SLACK: 'slack',
   REDIRECT: 'redirect',
   SIMPLE_CHECK: 'simple-check',
+  UPTIME_KUMA: 'uptime-kuma',
 } as const
 
 export type ServiceType = (typeof SERVICE_TYPE)[keyof typeof SERVICE_TYPE]
@@ -28,9 +29,17 @@ export interface Service {
   versionPath?: string
   hiddenComponents?: string[]
   keywords?: string[]
+  uptimeKumaSlug?: string
 }
 
 export const SERVICES: Service[] = [
+  {
+    name: 'Codeberg',
+    url: 'https://status.codeberg.org',
+    type: SERVICE_TYPE.UPTIME_KUMA,
+    uptimeKumaSlug: 'codeberg',
+    keywords: ['git', 'codeberg', 'forgejo'],
+  },
   {
     name: 'GitHub',
     url: 'https://www.githubstatus.com',
@@ -129,10 +138,12 @@ export const SERVICES: Service[] = [
     icon: 'google-workspace',
     keywords: ['google', 'workspace', 'calendar', 'docs', 'drive', 'gmail', 'meet', 'chat'],
   },
+  // Tailscale uses incident.io for their status page, which exposes a Statuspage-compatible
+  // API at /api/v2/summary.json — same schema as Atlassian Statuspage, so ATLASSIAN type works.
   {
     name: 'Tailscale',
     url: 'https://status.tailscale.com',
-    type: SERVICE_TYPE.REDIRECT,
+    type: SERVICE_TYPE.ATLASSIAN,
     icon: 'tailscale',
     keywords: ['vpn', 'network', 'mesh'],
   },
@@ -177,5 +188,15 @@ export const SERVICES: Service[] = [
     type: SERVICE_TYPE.SIMPLE_CHECK,
     section: SERVICE_SECTION.HOMELAB,
     keywords: ['spotify', 'lastfm', 'mp3'],
+  },
+  {
+    name: 'YT Archive',
+    url: 'https://nas.dog-macaroni.ts.net/yt-archive/',
+    healthCheckUrl: 'https://nas.dog-macaroni.ts.net/yt-archive/version',
+    versionPath: 'version',
+    type: SERVICE_TYPE.SIMPLE_CHECK,
+    section: SERVICE_SECTION.HOMELAB,
+    icon: 'metube',
+    keywords: ['youtube', 'metube', 'download', 'archive'],
   },
 ]

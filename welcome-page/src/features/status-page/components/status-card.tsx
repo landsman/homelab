@@ -6,6 +6,7 @@ import { Tooltip } from '../../../app/components/tooltip'
 import { SERVICE_TYPE, type Service } from '../services'
 import { DragHandle } from './drag-handle'
 import { useRef, useCallback, useState, useEffect } from 'react'
+import { Image } from '../../../app/components/image'
 
 function RowSkeleton() {
   return (
@@ -130,7 +131,7 @@ export function StatusCard({ service, dragHandleProps }: StatusCardProps) {
             className="flex items-center gap-2.5 group min-w-0 flex-1"
             title={`Open ${name} status page`}
           >
-            <img
+            <Image
               src={`/icons/services/${iconSlug}.svg`}
               width={20}
               height={20}
@@ -150,7 +151,7 @@ export function StatusCard({ service, dragHandleProps }: StatusCardProps) {
                 v{data.version}
               </span>
             )}
-            <img
+            <Image
               src="/icons/ui/external-link.svg"
               alt=""
               className="w-[11px] h-[11px] text-[var(--text-muted)] group-hover:text-[var(--text-dim)] transition-colors shrink-0 opacity-50 invert"
@@ -287,7 +288,7 @@ export function StatusCard({ service, dragHandleProps }: StatusCardProps) {
               title="Refresh now"
               aria-label="Refresh"
             >
-              <img
+              <Image
                 src="/icons/ui/refresh.svg"
                 alt=""
                 className={`w-[11px] h-[11px] opacity-40 invert ${fetching || isRefreshing ? 'animate-spin' : ''}`}

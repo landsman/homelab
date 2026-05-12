@@ -1,12 +1,14 @@
 services:
   readeck:
-    image: codeberg.org/readeck/readeck:0.22.2
+    image: codeberg.org/readeck/readeck:0.22.3
     container_name: readeck
     restart: unless-stopped
     ports:
       - "8001:8000"
     volumes:
-      - readeck-data:/readeck
+      - data:/readeck
 
 volumes:
-  readeck-data:
+  data:
+    external: true
+    name: readeck_data

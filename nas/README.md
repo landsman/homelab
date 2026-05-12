@@ -147,8 +147,7 @@ sudo usermod -aG users pi
 
 ### Fan speed:
 
-If you use a better case or SSD with passive cooling, you probably don't have to boost fan so much as I did.
-I definitely want to replace or modify the case with a bigger one and add passive cooling on drives.
+This will keep the fan completely off until the Pi reaches 55°C, which is perfectly safe for the hardware.
 
 ```bash
 # nano /boot/firmware/config.txt
@@ -156,25 +155,43 @@ I definitely want to replace or modify the case with a bigger one and add passiv
 # improve fan speed
 dtoverlay=rpi-power-fan
 
-# 1st cooling level
-dtparam=fan_temp0=20000          # Temperature threshold (30°C) to start level 1 fan speed
-dtparam=fan_temp0_hyst=4000      # Hysteresis (4°C) for level 1
-dtparam=fan_temp0_speed=125      # Fan PWM speed (0-255) for level 1
+# 1st cooling level (Quiet start)
+dtparam=fan_temp0=55000          # Start fan at 55°C
+dtparam=fan_temp0_hyst=5000      # Stop fan when it drops to 50°C
+dtparam=fan_temp0_speed=75       # Low, barely audible whisper
 
-# 2nd cooling level
-dtparam=fan_temp1=30000          # Temperature threshold (60°C) to start level 2 fan speed
-dtparam=fan_temp1_hyst=5000      # Hysteresis (5°C) for level 2
-dtparam=fan_temp1_speed=155      # Fan PWM speed (0-255) for level 2
+# 2nd cooling level (Moderate)
+dtparam=fan_temp1=65000          # Increase speed at 65°C
+dtparam=fan_temp1_hyst=5000      # Drop back to level 1 at 60°C
+dtparam=fan_temp1_speed=125      # Medium speed
 
-# 3rd cooling level
-dtparam=fan_temp2=50000          # Temperature threshold (67.5°C) to start level 3 fan speed
-dtparam=fan_temp2_hyst=5000      # Hysteresis (5°C) for level 3
-dtparam=fan_temp2_speed=200      # Fan PWM speed (0-255) for level 3
+# 3rd cooling level (High Performance)
+dtparam=fan_temp2=72000          # Increase speed at 72°C
+dtparam=fan_temp2_hyst=5000      # Drop back to level 2 at 67°C
+dtparam=fan_temp2_speed=185      # High speed
 
-# 4th cooling level
-dtparam=fan_temp3=60000          # Temperature threshold (75°C) to start level 4 fan speed
-dtparam=fan_temp3_hyst=5000      # Hysteresis (5°C) for level 4
-dtparam=fan_temp3_speed=255      # Fan PWM speed (0-255) for level 4
+# 4th cooling level (Full Power)
+dtparam=fan_temp3=80000          # Max cooling at 80°C (thermal throttling limit)
+dtparam=fan_temp3_hyst=5000      # Drop back to level 3 at 75°C
+dtparam=fan_temp3_speed=255      # Full 100% speed
+```
+
+After changes, you have to reboot to apply them: `sudo reboot`.
+
+Monitoring:
+
+```bash
+# current fan speed
+cat /sys/devices/platform/cooling_fan/hwmon/*/fan1_input
+
+# current fan speed with 1s update
+watch -n 1 cat /sys/devices/platform/cooling_fan/hwmon/*/fan1_input
+
+# current fan level
+cat /sys/class/thermal/cooling_device0/cur_state
+
+# check cpu temperature and fan speed
+vcgencmd measure_temp | cut -d'=' -f2
 ```
 
 ### NAS

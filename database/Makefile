@@ -27,6 +27,7 @@ restore:
 	gunzip -c $(BACKUP_DIR)/$(FILE) | docker compose exec -T $(SERVICE) psql -U $(PG_USER)
 
 cron-install:
+	@mkdir -p $(BACKUP_DIR)
 	@crontab -l 2>/dev/null | grep -q "database.*make backup" \
 		&& (echo "Cron job already exists. To view: crontab -l | grep database" && exit 1) \
 		|| (crontab -l 2>/dev/null; echo "0 4 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -

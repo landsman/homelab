@@ -90,7 +90,7 @@ The trailing slash matters. The router basepath, asset URLs (`<Img>` component),
 
 ## Ports
 
-| Port          | Container | Notes                                        |
-| ------------- | --------- | -------------------------------------------- |
-| 8080          | 80        | nginx (LAN)                                  |
+| Port          | Container | Notes                                     |
+| ------------- | --------- | ----------------------------------------- |
+| 8080          | 80        | nginx (LAN)                               |
 | 443 (tailnet) | —         | `tailscale serve` → 8080 at `/dashboard/` |

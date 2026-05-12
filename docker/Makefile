@@ -37,6 +37,6 @@ cron-install: ## Install docker cron jobs (system prune, log rotation)
 	@( crontab -l 2>/dev/null \
 	     | grep -v "homelab/docker.*make prune" \
 	     | grep -v "homelab/docker.*make logrotate"; \
-	   echo "30 3 * * * cd $(PWD) && make prune"; \
-	   echo "0 1 * * 0 cd $(PWD) && make logrotate" ) | crontab -
+	   echo "30 3 * * * cd \"$(PWD)\" && make prune"; \
+	   echo "0 1 * * 0 cd \"$(PWD)\" && make logrotate" ) | crontab -
 	@echo "Cron jobs installed: prune (03:30 daily), logrotate (01:00 Sunday)."

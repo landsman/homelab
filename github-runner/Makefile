@@ -48,7 +48,7 @@ cron-install: ## Install all github-runner cron jobs (image prune, safe-restart,
 	     | grep -v "github-runner.*make prune" \
 	     | grep -v "github-runner.*make safe-restart" \
 	     | grep -v "github-runner.*make watchdog"; \
-	   echo "15 6 * * * cd $(PWD) && make prune"; \
-	   echo "30 */4 * * * cd $(PWD) && make safe-restart"; \
-	   echo "*/5 * * * * cd $(PWD) && make watchdog" ) | crontab -
+	   echo "15 6 * * * cd \"$(PWD)\" && make prune"; \
+	   echo "30 */4 * * * cd \"$(PWD)\" && make safe-restart"; \
+	   echo "*/5 * * * * cd \"$(PWD)\" && make watchdog" ) | crontab -
 	@echo "Cron jobs installed: image prune (06:15), safe-restart (every 4h at :30), watchdog (every 5min)."

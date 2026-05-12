@@ -14,10 +14,14 @@ flock -n 9 || { echo "$(date -Iseconds) another instance running, exit"; exit 0;
 [ -f .env ] && set -a && . ./.env && set +a
 
 : "${ACCESS_TOKEN:?ACCESS_TOKEN required}"
-: "${SUPABASE_REPO_URL:?SUPABASE_REPO_URL required}"
-: "${RASPBERRY_REPO_URL:?RASPBERRY_REPO_URL required}"
 
-REPOS=("$SUPABASE_REPO_URL" "$RASPBERRY_REPO_URL")
+# Auto-discover any env var ending in _REPO_URL (matches compose.yml convention).
+REPOS=()
+while IFS= read -r var; do
+  REPOS+=("${!var}")
+done < <(compgen -v | grep '_REPO_URL$' || true)
+[ "${#REPOS[@]}" -gt 0 ] || { echo "no *_REPO_URL vars found in .env"; exit 1; }
+
 STALE_SECS="${STALE_SECS:-120}"
 
 api() {
@@ -35,8 +39,9 @@ any_busy() {
   for url in "${REPOS[@]}"; do
     local slug; slug=$(repo_slug "$url")
     local n
+    # Fail-safe: on API/jq failure assume busy so we don't kill a running job.
     n=$(api "https://api.github.com/repos/$slug/actions/runners" \
-        | jq '[.runners[] | select(.busy == true)] | length') || n=0
+        | jq '[.runners[] | select(.busy == true)] | length') || return 0
     total=$((total + n))
   done
   [ "$total" -gt 0 ]

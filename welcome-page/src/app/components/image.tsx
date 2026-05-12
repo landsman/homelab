@@ -7,11 +7,11 @@ import { resolveAsset } from '../config/routing/base-path'
 // when the app is mounted at a subpath like /welcome-page/.
 //
 // Pass-through for absolute URLs (http://, https://, //, data:, blob:).
-export function Image({ src, ...rest }: ImgHTMLAttributes<HTMLImageElement>) {
+export function Image({ src, alt = '', ...rest }: ImgHTMLAttributes<HTMLImageElement>) {
   return (
     <img
       src={typeof src === 'string' && src.length > 0 ? resolveAsset(src) : src}
-      alt={rest?.alt ?? ''}
+      alt={alt}
       {...rest}
     />
   )

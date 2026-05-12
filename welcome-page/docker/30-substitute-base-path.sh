@@ -7,6 +7,15 @@ set -eu
 : "${BASE_PATH:=/}"
 : "${INDEX:=/usr/share/nginx/html/index.html}"
 
+# Whitelist safe URL-path chars. Anything else (quotes, brackets, backslashes,
+# whitespace) would break the JS string literal or invite injection.
+case "$BASE_PATH" in
+    *[!A-Za-z0-9/_.-]*)
+        echo "base-path: refusing unsafe BASE_PATH='$BASE_PATH'" >&2
+        exit 1
+        ;;
+esac
+
 # Escape sed delimiter '|' and '&' (special in replacement)
 ESCAPED=$(printf '%s\n' "$BASE_PATH" | sed 's/[|&]/\\&/g')
 

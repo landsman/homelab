@@ -45,6 +45,20 @@ run_case() {
     assert_contains "$label" "$index" "$expect"
 }
 
+assert_rejects() {
+    label=$1
+    base=$2
+    index="$TMPDIR/index.html"
+    fixture "$index"
+    if BASE_PATH="$base" INDEX="$index" sh "$TARGET" > /dev/null 2>&1; then
+        FAIL=$((FAIL + 1))
+        echo "  FAIL — $label (expected non-zero exit, got 0)"
+    else
+        PASS=$((PASS + 1))
+        echo "  ok  — $label"
+    fi
+}
+
 echo "substitute-base-path tests"
 
 # Default '/' → no-op rewrite (replaces / with /)
@@ -56,11 +70,14 @@ assert_contains "default BASE_PATH is no-op" "$index" "window.__BASE_PATH__ = '/
 # Subpath → clean output, no escaped slashes
 run_case "subpath rewrites cleanly" "/welcome-page/" "window.__BASE_PATH__ = '/welcome-page/';"
 
-# '&' in path → must be escaped (literal & in HTML, not sed backref)
-run_case "ampersand stays literal" "/a&b/" "window.__BASE_PATH__ = '/a&b/';"
-
-# '|' (sed delimiter) → must be escaped, ends up literal in HTML
-run_case "pipe in path stays literal" "/a|b/" "window.__BASE_PATH__ = '/a|b/';"
+# Validation: unsafe chars must be rejected before any rewrite happens.
+assert_rejects "rejects single quote" "/a'b/"
+assert_rejects "rejects double quote" '/a"b/'
+assert_rejects "rejects backslash"    '/a\b/'
+assert_rejects "rejects angle bracket" "/a<b/"
+assert_rejects "rejects ampersand"    "/a&b/"
+assert_rejects "rejects pipe"         "/a|b/"
+assert_rejects "rejects whitespace"   "/a b/"
 
 echo
 echo "passed: $PASS  failed: $FAIL"

@@ -79,15 +79,16 @@ There's a [known upstream bug](https://github.com/actions/runner/issues/1887) wh
 **Install crons** (Pi):
 
 ```bash
-make cron-install-watchdog
+make cron-install
 ```
 
-Installs:
+Installs all github-runner cron jobs in one shot:
 
-- `0 4 * * *` → `make safe-restart` — daily preventative cycle, skipped if a job is running
+- `15 6 * * *` → `make prune` — daily image prune (>48h unused)
+- `30 */4 * * *` → `make safe-restart` — every 4h preventative cycle, skipped if a job is running
 - `*/5 * * * *` → `make watchdog` — every 5 min, cycles only if a stale queue is detected
 
-Logs go to `~/logs/docker/github-runner-watchdog.log`.
+Logs go to `~/logs/docker/github-runner-watchdog.log`. Inspect cycle activity with `make watchdog-stats`. Logs are rotated weekly by `make -C ../docker cron-install`.
 
 **Dependencies on the Pi:**
 

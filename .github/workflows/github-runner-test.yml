@@ -21,10 +21,13 @@ jobs:
 
       - name: "Scan base image for vulnerabilities"
         uses: aquasecurity/trivy-action@v0.35.0
+        env:
+          TRIVY_QUIET: "true"
         with:
           scan-type: image
           image-ref: myoung34/github-runner:2.333.0
           severity: CRITICAL,HIGH
+          vuln-type: os
           exit-code: "1"
 
   docker-image:

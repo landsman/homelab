@@ -15,6 +15,7 @@ FAIL=0
 fixture() {
     cat > "$1" <<'EOF'
 <!doctype html>
+<base href="/">
 <script>window.__BASE_PATH__ = '/';</script>
 EOF
 }
@@ -65,10 +66,15 @@ echo "substitute-base-path tests"
 index="$TMPDIR/index.html"
 fixture "$index"
 INDEX="$index" sh "$TARGET" > /dev/null
-assert_contains "default BASE_PATH is no-op" "$index" "window.__BASE_PATH__ = '/';"
+assert_contains "default BASE_PATH no-op (__BASE_PATH__)" "$index" "window.__BASE_PATH__ = '/';"
+assert_contains "default BASE_PATH no-op (<base>)" "$index" '<base href="/">'
 
-# Subpath → clean output, no escaped slashes
-run_case "subpath rewrites cleanly" "/welcome-page/" "window.__BASE_PATH__ = '/welcome-page/';"
+# Subpath rewrites both tokens
+run_case "subpath rewrites __BASE_PATH__" "/welcome-page/" "window.__BASE_PATH__ = '/welcome-page/';"
+index="$TMPDIR/index.html"
+fixture "$index"
+BASE_PATH="/welcome-page/" INDEX="$index" sh "$TARGET" > /dev/null
+assert_contains "subpath rewrites <base>" "$index" '<base href="/welcome-page/">'
 
 # Validation: unsafe chars must be rejected before any rewrite happens.
 assert_rejects "rejects single quote" "/a'b/"

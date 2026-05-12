@@ -21,7 +21,10 @@ ESCAPED=$(printf '%s\n' "$BASE_PATH" | sed 's/[|&]/\\&/g')
 
 # Portable in-place edit (BSD vs GNU sed differ on `-i` syntax).
 TMP="${INDEX}.tmp"
-sed "s|window.__BASE_PATH__ = '/';|window.__BASE_PATH__ = '${ESCAPED}';|" "$INDEX" > "$TMP"
+sed \
+    -e "s|window.__BASE_PATH__ = '/';|window.__BASE_PATH__ = '${ESCAPED}';|" \
+    -e "s|<base href=\"/\">|<base href=\"${ESCAPED}\">|" \
+    "$INDEX" > "$TMP"
 mv "$TMP" "$INDEX"
 
-echo "base-path: rewrote window.__BASE_PATH__ → '${BASE_PATH}'"
+echo "base-path: rewrote <base href> + __BASE_PATH__ → '${BASE_PATH}'"

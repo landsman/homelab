@@ -1,15 +1,15 @@
-name: "welcome-page release"
+name: "dashboard release"
 
 on:
   workflow_dispatch:
   push:
     branches: [master]
     paths:
-      - 'welcome-page/**'
+      - 'dashboard/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/homelab-status
+  IMAGE_NAME: ${{ github.repository_owner }}/homelab-dashboard
 
 jobs:
   release:
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: welcome-page
+        working-directory: dashboard
 
     steps:
       - uses: actions/checkout@v6

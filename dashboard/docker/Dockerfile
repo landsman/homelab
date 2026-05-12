@@ -15,7 +15,7 @@ RUN make build
 FROM nginx:alpine AS runner
 
 # Runtime subpath the app is mounted at. '/' serves at root.
-# Override at container start: `docker run -e BASE_PATH=/welcome-page/ ...`
+# Override at container start: `docker run -e BASE_PATH=/dashboard/ ...`
 # Applied once at boot by docker/30-substitute-base-path.sh.
 ENV BASE_PATH=/
 

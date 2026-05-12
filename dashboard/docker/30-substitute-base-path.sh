@@ -1,7 +1,7 @@
 #!/bin/sh
 # Substitute BASE_PATH into index.html once at container start. Runs from
 # nginx:alpine's /docker-entrypoint.d/ hook before nginx itself boots.
-# Default '/' is a no-op; override e.g. BASE_PATH=/welcome-page/ in compose.
+# Default '/' is a no-op; override e.g. BASE_PATH=/dashboard/ in compose.
 set -eu
 
 : "${BASE_PATH:=/}"

@@ -1,5 +1,5 @@
-IMAGE          := welcome-page
-REGISTRY_IMAGE ?= ghcr.io/landsman/homelab-status
+IMAGE          := homelab-dashboard
+REGISTRY_IMAGE ?= ghcr.io/landsman/homelab-dashboard
 TAG            ?= latest
 PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
@@ -95,7 +95,7 @@ logs: ## Follow Compose logs
 .PHONY: serve unserve serve-status
 
 LOCAL_PORT ?= 8080
-SERVE_PATH ?= /welcome-page
+SERVE_PATH ?= /dashboard
 
 # Requires one-time `sudo tailscale set --operator=containers` so this user
 # can run `tailscale serve` without sudo.

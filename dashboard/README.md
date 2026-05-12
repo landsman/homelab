@@ -1,4 +1,4 @@
-# Welcome Page
+# Dashboard
 
 Homelab status dashboard served on a Raspberry Pi. Displays real-time status for external services and homelab infrastructure.
 
@@ -71,7 +71,7 @@ make unserve       # stop publishing
 UI:
 
 - LAN: `http://<pi-host>:8080`
-- Tailscale (HTTPS, no port): `https://<pi-host>.<tailnet>.ts.net/welcome-page/`
+- Tailscale (HTTPS, no port): `https://<pi-host>.<tailnet>.ts.net/dashboard/`
 - Cloudflare Tunnel: existing subdomain
 
 ### Runtime base path (`BASE_PATH`)
@@ -82,8 +82,8 @@ The image is path-agnostic: assets are built with relative URLs and the SPA read
 # default — serve at root
 docker compose up -d
 
-# mount under /welcome-page/ (matches `make serve` above)
-BASE_PATH=/welcome-page/ docker compose up -d
+# mount under /dashboard/ (matches `make serve` above)
+BASE_PATH=/dashboard/ docker compose up -d
 ```
 
 The trailing slash matters. The router basepath, asset URLs (`<Img>` component), and proxy fetch paths all derive from this value, so a single image can be repointed without rebuilding. Upstream proxies (tailscale, cloudflare) must either preserve or strip the prefix consistently with what `BASE_PATH` is set to.
@@ -93,4 +93,4 @@ The trailing slash matters. The router basepath, asset URLs (`<Img>` component),
 | Port          | Container | Notes                                        |
 | ------------- | --------- | -------------------------------------------- |
 | 8080          | 80        | nginx (LAN)                                  |
-| 443 (tailnet) | —         | `tailscale serve` → 8080 at `/welcome-page/` |
+| 443 (tailnet) | —         | `tailscale serve` → 8080 at `/dashboard/` |

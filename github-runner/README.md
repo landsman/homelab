@@ -65,6 +65,40 @@ Pi (Docker only)
 
 The `EPHEMERAL=true` env var tells the runner to deregister itself after a single job, ensuring a clean environment for every run.
 
+## Watchdog (recover from stalled job pickup)
+
+There's a [known upstream bug](https://github.com/actions/runner/issues/1887) where ephemeral self-hosted runners stay listed as "Idle" on GitHub but stop receiving dispatched jobs. The only confirmed workaround is to restart the runner. This repo ships a watchdog that automates it.
+
+**Components:**
+
+- [`runner-ctl.sh`](./runner-ctl.sh) — queries the GitHub API and decides whether to cycle the runners
+- `make cycle` — `down + up` without rebuild (faster than `make restart`)
+- `make safe-restart` — cycles only if no runner is `busy=true`; safe to run unattended
+- `make watchdog` — cycles only if the queue has runs older than `STALE_SECS` (default 120s) **and** no runner is busy
+
+**Install crons** (Pi):
+
+```bash
+make cron-install-watchdog
+```
+
+Installs:
+
+- `0 4 * * *` → `make safe-restart` — daily preventative cycle, skipped if a job is running
+- `*/5 * * * *` → `make watchdog` — every 5 min, cycles only if a stale queue is detected
+
+Logs go to `~/logs/docker/github-runner-watchdog.log`.
+
+**Dependencies on the Pi:**
+
+```bash
+sudo apt-get install -y jq
+```
+
+`curl`, `flock`, and `make` are already present on standard Raspberry Pi OS.
+
+**Tuning:** override `STALE_SECS` per invocation, e.g. `STALE_SECS=300 make watchdog`.
+
 ## Surviving `docker system prune`
 
 Ephemeral runners briefly enter "stopped" state between jobs, so a raw `docker system prune` will sweep them mid-cycle. Both runner services carry the `preserve=true` label in `compose.yml`, which is honored by:

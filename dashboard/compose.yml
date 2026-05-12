@@ -1,6 +1,6 @@
 services:
   web:
-    image: ${REGISTRY_IMAGE:-homelab-dashboard}:${TAG:-latest}
+    image: ${REGISTRY_IMAGE:-ghcr.io/landsman/homelab-dashboard}:${TAG:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile

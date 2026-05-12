@@ -1,4 +1,4 @@
-name: "dashboard release"
+name: "dashboard cd"
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/homelab-dashboard
 
 jobs:
-  release:
+  docker:
     # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
     runs-on: [self-hosted, pi5]
     permissions:

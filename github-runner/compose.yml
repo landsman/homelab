@@ -19,6 +19,7 @@ services:
       ACCESS_TOKEN: ${ACCESS_TOKEN}
       LABELS: self-hosted,pi5
       EPHEMERAL: "true"
+      DISABLE_AUTO_UPDATE: "true"
     volumes:
       - /run/user/1001/docker.sock:/var/run/docker.sock
 
@@ -36,5 +37,6 @@ services:
       ACCESS_TOKEN: ${ACCESS_TOKEN}
       LABELS: self-hosted,pi5
       EPHEMERAL: "true"
+      DISABLE_AUTO_UPDATE: "true"
     volumes:
       - /run/user/1001/docker.sock:/var/run/docker.sock

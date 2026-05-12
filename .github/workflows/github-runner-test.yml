@@ -14,13 +14,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: "Scan Dockerfile for misconfigurations"
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: github-runner/Dockerfile
 
       - name: "Scan base image for vulnerabilities"
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         env:
           TRIVY_QUIET: "true"
         with:

@@ -1,9 +1,9 @@
 # Project Rules for Claude
 
 ## Stack
-- **welcome-page**: Vite + React + TypeScript + Tailwind CSS
+- **dashboard**: Vite + React + TypeScript + Tailwind CSS
 - Always use **TypeScript** — never plain JS for new code
-- Use `make` targets, never raw `npm` commands — see `welcome-page/Makefile` for all targets
+- Use `make` targets, never raw `npm` commands — see `dashboard/Makefile` for all targets
 - Run `make typecheck` to verify types, `make format` to format after edits
 - Common targets: `make dev`, `make build`, `make qa`, `make docker-build`, `make typecheck`
 
@@ -69,4 +69,4 @@
 - Docker: multi-stage build (`node:20-alpine` → `nginx:alpine`)
 - Target: `linux/arm64` (Raspberry Pi)
 - `make docker-build` to build the image
-- GitHub Actions: `.github/workflows/welcome-page-build.yml`
+- GitHub Actions: `.github/workflows/dashboard-build.yml`

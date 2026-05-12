@@ -70,11 +70,11 @@ assert_contains "default BASE_PATH no-op (__BASE_PATH__)" "$index" "window.__BAS
 assert_contains "default BASE_PATH no-op (<base>)" "$index" '<base href="/">'
 
 # Subpath rewrites both tokens
-run_case "subpath rewrites __BASE_PATH__" "/welcome-page/" "window.__BASE_PATH__ = '/welcome-page/';"
+run_case "subpath rewrites __BASE_PATH__" "/dashboard/" "window.__BASE_PATH__ = '/dashboard/';"
 index="$TMPDIR/index.html"
 fixture "$index"
-BASE_PATH="/welcome-page/" INDEX="$index" sh "$TARGET" > /dev/null
-assert_contains "subpath rewrites <base>" "$index" '<base href="/welcome-page/">'
+BASE_PATH="/dashboard/" INDEX="$index" sh "$TARGET" > /dev/null
+assert_contains "subpath rewrites <base>" "$index" '<base href="/dashboard/">'
 
 # Validation: unsafe chars must be rejected before any rewrite happens.
 assert_rejects "rejects single quote" "/a'b/"

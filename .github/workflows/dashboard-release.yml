@@ -1,18 +1,18 @@
-name: "welcome-page release"
+name: "dashboard cd"
 
 on:
   workflow_dispatch:
   push:
     branches: [master]
     paths:
-      - 'welcome-page/**'
+      - 'dashboard/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/homelab-status
+  IMAGE_NAME: ${{ github.repository_owner }}/homelab-dashboard
 
 jobs:
-  release:
+  docker:
     # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
     runs-on: [self-hosted, pi5]
     permissions:
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: welcome-page
+        working-directory: dashboard
 
     steps:
       - uses: actions/checkout@v6

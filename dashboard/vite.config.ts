@@ -5,7 +5,7 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import { buildProxies } from './src/proxy.config'
 
 // Use relative asset URLs so the same build can be mounted under any subpath
-// (tailscale serve `/welcome-page`, cloudflare tunnel, etc.). Runtime base
+// (tailscale serve `/dashboard`, cloudflare tunnel, etc.). Runtime base
 // path is injected into index.html as `window.__BASE_PATH__`.
 export default defineConfig({
   base: './',

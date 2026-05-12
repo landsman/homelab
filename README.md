@@ -9,7 +9,7 @@ Playground for my local homelab.
 
 ## Apps
 
-- [Welcome Page](welcome-page) as the default dashboard when opening a new browser tab ([extension](https://chromewebstore.google.com/detail/simple-new-tab-url/pkklffjkfmhpoiepobbldnadjflciinb))
+- [Dashboard](dashboard) as the default dashboard when opening a new browser tab ([extension](https://chromewebstore.google.com/detail/simple-new-tab-url/pkklffjkfmhpoiepobbldnadjflciinb))
 - [Rootless Docker](docker)
 - [Self-hosted GitHub runner](github-runner) for safe deployments using whitelisted IPs
 - [Forgejo](forgejo) amazing GitHub alternative

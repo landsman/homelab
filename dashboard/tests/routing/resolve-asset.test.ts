@@ -43,18 +43,18 @@ describe('resolveAsset', () => {
 
   describe('at a subpath', () => {
     it('rewrites a root-absolute path under the subpath', async () => {
-      const { resolveAsset } = await loadWithBase('/welcome-page/')
-      expect(resolveAsset('/icons/ui/refresh.svg')).toBe('/welcome-page/icons/ui/refresh.svg')
+      const { resolveAsset } = await loadWithBase('/dashboard/')
+      expect(resolveAsset('/icons/ui/refresh.svg')).toBe('/dashboard/icons/ui/refresh.svg')
     })
 
     it('rewrites a bare path under the subpath', async () => {
-      const { resolveAsset } = await loadWithBase('/welcome-page/')
-      expect(resolveAsset('icons/ui/refresh.svg')).toBe('/welcome-page/icons/ui/refresh.svg')
+      const { resolveAsset } = await loadWithBase('/dashboard/')
+      expect(resolveAsset('icons/ui/refresh.svg')).toBe('/dashboard/icons/ui/refresh.svg')
     })
 
     it('appends a missing trailing slash to the base', async () => {
-      const { resolveAsset } = await loadWithBase('/welcome-page')
-      expect(resolveAsset('/icons/x.svg')).toBe('/welcome-page/icons/x.svg')
+      const { resolveAsset } = await loadWithBase('/dashboard')
+      expect(resolveAsset('/icons/x.svg')).toBe('/dashboard/icons/x.svg')
     })
   })
 
@@ -66,7 +66,7 @@ describe('resolveAsset', () => {
       'data:image/svg+xml,<svg/>',
       'blob:https://example.com/abc',
     ])('%s', async url => {
-      const { resolveAsset } = await loadWithBase('/welcome-page/')
+      const { resolveAsset } = await loadWithBase('/dashboard/')
       expect(resolveAsset(url)).toBe(url)
     })
   })
@@ -87,7 +87,7 @@ describe('resolveAsset', () => {
   })
 
   it('strips trailing slash for ROUTER_BASEPATH', async () => {
-    const { ROUTER_BASEPATH } = await loadWithBase('/welcome-page/')
-    expect(ROUTER_BASEPATH).toBe('/welcome-page')
+    const { ROUTER_BASEPATH } = await loadWithBase('/dashboard/')
+    expect(ROUTER_BASEPATH).toBe('/dashboard')
   })
 })

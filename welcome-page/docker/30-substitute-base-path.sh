@@ -7,8 +7,8 @@ set -eu
 : "${BASE_PATH:=/}"
 INDEX=/usr/share/nginx/html/index.html
 
-# Escape '/' for sed
-ESCAPED=$(printf '%s\n' "$BASE_PATH" | sed 's/[\/&]/\\&/g')
+# Escape sed delimiter '|' and '&' (special in replacement)
+ESCAPED=$(printf '%s\n' "$BASE_PATH" | sed 's/[|&]/\\&/g')
 
 sed -i "s|window.__BASE_PATH__ = '/';|window.__BASE_PATH__ = '${ESCAPED}';|" "$INDEX"
 

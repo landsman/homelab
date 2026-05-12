@@ -1,5 +1,5 @@
 # ── Stage 1: build ──────────────────────────────────────────────────────────
-FROM --platform=$BUILDPLATFORM node:25-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:26-alpine AS builder
 
 RUN apk add --no-cache make
 

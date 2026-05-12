@@ -95,7 +95,7 @@ SERVE_PATH ?= /welcome-page
 # Requires one-time `sudo tailscale set --operator=containers` so this user
 # can run `tailscale serve` without sudo.
 serve: ## Publish over tailnet HTTPS at $(SERVE_PATH)
-	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)$(SERVE_PATH)
+	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)
 
 unserve: ## Stop publishing over tailnet
 	tailscale serve --https=443 --set-path=$(SERVE_PATH) off

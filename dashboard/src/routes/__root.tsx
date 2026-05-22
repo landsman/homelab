@@ -7,6 +7,7 @@ import { SearchProvider } from '../features/search/search-context'
 import { useHotkey } from '../app/hooks/use-hotkey'
 import { ROUTES } from '../app/routes'
 import { Hotkey } from '../features/common/hotkey/hotkey.ts'
+import { NavProgressBar } from '../features/common/nav-progress/nav-progress-bar'
 
 function RootLayout() {
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -23,6 +24,7 @@ function RootLayout() {
 
   return (
     <SearchProvider>
+      <NavProgressBar />
       <div className="min-h-screen flex flex-col">
         <div className="w-full flex-1 flex flex-col">
           <Header onSettingsClick={() => setSettingsOpen(true)} />

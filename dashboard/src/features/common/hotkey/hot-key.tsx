@@ -6,18 +6,25 @@ interface HotKeyProps {
   className?: string
   /** Whether holding Shift "arms" this hotkey — drives the pop-up highlight. Default true. */
   requiresShift?: boolean
+  /** Force the popped/active styling regardless of Shift (e.g. while the hotkey is firing). */
+  forceActive?: boolean
 }
 
-export function HotKey({ children, className, requiresShift = true }: HotKeyProps) {
+export function HotKey({
+  children,
+  className,
+  requiresShift = true,
+  forceActive = false,
+}: HotKeyProps) {
   const shiftDown = useShiftKey()
-  const active = requiresShift && shiftDown
+  const active = forceActive || (requiresShift && shiftDown)
 
   return (
     <kbd
       className={cn(
-        'inline-flex items-center justify-center font-mono leading-none rounded px-1.5 py-0.5 transition-all duration-150 ease-out will-change-transform',
+        'inline-flex items-center justify-center font-mono leading-none rounded px-1.5 py-0.5 origin-top-right will-change-transform transition-[transform,background-color,color,border-color,box-shadow,opacity] duration-100 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
         active
-          ? 'bg-white/95 text-slate-900 border border-slate-400 shadow-[0_10px_24px_-4px_rgba(0,0,0,0.7),0_4px_8px_-2px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.15)] scale-125 -translate-y-0.5'
+          ? 'bg-white/95 text-slate-900 border border-slate-400 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.65),0_3px_6px_-2px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.15)] scale-[1.15]'
           : 'text-(--text-muted) border border-transparent [text-shadow:0_1px_1px_rgba(0,0,0,1)]',
         className
       )}

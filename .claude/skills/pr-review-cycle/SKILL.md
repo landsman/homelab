@@ -87,20 +87,20 @@ Use the GraphQL API to fetch review threads with their resolution state:
 
 ```bash
 gh api graphql -f query='
-{
-  repository(owner: "<owner>", name: "<repo>") {
-    pullRequest(number: <pr>) {
+query($owner: String!, $repo: String!, $pr: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $pr) {
       reviewThreads(first: 30) {
         nodes {
           id isResolved path line
-          comments(first: 5) {
+          comments(first: 20) {
             nodes { id author { login } body commit { oid } createdAt }
           }
         }
       }
     }
   }
-}'
+}' -F owner="<owner>" -F repo="<repo>" -F pr=<pr>
 ```
 
 For each **open** thread authored by `gemini-code-assist`:

@@ -7,7 +7,7 @@ interface FooterProps {
 export function Footer({ onSettingsClick }: FooterProps) {
   return (
     <footer className="px-6 md:px-8 pb-8 flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity">
         <Tooltip content="Settings — change timezone, locale and other preferences" placement="top">
           <button
             onClick={onSettingsClick}
@@ -29,6 +29,32 @@ export function Footer({ onSettingsClick }: FooterProps) {
               />
             </svg>
           </button>
+        </Tooltip>
+        <Tooltip
+          content="Hold Shift to reveal keyboard shortcuts, then press Shift + the highlighted letter or digit to open that service."
+          placement="top"
+        >
+          <span
+            className="flex flex-col items-center group cursor-help"
+            tabIndex={0}
+            role="button"
+            aria-label="Keyboard shortcut help"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+              className="text-[var(--text-muted)] group-hover:text-slate-300 transition-colors shrink-0"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm.75-3.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zM7.5 8a2.5 2.5 0 1 1 3.7 2.196c-.45.25-.95.65-.95 1.304v.5a.75.75 0 0 1-1.5 0V11.5c0-1.16.81-1.87 1.314-2.15A1 1 0 1 0 9 8.5a.75.75 0 0 1-1.5 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </span>
         </Tooltip>
       </div>
 

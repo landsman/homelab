@@ -1,4 +1,5 @@
 import { HotKey } from '../../common/hotkey/hot-key.tsx'
+import { formatHotkeyLabel } from '../../common/hotkey/hotkey.ts'
 import { HomeService } from '../data/services.types.ts'
 import { ServiceIcon } from './service-icon.tsx'
 
@@ -18,8 +19,8 @@ export function ServiceCard({ service }: ServiceCardProps) {
       <ServiceIcon service={service} />
 
       {service.shortcut && (
-        <HotKey className="hidden md:block absolute top-2 right-2 text-[11px] uppercase">
-          {service.shortcut}
+        <HotKey className="hidden md:inline-flex absolute top-2 right-2 text-[11px] uppercase">
+          {formatHotkeyLabel(service.shortcut)}
         </HotKey>
       )}
 

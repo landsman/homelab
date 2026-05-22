@@ -13,11 +13,11 @@ function RootLayout() {
   const navigate = useNavigate()
 
   useHotkey(
-    Hotkey.ONE,
+    Hotkey.SHIFT_ONE,
     useCallback(() => navigate({ to: ROUTES.home }), [navigate])
   )
   useHotkey(
-    Hotkey.TWO,
+    Hotkey.SHIFT_TWO,
     useCallback(() => navigate({ to: ROUTES.status }), [navigate])
   )
 

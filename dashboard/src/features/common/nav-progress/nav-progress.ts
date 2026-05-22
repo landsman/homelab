@@ -5,7 +5,7 @@ export interface NavState {
   serviceName: string | null
 }
 
-const SAFETY_TIMEOUT_MS = 8000
+const SAFETY_TIMEOUT_MS = 5000
 
 let state: NavState = { active: false, serviceName: null }
 const subscribers = new Set<() => void>()

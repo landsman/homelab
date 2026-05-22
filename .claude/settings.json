@@ -8,9 +8,7 @@
       "Bash(make ci)",
       "Bash(make help)",
       "Bash(make install)",
-      "Bash(make test)",
-      "Bash(npm test)",
-      "Bash(npm run typecheck)"
+      "Bash(make test)"
     ]
   }
 }

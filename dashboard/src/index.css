@@ -127,6 +127,20 @@ body::before {
   animation: fadeIn 0.35s ease-out forwards;
 }
 
+/* Top navigation progress bar — fills 0 -> 92% while the browser is loading. */
+@keyframes navProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 92%;
+  }
+}
+
+.nav-progress {
+  animation: navProgress 1s ease-out forwards;
+}
+
 /* Loading border animation */
 @keyframes rotate {
   from {

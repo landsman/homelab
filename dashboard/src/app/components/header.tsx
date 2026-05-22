@@ -78,7 +78,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
               aria-current={pathname === ROUTES.home ? 'page' : undefined}
             >
               Home
-              <HotKey className="absolute top-1 right-1.5 text-[10px]">1</HotKey>
+              <HotKey className="absolute top-1 right-1.5 origin-top-right text-[10px]">1</HotKey>
             </Link>
             <Link
               to={ROUTES.status}
@@ -91,7 +91,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
               aria-current={pathname === ROUTES.status ? 'page' : undefined}
             >
               Status
-              <HotKey className="absolute top-1 right-1.5 text-[10px]">2</HotKey>
+              <HotKey className="absolute top-1 right-1.5 origin-top-right text-[10px]">2</HotKey>
             </Link>
           </nav>
 

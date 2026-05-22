@@ -1,4 +1,5 @@
 import { Tooltip } from './tooltip'
+import { Image } from './image'
 
 interface FooterProps {
   onSettingsClick: () => void
@@ -7,7 +8,7 @@ interface FooterProps {
 export function Footer({ onSettingsClick }: FooterProps) {
   return (
     <footer className="px-6 md:px-8 pb-8 flex flex-col items-center gap-4">
-      <div className="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-opacity">
         <Tooltip content="Settings — change timezone, locale and other preferences" placement="top">
           <button
             onClick={onSettingsClick}
@@ -28,6 +29,22 @@ export function Footer({ onSettingsClick }: FooterProps) {
                 clipRule="evenodd"
               />
             </svg>
+          </button>
+        </Tooltip>
+        <Tooltip
+          content="Hold Shift to reveal keyboard shortcuts, then press Shift + the highlighted letter or digit to open that service."
+          placement="top"
+        >
+          <button
+            type="button"
+            className="flex flex-col items-center group cursor-help"
+            aria-label="Keyboard shortcut help"
+          >
+            <Image
+              src="/icons/ui/help.svg"
+              alt="Help"
+              className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 invert transition-opacity shrink-0"
+            />
           </button>
         </Tooltip>
       </div>

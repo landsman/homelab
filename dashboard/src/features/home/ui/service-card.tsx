@@ -30,7 +30,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
       {service.shortcut && (
         <HotKey
           forceActive={isFiring}
-          className="hidden md:inline-flex absolute top-2 right-2 text-[11px] uppercase"
+          className="hidden md:inline-flex absolute top-2 right-2 origin-top-right text-[11px] uppercase"
         >
           {formatHotkeyLabel(service.shortcut)}
         </HotKey>

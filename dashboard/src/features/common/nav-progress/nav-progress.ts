@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 export interface NavState {
   active: boolean
   serviceName: string | null
 }
 
-type Listener = (s: NavState) => void
-
 const SAFETY_TIMEOUT_MS = 8000
 
 let state: NavState = { active: false, serviceName: null }
-const listeners = new Set<Listener>()
+const subscribers = new Set<() => void>()
 let safetyTimer: ReturnType<typeof setTimeout> | null = null
 let listenersInstalled = false
 
 function notify() {
-  for (const l of listeners) l(state)
+  for (const cb of subscribers) cb()
 }
 
 function installWindowListeners() {
@@ -54,15 +52,18 @@ export function finishNavigation() {
   notify()
 }
 
+function subscribe(cb: () => void): () => void {
+  subscribers.add(cb)
+  return () => {
+    subscribers.delete(cb)
+  }
+}
+
+function getSnapshot(): NavState {
+  return state
+}
+
 /** Subscribe to the global nav-progress state. */
 export function useNavProgress(): NavState {
-  const [s, set] = useState(state)
-  useEffect(() => {
-    listeners.add(set)
-    set(state)
-    return () => {
-      listeners.delete(set)
-    }
-  }, [])
-  return s
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 }

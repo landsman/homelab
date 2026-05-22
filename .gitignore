@@ -1,3 +1,8 @@
 .idea/*
 !.idea/prettier.xml
 .playwright-mcp
+
+# Claude Code — keep shared config (settings.json, settings.template.json, skills/),
+# ignore per-user / runtime files.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

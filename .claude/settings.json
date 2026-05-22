@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make format)",
+      "Bash(make typecheck)",
+      "Bash(make build)",
+      "Bash(make qa)",
+      "Bash(make ci)",
+      "Bash(make help)",
+      "Bash(make install)",
+      "Bash(make test)"
+    ]
+  }
+}

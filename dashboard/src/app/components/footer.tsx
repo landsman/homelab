@@ -35,18 +35,17 @@ export function Footer({ onSettingsClick }: FooterProps) {
           content="Hold Shift to reveal keyboard shortcuts, then press Shift + the highlighted letter or digit to open that service."
           placement="top"
         >
-          <span
+          <button
+            type="button"
             className="flex flex-col items-center group cursor-help"
-            tabIndex={0}
-            role="button"
             aria-label="Keyboard shortcut help"
           >
             <Image
               src="/icons/ui/help.svg"
-              alt=""
+              alt="Help"
               className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 invert transition-opacity shrink-0"
             />
-          </span>
+          </button>
         </Tooltip>
       </div>
 

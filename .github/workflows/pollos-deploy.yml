@@ -1,0 +1,63 @@
+name: Deploy pollos.cz
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'microsite/pollos_cz/**'
+      - '.github/workflows/pollos-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      content: ${{ steps.filter.outputs.content }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'microsite/pollos_cz/infra/**'
+              - '.github/workflows/pollos-deploy.yml'
+            content:
+              - 'microsite/pollos_cz/public/**'
+
+  infra:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: microsite/pollos_cz/infra
+    env:
+      TF_VAR_cloudflare_api_token: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
+      TF_VAR_cloudflare_account_id: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
+      TF_VAR_cloudflare_zone_id: ${{ vars.POLLOS_CZ_CF_ZONE_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.POLLOS_CZ_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.POLLOS_CZ_R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
+      - run: terraform apply -auto-approve
+
+  content:
+    needs: [changes, infra]
+    if: |
+      always() &&
+      (needs.infra.result == 'success' || needs.infra.result == 'skipped') &&
+      (needs.changes.outputs.content == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy microsite/pollos_cz/public --project-name=pollos-cz --branch=main

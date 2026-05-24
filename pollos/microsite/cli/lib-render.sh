@@ -6,6 +6,12 @@
 # Everything else (lang, robots, OG, description, favicons, stylesheet)
 # is hardcoded in templates/layout.html.
 
+# bash 5.2 enabled patsub_replacement by default — `&` in the replacement of
+# ${var//pat/repl} then expands to the matched text. Our CONTENT contains
+# HTML entities like &amp;, so every `&` would become `{{CONTENT}}`.
+# Older bash ignores the unknown shopt.
+shopt -u patsub_replacement 2>/dev/null || true
+
 render_page() {
   local title="" content="" out=""
 

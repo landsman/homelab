@@ -8,6 +8,11 @@
     <meta name="google" content="notranslate" />
     <meta name="robots" content="notranslate" />
 
+    <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" />
+
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.pollos.cz/" />
     <meta property="og:title" content="Los Pollos Hermanos" />
@@ -44,6 +49,17 @@
         max-width: 60vw;
         height: auto;
         cursor: pointer;
+        will-change: transform;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+      @media (max-width: 768px) {
+        body {
+          margin: 0;
+          border-radius: 0;
+          min-height: 100vh;
+        }
       }
     </style>
   </head>

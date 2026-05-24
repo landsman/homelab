@@ -67,9 +67,12 @@ setup_items=""
 aliases=()
 while IFS= read -r f; do
   if [[ "${f}" == *.sh ]]; then
-    # Strip leading "NNN-" and ".sh" → alias.
-    alias="$(basename "${f}" .sh | sed -E 's/^[0-9]+-//')"
-    setup_items+="<li><a href=\"${f}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
+    # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
+    alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
+    # hx-boost="false" → htmx-boosted body must not intercept these; browser
+    # navigates to raw text/plain script (otherwise htmx tries to swap script
+    # source into the page).
+    setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a><a class=\"alias\" href=\"/${alias}\" hx-boost=\"false\">/${alias}</a></li>"$'\n'
     # Copy the script to public/<alias> so the short URL serves it directly
     # (no redirect, no `_redirects` file needed). -L follows symlinks.
     cp -L "${SETUP_SRC}/${f}" "public/${alias}"
@@ -98,10 +101,15 @@ fi
 
 GENERATED_AT="$(TZ=Europe/Prague date +"%Y-%m-%d %H:%M %Z")"
 
+# First alias becomes the concrete example in usage instructions, so the
+# docs always show a real working URL instead of an abstract <alias> token.
+EXAMPLE_ALIAS="${aliases[0]:-init.sh}"
+
 # Load the body fragment and substitute dynamic bits.
 SETUP_CONTENT="$(cat src/setup/index.html)"
 SETUP_CONTENT="${SETUP_CONTENT//\{\{LISTING\}\}/${setup_items}}"
 SETUP_CONTENT="${SETUP_CONTENT//\{\{GENERATED_AT\}\}/${GENERATED_AT}}"
+SETUP_CONTENT="${SETUP_CONTENT//\{\{EXAMPLE_ALIAS\}\}/${EXAMPLE_ALIAS}}"
 
 render_page \
   --title "Index of /setup — pollos.cz" \

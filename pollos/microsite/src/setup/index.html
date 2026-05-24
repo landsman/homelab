@@ -23,6 +23,11 @@
 
   <section class="files">
     <h2>Index</h2>
+    <p class="intro">
+      Each script has a <strong>short URL</strong> (the chip on the right) —
+      e.g. <code>001-init.sh</code> is also served at
+      <code>https://pollos.cz/{{EXAMPLE_ALIAS}}</code>.
+    </p>
     <ul>
       {{LISTING}}
     </ul>
@@ -32,18 +37,18 @@
     <h2>Download &amp; run</h2>
     <p>
       Minimal Debian ships with <code>wget</code> but not <code>curl</code>, so
-      use <code>wget</code> for the first bootstrap. Use the short alias shown
-      next to each file.
+      use <code>wget</code> for the first bootstrap. Examples below use
+      <code>{{EXAMPLE_ALIAS}}</code>; swap in any short URL from the listing.
     </p>
 
     <p>Inspect a script in the terminal:</p>
-    <pre><code>wget -qO- https://pollos.cz/&lt;alias&gt; | less</code></pre>
+    <pre><code>wget -qO- https://pollos.cz/{{EXAMPLE_ALIAS}} | less</code></pre>
 
-    <p>Download to disk:</p>
-    <pre><code>wget https://pollos.cz/&lt;alias&gt;</code></pre>
+    <p>Download to disk (saves as <code>{{EXAMPLE_ALIAS}}</code>):</p>
+    <pre><code>wget https://pollos.cz/{{EXAMPLE_ALIAS}}</code></pre>
 
     <p>Run directly as root on a fresh Debian box:</p>
-    <pre><code>wget -qO- https://pollos.cz/&lt;alias&gt; | sudo bash</code></pre>
+    <pre><code>wget -qO- https://pollos.cz/{{EXAMPLE_ALIAS}} | sudo bash</code></pre>
   </section>
 
   <footer>generated {{GENERATED_AT}}</footer>

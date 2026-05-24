@@ -232,6 +232,11 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         url: 'https://login.tailscale.com/admin',
         icon: ServiceIcon.TAILSCALE,
       },
+      {
+        name: 'Pollos',
+        url: 'https://pollos.cz',
+        icon: ServiceIcon.POLLOS,
+      },
     ],
   },
   {

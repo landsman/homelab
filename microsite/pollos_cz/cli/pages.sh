@@ -20,26 +20,34 @@ render_page \
 SETUP_SRC="src/setup"
 
 setup_items=""
+redirects=""
 while IFS= read -r f; do
-  setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
+  if [[ "${f}" == *.sh ]]; then
+    # Strip leading "NNN-" and ".sh" → alias.
+    alias="$(basename "${f}" .sh | sed -E 's/^[0-9]+-//')"
+    setup_items+="<li><a href=\"/${alias}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
+    redirects+="/${alias}  /setup/${f}  200"$'\n'
+  else
+    setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
+  fi
 done < <(cd "${SETUP_SRC}" && find -L . -maxdepth 1 -type f ! -name "index.html" | sed 's|^\./||' | sort)
 
 if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"
 fi
 
+# Write _redirects (CF Pages reads this from the build output root).
+{
+  echo "# Auto-generated short aliases for /setup/*.sh"
+  printf '%s' "${redirects}"
+} > public/_redirects
+
 GENERATED_AT="$(TZ=Europe/Prague date +"%Y-%m-%d %H:%M %Z")"
 
-SETUP_CONTENT=$(cat <<HTML
-<main class="listing">
-  <h1>Index of /setup</h1>
-  <ul>
-${setup_items}
-  </ul>
-  <footer>generated ${GENERATED_AT}</footer>
-</main>
-HTML
-)
+# Load the body fragment and substitute dynamic bits.
+SETUP_CONTENT="$(cat src/setup/index.html)"
+SETUP_CONTENT="${SETUP_CONTENT//\{\{LISTING\}\}/${setup_items}}"
+SETUP_CONTENT="${SETUP_CONTENT//\{\{GENERATED_AT\}\}/${GENERATED_AT}}"
 
 render_page \
   --title "Index of /setup — pollos.cz" \

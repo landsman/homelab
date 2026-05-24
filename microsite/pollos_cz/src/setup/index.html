@@ -1,0 +1,39 @@
+<main class="listing">
+  <h1>Setup</h1>
+
+  <p class="intro">
+    <strong>pollos</strong> is my homelab — a small cluster of Debian boxes
+    where every node is named after a <em>Breaking Bad</em> character
+    (<code>walter</code>, <code>jesse</code>, <code>mike</code>,
+    <code>gus</code>…). Pretty hostnames make each box easy to spot and a
+    joy to SSH into. The scripts below take a fresh Debian install and turn
+    it into another member of the family.
+  </p>
+
+  <section class="files">
+    <h2>Index</h2>
+    <ul>
+      {{LISTING}}
+    </ul>
+  </section>
+
+  <section class="usage">
+    <h2>Download &amp; run</h2>
+    <p>
+      Minimal Debian ships with <code>wget</code> but not <code>curl</code>, so
+      use <code>wget</code> for the first bootstrap. Use the short alias shown
+      next to each file.
+    </p>
+
+    <p>Inspect a script in the terminal:</p>
+    <pre><code>wget -qO- https://pollos.cz/&lt;alias&gt; | less</code></pre>
+
+    <p>Download to disk:</p>
+    <pre><code>wget https://pollos.cz/&lt;alias&gt;</code></pre>
+
+    <p>Run directly as root on a fresh Debian box:</p>
+    <pre><code>wget -qO- https://pollos.cz/&lt;alias&gt; | sudo bash</code></pre>
+  </section>
+
+  <footer>generated {{GENERATED_AT}}</footer>
+</main>

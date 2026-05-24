@@ -1,0 +1,4 @@
+# Render .sh files as plain text in browsers (instead of forcing download).
+# curl ignores Content-Type, so download/pipe-to-shell still work as before.
+/setup/*.sh
+  Content-Type: text/plain; charset=utf-8

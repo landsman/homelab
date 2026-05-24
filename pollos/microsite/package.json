@@ -1,0 +1,12 @@
+{
+  "name": "pollos-microsite",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:js": "oxlint"
+  },
+  "devDependencies": {
+    "oxlint": "^1.40.0",
+    "eslint-plugin-jsdoc": "^50.6.1"
+  }
+}

@@ -1,0 +1,10 @@
+/* View Transitions API — htmx hx-swap="transition:true" wraps each #page
+   swap in document.startViewTransition. The default cross-fade is fine;
+   we just tune the timing. Unsupported browsers (Firefox < 129) fall
+   back to an instant swap. */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+  animation-timing-function: ease;
+}

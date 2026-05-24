@@ -21,10 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: "Install JS deps"
+        run: npm install --no-audit --no-fund
+
       - name: "Show tool versions"
         run: make version
 
-      - name: "Lint bash scripts"
+      - name: "Lint (shellcheck + oxlint)"
         run: make lint
 
       - name: "Build static site"

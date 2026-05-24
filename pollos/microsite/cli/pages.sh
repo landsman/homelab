@@ -10,6 +10,47 @@ cd "$(dirname "$0")/.."
 source cli/lib-render.sh
 
 # -----------------------------------------------------------------------------
+# Vendor pinned third-party JS — fetched once into .vendor-cache (gitignored)
+# and copied into the build output. Pin the version explicitly so deploys are
+# reproducible and a CDN outage can't break the build.
+# -----------------------------------------------------------------------------
+# Derive the pinned htmx version from the literal filename in layout.html —
+# single source of truth, no duplicate constant to keep in sync.
+HTMX_FILE="$(grep -oE 'htmx-[0-9.]+\.min\.js' templates/layout.html | head -n1)"
+HTMX_VERSION="${HTMX_FILE#htmx-}"
+HTMX_VERSION="${HTMX_VERSION%.min.js}"
+HTMX_CACHE=".vendor-cache/${HTMX_FILE}"
+HTMX_URL="https://unpkg.com/htmx.org@${HTMX_VERSION}/dist/htmx.min.js"
+
+mkdir -p .vendor-cache
+if [[ ! -f "${HTMX_CACHE}" ]]; then
+  echo "fetching ${HTMX_URL}"
+  curl -fsSL "${HTMX_URL}" -o "${HTMX_CACHE}"
+fi
+
+mkdir -p public/assets/vendor
+cp "${HTMX_CACHE}" "public/assets/vendor/${HTMX_FILE}"
+
+# Asset version — short content hash across every file we ship that can
+# be referenced via a `?v=` URL: CSS, JS, and icons embedded by CSS.
+# Vendored htmx is excluded — its version lives in the filename.
+ASSET_VERSION="$(
+  find src/assets -type f \( -name '*.css' -o -name '*.js' -o -path 'src/assets/img/icons/*' -o -path 'src/assets/img/favicon/*' \) \
+    | sort \
+    | xargs shasum \
+    | shasum \
+    | cut -c1-8
+)"
+export ASSET_VERSION
+echo "asset version: ${ASSET_VERSION}"
+
+# Append ?v=ASSET_VERSION to every url(...) reference inside any built CSS,
+# so @imports and CSS-referenced icons all bust when content changes.
+find public/assets -type f -name '*.css' -print0 \
+  | xargs -0 sed -i.bak -E "s|url\(\"([^\"?]+)\"\)|url(\"\1?v=${ASSET_VERSION}\")|g"
+find public/assets -type f -name '*.css.bak' -delete
+
+# -----------------------------------------------------------------------------
 # /  — home page (spinning logo)
 # -----------------------------------------------------------------------------
 render_page \

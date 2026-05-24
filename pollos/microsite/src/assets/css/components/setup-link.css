@@ -1,0 +1,25 @@
+/* Floating /setup pill on the home page. */
+
+.setup-link {
+  position: fixed;
+  /* Mirror of #mini-player offset — pill nests inside the body's bottom-right
+     corner curve (body inset 10px + radius 24px). */
+  bottom: 18px;
+  right: 18px;
+  padding: 0.65rem 1.2rem;
+  font:
+    13px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  background: var(--pollos-red);
+  color: var(--pollos-yellow);
+  /* Closer to the body card's 24px so the curves visually match. Pill is
+     ~34px tall, so going much higher than ~17px starts to stadium it. */
+  border-radius: 16px;
+  z-index: 2;
+}
+.setup-link:hover {
+  background: var(--pollos-ink);
+}

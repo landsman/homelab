@@ -31,9 +31,12 @@ render_page() {
     fi
   done
 
+  : "${ASSET_VERSION:?ASSET_VERSION env var must be set before render_page}"
+
   local template
   template="$(cat templates/layout.html)"
   template="${template//\{\{TITLE\}\}/${title}}"
+  template="${template//\{\{ASSET_VERSION\}\}/${ASSET_VERSION}}"
   template="${template//\{\{CONTENT\}\}/${content}}"
 
   mkdir -p "$(dirname "${out}")"

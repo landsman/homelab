@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Build artifact — produced by `make build`.
+public/
+
+# Vendored third-party assets — fetched on demand by cli/pages.sh.
+.vendor-cache/
+
+# wrangler local state (cache, dev server).
+.wrangler/
+
+# Node deps (ESLint + plugins for `make js-lint`).
+node_modules/

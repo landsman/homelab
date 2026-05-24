@@ -30,6 +30,7 @@ jobs:
     needs: changes
     if: needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         working-directory: microsite/pollos_cz/infra
@@ -52,6 +53,7 @@ jobs:
       (needs.infra.result == 'success' || needs.infra.result == 'skipped') &&
       (needs.changes.outputs.content == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: cloudflare/wrangler-action@v3

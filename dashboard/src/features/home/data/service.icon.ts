@@ -38,6 +38,7 @@ export enum ServiceIcon {
   LASTFM = 'lastfm',
   YOUTUBE_MUSIC = 'youtube-music',
   METUBE = 'metube',
+  POLLOS = 'pollos.png',
 }
 
 export type ServiceIconName = (typeof ServiceIcon)[keyof typeof ServiceIcon]

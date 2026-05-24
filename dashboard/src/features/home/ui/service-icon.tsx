@@ -9,7 +9,9 @@ interface ServiceIconProps {
 }
 
 export function ServiceIcon({ service }: ServiceIconProps) {
-  const iconPath = service.icon ? `/icons/services/${service.icon}.svg` : null
+  const iconPath = service.icon
+    ? `/icons/services/${service.icon.includes('.') ? service.icon : `${service.icon}.svg`}`
+    : null
   return (
     <div
       className={`w-10 h-10 mt-3 flex items-center justify-center rounded-lg border-b border-white/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg ${

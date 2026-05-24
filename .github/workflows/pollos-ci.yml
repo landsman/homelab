@@ -1,0 +1,36 @@
+name: "pollos.cz ci"
+
+on:
+  pull_request:
+    paths:
+      - 'microsite/pollos_cz/**'
+      - 'pollos/**'
+      - '.github/workflows/pollos-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'microsite/pollos_cz/**'
+      - 'pollos/**'
+      - '.github/workflows/pollos-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: microsite/pollos_cz
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Show tool versions"
+        run: make version
+
+      - name: "Lint bash scripts"
+        run: make lint
+
+      - name: "Build static site"
+        run: make build
+
+      - name: "List build artifacts"
+        run: find public -type f | sort

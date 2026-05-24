@@ -1,0 +1,69 @@
+<main class="spinner">
+  <img src="/assets/img/logo.png" alt="Click to play!" title="Click to play!" id="logo" />
+  <a class="setup-link" href="/setup/">/setup</a>
+</main>
+<div id="yt" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none"></div>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  const logo = document.getElementById('logo');
+
+  let player = null;
+  let playerReady = false;
+  window.onYouTubeIframeAPIReady = () => {
+    player = new YT.Player('yt', {
+      videoId: 'HHF0xlf-bjY',
+      playerVars: { playsinline: 1, controls: 0 },
+      events: {
+        onReady: () => {
+          playerReady = true;
+        },
+      },
+    });
+  };
+
+  let angle = 0;
+  let rate = 0;
+  let gyroRate = 0;
+  let started = false;
+  let gyroEnabled = false;
+
+  async function enableGyro() {
+    if (gyroEnabled) return;
+    if (typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const r = await DeviceMotionEvent.requestPermission();
+        if (r !== 'granted') return;
+      } catch { return; }
+    }
+    window.addEventListener('devicemotion', (e) => {
+      gyroRate = (e.rotationRate && e.rotationRate.alpha) || 0;
+    });
+    gyroEnabled = true;
+  }
+
+  logo.addEventListener('click', () => {
+    rate += 360;
+    enableGyro();
+    if (!started && playerReady) {
+      player.unMute();
+      player.setVolume(100);
+      player.playVideo();
+      started = true;
+    }
+  });
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = (now - last) / 1000;
+    last = now;
+    rate = Math.max(0, rate - dt * 180);
+    const total = rate + gyroRate;
+    if (Math.abs(total) > 0.1) {
+      angle = (angle + total * dt + 360) % 360;
+      logo.style.transform = `translateZ(0) rotate(${angle}deg)`;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+</script>

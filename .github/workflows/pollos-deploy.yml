@@ -24,7 +24,11 @@ jobs:
               - 'microsite/pollos_cz/infra/**'
               - '.github/workflows/pollos-deploy.yml'
             content:
-              - 'microsite/pollos_cz/public/**'
+              - 'microsite/pollos_cz/src/**'
+              - 'microsite/pollos_cz/templates/**'
+              - 'microsite/pollos_cz/cli/**'
+              - 'microsite/pollos_cz/Makefile'
+              - 'pollos/setup/**'
 
   infra:
     needs: changes
@@ -56,6 +60,9 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - name: Build static assets (generates /setup index)
+        run: make build
+        working-directory: microsite/pollos_cz
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}

@@ -15,9 +15,9 @@
     monospace;
   background: var(--pollos-red);
   color: var(--pollos-yellow);
-  /* Pill is ~34px tall, so 24px would fully stadium-round it. 12px keeps
-     visible straight edges with the same gentle-corner feel as the body card. */
-  border-radius: 12px;
+  /* Closer to the body card's 24px so the curves visually match. Pill is
+     ~34px tall, so going much higher than ~17px starts to stadium it. */
+  border-radius: 16px;
   z-index: 2;
 }
 .setup-link:hover {

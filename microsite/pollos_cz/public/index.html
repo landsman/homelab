@@ -72,11 +72,6 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
       const logo = document.getElementById('logo');
-      const animation = logo.animate(
-        [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-        { duration: 2000, iterations: Infinity }
-      );
-      animation.playbackRate = 0;
 
       let player = null;
       let playerReady = false;
@@ -92,9 +87,30 @@
         });
       };
 
+      let angle = 0;
+      let rate = 0;
+      let tilt = 0;
       let started = false;
+      let gyroEnabled = false;
+
+      async function enableGyro() {
+        if (gyroEnabled) return;
+        if (typeof DeviceOrientationEvent !== 'undefined' &&
+            typeof DeviceOrientationEvent.requestPermission === 'function') {
+          try {
+            const r = await DeviceOrientationEvent.requestPermission();
+            if (r !== 'granted') return;
+          } catch { return; }
+        }
+        window.addEventListener('deviceorientation', (e) => {
+          tilt = e.gamma || 0;
+        });
+        gyroEnabled = true;
+      }
+
       logo.addEventListener('click', () => {
-        animation.playbackRate += 1;
+        rate += 360;
+        enableGyro();
         if (!started && playerReady) {
           player.unMute();
           player.setVolume(100);
@@ -104,18 +120,18 @@
       });
 
       let last = performance.now();
-      function decay(now) {
+      function tick(now) {
         const dt = (now - last) / 1000;
         last = now;
-        if (animation.playbackRate > 0) {
-          animation.playbackRate = Math.max(
-            0,
-            animation.playbackRate - dt * 0.5
-          );
+        rate += Math.abs(tilt) * 15 * dt;
+        rate = Math.max(0, rate - dt * 180);
+        if (rate > 0.1) {
+          angle = (angle + rate * dt * Math.sign(tilt || 1)) % 360;
+          logo.style.transform = `translateZ(0) rotate(${angle}deg)`;
         }
-        requestAnimationFrame(decay);
+        requestAnimationFrame(tick);
       }
-      requestAnimationFrame(decay);
+      requestAnimationFrame(tick);
     </script>
   </body>
 </html>

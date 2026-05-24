@@ -24,9 +24,13 @@ IPV4=$(ip -4 -o addr show scope global | awk 'NR==1 {split($4,a,"/"); print a[1]
 cat <<EOF
 
 ================ APPEND THIS TO LAPTOP ~/.ssh/config ================
-Host ${IPV4} ${HOST}
-  User ansible
-  IdentityFile ~/.ssh/id_ed25519_homelab
-  IdentitiesOnly yes
+# one-time block (add once, covers every *.pollos host):
+# Host *.pollos
+#   User ansible
+#   IdentityFile ~/.ssh/id_ed25519_homelab
+#   IdentitiesOnly yes
+
+Host ${HOST}.pollos
+  HostName ${IPV4}
 =====================================================================
 EOF

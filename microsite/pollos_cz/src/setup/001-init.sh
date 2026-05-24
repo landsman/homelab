@@ -1,1 +1,0 @@
-../../../../pollos/setup/001-init.sh

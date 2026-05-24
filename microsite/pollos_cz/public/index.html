@@ -89,21 +89,21 @@
 
       let angle = 0;
       let rate = 0;
-      let tilt = 0;
+      let gyroRate = 0;
       let started = false;
       let gyroEnabled = false;
 
       async function enableGyro() {
         if (gyroEnabled) return;
-        if (typeof DeviceOrientationEvent !== 'undefined' &&
-            typeof DeviceOrientationEvent.requestPermission === 'function') {
+        if (typeof DeviceMotionEvent !== 'undefined' &&
+            typeof DeviceMotionEvent.requestPermission === 'function') {
           try {
-            const r = await DeviceOrientationEvent.requestPermission();
+            const r = await DeviceMotionEvent.requestPermission();
             if (r !== 'granted') return;
           } catch { return; }
         }
-        window.addEventListener('deviceorientation', (e) => {
-          tilt = e.gamma || 0;
+        window.addEventListener('devicemotion', (e) => {
+          gyroRate = (e.rotationRate && e.rotationRate.alpha) || 0;
         });
         gyroEnabled = true;
       }
@@ -123,10 +123,10 @@
       function tick(now) {
         const dt = (now - last) / 1000;
         last = now;
-        rate += Math.abs(tilt) * 15 * dt;
         rate = Math.max(0, rate - dt * 180);
-        if (rate > 0.1) {
-          angle = (angle + rate * dt * Math.sign(tilt || 1)) % 360;
+        const total = rate + gyroRate;
+        if (Math.abs(total) > 0.1) {
+          angle = (angle + total * dt + 360) % 360;
           logo.style.transform = `translateZ(0) rotate(${angle}deg)`;
         }
         requestAnimationFrame(tick);

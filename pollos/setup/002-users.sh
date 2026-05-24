@@ -6,27 +6,25 @@ set -eu
 #
 # What it does:
 #   - creates the 'ansible' user with passwordless sudo (used for remote admin)
-#     and seeds authorized_keys from a pubkey pasted at the console.
+#     and seeds authorized_keys with the hardcoded admin pubkey below.
 #     Password stays locked — key auth only.
 #   - creates the 'containers' user as a rootless workload user (enables linger)
 #
-# Get your pubkey on the laptop with:  cat ~/.ssh/id_ed25519.pub
-# then paste it at the prompt below.
+# To rotate the admin key: replace ANSIBLE_PUBKEY below, re-run on every box.
 #
+
+#
+# ssh-keygen -t ed25519 -C "landsman@homelab" -f ~/.ssh/id_ed25519_homelab
+# cat ~/.ssh/id_ed25519_homelab.pub
+#
+ANSIBLE_PUBKEY='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII8ozvm2xylksMdI5EAQ3O4Bn5nNP0HqFTbaAfh/l5Od landsman@homelab'
 
 # ansible: admin user for remote management, passwordless sudo, key auth only
 id ansible >/dev/null 2>&1 || useradd -m -s /bin/bash ansible
 usermod -L ansible
 
-printf "paste ansible SSH pubkey (ssh-ed25519 ... or ssh-rsa ...):\n> "
-read -r PUBKEY
-case "$PUBKEY" in
-  ssh-*) : ;;
-  *) echo "ERROR: not a valid pubkey (must start with 'ssh-')" >&2; exit 1 ;;
-esac
-
 install -d -m 0700 -o ansible -g ansible /home/ansible/.ssh
-printf '%s\n' "$PUBKEY" > /home/ansible/.ssh/authorized_keys
+printf '%s\n' "$ANSIBLE_PUBKEY" > /home/ansible/.ssh/authorized_keys
 chown ansible:ansible /home/ansible/.ssh/authorized_keys
 chmod 0600 /home/ansible/.ssh/authorized_keys
 

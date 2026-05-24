@@ -21,12 +21,14 @@ SETUP_SRC="src/setup"
 
 setup_items=""
 redirects=""
+aliases=()
 while IFS= read -r f; do
   if [[ "${f}" == *.sh ]]; then
     # Strip leading "NNN-" and ".sh" → alias.
     alias="$(basename "${f}" .sh | sed -E 's/^[0-9]+-//')"
     setup_items+="<li><a href=\"${f}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
     redirects+="/${alias}  /setup/${f}  200"$'\n'
+    aliases+=("${alias}")
   else
     setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
   fi
@@ -36,11 +38,24 @@ if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"
 fi
 
-# Write _redirects (CF Pages reads this from the build output root).
+# _redirects — short aliases for each .sh file.
 {
   echo "# Auto-generated short aliases for /setup/*.sh"
   printf '%s' "${redirects}"
 } > public/_redirects
+
+# _headers — CF Pages matches by incoming URL, so each alias needs its own
+# header rule in addition to the /setup/*.sh catch-all from src/_headers.
+{
+  echo ""
+  echo "# Auto-generated per-alias header rules"
+  for a in "${aliases[@]}"; do
+    echo "/${a}"
+    echo "  Content-Type: text/plain; charset=utf-8"
+    echo "  X-Content-Type-Options: nosniff"
+    echo "  Content-Disposition: inline"
+  done
+} >> public/_headers
 
 GENERATED_AT="$(TZ=Europe/Prague date +"%Y-%m-%d %H:%M %Z")"
 

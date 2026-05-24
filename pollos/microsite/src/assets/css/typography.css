@@ -1,0 +1,9 @@
+/* Global typography — links. */
+
+a {
+  color: var(--pollos-red);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}

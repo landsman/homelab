@@ -1,0 +1,26 @@
+/* Floating mini player — persistent across page swaps. */
+
+#mini-player {
+  position: fixed;
+  bottom: 1rem;
+  left: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--pollos-red);
+  color: var(--pollos-yellow);
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+#mini-player:hover {
+  background: var(--pollos-ink);
+}
+#mini-player[hidden] {
+  display: none;
+}

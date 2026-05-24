@@ -1,4 +1,4 @@
-.PHONY: install bootstrap login bucket clean copy pages build dev lint version
+.PHONY: install bootstrap login bucket clean copy pages build dev lint js-lint version
 
 install:
 	mise install
@@ -40,5 +40,9 @@ version:
 
 # Lint every bash script with shellcheck.
 # -x makes shellcheck follow `source` directives (e.g. lib-render.sh).
-lint:
+lint: js-lint
 	shellcheck -x cli/*.sh src/setup/*.sh
+
+# Verify JSDoc on every `function` declaration in src/assets.
+js-lint:
+	@./cli/check-jsdoc.sh

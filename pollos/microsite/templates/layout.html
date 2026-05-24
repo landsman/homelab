@@ -38,7 +38,18 @@
 
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
-  <body>
-    {{CONTENT}}
+  <body hx-boost="true" hx-target="#page" hx-select="#page" hx-swap="outerHTML show:window:top">
+    <div id="page" hx-history-elt>{{CONTENT}}</div>
+
+    <div id="yt" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none"></div>
+
+    <button id="mini-player" type="button" aria-label="Play music" hidden>
+      <svg class="icon-play" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" hidden><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+
+    <script defer src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script defer src="/assets/app.js"></script>
+    <script async src="https://www.youtube.com/iframe_api"></script>
   </body>
 </html>

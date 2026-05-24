@@ -1,0 +1,21 @@
+/* Floating /setup pill on the home page. */
+
+.setup-link {
+  position: fixed;
+  bottom: 1rem;
+  right: 1.25rem;
+  padding: 0.4rem 0.7rem;
+  font:
+    13px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  background: var(--pollos-red);
+  color: var(--pollos-yellow);
+  border-radius: 6px;
+  z-index: 2;
+}
+.setup-link:hover {
+  background: var(--pollos-ink);
+}

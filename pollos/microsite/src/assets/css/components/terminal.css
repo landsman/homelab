@@ -1,0 +1,37 @@
+/* Terminal-style command block — yellow on near-black, $ prompt. */
+
+.terminal,
+main.listing pre {
+  position: relative;
+  background: #1a1a1a;
+  color: var(--pollos-yellow);
+  padding: 0.9rem 1.1rem 0.9rem 2.2rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  overflow-x: auto;
+  margin: 0;
+  font:
+    13px/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.terminal::before,
+main.listing pre::before {
+  content: "$";
+  position: absolute;
+  left: 0.95rem;
+  top: 0.9rem;
+  color: rgba(253, 219, 0, 0.35);
+  font-weight: 700;
+  user-select: none;
+}
+.terminal code,
+main.listing pre code {
+  font: inherit;
+  background: none;
+  padding: 0;
+  color: inherit;
+}

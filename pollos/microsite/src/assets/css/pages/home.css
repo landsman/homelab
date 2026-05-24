@@ -1,0 +1,23 @@
+/* Home page — centered spinning logo. */
+
+main.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+@media (max-width: 768px) {
+  main.spinner {
+    min-height: 100vh;
+  }
+}
+main.spinner img {
+  width: 300px;
+  max-width: 60vw;
+  height: auto;
+  cursor: pointer;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

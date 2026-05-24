@@ -29,7 +29,7 @@ GitHub repo **variables** (not sensitive — just identifiers):
 
 ## 2. CI/CD
 
-Push to `main` touching `microsite/pollos_cz/**` →
+Push to `main` touching `pollos/**` →
 `.github/workflows/pollos-deploy.yml` runs:
 
 1. `terraform apply` — Pages project, custom domains, DNS, apex→www redirect (state in R2).

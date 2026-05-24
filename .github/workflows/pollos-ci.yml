@@ -3,13 +3,11 @@ name: "pollos.cz ci"
 on:
   pull_request:
     paths:
-      - 'microsite/pollos_cz/**'
       - 'pollos/**'
       - '.github/workflows/pollos-ci.yml'
   push:
     branches: [main]
     paths:
-      - 'microsite/pollos_cz/**'
       - 'pollos/**'
       - '.github/workflows/pollos-ci.yml'
   workflow_dispatch:
@@ -19,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: microsite/pollos_cz
+        working-directory: pollos/microsite
     steps:
       - uses: actions/checkout@v4
 

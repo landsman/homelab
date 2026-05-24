@@ -3,10 +3,10 @@
 .playwright-mcp
 
 # Build artifact for pollos.cz — produced by `make build`
-microsite/pollos_cz/public/
+pollos/microsite/public/
 
 # wrangler local state (cache, dev server)
-microsite/pollos_cz/.wrangler/
+pollos/microsite/.wrangler/
 
 # Claude Code — keep shared config (settings.json, settings.template.json, skills/),
 # ignore per-user / runtime files.

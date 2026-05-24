@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'microsite/pollos_cz/**'
+      - 'pollos/**'
       - '.github/workflows/pollos-deploy.yml'
   workflow_dispatch:
 
@@ -21,13 +21,13 @@ jobs:
         with:
           filters: |
             infra:
-              - 'microsite/pollos_cz/infra/**'
+              - 'pollos/microsite/infra/**'
               - '.github/workflows/pollos-deploy.yml'
             content:
-              - 'microsite/pollos_cz/src/**'
-              - 'microsite/pollos_cz/templates/**'
-              - 'microsite/pollos_cz/cli/**'
-              - 'microsite/pollos_cz/Makefile'
+              - 'pollos/microsite/src/**'
+              - 'pollos/microsite/templates/**'
+              - 'pollos/microsite/cli/**'
+              - 'pollos/microsite/Makefile'
               - 'pollos/setup/**'
 
   infra:
@@ -37,7 +37,7 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: microsite/pollos_cz/infra
+        working-directory: pollos/microsite/infra
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
       TF_VAR_cloudflare_account_id: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
@@ -62,9 +62,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build static assets (generates /setup index)
         run: make build
-        working-directory: microsite/pollos_cz
+        working-directory: pollos/microsite
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy microsite/pollos_cz/public --project-name=pollos-cz --branch=main
+          command: pages deploy pollos/microsite/public --project-name=pollos-cz --branch=main

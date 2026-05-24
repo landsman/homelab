@@ -9,9 +9,10 @@ PORT="${PORT:-4321}"
 
 make build
 
-# `exec` so the subshell is REPLACED by python — $! is then python's PID,
-# not the subshell's. Without this, killing $! leaves python orphaned.
-(cd public && exec python3 -m http.server "${PORT}" --bind 127.0.0.1) &
+# `wrangler pages dev` emulates Cloudflare Pages locally — reads _headers,
+# _redirects, and Functions exactly like production.
+# `exec` so $! is wrangler's PID, not the subshell's (clean shutdown).
+(exec mise exec -- wrangler pages dev public --port "${PORT}" --ip 127.0.0.1 --compatibility-date=2025-12-01) &
 SERVER_PID=$!
 
 cleanup() {

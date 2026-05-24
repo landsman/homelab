@@ -2,8 +2,11 @@
 
 #mini-player {
   position: fixed;
-  bottom: 1rem;
-  left: 1.25rem;
+  /* Concentric with the body's bottom-left corner curve:
+     body has inset 10px + radius 24px; this 32×32 circle has radius 16px
+     → 10 + 24 - 16 = 18px offset puts both centers at the same point. */
+  bottom: 18px;
+  left: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -23,4 +26,31 @@
 }
 #mini-player[hidden] {
   display: none;
+}
+
+/* Icon glyphs — referenced from CSS so they ride the entry stylesheet's
+   cache-busting version. */
+#mini-player .icon-play,
+#mini-player .icon-pause {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+#mini-player .icon-play {
+  background-image: url("../../img/icons/play.svg");
+}
+#mini-player .icon-pause {
+  background-image: url("../../img/icons/pause.svg");
+}
+
+/* Swap visible icon based on `playing` class set by app.js. */
+#mini-player .icon-pause,
+#mini-player.playing .icon-play {
+  display: none;
+}
+#mini-player.playing .icon-pause {
+  display: inline-block;
 }

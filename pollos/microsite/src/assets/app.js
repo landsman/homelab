@@ -17,19 +17,20 @@
 let player = null;
 let playerReady = false;
 let started = false;
+// Set when the user clicks before the YT API has finished loading; consumed
+// in onReady so the click intent isn't lost.
+let pendingStart = false;
 
 const mini = document.getElementById('mini-player');
-const iconPlay = mini.querySelector('.icon-play');
-const iconPause = mini.querySelector('.icon-pause');
 
 /**
- * Toggle the mini-player icon between play and pause and update the a11y label.
+ * Reflect YT playback state on the mini-player: toggles the `playing` class
+ * (CSS swaps the visible icon) and updates the a11y label.
  * @param {boolean} playing  true when the player is playing or buffering.
  * @returns {void}
  */
 function setMiniState(playing) {
-  iconPlay.hidden = playing;
-  iconPause.hidden = !playing;
+  mini.classList.toggle('playing', playing);
   mini.setAttribute('aria-label', playing ? 'Pause music' : 'Play music');
 }
 
@@ -46,6 +47,10 @@ window.onYouTubeIframeAPIReady = () => {
       onReady: () => {
         playerReady = true;
         mini.hidden = false;
+        if (pendingStart) {
+          pendingStart = false;
+          startPlayback();
+        }
       },
       onStateChange: (e) => {
         // YT.PlayerState: PLAYING=1, PAUSED=2, ENDED=0, BUFFERING=3
@@ -58,10 +63,14 @@ window.onYouTubeIframeAPIReady = () => {
 /**
  * Unmute, max volume, start playback. First-play helper — subsequent
  * play/pause toggles go through {@link togglePlayback} via the mini button.
+ * If the YT API hasn't loaded yet, queue the intent for onReady.
  * @returns {void}
  */
 function startPlayback() {
-  if (!playerReady) return;
+  if (!playerReady) {
+    pendingStart = true;
+    return;
+  }
   player.unMute();
   player.setVolume(100);
   player.playVideo();
@@ -90,7 +99,7 @@ let angle = 0;
 let rate = 0;
 
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('#logo')) return;
+  if (!(e.target instanceof Element) || !e.target.closest('#logo')) return;
   rate += 360;
   if (!started) startPlayback();
 });

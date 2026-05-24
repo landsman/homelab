@@ -2,9 +2,11 @@
 
 .setup-link {
   position: fixed;
-  bottom: 1rem;
-  right: 1.25rem;
-  padding: 0.4rem 0.7rem;
+  /* Mirror of #mini-player offset — pill nests inside the body's bottom-right
+     corner curve (body inset 10px + radius 24px). */
+  bottom: 18px;
+  right: 18px;
+  padding: 0.65rem 1.2rem;
   font:
     13px/1 ui-monospace,
     SFMono-Regular,
@@ -13,7 +15,9 @@
     monospace;
   background: var(--pollos-red);
   color: var(--pollos-yellow);
-  border-radius: 6px;
+  /* Pill is ~34px tall, so 24px would fully stadium-round it. 12px keeps
+     visible straight edges with the same gentle-corner feel as the body card. */
+  border-radius: 12px;
   z-index: 2;
 }
 .setup-link:hover {

@@ -1,4 +1,4 @@
-.PHONY: install bootstrap login bucket clean copy pages build dev lint js-lint version
+.PHONY: install bootstrap login bucket clean copy pages build dev lint version
 
 install:
 	mise install
@@ -38,11 +38,10 @@ dev:
 version:
 	@./cli/version.sh
 
-# Lint every bash script with shellcheck.
-# -x makes shellcheck follow `source` directives (e.g. lib-render.sh).
-lint: js-lint
+# Lint bash scripts with shellcheck (-x follows `source` directives) and
+# JS with oxlint (Rust, ~50× faster than ESLint; runs eslint-plugin-jsdoc
+# via oxlint's JS Plugins to enforce JSDoc on function declarations).
+# Config lives in .oxlintrc.json.
+lint:
 	shellcheck -x cli/*.sh src/setup/*.sh
-
-# Verify JSDoc on every `function` declaration in src/assets.
-js-lint:
-	@./cli/check-jsdoc.sh
+	@npx oxlint

@@ -2,12 +2,6 @@
 !.idea/prettier.xml
 .playwright-mcp
 
-# Build artifact for pollos.cz — produced by `make build`
-pollos/microsite/public/
-
-# wrangler local state (cache, dev server)
-pollos/microsite/.wrangler/
-
 # Claude Code — keep shared config (settings.json, settings.template.json, skills/),
 # ignore per-user / runtime files.
 .claude/settings.local.json

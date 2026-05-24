@@ -3,6 +3,9 @@
 # Add new pages by appending another render_page call below.
 set -eu
 
+# See note in lib-render.sh — `&` in CONTENT must NOT expand to the match.
+shopt -u patsub_replacement 2>/dev/null || true
+
 cd "$(dirname "$0")/.."
 source cli/lib-render.sh
 

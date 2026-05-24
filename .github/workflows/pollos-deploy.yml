@@ -24,8 +24,7 @@ jobs:
               - 'microsite/pollos_cz/infra/**'
               - '.github/workflows/pollos-deploy.yml'
             content:
-              - 'microsite/pollos_cz/index.html'
-              - 'microsite/pollos_cz/logo.png'
+              - 'microsite/pollos_cz/public/**'
 
   infra:
     needs: changes
@@ -59,4 +58,4 @@ jobs:
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy microsite/pollos_cz --project-name=pollos-cz --branch=main
+          command: pages deploy microsite/pollos_cz/public --project-name=pollos-cz --branch=main

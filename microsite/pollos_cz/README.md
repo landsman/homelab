@@ -33,4 +33,4 @@ Push to `main` touching `microsite/pollos_cz/**` →
 `.github/workflows/pollos-deploy.yml` runs:
 
 1. `terraform apply` — Pages project, custom domains, DNS, apex→www redirect (state in R2).
-2. `wrangler pages deploy` — uploads `index.html` + `logo.png`.
+2. `wrangler pages deploy` — uploads everything under `public/`.

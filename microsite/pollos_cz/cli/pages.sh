@@ -20,14 +20,15 @@ render_page \
 SETUP_SRC="src/setup"
 
 setup_items=""
-redirects=""
 aliases=()
 while IFS= read -r f; do
   if [[ "${f}" == *.sh ]]; then
     # Strip leading "NNN-" and ".sh" → alias.
     alias="$(basename "${f}" .sh | sed -E 's/^[0-9]+-//')"
     setup_items+="<li><a href=\"${f}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
-    redirects+="/${alias}  /setup/${f}  200"$'\n'
+    # Copy the script to public/<alias> so the short URL serves it directly
+    # (no redirect, no `_redirects` file needed). -L follows symlinks.
+    cp -L "${SETUP_SRC}/${f}" "public/${alias}"
     aliases+=("${alias}")
   else
     setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
@@ -37,12 +38,6 @@ done < <(cd "${SETUP_SRC}" && find -L . -maxdepth 1 -type f ! -name "index.html"
 if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"
 fi
-
-# _redirects — short aliases for each .sh file.
-{
-  echo "# Auto-generated short aliases for /setup/*.sh"
-  printf '%s' "${redirects}"
-} > public/_redirects
 
 # _headers — CF Pages matches by incoming URL, so each alias needs its own
 # header rule in addition to the /setup/*.sh catch-all from src/_headers.

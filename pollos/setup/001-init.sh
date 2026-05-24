@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Re-exec under bash when launched as `sh script.sh` — minimal Debian's /bin/sh
+# is dash, which doesn't grok the array + here-string syntax used below.
+[ -n "${BASH_VERSION:-}" ] || exec bash "$0" "$@"
+
 #
 # MANUAL STEP: run this on every fresh Debian 13 box at the console, as root.
 # Each box must be touched individually — there is no SSH yet.

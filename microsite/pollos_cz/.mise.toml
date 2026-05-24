@@ -1,0 +1,21 @@
+[settings]
+experimental = true
+
+[tools]
+node = "22"
+terraform = "1.15"
+"npm:wrangler" = "latest"
+
+[hooks]
+preinstall = """
+echo "resetting gpg agent + importing Node release keys..."
+gpgconf --kill all 2>/dev/null || true
+KEYS=$(curl -fsSL https://raw.githubusercontent.com/nodejs/release-keys/main/keys.list)
+for server in keys.openpgp.org keyserver.ubuntu.com pgp.mit.edu; do
+  echo "$KEYS" | xargs gpg --keyserver hkps://$server --recv-keys && break
+done
+"""
+
+[tasks.wrangler]
+description = "Install wrangler globally"
+run = "npm install -g wrangler"

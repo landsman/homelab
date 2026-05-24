@@ -9,6 +9,7 @@
 /* Reusable components. */
 @import url("./css/components/mini-player.css");
 @import url("./css/components/setup-link.css");
+@import url("./css/components/home-link.css");
 @import url("./css/components/terminal.css");
 
 /* Page-specific. */

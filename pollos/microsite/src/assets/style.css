@@ -5,6 +5,7 @@
 @import url("./css/reset.css");
 @import url("./css/page.css");
 @import url("./css/typography.css");
+@import url("./css/transitions.css");
 
 /* Reusable components. */
 @import url("./css/components/mini-player.css");

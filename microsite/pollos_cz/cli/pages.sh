@@ -25,7 +25,7 @@ while IFS= read -r f; do
   if [[ "${f}" == *.sh ]]; then
     # Strip leading "NNN-" and ".sh" → alias.
     alias="$(basename "${f}" .sh | sed -E 's/^[0-9]+-//')"
-    setup_items+="<li><a href=\"/${alias}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
+    setup_items+="<li><a href=\"${f}\">${f}</a><a class=\"alias\" href=\"/${alias}\">/${alias}</a></li>"$'\n'
     redirects+="/${alias}  /setup/${f}  200"$'\n'
   else
     setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'

@@ -1,18 +1,18 @@
 /* pollos.cz stylesheet entry. Native CSS @import — order matters. */
 
 /* Foundations. */
-@import url("./css/tokens.css");
-@import url("./css/reset.css");
-@import url("./css/page.css");
-@import url("./css/typography.css");
-@import url("./css/transitions.css");
+@import url('./css/tokens.css');
+@import url('./css/reset.css');
+@import url('./css/page.css');
+@import url('./css/typography.css');
+@import url('./css/transitions.css');
 
 /* Reusable components. */
-@import url("./css/components/mini-player.css");
-@import url("./css/components/setup-link.css");
-@import url("./css/components/home-link.css");
-@import url("./css/components/terminal.css");
+@import url('./css/components/mini-player.css');
+@import url('./css/components/setup-link.css');
+@import url('./css/components/home-link.css');
+@import url('./css/components/terminal.css');
 
 /* Page-specific. */
-@import url("./css/pages/home.css");
-@import url("./css/pages/listing.css");
+@import url('./css/pages/home.css');
+@import url('./css/pages/listing.css');

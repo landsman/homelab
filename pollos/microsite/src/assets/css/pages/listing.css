@@ -24,9 +24,9 @@ main.listing {
     opacity: 0.85;
     transition: opacity ease 0.3s;
 
-      &:hover {
-          opacity: 1;
-      }
+    &:hover {
+      opacity: 1;
+    }
 
     code {
       background: rgba(0, 0, 0, 0.1);
@@ -112,8 +112,4 @@ main.listing {
     opacity: 0.4;
     text-align: right;
   }
-}
-
-main img {
-    max-width: 100%;
 }

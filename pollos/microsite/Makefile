@@ -1,4 +1,4 @@
-.PHONY: install bootstrap login bucket clean copy pages build dev lint version
+.PHONY: install bootstrap login bucket clean copy pages build dev lint format format-check version
 
 install:
 	mise install
@@ -45,3 +45,11 @@ version:
 lint:
 	shellcheck -x cli/*.sh src/setup/*.sh
 	@npx oxlint
+
+# Format CSS, HTML, JS and JSON with Prettier (config in .prettierrc).
+format:
+	npm run format:fix
+
+# Check formatting without writing — use in CI.
+format-check:
+	npm run format

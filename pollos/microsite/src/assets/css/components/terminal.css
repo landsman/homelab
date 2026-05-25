@@ -20,7 +20,7 @@ main.listing pre {
 }
 .terminal::before,
 main.listing pre::before {
-  content: "$";
+  content: '$';
   position: absolute;
   left: 0.95rem;
   top: 0.9rem;

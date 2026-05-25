@@ -10,99 +10,110 @@ main.listing {
     Menlo,
     Consolas,
     monospace;
-}
-main.listing h1 {
-  font-size: 1.6rem;
-  margin: 0 0 0.5rem;
-  letter-spacing: 0.02em;
-}
-main.listing p.intro {
-  margin: 0 0 1.75rem;
-  font-size: 13px;
-  line-height: 1.55;
-  opacity: 0.85;
+
+  h1 {
+    font-size: 1.6rem;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  p.intro {
+    margin: 0 0 1.75rem;
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: 0.85;
     transition: opacity ease 0.3s;
-}
-main.listing p.intro code {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 0.05rem 0.35rem;
-  border-radius: 4px;
-  font-size: 12px;
-}
 
-main.listing section {
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 2px dashed rgba(0, 0, 0, 0.15);
-}
-main.listing section h2 {
-  font-size: 0.95rem;
-  margin: 0 0 1rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+      &:hover {
+          opacity: 1;
+      }
 
-main p.intro:hover {
-    opacity: 1;
+    code {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.05rem 0.35rem;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  }
+
+  section {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 2px dashed rgba(0, 0, 0, 0.15);
+
+    h2 {
+      font-size: 0.95rem;
+      margin: 0 0 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    &.files ul {
+      margin: 0;
+    }
+
+    &.usage p {
+      margin: 1.5rem 0 0.6rem;
+      font-size: 13px;
+      line-height: 1.5;
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+
+      code {
+        background: rgba(0, 0, 0, 0.1);
+        padding: 0.05rem 0.4rem;
+        border-radius: 4px;
+        font-size: 12.5px;
+      }
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .alias {
+      margin-left: auto;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.06);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--pollos-red);
+        color: var(--pollos-yellow);
+        text-decoration: none;
+      }
+    }
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    text-align: right;
+  }
 }
 
 main img {
     max-width: 100%;
-}
-
-main.listing ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-main.listing li {
-  padding: 0.45rem 0;
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-main.listing li:last-child {
-  border-bottom: none;
-}
-main.listing li .alias {
-  margin-left: auto;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.65);
-  background: rgba(0, 0, 0, 0.06);
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-}
-main.listing li .alias:hover {
-  background: var(--pollos-red);
-  color: var(--pollos-yellow);
-  text-decoration: none;
-}
-main.listing section.files ul {
-  margin: 0;
-}
-
-main.listing section.usage p {
-  margin: 1.5rem 0 0.6rem;
-  font-size: 13px;
-  line-height: 1.5;
-}
-main.listing section.usage p:first-of-type {
-  margin-top: 0;
-}
-main.listing section.usage p code {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 0.05rem 0.4rem;
-  border-radius: 4px;
-  font-size: 12.5px;
-}
-
-main.listing footer {
-  margin-top: 4rem;
-  padding-top: 1rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  opacity: 0.4;
-  text-align: right;
 }

@@ -12,15 +12,16 @@ Create the R2 bucket that holds Terraform state, and add GitHub secrets.
 make bootstrap   # mise install + wrangler + login + create R2 bucket
 ```
 
-Bucket name `pollos-cz-tf-state` (also in `infra/main.tf` backend). Targets: `make install`, `make login`, `make bucket`. Terraform never runs locally — all `plan`/`apply` happens in CI with secrets from GitHub.
+Bucket name `pollos-cz-tf-state` (also in `../infra/main.tf` backend; Terraform lives in [`pollos/infra`](../infra) and covers the site **and** node monitoring). Targets: `make install`, `make login`, `make bucket`. Terraform never runs locally — all `plan`/`apply` happens in CI with secrets from GitHub.
 
 Requires `mise` and `gpg` installed. macOS: `brew install mise gnupg`. Ubuntu: see [mise.jdx.dev](https://mise.jdx.dev/getting-started.html) + `apt install gnupg`.
 
 GitHub repo **secrets** (sensitive):
 
-- `POLLOS_CZ_CF_API_TOKEN` — Cloudflare API token, scopes: `Account · Cloudflare Pages · Edit`, `Zone · DNS · Edit` (zone `pollos.cz`)
+- `POLLOS_CZ_CF_API_TOKEN` — Cloudflare API token, scopes: `Account · Cloudflare Pages · Edit`, `Account · Cloudflare Tunnel · Edit` (shown in the token UI as **Argo Tunnel (Legacy) · Edit**), `Zone · DNS · Edit` (zone `pollos.cz`)
 - `POLLOS_CZ_R2_ACCESS_KEY_ID` — R2 token (Object R/W on `pollos-cz-tf-state` bucket)
 - `POLLOS_CZ_R2_SECRET_ACCESS_KEY` — R2 token secret
+- `POLLOS_BETTERUPTIME_API_TOKEN` — BetterStack (Better Uptime) API token, for the per-node uptime monitors
 
 GitHub repo **variables** (not sensitive — just identifiers):
 
@@ -32,5 +33,7 @@ GitHub repo **variables** (not sensitive — just identifiers):
 Push to `main` touching `pollos/**` →
 `.github/workflows/pollos-deploy.yml` runs:
 
-1. `terraform apply` — Pages project, custom domains, DNS, apex→www redirect (state in R2).
+1. `terraform apply` — Pages project, custom domains, DNS, apex→www redirect, plus per-node health tunnels + BetterStack monitors (state in R2).
 2. `wrangler pages deploy` — uploads everything under `public/`.
+
+Per-node monitoring is documented in [`pollos/infra/monitoring.tf`](../infra/monitoring.tf); the box-side connector install is [`pollos/setup/003-monitoring.sh`](../setup/003-monitoring.sh).

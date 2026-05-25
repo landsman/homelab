@@ -21,6 +21,7 @@ main.listing p.intro {
   font-size: 13px;
   line-height: 1.55;
   opacity: 0.85;
+    transition: opacity ease 0.3s;
 }
 main.listing p.intro code {
   background: rgba(0, 0, 0, 0.1);
@@ -39,6 +40,14 @@ main.listing section h2 {
   margin: 0 0 1rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+main p.intro:hover {
+    opacity: 1;
+}
+
+main img {
+    max-width: 100%;
 }
 
 main.listing ul {

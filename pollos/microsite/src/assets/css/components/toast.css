@@ -1,0 +1,32 @@
+/* Flash message — bottom-center, auto-shown/hidden by app.js (e.g. on copy). */
+
+.toast {
+  position: fixed;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  padding: 0.55rem 1rem;
+  background: var(--pollos-blue);
+  /* Lighter blue accent underline ties the two pollos blues together. */
+  border-bottom: 3px solid var(--pollos-blue-light);
+  color: var(--pollos-yellow);
+  border-radius: 8px;
+  font:
+    13px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

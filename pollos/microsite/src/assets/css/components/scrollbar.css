@@ -18,7 +18,7 @@
   }
 
   body::-webkit-scrollbar-thumb {
-    background: #1e408a;
+    background: var(--pollos-blue);
     border-radius: 9px;
     /* Transparent border + padding-box clip leaves a slim yellow gutter. */
     border: 3px solid transparent;
@@ -28,7 +28,7 @@
   /* Firefox — no width control, but keep the pollos colors. */
   @supports not selector(::-webkit-scrollbar) {
     body {
-      scrollbar-color: #1e408a var(--pollos-yellow);
+      scrollbar-color: var(--pollos-blue) var(--pollos-yellow);
     }
   }
 }

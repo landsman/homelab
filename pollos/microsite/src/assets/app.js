@@ -104,6 +104,67 @@ document.addEventListener('click', e => {
   if (!started) startPlayback()
 })
 
+// Copy-to-clipboard buttons for `.copyable` command blocks (ssh section).
+// Injected here rather than in HTML, and re-run on every htmx swap.
+// The icon glyph is supplied by CSS (mask on `.copy-btn::before`).
+
+/**
+ * Add a copy button to every `.copyable` block under `root` that lacks one.
+ * @param {ParentNode} root
+ * @returns {void}
+ */
+function enhanceCopyBlocks(root) {
+  root.querySelectorAll('.copyable').forEach(block => {
+    if (block.querySelector('.copy-btn')) return
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'copy-btn'
+    btn.setAttribute('aria-label', 'Copy command')
+    block.appendChild(btn)
+  })
+}
+
+enhanceCopyBlocks(document)
+document.body.addEventListener('htmx:load', e => enhanceCopyBlocks(e.target))
+
+// Toast — one reusable flash message, lives outside #page so it survives swaps.
+const toast = document.createElement('div')
+toast.className = 'toast'
+toast.setAttribute('role', 'status')
+toast.setAttribute('aria-live', 'polite')
+document.body.appendChild(toast)
+
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let toastTimer
+
+/**
+ * Flash a transient message, auto-hiding after a short delay.
+ * @param {string} msg
+ * @returns {void}
+ */
+function showToast(msg) {
+  toast.textContent = msg
+  toast.classList.add('show')
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1600)
+}
+
+document.addEventListener('click', async e => {
+  if (!(e.target instanceof Element)) return
+  const btn = e.target.closest('.copy-btn')
+  if (!btn) return
+  const code = btn.closest('.copyable')?.querySelector('code')
+  if (!code) return
+  try {
+    await navigator.clipboard.writeText(code.textContent.trim())
+    btn.classList.add('copied')
+    setTimeout(() => btn.classList.remove('copied'), 1200)
+    showToast('Copied to clipboard')
+  } catch {
+    /* clipboard unavailable (insecure context / denied) */
+  }
+})
+
 let last = performance.now()
 
 /**

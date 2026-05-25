@@ -35,3 +35,48 @@ main.listing pre code {
   padding: 0;
   color: inherit;
 }
+
+/* Copy-to-clipboard button — top-right of a `.copyable` block. Injected by app.js. */
+main.listing pre.copyable {
+  padding-right: 2.8rem;
+}
+.copy-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(253, 219, 0, 0.12);
+  color: var(--pollos-yellow);
+  cursor: pointer;
+  opacity: 0.65;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+/* Icon glyph — masked so it picks up the button's currentColor (recolors when
+   `.copied`). Lives in img/icons so it rides the entry stylesheet's cache-bust. */
+.copy-btn::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  -webkit-mask: url('../../img/icons/copy.svg') center / contain no-repeat;
+  mask: url('../../img/icons/copy.svg') center / contain no-repeat;
+}
+.copy-btn:hover {
+  opacity: 1;
+  background: rgba(253, 219, 0, 0.22);
+}
+.copy-btn.copied {
+  opacity: 1;
+  background: var(--pollos-yellow);
+  color: var(--pollos-ink);
+}

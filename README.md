@@ -6,6 +6,7 @@ Playground for my local homelab.
 
 - [NAS on Raspberry Pi](nas)
 - [Ports overview](.docs/PORTS.md)
+- [Mini PC Cluster (Pollos)](pollos)
 
 ## Apps
 

@@ -10,7 +10,9 @@
 
 locals {
   monitor_nodes = toset(["gus", "mike", "walter", "jesse"])
-  health_domain = "health.pollos.cz"
+  # single label under the zone (gus-health.pollos.cz) so Universal SSL's
+  # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
+  zone_domain = "pollos.cz"
 }
 
 # One tunnel per box → each node is up/down independently. config_src
@@ -35,11 +37,11 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "health" {
   }
 }
 
-# <node>.health.pollos.cz  →  this tunnel (proxied / orange-cloud).
+# <node>-health.pollos.cz  →  this tunnel (proxied / orange-cloud).
 resource "cloudflare_dns_record" "health" {
   for_each = local.monitor_nodes
   zone_id  = var.cloudflare_zone_id
-  name     = "${each.key}.${local.health_domain}"
+  name     = "${each.key}-health.${local.zone_domain}"
   type     = "CNAME"
   content  = "${cloudflare_zero_trust_tunnel_cloudflared.health[each.key].id}.cfargotunnel.com"
   proxied  = true
@@ -56,7 +58,7 @@ data "cloudflare_zero_trust_tunnel_cloudflared_token" "health" {
 # BetterStack polls each endpoint; monitor_type "status" expects a 2XX.
 resource "betteruptime_monitor" "health" {
   for_each           = local.monitor_nodes
-  url                = "https://${each.key}.${local.health_domain}"
+  url                = "https://${each.key}-health.${local.zone_domain}"
   monitor_type       = "status"
   pronounceable_name = "pollos ${each.key}"
   check_frequency    = 180 # seconds (3 min)

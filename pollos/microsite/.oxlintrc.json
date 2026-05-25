@@ -1,8 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "jsPlugins": [
-    { "name": "jsdoc-js", "specifier": "eslint-plugin-jsdoc" }
-  ],
+  "jsPlugins": [{ "name": "jsdoc-js", "specifier": "eslint-plugin-jsdoc" }],
   "rules": {
     "jsdoc-js/require-jsdoc": [
       "error",

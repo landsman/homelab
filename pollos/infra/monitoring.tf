@@ -59,7 +59,7 @@ resource "betteruptime_monitor" "health" {
   url                = "https://${each.key}.${local.health_domain}"
   monitor_type       = "status"
   pronounceable_name = "pollos ${each.key}"
-  check_frequency    = 60
+  check_frequency    = 180 # seconds (3 min)
   regions            = ["eu"]
 }
 

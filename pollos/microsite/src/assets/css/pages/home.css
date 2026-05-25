@@ -1,5 +1,12 @@
 /* Home page — centered spinning logo. */
 
+/* Home never scrolls — suppress the scrollbar on whichever element scrolls
+   (body on desktop, the viewport on mobile). */
+html:has(main.spinner),
+body:has(main.spinner) {
+  overflow: hidden;
+}
+
 main.spinner {
   display: flex;
   align-items: center;

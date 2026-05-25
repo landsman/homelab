@@ -12,6 +12,7 @@
 @import url('./css/components/setup-link.css');
 @import url('./css/components/home-link.css');
 @import url('./css/components/terminal.css');
+@import url('./css/components/scrollbar.css');
 
 /* Page-specific. */
 @import url('./css/pages/home.css');

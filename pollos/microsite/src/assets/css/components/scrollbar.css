@@ -1,0 +1,34 @@
+/* Custom scrollbar — desktop only. On mobile the viewport scrolls natively. */
+
+@media (min-width: 769px) {
+  body {
+    /* Uniform transparent border insets the scrollbar from the rounded card
+       edge without distorting the corners. Default border-box clip keeps the
+       yellow bg filling the gap. */
+    border: 14px solid transparent;
+  }
+
+  /* WebKit/Blink (Chrome, Safari, Edge) — allows a custom thumb width. */
+  body::-webkit-scrollbar {
+    width: 18px;
+  }
+
+  body::-webkit-scrollbar-track {
+    background: var(--pollos-yellow);
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: #1e408a;
+    border-radius: 9px;
+    /* Transparent border + padding-box clip leaves a slim yellow gutter. */
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Firefox — no width control, but keep the pollos colors. */
+  @supports not selector(::-webkit-scrollbar) {
+    body {
+      scrollbar-color: #1e408a var(--pollos-yellow);
+    }
+  }
+}

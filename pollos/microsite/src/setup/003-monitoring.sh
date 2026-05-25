@@ -1,0 +1,1 @@
+../../../setup/003-monitoring.sh

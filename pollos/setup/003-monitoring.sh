@@ -13,13 +13,13 @@ set -eu
 # Cloudflare account. So all this script does is install cloudflared and run it.
 #
 # MANUAL STEP: run on every pollos box (gus, mike, walter, jesse), as root,
-# after 001-init.sh (needs curl). Get this box's token from Terraform:
-#
-#   terraform output -json health_tunnel_tokens | jq -r .<host>      # in pollos/infra
+# after 001-init.sh (needs curl). Grab this box's connector token from the
+# Cloudflare dashboard → Zero Trust → Networks → Tunnels → health-<host>
+# (or, if you have Terraform: terraform output -json health_tunnel_tokens).
 #
 # then on the box (it will prompt for the token — paste it):
 #
-#   curl -fsSL https://pollos.cz/monitoring.sh -o monitoring.sh
+#   wget https://pollos.cz/monitoring.sh
 #   sudo sh monitoring.sh
 #
 # or non-interactively (CI, automation):
@@ -47,7 +47,7 @@ ARCH="$(dpkg --print-architecture)"             # amd64 on the prodesks
 TMP_DEB="$(mktemp --suffix=.deb)"
 curl -fsSL -o "$TMP_DEB" \
   "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}.deb"
-dpkg -i "$TMP_DEB" || apt-get install -f -y
+apt-get install -y "$TMP_DEB"   # local .deb: apt resolves deps in one step
 rm -f "$TMP_DEB"
 
 # (re)install the systemd service bound to this tunnel's token

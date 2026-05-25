@@ -5,6 +5,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 5.0"
     }
+    betteruptime = {
+      source  = "BetterStackHQ/better-uptime"
+      version = "~> 0.11"
+    }
   }
 
   backend "s3" {
@@ -23,6 +27,10 @@ terraform {
 
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
+}
+
+provider "betteruptime" {
+  api_token = var.betteruptime_api_token
 }
 
 resource "cloudflare_pages_project" "site" {

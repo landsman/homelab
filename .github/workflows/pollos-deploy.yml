@@ -21,7 +21,7 @@ jobs:
         with:
           filters: |
             infra:
-              - 'pollos/microsite/infra/**'
+              - 'pollos/infra/**'
               - '.github/workflows/pollos-deploy.yml'
             content:
               - 'pollos/microsite/src/**'
@@ -37,11 +37,12 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: pollos/microsite/infra
+        working-directory: pollos/infra
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
       TF_VAR_cloudflare_account_id: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
       TF_VAR_cloudflare_zone_id: ${{ vars.POLLOS_CZ_CF_ZONE_ID }}
+      TF_VAR_betteruptime_api_token: ${{ secrets.POLLOS_BETTERUPTIME_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.POLLOS_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.POLLOS_CZ_R2_SECRET_ACCESS_KEY }}
     steps:

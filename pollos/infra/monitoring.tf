@@ -48,6 +48,17 @@ resource "cloudflare_dns_record" "health" {
   ttl      = 1
 }
 
+# Public BetterStack status page at status.pollos.cz. DNS-only (grey cloud):
+# BetterStack issues the TLS cert for the custom domain, so it must NOT be proxied.
+resource "cloudflare_dns_record" "status_page" {
+  zone_id = var.cloudflare_zone_id
+  name    = "status.${local.zone_domain}"
+  type    = "CNAME"
+  content = "statuspage.betteruptime.com"
+  proxied = false
+  ttl     = 1
+}
+
 # Per-tunnel connector token — the only secret each box needs.
 data "cloudflare_zero_trust_tunnel_cloudflared_token" "health" {
   for_each   = local.monitor_nodes

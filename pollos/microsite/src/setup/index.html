@@ -48,17 +48,83 @@
 
     <p>Run directly as root on a fresh Debian box:</p>
     <pre><code>wget -qO- https://pollos.cz/{{EXAMPLE_ALIAS}} | sudo sh</code></pre>
-  </section>
 
-  <section class="usage">
     <p>
-      Once a node is provisioned and your local <code>~/.ssh/config</code> is updated, log in by
-      hostname:
+      Once a node is provisioned and your local <code>~/.ssh/config</code> is updated, log in by:
     </p>
     <pre class="copyable"><code>ssh gus.pollos</code></pre>
-    <pre class="copyable"><code>ssh mike.pollos</code></pre>
-    <pre class="copyable"><code>ssh walter.pollos</code></pre>
-    <pre class="copyable"><code>ssh jesse.pollos</code></pre>
+  </section>
+
+  <section class="status">
+    <h2>Cluster status</h2>
+    <p class="intro">
+      Each node answers <code>200</code> over its own outbound Cloudflare Tunnel while it's alive —
+      <a
+        href="https://betterstack.com/?ref=b-dowu"
+        target="_blank"
+        rel="noopener"
+        >BetterStack</a
+      >
+      polls it and flips the badge red if a box drops.
+    </p>
+    <ul class="status-list">
+      <li>
+        <code>gus.pollos</code>
+        <a
+          class="badge"
+          href="https://betterstack.com/?ref=b-dowu"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            src="https://uptime.betterstack.com/status-badges/v1/monitor/2ne23.svg"
+            alt="gus uptime status"
+          />
+        </a>
+      </li>
+      <li>
+        <code>mike.pollos</code>
+        <a
+          class="badge"
+          href="https://betterstack.com/?ref=b-dowu"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            src="https://uptime.betterstack.com/status-badges/v1/monitor/2ne22.svg"
+            alt="mike uptime status"
+          />
+        </a>
+      </li>
+      <li>
+        <code>walter.pollos</code>
+        <a
+          class="badge"
+          href="https://betterstack.com/?ref=b-dowu"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            src="https://uptime.betterstack.com/status-badges/v1/monitor/2ne21.svg"
+            alt="walter uptime status"
+          />
+        </a>
+      </li>
+      <li>
+        <code>jesse.pollos</code>
+        <a
+          class="badge"
+          href="https://betterstack.com/?ref=b-dowu"
+          target="_blank"
+          rel="noopener"
+        >
+          <img
+            src="https://uptime.betterstack.com/status-badges/v1/monitor/2ne24.svg"
+            alt="jesse uptime status"
+          />
+        </a>
+      </li>
+    </ul>
   </section>
 
   <footer>generated {{GENERATED_AT}}</footer>

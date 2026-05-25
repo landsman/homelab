@@ -113,3 +113,29 @@ main.listing {
     text-align: right;
   }
 }
+
+/* Cluster status — node label left, BetterStack badge right (reuses li flex). */
+main.listing section.status {
+  .status-list code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 12.5px;
+  }
+
+  .badge {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    transition: opacity ease 0.2s;
+
+    img {
+      display: block;
+      height: 22px;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}

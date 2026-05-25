@@ -17,16 +17,30 @@ set -eu
 #
 #   terraform output -json health_tunnel_tokens | jq -r .<host>      # in pollos/infra
 #
-# then on the box:
+# then on the box (it will prompt for the token — paste it):
 #
 #   curl -fsSL https://pollos.cz/monitoring.sh -o monitoring.sh
-#   sudo TUNNEL_TOKEN=eyJhIjoi...   sh monitoring.sh
+#   sudo sh monitoring.sh
+#
+# or non-interactively (CI, automation):
+#
+#   sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
 #
 # Safe to re-run: reinstalls the service with the given token, upgrades cloudflared.
 #
 
-: "${TUNNEL_TOKEN:?set TUNNEL_TOKEN to this node connector token from pollos/infra — see header}"
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
+
+# token: from $TUNNEL_TOKEN if set, else prompt — but only on a real terminal,
+# never when piped (curl | sh), where a prompt would read the script itself.
+if [ -z "${TUNNEL_TOKEN:-}" ] && [ -t 0 ]; then
+  printf 'Paste the connector token for health-%s (Cloudflare → Zero Trust → Tunnels): ' "$(hostname -s)"
+  stty -echo 2>/dev/null || true
+  read -r TUNNEL_TOKEN || true
+  stty echo 2>/dev/null || true
+  printf '\n'
+fi
+[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or pass TUNNEL_TOKEN=... (see header)"; exit 1; }
 
 # install cloudflared (latest .deb, independent of Debian release)
 ARCH="$(dpkg --print-architecture)"             # amd64 on the prodesks

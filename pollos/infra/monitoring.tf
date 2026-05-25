@@ -55,12 +55,18 @@ data "cloudflare_zero_trust_tunnel_cloudflared_token" "health" {
   tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.health[each.key].id
 }
 
+# Group all node monitors under "pollos" in the BetterStack dashboard.
+resource "betteruptime_monitor_group" "pollos" {
+  name = "pollos"
+}
+
 # BetterStack polls each endpoint; monitor_type "status" expects a 2XX.
 resource "betteruptime_monitor" "health" {
   for_each           = local.monitor_nodes
   url                = "https://${each.key}-health.${local.zone_domain}"
   monitor_type       = "status"
   pronounceable_name = "pollos ${each.key}"
+  monitor_group_id   = tonumber(betteruptime_monitor_group.pollos.id)
   check_frequency    = 180 # seconds (3 min)
   regions            = ["eu"]
 }

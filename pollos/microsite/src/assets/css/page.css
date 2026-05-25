@@ -1,6 +1,7 @@
 /* Page chrome — yellow card on red background, mobile-friendly. */
 
 html {
+  color-scheme: dark;
   background: var(--pollos-red);
   height: 100%;
   overflow: hidden;

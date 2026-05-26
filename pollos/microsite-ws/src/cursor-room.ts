@@ -193,6 +193,7 @@ export class CursorRoom extends DurableObject<Env> {
   }
 
   private async pauseUntilMidnight(): Promise<void> {
+    if (this.blocked) return // concurrent messages can race here; only run once
     this.blocked = true
     const notice = JSON.stringify({ type: 'paused' })
     for (const ws of this.ctx.getWebSockets()) {

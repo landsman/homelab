@@ -6,7 +6,7 @@
 // htmx swaps.
 //
 // Cost guardrails (the relay is on Cloudflare's free tier): we only run on fine
-// pointers (desktop), throttle sends to ~15/s, pause while the tab is hidden,
+// pointers (desktop), throttle sends to ~22/s, pause while the tab is hidden,
 // and drop the socket after a stretch of no movement.
 
 /** @typedef {{ el: HTMLDivElement, lastSeen: number }} Peer */
@@ -15,7 +15,7 @@
 // in production, the Terraform-managed custom domain.
 const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
 const WS_URL = LOCAL
-  ? `ws://${location.hostname}:8787/cursors`
+  ? `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.hostname}:8787/cursors`
   : 'wss://microsite-ws.pollos.cz/cursors'
 const SEND_INTERVAL_MS = 45 // ~22 messages/sec while the pointer is moving
 const IDLE_DISCONNECT_MS = 60_000 // drop the socket after this long without movement
@@ -70,6 +70,19 @@ function startCursors() {
   let y = 0.5
   let moved = false
   let lastMove = performance.now()
+
+  // Cache viewport size and refresh on resize — reading window.innerWidth/Height
+  // inside the high-frequency pointermove/render paths would force layout.
+  let width = window.innerWidth
+  let height = window.innerHeight
+  window.addEventListener(
+    'resize',
+    () => {
+      width = window.innerWidth
+      height = window.innerHeight
+    },
+    { passive: true }
+  )
 
   /**
    * Open the relay connection (no-op if already open or paused).
@@ -152,8 +165,8 @@ function startCursors() {
       peers.set(msg.id, peer)
     }
     peer.lastSeen = performance.now()
-    const px = msg.x * window.innerWidth
-    const py = msg.y * window.innerHeight
+    const px = msg.x * width
+    const py = msg.y * height
     peer.el.style.transform = `translate(${px}px, ${py}px)`
   }
 
@@ -201,8 +214,8 @@ function startCursors() {
   document.addEventListener(
     'pointermove',
     e => {
-      x = e.clientX / window.innerWidth
-      y = e.clientY / window.innerHeight
+      x = e.clientX / (width || 1)
+      y = e.clientY / (height || 1)
       moved = true
       lastMove = performance.now()
       if (!ws && !paused) connect() // reconnect after going idle

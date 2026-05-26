@@ -15,6 +15,21 @@ import type { Env } from './config'
 // Durable Object classes must be exported from the Worker's entry module.
 export { CursorRoom } from './cursor-room'
 
+// Only allow WebSocket upgrades from our own origins. Browsers always send a
+// trustworthy Origin on the WS handshake, so this stops third-party sites from
+// embedding the relay and draining the free-tier budget. Non-browser clients
+// (no Origin) are allowed through — they can't be used for cross-site embedding.
+const ALLOWED_HOSTS = new Set(['pollos.cz', 'www.pollos.cz', 'localhost', '127.0.0.1'])
+
+function originAllowed(origin: string | null): boolean {
+  if (!origin) return true
+  try {
+    return ALLOWED_HOSTS.has(new URL(origin).hostname)
+  } catch {
+    return false
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
@@ -24,6 +39,9 @@ export default {
     }
 
     if (url.pathname === '/cursors') {
+      if (!originAllowed(request.headers.get('Origin'))) {
+        return new Response('forbidden origin\n', { status: 403 })
+      }
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('expected a websocket upgrade\n', { status: 426 })
       }

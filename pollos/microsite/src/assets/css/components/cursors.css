@@ -21,8 +21,9 @@
 
 .cursor-arrow {
   display: block;
-  width: 20px;
-  height: 22px;
+  /* Keeps the 20:22 aspect of the source SVG (1.5× the native size). */
+  width: 30px;
+  height: 33px;
   /* The peer's color, set on .cursor; the cached SVG file supplies the shape
      via a CSS mask so the same asset tints to any color and stays cacheable. */
   background-color: currentColor;

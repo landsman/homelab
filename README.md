@@ -25,6 +25,7 @@ Playground for my local homelab.
 ## Useful links
 
 - [Raspberry Pi PCI Express device compatibility database](https://pipci.jeffgeerling.com)
+- [Better Stack Uptime Monitoring & Logs](https://betterstack.com/?ref=b-dowu) they have even a great free tier!
 - [Tailscale VPN](https://tailscale.com) free VPN for your homelab
 - [Disk Prices](https://diskprices.com) is amazing overview where you can buy new or used HDD or SSD for a reasonable price
 - [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)

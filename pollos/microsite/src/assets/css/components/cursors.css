@@ -13,8 +13,9 @@
   position: absolute;
   top: 0;
   left: 0;
-  /* translate() set per-frame by cursors.js; smooth between sparse updates. */
-  transition: transform 90ms linear;
+  /* translate() set by cursors.js on each update; a short transition (~matched
+     to the send interval) smooths motion without adding noticeable lag. */
+  transition: transform 45ms linear;
   will-change: transform;
 }
 

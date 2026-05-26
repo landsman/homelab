@@ -17,7 +17,7 @@ const LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.
 const WS_URL = LOCAL
   ? `ws://${location.hostname}:8787/cursors`
   : 'wss://microsite-ws.pollos.cz/cursors'
-const SEND_INTERVAL_MS = 66 // ~15 messages/sec while the pointer is moving
+const SEND_INTERVAL_MS = 45 // ~22 messages/sec while the pointer is moving
 const IDLE_DISCONNECT_MS = 60_000 // drop the socket after this long without movement
 const STALE_PEER_MS = 10_000 // forget a peer we stop hearing from (missed leave)
 const MAX_RECONNECT_MS = 30_000

@@ -1,0 +1,92 @@
+/* Live visitor cursors — rendered by cursors.js into a full-viewport overlay.
+   The layer never intercepts input; only the static SPA underneath is clickable. */
+
+.cursors-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4; /* below the toast (5) and mini-player */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* translate() set by cursors.js on each update; a short transition (~matched
+     to the send interval) smooths motion without adding noticeable lag. */
+  transition: transform 45ms linear;
+  will-change: transform;
+}
+
+.cursor-arrow {
+  display: block;
+  /* Keeps the 20:22 aspect of the source SVG (1.5× the native size). */
+  width: 30px;
+  height: 33px;
+  /* The peer's color, set on .cursor; the cached SVG file supplies the shape
+     via a CSS mask so the same asset tints to any color and stays cacheable. */
+  background-color: currentColor;
+  -webkit-mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
+  mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+  transform-origin: top left; /* scale from the pointer tip */
+  animation: cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
+}
+
+/* Pop in when a peer first appears. */
+@keyframes cursor-pop {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Fade + shrink out on leave — cursors.js adds this class, then removes the
+   element after the transition. */
+.cursor.is-leaving .cursor-arrow {
+  animation: none;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.cursor-label {
+  /* Names are hidden for the first release — the element and its data stay so
+     the follow-up (pixel-art characters) can re-enable them. */
+  display: none;
+  position: absolute;
+  top: 18px;
+  left: 14px;
+  padding: 2px 7px;
+  background: currentColor; /* the peer's color, set on .cursor */
+  color: #fff;
+  border-radius: 6px;
+  white-space: nowrap;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    transition: none;
+  }
+  .cursor-arrow {
+    animation: none;
+    transition: none;
+  }
+}

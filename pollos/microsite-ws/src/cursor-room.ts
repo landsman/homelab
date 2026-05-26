@@ -131,13 +131,11 @@ export class CursorRoom extends DurableObject<Env> {
   }
 
   webSocketClose(ws: WebSocket): void {
-    this.buckets.delete(ws)
-    this.announceLeave(ws)
+    this.depart(ws)
   }
 
   webSocketError(ws: WebSocket): void {
-    this.buckets.delete(ws)
-    this.announceLeave(ws)
+    this.depart(ws)
   }
 
   // Fires at UTC midnight after a pause — lifts the block for the new day.
@@ -167,16 +165,22 @@ export class CursorRoom extends DurableObject<Env> {
   }
 
   private dropSocket(ws: WebSocket, code: number, reason: string): void {
+    this.depart(ws)
     try {
       ws.close(code, reason)
     } catch {
       /* already closing */
     }
-    this.buckets.delete(ws)
-    this.announceLeave(ws)
   }
 
-  private announceLeave(ws: WebSocket): void {
+  // Single departure path, guarded by bucket presence so it runs exactly once
+  // per socket — whether the close was client-initiated (webSocketClose) or
+  // server-initiated (dropSocket), and regardless of whether the runtime also
+  // fires webSocketClose after a server close. A socket only has a bucket once
+  // it has sent a message, i.e. once peers could have a cursor for it.
+  private depart(ws: WebSocket): void {
+    if (!this.buckets.has(ws)) return
+    this.buckets.delete(ws)
     const self = ws.deserializeAttachment() as Attachment | null
     if (self) this.broadcast(JSON.stringify({ type: 'leave', id: self.id }), ws)
   }

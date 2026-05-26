@@ -37,8 +37,8 @@ main.listing {
   }
 
   section {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
+    margin-top: 3.25rem;
+    padding-top: 3.25rem;
     border-top: 2px dashed rgba(0, 0, 0, 0.15);
 
     h2 {
@@ -110,7 +110,42 @@ main.listing {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     opacity: 0.4;
-    text-align: right;
+
+    /* Wrap gracefully on narrow screens. Dividers are their own .sep elements,
+       so a "|" is never part of a link. */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem 0.55rem;
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    .sep {
+      opacity: 0.55;
+    }
+  }
+}
+
+/* On phones, center the footer and put "generated …" on its own line so the
+   links wrap cleanly below it — without a dangling "|" after the date. */
+@media (max-width: 600px) {
+  main.listing footer {
+    justify-content: center;
+    row-gap: 0.7rem; /* breathing room above the wrapped links row */
+  }
+
+  main.listing footer .gen {
+    flex-basis: 100%;
+    text-align: center;
+  }
+
+  /* drop the divider between the date and the links when they wrap below */
+  main.listing footer .gen + .sep {
+    display: none;
   }
 }
 

@@ -46,6 +46,9 @@ jobs:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
           workingDirectory: pollos/microsite-ws
+          # Pin to our wrangler; the action otherwise falls back to a default 3.x
+          # that doesn't read wrangler.jsonc (→ "Missing entry-point").
+          wranglerVersion: '4.94.0'
           command: deploy
 
   infra:

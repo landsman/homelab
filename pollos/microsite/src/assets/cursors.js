@@ -163,10 +163,11 @@ function startCursors() {
    */
   function removePeer(id) {
     const peer = peers.get(id)
-    if (peer) {
-      peer.el.remove()
-      peers.delete(id)
-    }
+    if (!peer) return
+    peers.delete(id)
+    // Play the leave animation (see cursors.css), then drop the element.
+    peer.el.classList.add('is-leaving')
+    setTimeout(() => peer.el.remove(), 160)
   }
 
   /**

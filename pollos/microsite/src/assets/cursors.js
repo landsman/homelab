@@ -21,7 +21,7 @@ const SEND_INTERVAL_MS = 45 // ~22 messages/sec while the pointer is moving
 const IDLE_DISCONNECT_MS = 60_000 // drop the socket after this long without movement
 const STALE_PEER_MS = 10_000 // forget a peer we stop hearing from (missed leave)
 const MAX_RECONNECT_MS = 30_000
-const PAUSED_RETRY_MS = 10 * 60_000 // re-try after the server signals its daily budget
+const PAUSED_JITTER_MS = 5 * 60_000 // spread reconnects after the daily budget resets
 
 const ADJECTIVES = ['Swift', 'Sneaky', 'Crispy', 'Golden', 'Spicy', 'Mellow', 'Zesty', 'Bold']
 const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nugget', 'Gallo']
@@ -117,11 +117,16 @@ function startCursors() {
     } else if (msg.type === 'leave') {
       removePeer(msg.id)
     } else if (msg.type === 'paused') {
-      // Relay hit its daily budget — stand down, then try again much later.
+      // Relay hit its daily budget (resets at UTC midnight). Stand down until
+      // then, plus jitter, so we don't reconnect-storm a still-blocked server
+      // or stampede all clients at the reset.
       paused = true
+      const now = new Date()
+      const midnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
+      const delay = midnight - now.getTime() + Math.random() * PAUSED_JITTER_MS
       setTimeout(() => {
         paused = false
-      }, PAUSED_RETRY_MS)
+      }, delay)
     }
   }
 
@@ -226,6 +231,9 @@ function startCursors() {
   // Pause while the tab is hidden — no point streaming a cursor nobody sees.
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+      // Also cancel any pending reconnect so it can't fire while hidden.
+      clearTimeout(reconnectTimer)
+      reconnectTimer = 0
       if (ws) {
         intentionalClose = true
         ws.close()

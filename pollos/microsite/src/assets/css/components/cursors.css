@@ -31,6 +31,9 @@
 }
 
 .cursor-label {
+  /* Names are hidden for the first release — the element and its data stay so
+     the follow-up (pixel-art characters) can re-enable them. */
+  display: none;
   position: absolute;
   top: 18px;
   left: 14px;

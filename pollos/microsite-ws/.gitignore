@@ -1,0 +1,8 @@
+# Node deps.
+node_modules/
+
+# wrangler local state (cache, dev server).
+.wrangler/
+
+# Local secrets / vars for `wrangler dev`.
+.dev.vars

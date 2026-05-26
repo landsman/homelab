@@ -1,0 +1,55 @@
+/* Live visitor cursors — rendered by cursors.js into a full-viewport overlay.
+   The layer never intercepts input; only the static SPA underneath is clickable. */
+
+.cursors-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4; /* below the toast (5) and mini-player */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* translate() set per-frame by cursors.js; smooth between sparse updates. */
+  transition: transform 90ms linear;
+  will-change: transform;
+}
+
+.cursor-arrow {
+  display: block;
+  width: 20px;
+  height: 22px;
+  /* The peer's color, set on .cursor; the cached SVG file supplies the shape
+     via a CSS mask so the same asset tints to any color and stays cacheable. */
+  background-color: currentColor;
+  -webkit-mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
+  mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.cursor-label {
+  position: absolute;
+  top: 18px;
+  left: 14px;
+  padding: 2px 7px;
+  background: currentColor; /* the peer's color, set on .cursor */
+  color: #fff;
+  border-radius: 6px;
+  white-space: nowrap;
+  font:
+    11px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    transition: none;
+  }
+}

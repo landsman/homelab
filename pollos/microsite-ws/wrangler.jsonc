@@ -1,0 +1,26 @@
+{
+  // Realtime WebSocket endpoint for the pollos.cz microsite. Today it powers
+  // live visitor cursors (CursorRoom); routed by path (/cursors) so other
+  // realtime features can be added later without a new Worker.
+  //
+  // Free Workers plan: SQLite-backed Durable Object (`new_sqlite_classes`) +
+  // Hibernation API. App-level guardrails in src/index.ts keep usage under the
+  // free ceiling and degrade gracefully instead of erroring at the platform.
+  "name": "microsite-ws",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-12-01",
+
+  // Only public entry point is the custom domain microsite-ws.pollos.cz,
+  // provisioned in Terraform (pollos/infra/microsite-ws.tf) — so no workers.dev
+  // URL and no routes block here to drift against Terraform.
+  "workers_dev": false,
+
+  "observability": { "enabled": true },
+
+  "durable_objects": {
+    "bindings": [{ "name": "CURSORS", "class_name": "CursorRoom" }],
+  },
+
+  // SQLite-backed class — required for Durable Objects on the Workers Free plan.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CursorRoom"] }],
+}

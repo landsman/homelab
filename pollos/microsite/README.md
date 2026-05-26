@@ -18,7 +18,7 @@ Requires `mise` and `gpg` installed. macOS: `brew install mise gnupg`. Ubuntu: s
 
 GitHub repo **secrets** (sensitive):
 
-- `POLLOS_CZ_CF_API_TOKEN` — Cloudflare API token, scopes: `Account · Cloudflare Pages · Edit`, `Account · Cloudflare Tunnel · Edit` (shown in the token UI as **Argo Tunnel (Legacy) · Edit**), `Zone · DNS · Edit` (zone `pollos.cz`)
+- `POLLOS_CZ_CF_API_TOKEN` — Cloudflare API token, scopes: `Account · Cloudflare Pages · Edit`, `Account · Workers Scripts · Edit` (deploys the [`microsite-ws`](../microsite-ws) Worker + binds its custom domain), `Account · Cloudflare Tunnel · Edit` (shown in the token UI as **Argo Tunnel (Legacy) · Edit**), `Zone · DNS · Edit` (zone `pollos.cz`)
 - `POLLOS_CZ_R2_ACCESS_KEY_ID` — R2 token (Object R/W on `pollos-cz-tf-state` bucket)
 - `POLLOS_CZ_R2_SECRET_ACCESS_KEY` — R2 token secret
 - `POLLOS_BETTERUPTIME_API_TOKEN` — BetterStack (Better Uptime) API token, for the per-node uptime monitors
@@ -33,7 +33,8 @@ GitHub repo **variables** (not sensitive — just identifiers):
 Push to `main` touching `pollos/**` →
 `.github/workflows/pollos-deploy.yml` runs:
 
-1. `terraform apply` — Pages project, custom domains, DNS, apex→www redirect, plus per-node health tunnels + BetterStack monitors (state in R2).
-2. `wrangler pages deploy` — uploads everything under `public/`.
+1. `wrangler deploy` (`worker` job) — ships the [`microsite-ws`](../microsite-ws) Worker so its custom domain has a service to bind to.
+2. `terraform apply` — Pages project, custom domains (incl. `microsite-ws.pollos.cz`), DNS, apex→www redirect, plus per-node health tunnels + BetterStack monitors (state in R2).
+3. `wrangler pages deploy` — uploads everything under `public/`.
 
 Per-node monitoring is documented in [`pollos/infra/monitoring.tf`](../infra/monitoring.tf); the box-side connector install is [`pollos/setup/003-monitoring.sh`](../setup/003-monitoring.sh).

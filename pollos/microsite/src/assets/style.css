@@ -14,6 +14,7 @@
 @import url('./css/components/terminal.css');
 @import url('./css/components/toast.css');
 @import url('./css/components/scrollbar.css');
+@import url('./css/components/cursors.css');
 
 /* Page-specific. */
 @import url('./css/pages/home.css');

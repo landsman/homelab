@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- resealable zip top -->
+  <rect x="9" y="4" width="2" height="1" fill="#dfe9ee" />
+  <rect x="21" y="4" width="2" height="1" fill="#dfe9ee" />
+  <rect x="8" y="5" width="16" height="1" fill="#c2d2da" />
+  <rect x="8" y="6" width="16" height="1" fill="#93a8b2" />
+  <rect x="9" y="6" width="14" height="1" fill="#aebfc8" />
+  <!-- plastic bag body -->
+  <rect x="8" y="7" width="16" height="1" fill="#b3c6d0" />
+  <rect x="9" y="7" width="14" height="1" fill="#d2e2ea" />
+  <rect x="8" y="8" width="1" height="19" fill="#93a8b2" />
+  <rect x="23" y="8" width="1" height="19" fill="#93a8b2" />
+  <rect x="9" y="8" width="14" height="6" fill="#d2e2ea" />
+  <!-- plastic sheen -->
+  <rect x="11" y="8" width="1" height="4" fill="#ffffff" />
+  <rect x="12" y="8" width="1" height="2" fill="#eef6fa" />
+  <rect x="19" y="9" width="1" height="3" fill="#eef6fa" />
+  <!-- blue crystals settled inside -->
+  <rect x="11" y="14" width="2" height="1" fill="#8fe0f5" />
+  <rect x="15" y="14" width="2" height="1" fill="#d9f4fb" />
+  <rect x="19" y="14" width="2" height="1" fill="#8fe0f5" />
+  <rect x="10" y="15" width="4" height="1" fill="#4fb8e0" />
+  <rect x="14" y="15" width="4" height="1" fill="#8fe0f5" />
+  <rect x="18" y="15" width="4" height="1" fill="#4fb8e0" />
+  <rect x="15" y="15" width="2" height="1" fill="#d9f4fb" />
+  <rect x="9" y="16" width="14" height="1" fill="#4fb8e0" />
+  <rect x="11" y="16" width="2" height="1" fill="#6fc8e8" />
+  <rect x="16" y="16" width="2" height="1" fill="#2b8fc4" />
+  <rect x="9" y="17" width="14" height="1" fill="#2b8fc4" />
+  <rect x="10" y="17" width="3" height="1" fill="#4fb8e0" />
+  <rect x="18" y="17" width="2" height="1" fill="#1f6e9e" />
+  <rect x="9" y="18" width="14" height="1" fill="#2b8fc4" />
+  <rect x="13" y="18" width="1" height="1" fill="#1f6e9e" />
+  <rect x="17" y="18" width="1" height="1" fill="#6fc8e8" />
+  <rect x="9" y="19" width="14" height="1" fill="#1f6e9e" />
+  <rect x="11" y="19" width="3" height="1" fill="#2b8fc4" />
+  <rect x="9" y="20" width="14" height="1" fill="#1f6e9e" />
+  <rect x="9" y="21" width="14" height="1" fill="#1f6e9e" />
+  <rect x="15" y="21" width="3" height="1" fill="#2b8fc4" />
+  <rect x="9" y="22" width="14" height="1" fill="#14506f" />
+  <rect x="9" y="23" width="14" height="1" fill="#14506f" />
+  <rect x="12" y="23" width="2" height="1" fill="#1f6e9e" />
+  <rect x="9" y="24" width="14" height="1" fill="#14506f" />
+  <rect x="9" y="25" width="14" height="1" fill="#103f57" />
+  <rect x="10" y="26" width="12" height="1" fill="#103f57" />
+  <!-- sheen over the contents + sparkle -->
+  <rect x="19" y="18" width="1" height="4" fill="#bcd6e0" />
+  <rect x="15" y="14" width="1" height="1" fill="#ffffff" />
+  <!-- bag bottom -->
+  <rect x="9" y="27" width="14" height="1" fill="#b3c6d0" />
+  <rect x="10" y="28" width="12" height="1" fill="#93a8b2" />
+</svg>

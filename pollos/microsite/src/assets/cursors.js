@@ -47,34 +47,11 @@ const CHARACTERS = [
   'skyler',
   'lydia',
   'rv',
-  'barrel',
+  'methylamine',
   'money',
+  'flask',
   'meth',
-  'meth2',
 ]
-
-// Caption shown under each cursor (see .cursor-label in cursors.css).
-const CHARACTER_NAMES = {
-  heisenberg: 'Heisenberg',
-  jesse: 'Jesse',
-  gus: 'Gus',
-  saul: 'Saul',
-  mike: 'Mike',
-  hazmat: 'Hazmat',
-  tuco: 'Tuco',
-  hector: 'Hector',
-  jane: 'Jane',
-  huell: 'Huell',
-  hank: 'Hank',
-  walter: 'Walter',
-  skyler: 'Skyler',
-  lydia: 'Lydia',
-  rv: 'The RV',
-  barrel: 'Methylamine',
-  money: 'Money',
-  meth: 'Meth',
-  meth2: 'Meth',
-}
 
 /**
  * Pick a random element from an array.
@@ -280,7 +257,7 @@ function startCursors() {
     let peer = peers.get(msg.id)
     if (!peer) {
       const character = characterFor(msg.id)
-      const base = CHARACTER_NAMES[character] || 'Guest'
+      const base = character // capitalized for display by .cursor-label CSS
       // Country comes from the relay (edge geo); append its flag emoji only when
       // we have a valid code, so an unknown country just shows the plain name.
       const flag = flagOf(msg.country || '')
@@ -364,7 +341,7 @@ function startCursors() {
   function addBot(popDelayMs) {
     const character = pick(CHARACTERS)
     const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
-    const el = createCursorEl(character, color, CHARACTER_NAMES[character] || 'Guest', popDelayMs)
+    const el = createCursorEl(character, color, character, popDelayMs)
     el.classList.add('is-bot')
     // Spawn within the visible region but in document coordinates (offset by the
     // current scroll) so the bot scrolls with the page; see animateBots.

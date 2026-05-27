@@ -123,17 +123,17 @@
 .cursor[data-char='rv'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/rv.svg');
 }
-.cursor[data-char='barrel'] .cursor-arrow {
-  background-image: url('../../img/icons/cursors/barrel.svg');
+.cursor[data-char='methylamine'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/methylamine.svg');
 }
 .cursor[data-char='money'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/money.svg');
 }
+.cursor[data-char='flask'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/flask.svg');
+}
 .cursor[data-char='meth'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/meth.svg');
-}
-.cursor[data-char='meth2'] .cursor-arrow {
-  background-image: url('../../img/icons/cursors/meth2.svg');
 }
 
 /* Pop in when a peer first appears. */
@@ -168,6 +168,9 @@
   top: 37px;
   left: 18px;
   transform: translateX(-50%);
+  /* Labels are passed as the raw lowercase character key (e.g. "methylamine");
+     capitalize the first letter here so no JS name map is needed. */
+  text-transform: capitalize;
   color: #1a1a1a;
   opacity: 0.8;
   white-space: nowrap;

@@ -42,7 +42,7 @@ export default {
       // Stamp the visitor's country (Cloudflare edge geo) onto the upgrade so
       // the room can attach it to the socket. It's edge-derived, never client-
       // supplied, so peers can't spoof it. `cf` is absent in local dev.
-      const country = request.cf?.country ?? request.headers.get('CF-IPCountry') ?? ''
+      const country = String(request.cf?.country ?? request.headers.get('CF-IPCountry') ?? '')
       const headers = new Headers(request.headers)
       headers.set('X-Visitor-Country', country)
       return env.CURSORS.getByName('global').fetch(new Request(request, { headers }))

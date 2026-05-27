@@ -41,6 +41,8 @@ const CHARACTERS = [
   'tuco',
   'hector',
   'jane',
+  'huell',
+  'hank',
   'meth',
   'meth2',
 ]
@@ -56,6 +58,8 @@ const CHARACTER_NAMES = {
   tuco: 'Tuco',
   hector: 'Hector',
   jane: 'Jane',
+  huell: 'Huell',
+  hank: 'Hank',
   meth: 'Meth',
   meth2: 'Meth',
 }

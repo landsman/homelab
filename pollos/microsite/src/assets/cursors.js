@@ -26,6 +26,13 @@ const PAUSED_JITTER_MS = 5 * 60_000 // spread reconnects after the daily budget 
 const ADJECTIVES = ['Swift', 'Sneaky', 'Crispy', 'Golden', 'Spicy', 'Mellow', 'Zesty', 'Bold']
 const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nugget', 'Gallo']
 
+// Each peer's cursor is a Breaking Bad character (pixel-art SVGs in
+// img/icons/cursors/, picked by data-char in cursors.css). The character is
+// derived from the relay-assigned peer id — a stable UUID — so every client
+// renders the same face for a given peer without the relay carrying an extra
+// field.
+const CHARACTERS = ['heisenberg', 'jesse', 'gus', 'saul', 'mike', 'hazmat']
+
 /**
  * Pick a random element from an array.
  * @param {string[]} arr
@@ -33,6 +40,17 @@ const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nug
  */
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
+}
+
+/**
+ * Map a peer id to a stable character key (same id always yields the same one).
+ * @param {string} id
+ * @returns {string}
+ */
+function characterFor(id) {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
+  return CHARACTERS[hash % CHARACTERS.length]
 }
 
 // Only desktop pointers get cursors — touch devices have nothing to show and
@@ -156,9 +174,10 @@ function startCursors() {
     if (!peer) {
       const el = document.createElement('div')
       el.className = 'cursor'
+      el.dataset.char = characterFor(msg.id)
       el.style.color = msg.color || '#888'
-      // Arrow shape comes from a cached SVG via CSS mask (see cursors.css);
-      // the label sits beside it.
+      // The character pixel-art comes from a cached SVG chosen by data-char via
+      // CSS background-image (see cursors.css); the label sits beside it.
       const arrow = document.createElement('span')
       arrow.className = 'cursor-arrow'
       const label = document.createElement('span')

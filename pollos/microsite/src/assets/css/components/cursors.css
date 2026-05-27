@@ -21,20 +21,39 @@
 
 .cursor-arrow {
   display: block;
-  /* Keeps the 20:22 aspect of the source SVG (1.5× the native size). */
-  width: 30px;
-  height: 33px;
-  /* The peer's color, set on .cursor; the cached SVG file supplies the shape
-     via a CSS mask so the same asset tints to any color and stays cacheable. */
-  background-color: currentColor;
-  -webkit-mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
-  mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
+  /* Square pixel-art bust, scaled up from the 16×16 source SVG. */
+  width: 32px;
+  height: 32px;
+  /* One cached, full-color SVG per character — picked by data-char (set in
+     cursors.js from the peer id) — via background-image; image-rendering keeps
+     the pixels crisp at this scale. */
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
   transform-origin: top left; /* scale from the pointer tip */
   animation: cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
   transition:
     transform 150ms ease,
     opacity 150ms ease;
+}
+
+.cursor[data-char='heisenberg'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/heisenberg.svg');
+}
+.cursor[data-char='jesse'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/jesse.svg');
+}
+.cursor[data-char='gus'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/gus.svg');
+}
+.cursor[data-char='saul'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/saul.svg');
+}
+.cursor[data-char='mike'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/mike.svg');
+}
+.cursor[data-char='hazmat'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hazmat.svg');
 }
 
 /* Pop in when a peer first appears. */

@@ -12,6 +12,7 @@ import { clamp01, nextUtcMidnight, secondsUntilUtcMidnight, utcDay } from './uti
 
 interface Attachment {
   id: string
+  country: string
 }
 
 interface MoveMessage {
@@ -49,7 +50,7 @@ export class CursorRoom extends DurableObject<Env> {
     })
   }
 
-  async fetch(_request: Request): Promise<Response> {
+  async fetch(request: Request): Promise<Response> {
     if (this.blocked) {
       return new Response('daily limit reached; back at 00:00 UTC\n', {
         status: 503,
@@ -70,7 +71,8 @@ export class CursorRoom extends DurableObject<Env> {
     this.ctx.acceptWebSocket(server)
 
     const id = crypto.randomUUID()
-    server.serializeAttachment({ id } satisfies Attachment)
+    const country = request.headers.get('X-Visitor-Country') ?? ''
+    server.serializeAttachment({ id, country } satisfies Attachment)
     server.send(JSON.stringify({ type: 'welcome', id }))
 
     return new Response(null, { status: 101, webSocket: client })
@@ -125,6 +127,7 @@ export class CursorRoom extends DurableObject<Env> {
         y: clamp01(data.y),
         name: String(data.name ?? '').slice(0, 24),
         color: String(data.color ?? '').slice(0, 24),
+        country: self.country,
       }),
       ws,
     )

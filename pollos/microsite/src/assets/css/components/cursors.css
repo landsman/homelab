@@ -21,9 +21,9 @@
 
 .cursor-arrow {
   display: block;
-  /* Square pixel-art bust, scaled up from the 16×16 source SVG. */
-  width: 32px;
-  height: 32px;
+  /* Square pixel-art bust, scaled up from the 32×32 source SVG. */
+  width: 36px;
+  height: 36px;
   /* One cached, full-color SVG per character — picked by data-char (set in
      cursors.js from the peer id) — via background-image; image-rendering keeps
      the pixels crisp at this scale. */
@@ -54,6 +54,18 @@
 }
 .cursor[data-char='hazmat'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/hazmat.svg');
+}
+.cursor[data-char='tuco'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/tuco.svg');
+}
+.cursor[data-char='hector'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hector.svg');
+}
+.cursor[data-char='meth'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/meth.svg');
+}
+.cursor[data-char='meth2'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/meth2.svg');
 }
 
 /* Pop in when a peer first appears. */

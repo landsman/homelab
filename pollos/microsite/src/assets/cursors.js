@@ -31,7 +31,18 @@ const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nug
 // derived from the relay-assigned peer id — a stable UUID — so every client
 // renders the same face for a given peer without the relay carrying an extra
 // field.
-const CHARACTERS = ['heisenberg', 'jesse', 'gus', 'saul', 'mike', 'hazmat']
+const CHARACTERS = [
+  'heisenberg',
+  'jesse',
+  'gus',
+  'saul',
+  'mike',
+  'hazmat',
+  'tuco',
+  'hector',
+  'meth',
+  'meth2',
+]
 
 /**
  * Pick a random element from an array.

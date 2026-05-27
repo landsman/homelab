@@ -10,7 +10,7 @@
 //   server -> client  { type: 'leave', id }
 //   server -> client  { type: 'paused' }   daily budget hit; reconnect at reset
 
-import { Env, ALLOWED_HOSTS, ROUTES } from './config'
+import { type Env, ALLOWED_HOSTS, ROUTES } from './config'
 
 // Durable Object classes must be exported from the Worker's entry module.
 export { CursorRoom } from './cursor-room'

@@ -132,23 +132,33 @@ function startCursors() {
     () => {
       width = window.innerWidth
       height = window.innerHeight
-      docW = document.body.scrollWidth
-      docH = document.body.scrollHeight
     },
     { passive: true }
   )
 
+  // Document size can change without a window resize (e.g. htmx swaps), so watch
+  // the body box directly to keep the bots' wandering bounds fresh.
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => {
+      docW = document.body.scrollWidth
+      docH = document.body.scrollHeight
+    }).observe(document.body)
+  }
+
   // Bots live in document coordinates and are drawn offset by the page scroll,
   // so they ride the content instead of being glued to the viewport (unlike the
-  // live peer pointers). Cache the scroll offset — the body is the scroll
-  // container; scroll events don't bubble, so listen in the capture phase.
-  let scrollX = document.body.scrollLeft
-  let scrollY = document.body.scrollTop
+  // live peer pointers). The body is the scroll container, but in standards mode
+  // the viewport scroll lives on documentElement — read both. Scroll events
+  // don't bubble, so listen in the capture phase.
+  const scrollLeft = () => document.body.scrollLeft || document.documentElement.scrollLeft
+  const scrollTop = () => document.body.scrollTop || document.documentElement.scrollTop
+  let scrollX = scrollLeft()
+  let scrollY = scrollTop()
   document.addEventListener(
     'scroll',
     () => {
-      scrollX = document.body.scrollLeft || document.documentElement.scrollLeft
-      scrollY = document.body.scrollTop || document.documentElement.scrollTop
+      scrollX = scrollLeft()
+      scrollY = scrollTop()
     },
     { passive: true, capture: true }
   )

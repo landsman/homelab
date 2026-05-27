@@ -10,16 +10,10 @@
 //   server -> client  { type: 'leave', id }
 //   server -> client  { type: 'paused' }   daily budget hit; reconnect at reset
 
-import type { Env } from './config'
+import { type Env, ALLOWED_HOSTS, ROUTES } from './config'
 
 // Durable Object classes must be exported from the Worker's entry module.
 export { CursorRoom } from './cursor-room'
-
-// Only allow WebSocket upgrades from our own origins. Browsers always send a
-// trustworthy Origin on the WS handshake, so this stops third-party sites from
-// embedding the relay and draining the free-tier budget. Non-browser clients
-// (no Origin) are allowed through — they can't be used for cross-site embedding.
-const ALLOWED_HOSTS = new Set(['pollos.cz', 'www.pollos.cz', 'localhost', '127.0.0.1'])
 
 function originAllowed(origin: string | null): boolean {
   if (!origin) return true
@@ -34,11 +28,11 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
 
-    if (url.pathname === '/health') {
+    if (url.pathname === ROUTES.health) {
       return new Response('ok\n', { status: 200 })
     }
 
-    if (url.pathname === '/cursors') {
+    if (url.pathname === ROUTES.cursors) {
       if (!originAllowed(request.headers.get('Origin'))) {
         return new Response('forbidden origin\n', { status: 403 })
       }

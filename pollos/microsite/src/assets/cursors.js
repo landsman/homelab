@@ -344,12 +344,26 @@ function startCursors() {
   }
 
   /**
+   * Pick a character not already on screen (bot or peer), so cursors rarely
+   * duplicate. Falls back to any character once they're all taken — i.e. more
+   * cursors than the 19 available faces.
+   * @returns {string}
+   */
+  function pickFreeCharacter() {
+    const taken = new Set()
+    for (const bot of bots) taken.add(bot.el.dataset.char)
+    peers.forEach(peer => taken.add(peer.el.dataset.char))
+    const free = CHARACTERS.filter(c => !taken.has(c))
+    return pick(free.length ? free : CHARACTERS)
+  }
+
+  /**
    * Add one wandering bot, staggering its entrance by popDelayMs.
    * @param {number} popDelayMs
    * @returns {void}
    */
   function addBot(popDelayMs) {
-    const character = pick(CHARACTERS)
+    const character = pickFreeCharacter()
     const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
     const el = createCursorEl(character, color, character, popDelayMs)
     el.classList.add('is-bot')

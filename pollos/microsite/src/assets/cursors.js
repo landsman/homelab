@@ -200,23 +200,30 @@ function startCursors() {
    * @param {string} character
    * @param {string | undefined} color
    * @param {string} name
+   * @param {number} [popDelayMs]
    * @returns {HTMLDivElement}
    */
-  function createCursorEl(character, color, name) {
+  function createCursorEl(character, color, name, popDelayMs = 0) {
     const el = document.createElement('div')
     el.className = 'cursor'
     el.dataset.char = character
     el.style.color = color || '#888'
-    // The character pixel-art comes from a cached SVG chosen by data-char via
-    // CSS background-image (see cursors.css); the label sits below it.
+    // Art + label live in an inner wrapper so the pop/idle animations scale and
+    // bob the whole thing together; .cursor itself only carries the JS-set
+    // position transform. The pixel-art is a cached SVG chosen by data-char via
+    // CSS background-image (see cursors.css).
+    const inner = document.createElement('span')
+    inner.className = 'cursor-inner'
+    // Idle bob gets a random negative delay so cursors never bob in unison; the
+    // entry pop uses popDelayMs so bots can stagger their arrival (see cursors.css).
+    inner.style.animationDelay = `${(-Math.random() * 3400).toFixed(0)}ms, ${popDelayMs.toFixed(0)}ms`
     const arrow = document.createElement('span')
     arrow.className = 'cursor-arrow'
-    // Random negative delay desyncs the idle bob; pop stays at 0 (see cursors.css).
-    arrow.style.animationDelay = `${(-Math.random() * 3400).toFixed(0)}ms, 0ms`
     const label = document.createElement('span')
     label.className = 'cursor-label'
     label.textContent = name
-    el.append(arrow, label)
+    inner.append(arrow, label)
+    el.appendChild(inner)
     layer.appendChild(el)
     return el
   }
@@ -238,7 +245,7 @@ function startCursors() {
     peer.lastSeen = performance.now()
     const px = msg.x * width
     const py = msg.y * height
-    peer.el.style.transform = `translate(${px}px, ${py}px)`
+    peer.el.style.transform = `translate3d(${px}px, ${py}px, 0)`
   }
 
   /**
@@ -264,72 +271,101 @@ function startCursors() {
     updatePopulation()
   }
 
-  // When no real visitors are connected, a few wandering bots keep the page
-  // feeling alive. They're purely local decoration — never sent over the relay
-  // — and vanish the moment a real peer appears.
-  const BOT_COUNT = 4
+  // A few wandering bots keep the page feeling alive — purely local decoration,
+  // never sent over the relay. We top the scene up toward TARGET_TOTAL cursors
+  // and always keep at least MIN_BOTS, so it never feels empty even when real
+  // visitors are around.
+  const TARGET_TOTAL = 4
+  const MIN_BOTS = 1
 
-  /** @typedef {{ el: HTMLDivElement, x: number, y: number, tx: number, ty: number }} Bot */
+  /** @typedef {{ el: HTMLDivElement, x: number, y: number, tx: number, ty: number, speed: number, startAt: number }} Bot */
   /** @type {Bot[]} */
   const bots = []
   let lastPopulation = ''
+  let botRaf = 0
 
+  // Drift each bot toward a roaming target every animation frame (~60fps,
+  // GPU-composited translate3d) for smooth motion; retarget on arrival. Each
+  // bot has its own speed so the herd never moves in lockstep, and holds still
+  // (startAt) until its pop entrance finishes before it starts wandering.
   /**
    * @returns {void}
    */
-  function spawnBots() {
-    if (bots.length) return
-    for (let i = 0; i < BOT_COUNT; i++) {
-      const character = pick(CHARACTERS)
-      const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
-      const el = createCursorEl(character, color, CHARACTER_NAMES[character] || 'Guest')
-      bots.push({
-        el,
-        x: Math.random() * width,
-        y: Math.random() * height,
-        tx: Math.random() * width,
-        ty: Math.random() * height,
-      })
+  function animateBots() {
+    const now = performance.now()
+    for (const bot of bots) {
+      if (now < bot.startAt) continue
+      bot.x += (bot.tx - bot.x) * bot.speed
+      bot.y += (bot.ty - bot.y) * bot.speed
+      if (Math.abs(bot.tx - bot.x) < 3 && Math.abs(bot.ty - bot.y) < 3) {
+        bot.tx = Math.random() * width
+        bot.ty = Math.random() * height
+      }
+      bot.el.style.transform = `translate3d(${bot.x}px, ${bot.y}px, 0)`
     }
+    botRaf = bots.length ? requestAnimationFrame(animateBots) : 0
+  }
+
+  /**
+   * Add one wandering bot, staggering its entrance by popDelayMs.
+   * @param {number} popDelayMs
+   * @returns {void}
+   */
+  function addBot(popDelayMs) {
+    const character = pick(CHARACTERS)
+    const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
+    const el = createCursorEl(character, color, CHARACTER_NAMES[character] || 'Guest', popDelayMs)
+    el.classList.add('is-bot')
+    const bx = Math.random() * width
+    const by = Math.random() * height
+    el.style.transform = `translate3d(${bx}px, ${by}px, 0)`
+    bots.push({
+      el,
+      x: bx,
+      y: by,
+      tx: Math.random() * width,
+      ty: Math.random() * height,
+      speed: 0.012 + Math.random() * 0.02,
+      // Hold still through the pop entrance (delay + ~180ms), then wander.
+      startAt: performance.now() + popDelayMs + 220,
+    })
+    if (!botRaf) botRaf = requestAnimationFrame(animateBots)
   }
 
   /**
    * @returns {void}
    */
-  function clearBots() {
-    bots.forEach(bot => bot.el.remove())
-    bots.length = 0
+  function removeBot() {
+    const bot = bots.pop()
+    if (!bot) return
+    bot.el.classList.add('is-leaving')
+    setTimeout(() => bot.el.remove(), 160)
   }
 
   /**
-   * Show bots only while alone; log the bot/real split whenever it changes.
+   * Grow or shrink the bot herd to `desired`, staggering new arrivals.
+   * @param {number} desired
+   * @returns {void}
+   */
+  function syncBots(desired) {
+    let added = 0
+    while (bots.length < desired) addBot(100 + added++ * 260 + Math.random() * 140)
+    while (bots.length > desired) removeBot()
+  }
+
+  /**
+   * Top the scene up with bots; log the bot/real split whenever it changes.
    * @returns {void}
    */
   function updatePopulation() {
     const real = peers.size
-    if (real > 0) clearBots()
-    else spawnBots()
+    syncBots(Math.max(MIN_BOTS, TARGET_TOTAL - real))
     const population = `${bots.length} bots / ${real} real`
     if (population !== lastPopulation) {
       console.log(`[cursors] ${population}`)
       lastPopulation = population
     }
   }
-
-  // Drift each bot toward a roaming target, retargeting on arrival. The easing
-  // plus the .cursor transition keeps the motion smooth and lifelike.
-  setInterval(() => {
-    if (document.hidden || !bots.length) return
-    for (const bot of bots) {
-      bot.x += (bot.tx - bot.x) * 0.04
-      bot.y += (bot.ty - bot.y) * 0.04
-      if (Math.hypot(bot.tx - bot.x, bot.ty - bot.y) < 6) {
-        bot.tx = Math.random() * width
-        bot.ty = Math.random() * height
-      }
-      bot.el.style.transform = `translate(${bot.x}px, ${bot.y}px)`
-    }
-  }, 60)
 
   // Throttled sender — emits at most one move per interval, only when the
   // pointer actually moved and the socket is open.
@@ -380,4 +416,11 @@ function startCursors() {
 
   connect()
   updatePopulation() // start populated with bots until a real peer arrives
+
+  // Console probe: type cursorStats() any time to see the current split.
+  window.cursorStats = () => {
+    const stats = { real: peers.size, bots: bots.length }
+    console.log(`[cursors] ${stats.bots} bots / ${stats.real} real`)
+    return stats
+  }
 }

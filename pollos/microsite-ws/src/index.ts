@@ -6,7 +6,7 @@
 // Wire protocol (JSON, both directions):
 //   server -> client  { type: 'welcome', id }
 //   client -> server  { type: 'move', x, y, name, color }      x,y in 0..1
-//   server -> client  { type: 'move', id, x, y, name, color }
+//   server -> client  { type: 'move', id, x, y, name, color, country }
 //   server -> client  { type: 'leave', id }
 //   server -> client  { type: 'paused' }   daily budget hit; reconnect at reset
 

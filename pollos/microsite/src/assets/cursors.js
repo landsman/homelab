@@ -211,6 +211,8 @@ function startCursors() {
     // CSS background-image (see cursors.css); the label sits below it.
     const arrow = document.createElement('span')
     arrow.className = 'cursor-arrow'
+    // Random negative delay desyncs the idle bob; pop stays at 0 (see cursors.css).
+    arrow.style.animationDelay = `${(-Math.random() * 3400).toFixed(0)}ms, 0ms`
     const label = document.createElement('span')
     label.className = 'cursor-label'
     label.textContent = name

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- pork pie hat: crosshatched crown -->
+  <rect x="12" y="2" width="8" height="1" fill="#1f1f1f" />
+  <rect x="15" y="2" width="3" height="1" fill="#0c0c0c" />
+  <rect x="11" y="3" width="10" height="1" fill="#161616" />
+  <rect x="10" y="4" width="12" height="1" fill="#141414" />
+  <rect x="12" y="4" width="1" height="1" fill="#2a2a2a" />
+  <rect x="18" y="4" width="1" height="1" fill="#2a2a2a" />
+  <rect x="10" y="5" width="12" height="1" fill="#141414" />
+  <!-- wide brim, curling down at the temples -->
+  <rect x="5" y="6" width="22" height="1" fill="#141414" />
+  <rect x="5" y="7" width="2" height="1" fill="#141414" />
+  <rect x="25" y="7" width="2" height="1" fill="#141414" />
+  <rect x="6" y="8" width="2" height="1" fill="#141414" />
+  <rect x="24" y="8" width="2" height="1" fill="#141414" />
+  <!-- forehead with worry lines -->
+  <rect x="11" y="7" width="10" height="1" fill="#c99e74" />
+  <rect x="9" y="8" width="14" height="1" fill="#e8c4a0" />
+  <rect x="10" y="8" width="12" height="1" fill="#cda078" />
+  <rect x="9" y="9" width="14" height="1" fill="#e8c4a0" />
+  <rect x="11" y="9" width="10" height="1" fill="#cda078" />
+  <rect x="9" y="10" width="14" height="1" fill="#e8c4a0" />
+  <rect x="13" y="10" width="6" height="1" fill="#f2d2b0" />
+  <!-- large angular wraparound sunglasses -->
+  <rect x="9" y="11" width="14" height="1" fill="#141414" />
+  <rect x="9" y="12" width="14" height="1" fill="#161616" />
+  <rect x="15" y="12" width="2" height="1" fill="#2a2a2a" />
+  <rect x="11" y="12" width="1" height="1" fill="#343434" />
+  <rect x="19" y="12" width="1" height="1" fill="#343434" />
+  <rect x="9" y="13" width="5" height="1" fill="#141414" />
+  <rect x="18" y="13" width="5" height="1" fill="#141414" />
+  <rect x="14" y="13" width="4" height="1" fill="#cda078" />
+  <rect x="9" y="14" width="2" height="1" fill="#141414" />
+  <rect x="21" y="14" width="2" height="1" fill="#141414" />
+  <!-- nose / cheeks -->
+  <rect x="11" y="14" width="10" height="1" fill="#e8c4a0" />
+  <rect x="15" y="14" width="2" height="1" fill="#cda078" />
+  <rect x="9" y="15" width="14" height="1" fill="#e8c4a0" />
+  <rect x="15" y="15" width="2" height="1" fill="#cda078" />
+  <rect x="9" y="16" width="14" height="1" fill="#e8c4a0" />
+  <rect x="14" y="16" width="4" height="1" fill="#cda078" />
+  <!-- Van Dyke goatee: mustache framing the mouth down to a chin tuft, cheeks clean -->
+  <rect x="9" y="17" width="14" height="1" fill="#e8c4a0" />
+  <rect x="12" y="17" width="8" height="1" fill="#423b34" />
+  <rect x="15" y="17" width="1" height="1" fill="#6a6056" />
+  <rect x="9" y="18" width="14" height="1" fill="#e8c4a0" />
+  <rect x="12" y="18" width="2" height="1" fill="#423b34" />
+  <rect x="18" y="18" width="2" height="1" fill="#423b34" />
+  <rect x="14" y="18" width="4" height="1" fill="#7a5040" />
+  <rect x="10" y="19" width="12" height="1" fill="#e8c4a0" />
+  <rect x="13" y="19" width="6" height="1" fill="#423b34" />
+  <rect x="11" y="20" width="10" height="1" fill="#e8c4a0" />
+  <rect x="12" y="20" width="8" height="1" fill="#423b34" />
+  <rect x="15" y="20" width="1" height="1" fill="#57504a" />
+  <rect x="12" y="21" width="8" height="1" fill="#e8c4a0" />
+  <rect x="13" y="21" width="6" height="1" fill="#3a342e" />
+  <rect x="14" y="22" width="4" height="1" fill="#3a342e" />
+  <!-- neck + collar + jacket -->
+  <rect x="12" y="23" width="8" height="1" fill="#cda078" />
+  <rect x="11" y="24" width="10" height="1" fill="#ededed" />
+  <rect x="7" y="25" width="18" height="1" fill="#141414" />
+  <rect x="14" y="25" width="4" height="1" fill="#ededed" />
+  <rect x="5" y="26" width="22" height="1" fill="#161616" />
+  <rect x="15" y="26" width="2" height="1" fill="#d8d4cc" />
+  <rect x="4" y="27" width="24" height="1" fill="#141414" />
+  <rect x="11" y="27" width="1" height="1" fill="#2a2a2a" />
+  <rect x="20" y="27" width="1" height="1" fill="#2a2a2a" />
+  <rect x="3" y="28" width="26" height="4" fill="#141414" />
+</svg>

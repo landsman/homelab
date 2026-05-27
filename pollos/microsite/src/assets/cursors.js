@@ -26,6 +26,33 @@ const PAUSED_JITTER_MS = 5 * 60_000 // spread reconnects after the daily budget 
 const ADJECTIVES = ['Swift', 'Sneaky', 'Crispy', 'Golden', 'Spicy', 'Mellow', 'Zesty', 'Bold']
 const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nugget', 'Gallo']
 
+// Each peer's cursor is a Breaking Bad character (pixel-art SVGs in
+// img/icons/cursors/, picked by data-char in cursors.css). The character is
+// derived from the relay-assigned peer id — a stable UUID — so every client
+// renders the same face for a given peer without the relay carrying an extra
+// field.
+const CHARACTERS = [
+  'heisenberg',
+  'jesse',
+  'gus',
+  'saul',
+  'mike',
+  'hazmat',
+  'tuco',
+  'hector',
+  'jane',
+  'huell',
+  'hank',
+  'walter',
+  'skyler',
+  'lydia',
+  'rv',
+  'methylamine',
+  'money',
+  'flask',
+  'meth',
+]
+
 /**
  * Pick a random element from an array.
  * @param {string[]} arr
@@ -33,6 +60,29 @@ const NOUNS = ['Pollo', 'Hermano', 'Rooster', 'Chick', 'Wing', 'Drumstick', 'Nug
  */
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
+}
+
+/**
+ * Turn a 2-letter ISO country code into its flag emoji (e.g. "CZ" → 🇨🇿).
+ * Returns '' for blank or non-letter codes (e.g. Cloudflare's "T1"/"XX").
+ * @param {string} country
+ * @returns {string}
+ */
+function flagOf(country) {
+  const cc = country.toUpperCase()
+  if (!/^[A-Z]{2}$/.test(cc)) return ''
+  return String.fromCodePoint(0x1f1e6 + cc.charCodeAt(0) - 65, 0x1f1e6 + cc.charCodeAt(1) - 65)
+}
+
+/**
+ * Map a peer id to a stable character key (same id always yields the same one).
+ * @param {string} id
+ * @returns {string}
+ */
+function characterFor(id) {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
+  return CHARACTERS[hash % CHARACTERS.length]
 }
 
 // Only desktop pointers get cursors — touch devices have nothing to show and
@@ -71,10 +121,12 @@ function startCursors() {
   let moved = false
   let lastMove = performance.now()
 
-  // Cache viewport size and refresh on resize — reading window.innerWidth/Height
-  // inside the high-frequency pointermove/render paths would force layout.
+  // Cache viewport + document size and refresh on resize — reading these inside
+  // the high-frequency pointermove/render paths would force layout.
   let width = window.innerWidth
   let height = window.innerHeight
+  let docW = document.body.scrollWidth
+  let docH = document.body.scrollHeight
   window.addEventListener(
     'resize',
     () => {
@@ -82,6 +134,33 @@ function startCursors() {
       height = window.innerHeight
     },
     { passive: true }
+  )
+
+  // Document size can change without a window resize (e.g. htmx swaps), so watch
+  // the body box directly to keep the bots' wandering bounds fresh.
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => {
+      docW = document.body.scrollWidth
+      docH = document.body.scrollHeight
+    }).observe(document.body)
+  }
+
+  // Bots live in document coordinates and are drawn offset by the page scroll,
+  // so they ride the content instead of being glued to the viewport (unlike the
+  // live peer pointers). The body is the scroll container, but in standards mode
+  // the viewport scroll lives on documentElement — read both. Scroll events
+  // don't bubble, so listen in the capture phase.
+  const scrollLeft = () => document.body.scrollLeft || document.documentElement.scrollLeft
+  const scrollTop = () => document.body.scrollTop || document.documentElement.scrollTop
+  let scrollX = scrollLeft()
+  let scrollY = scrollTop()
+  document.addEventListener(
+    'scroll',
+    () => {
+      scrollX = scrollLeft()
+      scrollY = scrollTop()
+    },
+    { passive: true, capture: true }
   )
 
   /**
@@ -147,32 +226,61 @@ function startCursors() {
   }
 
   /**
+   * Build a cursor element (character art + caption) and add it to the layer.
+   * @param {string} character
+   * @param {string | undefined} color
+   * @param {string} name
+   * @param {number} [popDelayMs]
+   * @returns {HTMLDivElement}
+   */
+  function createCursorEl(character, color, name, popDelayMs = 0) {
+    const el = document.createElement('div')
+    el.className = 'cursor'
+    el.dataset.char = character
+    el.style.color = color || '#888'
+    // Art + label live in an inner wrapper so the pop/idle animations scale and
+    // bob the whole thing together; .cursor itself only carries the JS-set
+    // position transform. The pixel-art is a cached SVG chosen by data-char via
+    // CSS background-image (see cursors.css).
+    const inner = document.createElement('span')
+    inner.className = 'cursor-inner'
+    // Idle bob gets a random negative delay so cursors never bob in unison; the
+    // entry pop uses popDelayMs so bots can stagger their arrival (see cursors.css).
+    inner.style.animationDelay = `${(-Math.random() * 3400).toFixed(0)}ms, ${popDelayMs.toFixed(0)}ms`
+    const arrow = document.createElement('span')
+    arrow.className = 'cursor-arrow'
+    const label = document.createElement('span')
+    label.className = 'cursor-label'
+    label.textContent = name
+    inner.append(arrow, label)
+    el.appendChild(inner)
+    layer.appendChild(el)
+    return el
+  }
+
+  /**
    * Create or move a peer's cursor element.
-   * @param {{ id: string, x: number, y: number, name?: string, color?: string }} msg
+   * @param {{ id: string, x: number, y: number, name?: string, color?: string, country?: string }} msg
    * @returns {void}
    */
   function upsertPeer(msg) {
     let peer = peers.get(msg.id)
     if (!peer) {
-      const el = document.createElement('div')
-      el.className = 'cursor'
-      el.style.color = msg.color || '#888'
-      // Arrow shape comes from a cached SVG via CSS mask (see cursors.css);
-      // the label sits beside it.
-      const arrow = document.createElement('span')
-      arrow.className = 'cursor-arrow'
-      const label = document.createElement('span')
-      label.className = 'cursor-label'
-      label.textContent = msg.name || 'Guest'
-      el.append(arrow, label)
-      layer.appendChild(el)
+      const character = characterFor(msg.id)
+      const base = character // capitalized for display by .cursor-label CSS
+      // Country comes from the relay (edge geo); append its flag emoji only when
+      // we have a valid code, so an unknown country just shows the plain name.
+      const flag = flagOf(msg.country || '')
+      const label = flag ? `${base} ${flag}` : base
+      const el = createCursorEl(character, msg.color, label)
       peer = { el, lastSeen: 0 }
       peers.set(msg.id, peer)
+      updatePopulation()
     }
     peer.lastSeen = performance.now()
     const px = msg.x * width
     const py = msg.y * height
-    peer.el.style.transform = `translate(${px}px, ${py}px)`
+    peer.el.style.transform = `translate3d(${px}px, ${py}px, 0)`
   }
 
   /**
@@ -186,6 +294,7 @@ function startCursors() {
     // Play the leave animation (see cursors.css), then drop the element.
     peer.el.classList.add('is-leaving')
     setTimeout(() => peer.el.remove(), 160)
+    updatePopulation()
   }
 
   /**
@@ -194,6 +303,108 @@ function startCursors() {
   function clearPeers() {
     peers.forEach(peer => peer.el.remove())
     peers.clear()
+    updatePopulation()
+  }
+
+  // A few wandering bots keep the page feeling alive — purely local decoration,
+  // never sent over the relay. We top the scene up toward TARGET_TOTAL cursors
+  // and always keep at least MIN_BOTS, so it never feels empty even when real
+  // visitors are around.
+  const TARGET_TOTAL = 3
+  const MIN_BOTS = 1
+
+  /** @typedef {{ el: HTMLDivElement, x: number, y: number, tx: number, ty: number, speed: number, startAt: number }} Bot */
+  /** @type {Bot[]} */
+  const bots = []
+  let lastPopulation = ''
+  let botRaf = 0
+
+  // Drift each bot toward a roaming target every animation frame (~60fps,
+  // GPU-composited translate3d) for smooth motion; retarget on arrival. Each
+  // bot has its own speed so the herd never moves in lockstep, and holds still
+  // (startAt) until its pop entrance finishes before it starts wandering.
+  /**
+   * @returns {void}
+   */
+  function animateBots() {
+    const now = performance.now()
+    for (const bot of bots) {
+      if (now >= bot.startAt) {
+        bot.x += (bot.tx - bot.x) * bot.speed
+        bot.y += (bot.ty - bot.y) * bot.speed
+        if (Math.abs(bot.tx - bot.x) < 3 && Math.abs(bot.ty - bot.y) < 3) {
+          bot.tx = Math.random() * docW
+          bot.ty = Math.random() * docH
+        }
+      }
+      // Document coords minus scroll, so the bot rides the page as it scrolls.
+      bot.el.style.transform = `translate3d(${bot.x - scrollX}px, ${bot.y - scrollY}px, 0)`
+    }
+    botRaf = bots.length ? requestAnimationFrame(animateBots) : 0
+  }
+
+  /**
+   * Add one wandering bot, staggering its entrance by popDelayMs.
+   * @param {number} popDelayMs
+   * @returns {void}
+   */
+  function addBot(popDelayMs) {
+    const character = pick(CHARACTERS)
+    const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
+    const el = createCursorEl(character, color, character, popDelayMs)
+    el.classList.add('is-bot')
+    // Spawn within the visible region but in document coordinates (offset by the
+    // current scroll) so the bot scrolls with the page; see animateBots.
+    const bx = scrollX + Math.random() * width
+    const by = scrollY + Math.random() * height
+    el.style.transform = `translate3d(${bx - scrollX}px, ${by - scrollY}px, 0)`
+    bots.push({
+      el,
+      x: bx,
+      y: by,
+      tx: Math.random() * docW,
+      ty: Math.random() * docH,
+      speed: 0.012 + Math.random() * 0.02,
+      // Pop in, then linger a random 2–4s before wandering off, so the herd
+      // never starts moving in unison (especially right after page load).
+      startAt: performance.now() + popDelayMs + 2000 + Math.random() * 2000,
+    })
+    if (!botRaf) botRaf = requestAnimationFrame(animateBots)
+  }
+
+  /**
+   * @returns {void}
+   */
+  function removeBot() {
+    const bot = bots.pop()
+    if (!bot) return
+    bot.el.classList.add('is-leaving')
+    setTimeout(() => bot.el.remove(), 160)
+  }
+
+  /**
+   * Grow or shrink the bot herd to `desired`, staggering new arrivals.
+   * @param {number} desired
+   * @returns {void}
+   */
+  function syncBots(desired) {
+    let added = 0
+    while (bots.length < desired) addBot(100 + added++ * 260 + Math.random() * 140)
+    while (bots.length > desired) removeBot()
+  }
+
+  /**
+   * Top the scene up with bots; log the bot/real split whenever it changes.
+   * @returns {void}
+   */
+  function updatePopulation() {
+    const real = peers.size
+    syncBots(Math.max(MIN_BOTS, TARGET_TOTAL - real))
+    const population = `${bots.length} bots / ${real} real`
+    if (population !== lastPopulation) {
+      console.log(`[cursors] ${population}`)
+      lastPopulation = population
+    }
   }
 
   // Throttled sender — emits at most one move per interval, only when the
@@ -244,4 +455,12 @@ function startCursors() {
   })
 
   connect()
+  updatePopulation() // start populated with bots until a real peer arrives
+
+  // Console probe: type cursorStats() any time to see the current split.
+  window.cursorStats = () => {
+    const stats = { real: peers.size, bots: bots.length }
+    console.log(`[cursors] ${stats.bots} bots / ${stats.real} real`)
+    return stats
+  }
 }

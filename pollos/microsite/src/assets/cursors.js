@@ -275,6 +275,11 @@ function startCursors() {
       const el = createCursorEl(character, msg.color, label)
       peer = { el, lastSeen: 0 }
       peers.set(msg.id, peer)
+      // Real visitors outrank decorative bots: if any bot is squatting on this
+      // peer's (deterministic) face, re-roll it so the human stays unique.
+      for (const bot of bots) {
+        if (bot.el.dataset.char === character) reassignBot(bot)
+      }
       updatePopulation()
     }
     peer.lastSeen = performance.now()
@@ -355,6 +360,20 @@ function startCursors() {
     peers.forEach(peer => taken.add(peer.el.dataset.char))
     const free = CHARACTERS.filter(c => !taken.has(c))
     return pick(free.length ? free : CHARACTERS)
+  }
+
+  /**
+   * Re-roll a bot onto a free character. Used when a real visitor claims the
+   * bot's current face — real people take priority over decorative bots, so the
+   * bot quietly swaps to keep the human visually unique.
+   * @param {Bot} bot
+   * @returns {void}
+   */
+  function reassignBot(bot) {
+    const character = pickFreeCharacter()
+    bot.el.dataset.char = character
+    const label = bot.el.querySelector('.cursor-label')
+    if (label) label.textContent = character
   }
 
   /**

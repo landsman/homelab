@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- roof vents -->
+  <rect x="7" y="7" width="3" height="1" fill="#b4b0a6" />
+  <rect x="15" y="7" width="3" height="1" fill="#b4b0a6" />
+  <!-- body -->
+  <rect x="3" y="9" width="27" height="13" fill="#e7d9bb" />
+  <rect x="3" y="9" width="27" height="1" fill="#f2e8d2" />
+  <!-- top orange + red stripe -->
+  <rect x="3" y="10" width="27" height="1" fill="#e2902f" />
+  <rect x="3" y="11" width="27" height="1" fill="#d24f2c" />
+  <!-- side windows -->
+  <rect x="5" y="13" width="5" height="3" fill="#2c323c" />
+  <rect x="12" y="13" width="3" height="3" fill="#2c323c" />
+  <!-- door -->
+  <rect x="16" y="13" width="4" height="6" fill="#2c323c" />
+  <rect x="16" y="13" width="4" height="1" fill="#cdbd98" />
+  <rect x="19" y="16" width="1" height="1" fill="#8a93a0" />
+  <!-- windshield + cab glass -->
+  <rect x="22" y="12" width="7" height="5" fill="#3c4450" />
+  <rect x="22" y="12" width="2" height="1" fill="#586472" />
+  <rect x="28" y="13" width="1" height="3" fill="#586472" />
+  <!-- lower stripe -->
+  <rect x="3" y="17" width="27" height="1" fill="#e2902f" />
+  <!-- lower storage hatches -->
+  <rect x="5" y="19" width="4" height="2" fill="#d6c6a2" />
+  <rect x="11" y="19" width="3" height="2" fill="#d6c6a2" />
+  <!-- headlight -->
+  <rect x="29" y="18" width="1" height="2" fill="#e2902f" />
+  <!-- chassis shade -->
+  <rect x="3" y="21" width="27" height="1" fill="#c9b89a" />
+  <!-- rear wheel -->
+  <rect x="6" y="21" width="5" height="1" fill="#2b2f37" />
+  <rect x="5" y="22" width="7" height="3" fill="#2b2f37" />
+  <rect x="7" y="25" width="3" height="1" fill="#2b2f37" />
+  <rect x="7" y="22" width="3" height="2" fill="#565b64" />
+  <!-- front wheel -->
+  <rect x="21" y="21" width="5" height="1" fill="#2b2f37" />
+  <rect x="20" y="22" width="7" height="3" fill="#2b2f37" />
+  <rect x="22" y="25" width="3" height="1" fill="#2b2f37" />
+  <rect x="22" y="22" width="3" height="2" fill="#565b64" />
+</svg>

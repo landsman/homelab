@@ -13,28 +13,127 @@
   position: absolute;
   top: 0;
   left: 0;
-  /* translate() set by cursors.js on each update; a short transition (~matched
-     to the send interval) smooths motion without adding noticeable lag. */
+  /* translate3d() set by cursors.js on each update; a short transition (~matched
+     to the send interval) smooths a real peer's sparse updates without lag. */
   transition: transform 45ms linear;
   will-change: transform;
 }
 
-.cursor-arrow {
+/* Bots are driven every animation frame, so the transition would only smear
+   their motion — let requestAnimationFrame own it. */
+.cursor.is-bot {
+  transition: none;
+}
+
+/* Wrapper for the art + label so the pop and idle bob scale/sway the whole
+   thing together (character *and* name), and a staggered bot stays fully hidden
+   until its entrance. .cursor itself only carries the JS-set position. */
+.cursor-inner {
   display: block;
-  /* Keeps the 20:22 aspect of the source SVG (1.5× the native size). */
-  width: 30px;
-  height: 33px;
-  /* The peer's color, set on .cursor; the cached SVG file supplies the shape
-     via a CSS mask so the same asset tints to any color and stays cacheable. */
-  background-color: currentColor;
-  -webkit-mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
-  mask: url('../../img/icons/cursor.svg') no-repeat center / contain;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
-  transform-origin: top left; /* scale from the pointer tip */
-  animation: cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
+  position: relative;
+  transform-origin: top left; /* scale/sway from the pointer tip */
+  /* Idle bob keeps a still cursor feeling alive (real peers + bots); the entry
+     pop is listed last so it wins for its first 180ms, then idle takes over.
+     A random per-element delay (set in cursors.js) keeps them out of sync. */
+  animation:
+    cursor-idle 3.4s ease-in-out infinite,
+    cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
+  /* backwards fill on the pop keeps a staggered bot hidden (scale 0 + opacity 0)
+     through its delay so it doesn't flash before popping in. */
+  animation-fill-mode: none, backwards;
   transition:
     transform 150ms ease,
     opacity 150ms ease;
+}
+
+.cursor-arrow {
+  display: block;
+  /* Square pixel-art bust, scaled up from the 32×32 source SVG. */
+  width: 36px;
+  height: 36px;
+  /* One cached, full-color SVG per character — picked by data-char (set in
+     cursors.js from the peer id) — via background-image; image-rendering keeps
+     the pixels crisp at this scale. */
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+/* Gentle sway + bob so a motionless character never looks frozen. */
+@keyframes cursor-idle {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-1px) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-1px) rotate(2.5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+.cursor[data-char='heisenberg'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/heisenberg.svg');
+}
+.cursor[data-char='jesse'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/jesse.svg');
+}
+.cursor[data-char='gus'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/gus.svg');
+}
+.cursor[data-char='saul'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/saul.svg');
+}
+.cursor[data-char='mike'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/mike.svg');
+}
+.cursor[data-char='hazmat'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hazmat.svg');
+}
+.cursor[data-char='tuco'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/tuco.svg');
+}
+.cursor[data-char='hector'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hector.svg');
+}
+.cursor[data-char='jane'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/jane.svg');
+}
+.cursor[data-char='huell'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/huell.svg');
+}
+.cursor[data-char='hank'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hank.svg');
+}
+.cursor[data-char='walter'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/walter.svg');
+}
+.cursor[data-char='skyler'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/skyler.svg');
+}
+.cursor[data-char='lydia'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/lydia.svg');
+}
+.cursor[data-char='rv'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/rv.svg');
+}
+.cursor[data-char='methylamine'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/methylamine.svg');
+}
+.cursor[data-char='money'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/money.svg');
+}
+.cursor[data-char='flask'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/flask.svg');
+}
+.cursor[data-char='meth'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/meth.svg');
 }
 
 /* Pop in when a peer first appears. */
@@ -54,38 +153,43 @@
 
 /* Fade + shrink out on leave — cursors.js adds this class, then removes the
    element after the transition. */
-.cursor.is-leaving .cursor-arrow {
+.cursor.is-leaving .cursor-inner {
   animation: none;
   opacity: 0;
   transform: scale(0);
 }
 
 .cursor-label {
-  /* Names are hidden for the first release — the element and its data stay so
-     the follow-up (pixel-art characters) can re-enable them. */
-  display: none;
+  /* Small, borderless caption centered under the character (the icon is 36px
+     wide, anchored at the pointer tip). Fixed dark ink — not the peer's color,
+     which is invisible on the yellow page — with a light halo so it stays
+     legible over darker content too. */
   position: absolute;
-  top: 18px;
-  left: 14px;
-  padding: 2px 7px;
-  background: currentColor; /* the peer's color, set on .cursor */
-  color: #fff;
-  border-radius: 6px;
+  top: 37px;
+  left: 18px;
+  transform: translateX(-50%);
+  /* Labels are passed as the raw lowercase character key (e.g. "methylamine");
+     capitalize the first letter here so no JS name map is needed. */
+  text-transform: capitalize;
+  color: #1a1a1a;
+  opacity: 0.8;
   white-space: nowrap;
   font:
-    11px/1.4 ui-monospace,
+    9px/1.2 ui-monospace,
     SFMono-Regular,
     Menlo,
     Consolas,
     monospace;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.85),
+    0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cursor {
     transition: none;
   }
-  .cursor-arrow {
+  .cursor-inner {
     animation: none;
     transition: none;
   }

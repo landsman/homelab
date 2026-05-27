@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- bald head (light skin) -->
+  <rect x="12" y="4" width="8" height="1" fill="#e0b48a" />
+  <rect x="10" y="5" width="12" height="1" fill="#e0b48a" />
+  <rect x="9" y="6" width="14" height="1" fill="#e0b48a" />
+  <rect x="12" y="6" width="6" height="1" fill="#ecc6a0" />
+  <rect x="9" y="7" width="14" height="1" fill="#e0b48a" />
+  <rect x="9" y="8" width="14" height="1" fill="#e0b48a" />
+  <!-- furrowed brow -->
+  <rect x="9" y="9" width="14" height="1" fill="#e0b48a" />
+  <rect x="10" y="9" width="4" height="1" fill="#8a6a4a" />
+  <rect x="18" y="9" width="4" height="1" fill="#8a6a4a" />
+  <rect x="14" y="9" width="4" height="1" fill="#c89060" />
+  <!-- intense eyes -->
+  <rect x="9" y="10" width="14" height="1" fill="#e0b48a" />
+  <rect x="11" y="10" width="2" height="1" fill="#3a3330" />
+  <rect x="19" y="10" width="2" height="1" fill="#3a3330" />
+  <rect x="9" y="11" width="14" height="1" fill="#e0b48a" />
+  <rect x="10" y="11" width="3" height="1" fill="#c89060" />
+  <rect x="19" y="11" width="3" height="1" fill="#c89060" />
+  <!-- nose -->
+  <rect x="9" y="12" width="14" height="1" fill="#e0b48a" />
+  <rect x="15" y="12" width="2" height="1" fill="#c89060" />
+  <rect x="9" y="13" width="14" height="1" fill="#e0b48a" />
+  <rect x="15" y="13" width="2" height="1" fill="#c89060" />
+  <rect x="9" y="14" width="14" height="1" fill="#e0b48a" />
+  <rect x="14" y="14" width="4" height="1" fill="#b8825a" />
+  <rect x="10" y="14" width="2" height="1" fill="#d89878" />
+  <rect x="20" y="14" width="2" height="1" fill="#d89878" />
+  <!-- stern mouth -->
+  <rect x="9" y="15" width="14" height="1" fill="#e0b48a" />
+  <rect x="13" y="15" width="6" height="1" fill="#9c6a4a" />
+  <rect x="9" y="16" width="14" height="1" fill="#e0b48a" />
+  <!-- broad jaw -->
+  <rect x="10" y="17" width="12" height="1" fill="#e0b48a" />
+  <rect x="10" y="17" width="2" height="1" fill="#c89060" />
+  <rect x="20" y="17" width="2" height="1" fill="#c89060" />
+  <!-- neck -->
+  <rect x="12" y="18" width="8" height="1" fill="#c89060" />
+  <rect x="12" y="19" width="8" height="1" fill="#e0b48a" />
+  <!-- DEA tactical vest -->
+  <rect x="9" y="20" width="14" height="1" fill="#2e323a" />
+  <rect x="13" y="20" width="6" height="1" fill="#3a3f47" />
+  <rect x="6" y="21" width="20" height="1" fill="#2e323a" />
+  <rect x="7" y="21" width="3" height="1" fill="#3a3f47" />
+  <rect x="22" y="21" width="3" height="1" fill="#3a3f47" />
+  <rect x="4" y="22" width="24" height="1" fill="#2e323a" />
+  <rect x="3" y="23" width="26" height="9" fill="#2e323a" />
+  <rect x="3" y="23" width="1" height="9" fill="#23262d" />
+  <rect x="28" y="23" width="1" height="9" fill="#23262d" />
+  <rect x="7" y="23" width="1" height="9" fill="#3a3f47" />
+  <rect x="24" y="23" width="1" height="9" fill="#3a3f47" />
+  <!-- "DEA" in yellow -->
+  <rect x="10" y="23" width="2" height="1" fill="#f2d000" />
+  <rect x="10" y="23" width="1" height="5" fill="#f2d000" />
+  <rect x="12" y="24" width="1" height="3" fill="#f2d000" />
+  <rect x="10" y="27" width="2" height="1" fill="#f2d000" />
+  <rect x="15" y="23" width="3" height="1" fill="#f2d000" />
+  <rect x="15" y="23" width="1" height="5" fill="#f2d000" />
+  <rect x="15" y="25" width="2" height="1" fill="#f2d000" />
+  <rect x="15" y="27" width="3" height="1" fill="#f2d000" />
+  <rect x="21" y="23" width="1" height="1" fill="#f2d000" />
+  <rect x="20" y="24" width="1" height="1" fill="#f2d000" />
+  <rect x="22" y="24" width="1" height="1" fill="#f2d000" />
+  <rect x="20" y="25" width="1" height="3" fill="#f2d000" />
+  <rect x="22" y="25" width="1" height="3" fill="#f2d000" />
+  <rect x="20" y="26" width="3" height="1" fill="#f2d000" />
+</svg>

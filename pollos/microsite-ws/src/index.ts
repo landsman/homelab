@@ -6,7 +6,7 @@
 // Wire protocol (JSON, both directions):
 //   server -> client  { type: 'welcome', id }
 //   client -> server  { type: 'move', x, y, name, color }      x,y in 0..1
-//   server -> client  { type: 'move', id, x, y, name, color }
+//   server -> client  { type: 'move', id, x, y, name, color, country }
 //   server -> client  { type: 'leave', id }
 //   server -> client  { type: 'paused' }   daily budget hit; reconnect at reset
 
@@ -39,7 +39,13 @@ export default {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('expected a websocket upgrade\n', { status: 426 })
       }
-      return env.CURSORS.getByName('global').fetch(request)
+      // Stamp the visitor's country (Cloudflare edge geo) onto the upgrade so
+      // the room can attach it to the socket. It's edge-derived, never client-
+      // supplied, so peers can't spoof it. `cf` is absent in local dev.
+      const country = String(request.cf?.country ?? request.headers.get('CF-IPCountry') ?? '')
+      const headers = new Headers(request.headers)
+      headers.set('X-Visitor-Country', country)
+      return env.CURSORS.getByName('global').fetch(new Request(request, { headers }))
     }
 
     return new Response('not found\n', { status: 404 })

@@ -76,6 +76,18 @@ function pick(arr) {
 }
 
 /**
+ * Turn a 2-letter ISO country code into its flag emoji (e.g. "CZ" → 🇨🇿).
+ * Returns '' for blank or non-letter codes (e.g. Cloudflare's "T1"/"XX").
+ * @param {string} country
+ * @returns {string}
+ */
+function flagOf(country) {
+  const cc = country.toUpperCase()
+  if (!/^[A-Z]{2}$/.test(cc)) return ''
+  return String.fromCodePoint(0x1f1e6 + cc.charCodeAt(0) - 65, 0x1f1e6 + cc.charCodeAt(1) - 65)
+}
+
+/**
  * Map a peer id to a stable character key (same id always yields the same one).
  * @param {string} id
  * @returns {string}
@@ -122,17 +134,36 @@ function startCursors() {
   let moved = false
   let lastMove = performance.now()
 
-  // Cache viewport size and refresh on resize — reading window.innerWidth/Height
-  // inside the high-frequency pointermove/render paths would force layout.
+  // Cache viewport + document size and refresh on resize — reading these inside
+  // the high-frequency pointermove/render paths would force layout.
   let width = window.innerWidth
   let height = window.innerHeight
+  let docW = document.body.scrollWidth
+  let docH = document.body.scrollHeight
   window.addEventListener(
     'resize',
     () => {
       width = window.innerWidth
       height = window.innerHeight
+      docW = document.body.scrollWidth
+      docH = document.body.scrollHeight
     },
     { passive: true }
+  )
+
+  // Bots live in document coordinates and are drawn offset by the page scroll,
+  // so they ride the content instead of being glued to the viewport (unlike the
+  // live peer pointers). Cache the scroll offset — the body is the scroll
+  // container; scroll events don't bubble, so listen in the capture phase.
+  let scrollX = document.body.scrollLeft
+  let scrollY = document.body.scrollTop
+  document.addEventListener(
+    'scroll',
+    () => {
+      scrollX = document.body.scrollLeft || document.documentElement.scrollLeft
+      scrollY = document.body.scrollTop || document.documentElement.scrollTop
+    },
+    { passive: true, capture: true }
   )
 
   /**
@@ -232,14 +263,19 @@ function startCursors() {
 
   /**
    * Create or move a peer's cursor element.
-   * @param {{ id: string, x: number, y: number, name?: string, color?: string }} msg
+   * @param {{ id: string, x: number, y: number, name?: string, color?: string, country?: string }} msg
    * @returns {void}
    */
   function upsertPeer(msg) {
     let peer = peers.get(msg.id)
     if (!peer) {
       const character = characterFor(msg.id)
-      const el = createCursorEl(character, msg.color, CHARACTER_NAMES[character] || 'Guest')
+      const base = CHARACTER_NAMES[character] || 'Guest'
+      // Country comes from the relay (edge geo); append its flag emoji only when
+      // we have a valid code, so an unknown country just shows the plain name.
+      const flag = flagOf(msg.country || '')
+      const label = flag ? `${base} ${flag}` : base
+      const el = createCursorEl(character, msg.color, label)
       peer = { el, lastSeen: 0 }
       peers.set(msg.id, peer)
       updatePopulation()
@@ -277,7 +313,7 @@ function startCursors() {
   // never sent over the relay. We top the scene up toward TARGET_TOTAL cursors
   // and always keep at least MIN_BOTS, so it never feels empty even when real
   // visitors are around.
-  const TARGET_TOTAL = 4
+  const TARGET_TOTAL = 3
   const MIN_BOTS = 1
 
   /** @typedef {{ el: HTMLDivElement, x: number, y: number, tx: number, ty: number, speed: number, startAt: number }} Bot */
@@ -296,14 +332,16 @@ function startCursors() {
   function animateBots() {
     const now = performance.now()
     for (const bot of bots) {
-      if (now < bot.startAt) continue
-      bot.x += (bot.tx - bot.x) * bot.speed
-      bot.y += (bot.ty - bot.y) * bot.speed
-      if (Math.abs(bot.tx - bot.x) < 3 && Math.abs(bot.ty - bot.y) < 3) {
-        bot.tx = Math.random() * width
-        bot.ty = Math.random() * height
+      if (now >= bot.startAt) {
+        bot.x += (bot.tx - bot.x) * bot.speed
+        bot.y += (bot.ty - bot.y) * bot.speed
+        if (Math.abs(bot.tx - bot.x) < 3 && Math.abs(bot.ty - bot.y) < 3) {
+          bot.tx = Math.random() * docW
+          bot.ty = Math.random() * docH
+        }
       }
-      bot.el.style.transform = `translate3d(${bot.x}px, ${bot.y}px, 0)`
+      // Document coords minus scroll, so the bot rides the page as it scrolls.
+      bot.el.style.transform = `translate3d(${bot.x - scrollX}px, ${bot.y - scrollY}px, 0)`
     }
     botRaf = bots.length ? requestAnimationFrame(animateBots) : 0
   }
@@ -318,15 +356,17 @@ function startCursors() {
     const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
     const el = createCursorEl(character, color, CHARACTER_NAMES[character] || 'Guest', popDelayMs)
     el.classList.add('is-bot')
-    const bx = Math.random() * width
-    const by = Math.random() * height
-    el.style.transform = `translate3d(${bx}px, ${by}px, 0)`
+    // Spawn within the visible region but in document coordinates (offset by the
+    // current scroll) so the bot scrolls with the page; see animateBots.
+    const bx = scrollX + Math.random() * width
+    const by = scrollY + Math.random() * height
+    el.style.transform = `translate3d(${bx - scrollX}px, ${by - scrollY}px, 0)`
     bots.push({
       el,
       x: bx,
       y: by,
-      tx: Math.random() * width,
-      ty: Math.random() * height,
+      tx: Math.random() * docW,
+      ty: Math.random() * docH,
       speed: 0.012 + Math.random() * 0.02,
       // Pop in, then linger a random 2–4s before wandering off, so the herd
       // never starts moving in unison (especially right after page load).

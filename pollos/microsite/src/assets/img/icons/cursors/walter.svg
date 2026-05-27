@@ -19,22 +19,32 @@
   <rect x="9" y="9" width="14" height="1" fill="#e0b48a" />
   <rect x="10" y="9" width="3" height="1" fill="#5e4326" />
   <rect x="19" y="9" width="3" height="1" fill="#5e4326" />
-  <!-- thin clear glasses (lenses show the eyes) -->
+  <!-- eye-line + nose (drawn first; glasses sit on top) -->
   <rect x="9" y="11" width="14" height="1" fill="#e0b48a" />
-  <rect x="9" y="10" width="4" height="1" fill="#3a3a3a" />
-  <rect x="19" y="10" width="4" height="1" fill="#3a3a3a" />
-  <rect x="15" y="10" width="2" height="1" fill="#3a3a3a" />
-  <rect x="8" y="11" width="2" height="1" fill="#3a3a3a" />
-  <rect x="12" y="11" width="1" height="1" fill="#3a3a3a" />
-  <rect x="19" y="11" width="1" height="1" fill="#3a3a3a" />
-  <rect x="22" y="11" width="2" height="1" fill="#3a3a3a" />
-  <rect x="10" y="11" width="2" height="1" fill="#2b2b2b" />
-  <rect x="20" y="11" width="2" height="1" fill="#2b2b2b" />
-  <!-- nose -->
   <rect x="9" y="12" width="14" height="1" fill="#e0b48a" />
   <rect x="15" y="12" width="2" height="1" fill="#c89060" />
   <rect x="9" y="13" width="14" height="1" fill="#e0b48a" />
   <rect x="14" y="13" width="4" height="1" fill="#c89060" />
+  <!-- thin wire glasses: rounded clear lenses, blue eyes show through -->
+  <rect x="10" y="11" width="3" height="2" fill="#ecc6a0" />
+  <rect x="18" y="11" width="3" height="2" fill="#ecc6a0" />
+  <rect x="10" y="10" width="3" height="1" fill="#a8915e" />
+  <rect x="18" y="10" width="3" height="1" fill="#a8915e" />
+  <rect x="9" y="11" width="1" height="2" fill="#a8915e" />
+  <rect x="13" y="11" width="1" height="2" fill="#a8915e" />
+  <rect x="17" y="11" width="1" height="2" fill="#a8915e" />
+  <rect x="21" y="11" width="1" height="2" fill="#a8915e" />
+  <rect x="10" y="13" width="3" height="1" fill="#a8915e" />
+  <rect x="18" y="13" width="3" height="1" fill="#a8915e" />
+  <rect x="14" y="11" width="3" height="1" fill="#a8915e" />
+  <rect x="8" y="11" width="1" height="1" fill="#a8915e" />
+  <rect x="22" y="11" width="1" height="1" fill="#a8915e" />
+  <rect x="11" y="11" width="1" height="1" fill="#3a5a72" />
+  <rect x="19" y="11" width="1" height="1" fill="#3a5a72" />
+  <rect x="12" y="11" width="1" height="1" fill="#5a7a92" />
+  <rect x="20" y="11" width="1" height="1" fill="#5a7a92" />
+  <rect x="10" y="11" width="1" height="1" fill="#f6f2e8" />
+  <rect x="18" y="11" width="1" height="1" fill="#f6f2e8" />
   <!-- mustache (no beard) -->
   <rect x="9" y="14" width="14" height="1" fill="#e0b48a" />
   <rect x="12" y="14" width="8" height="1" fill="#5e4326" />

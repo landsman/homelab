@@ -80,6 +80,13 @@ resource "betteruptime_monitor" "health" {
   monitor_group_id   = tonumber(betteruptime_monitor_group.pollos.id)
   check_frequency    = 180 # seconds (3 min)
   regions            = ["eu"]
+
+  # Daily maintenance window — router reboot/update in this hour, so don't
+  # poll (or alert) 04:55–05:55 Prague time.
+  maintenance_from     = "04:55:00"
+  maintenance_to       = "05:55:00"
+  maintenance_timezone = "Prague"
+  maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 }
 
 # Run on each box:  sudo TUNNEL_TOKEN="$(token for that node)" sh monitoring.sh

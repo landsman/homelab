@@ -39,3 +39,18 @@ jobs:
 
       - name: "List build artifacts"
         run: find public -type f | sort
+
+  infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pollos/infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: "Check formatting"
+        run: terraform fmt -check
+      - name: "Init (no backend, no creds)"
+        run: terraform init -backend=false
+      - name: "Validate"
+        run: terraform validate

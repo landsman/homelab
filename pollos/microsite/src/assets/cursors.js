@@ -44,6 +44,20 @@ const CHARACTERS = [
   'meth2',
 ]
 
+// Caption shown under each cursor (see .cursor-label in cursors.css).
+const CHARACTER_NAMES = {
+  heisenberg: 'Heisenberg',
+  jesse: 'Jesse',
+  gus: 'Gus',
+  saul: 'Saul',
+  mike: 'Mike',
+  hazmat: 'Hazmat',
+  tuco: 'Tuco',
+  hector: 'Hector',
+  meth: 'Meth',
+  meth2: 'Meth',
+}
+
 /**
  * Pick a random element from an array.
  * @param {string[]} arr
@@ -183,17 +197,18 @@ function startCursors() {
   function upsertPeer(msg) {
     let peer = peers.get(msg.id)
     if (!peer) {
+      const character = characterFor(msg.id)
       const el = document.createElement('div')
       el.className = 'cursor'
-      el.dataset.char = characterFor(msg.id)
+      el.dataset.char = character
       el.style.color = msg.color || '#888'
       // The character pixel-art comes from a cached SVG chosen by data-char via
-      // CSS background-image (see cursors.css); the label sits beside it.
+      // CSS background-image (see cursors.css); the label sits below it.
       const arrow = document.createElement('span')
       arrow.className = 'cursor-arrow'
       const label = document.createElement('span')
       label.className = 'cursor-label'
-      label.textContent = msg.name || 'Guest'
+      label.textContent = CHARACTER_NAMES[character] || 'Guest'
       el.append(arrow, label)
       layer.appendChild(el)
       peer = { el, lastSeen: 0 }

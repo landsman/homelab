@@ -111,6 +111,15 @@
 .cursor[data-char='hank'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/hank.svg');
 }
+.cursor[data-char='walter'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/walter.svg');
+}
+.cursor[data-char='skyler'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/skyler.svg');
+}
+.cursor[data-char='lydia'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/lydia.svg');
+}
 .cursor[data-char='rv'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/rv.svg');
 }

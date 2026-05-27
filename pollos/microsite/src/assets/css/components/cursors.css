@@ -61,6 +61,9 @@
 .cursor[data-char='hector'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/hector.svg');
 }
+.cursor[data-char='jane'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/jane.svg');
+}
 .cursor[data-char='meth'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/meth.svg');
 }

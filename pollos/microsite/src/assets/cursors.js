@@ -43,6 +43,7 @@ const CHARACTERS = [
   'jane',
   'huell',
   'hank',
+  'rv',
   'meth',
   'meth2',
 ]
@@ -60,6 +61,7 @@ const CHARACTER_NAMES = {
   jane: 'Jane',
   huell: 'Huell',
   hank: 'Hank',
+  rv: 'The RV',
   meth: 'Meth',
   meth2: 'Meth',
 }

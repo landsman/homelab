@@ -93,14 +93,15 @@
 
 .cursor-label {
   /* Small, borderless caption centered under the character (the icon is 36px
-     wide, anchored at the pointer tip). Tinted to the peer's color and kept
-     faint, with a soft shadow so it stays legible on any background. */
+     wide, anchored at the pointer tip). Fixed dark ink — not the peer's color,
+     which is invisible on the yellow page — with a light halo so it stays
+     legible over darker content too. */
   position: absolute;
   top: 37px;
   left: 18px;
   transform: translateX(-50%);
-  color: currentColor;
-  opacity: 0.7;
+  color: #1a1a1a;
+  opacity: 0.8;
   white-space: nowrap;
   font:
     9px/1.2 ui-monospace,
@@ -108,7 +109,9 @@
     Menlo,
     Consolas,
     monospace;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.85),
+    0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 @media (prefers-reduced-motion: reduce) {

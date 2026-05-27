@@ -1,17 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
-  <rect x="5" y="2" width="6" height="2" fill="#161013" />
-  <rect x="5" y="4" width="6" height="1" fill="#c98a5e" />
-  <rect x="5" y="5" width="6" height="1" fill="#c98a5e" />
-  <rect x="6" y="5" width="1" height="1" fill="#2b2b2b" />
-  <rect x="9" y="5" width="1" height="1" fill="#2b2b2b" />
-  <rect x="5" y="6" width="6" height="1" fill="#c98a5e" />
-  <rect x="6" y="7" width="4" height="1" fill="#4a3322" />
-  <rect x="7" y="7" width="2" height="1" fill="#f4c20d" />
-  <rect x="7" y="8" width="2" height="1" fill="#c98a5e" />
-  <rect x="4" y="9" width="8" height="1" fill="#1f9e8f" />
-  <rect x="3" y="10" width="10" height="1" fill="#1f9e8f" />
-  <rect x="2" y="11" width="12" height="5" fill="#1f9e8f" />
-  <rect x="6" y="10" width="1" height="1" fill="#f4c20d" />
-  <rect x="9" y="10" width="1" height="1" fill="#f4c20d" />
-  <rect x="7" y="11" width="2" height="1" fill="#f4c20d" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- slicked-back hair -->
+  <rect x="10" y="4" width="12" height="1" fill="#161013" />
+  <rect x="9" y="5" width="14" height="1" fill="#161013" />
+  <rect x="11" y="5" width="4" height="1" fill="#2e2620" />
+  <rect x="9" y="6" width="14" height="1" fill="#161013" />
+  <rect x="9" y="7" width="2" height="1" fill="#161013" />
+  <rect x="21" y="7" width="2" height="1" fill="#161013" />
+  <rect x="11" y="7" width="10" height="1" fill="#c98a5e" />
+  <!-- face -->
+  <rect x="9" y="8" width="14" height="1" fill="#a86c43" />
+  <rect x="11" y="8" width="10" height="1" fill="#c98a5e" />
+  <rect x="9" y="9" width="14" height="1" fill="#c98a5e" />
+  <rect x="13" y="9" width="6" height="1" fill="#d99e6e" />
+  <rect x="9" y="10" width="14" height="1" fill="#c98a5e" />
+  <!-- thick brows + intense eyes -->
+  <rect x="10" y="11" width="4" height="1" fill="#161013" />
+  <rect x="18" y="11" width="4" height="1" fill="#161013" />
+  <rect x="9" y="12" width="14" height="1" fill="#c98a5e" />
+  <rect x="11" y="12" width="2" height="1" fill="#1b1b1b" />
+  <rect x="19" y="12" width="2" height="1" fill="#1b1b1b" />
+  <rect x="9" y="13" width="14" height="1" fill="#c98a5e" />
+  <!-- nose / cheeks -->
+  <rect x="9" y="14" width="14" height="1" fill="#c98a5e" />
+  <rect x="15" y="14" width="2" height="1" fill="#a86c43" />
+  <rect x="9" y="15" width="14" height="1" fill="#c98a5e" />
+  <rect x="15" y="15" width="2" height="1" fill="#a86c43" />
+  <rect x="9" y="16" width="14" height="1" fill="#c98a5e" />
+  <!-- clean-shaven with gold-tooth grin -->
+  <rect x="9" y="17" width="14" height="1" fill="#c98a5e" />
+  <rect x="13" y="17" width="6" height="1" fill="#a86c43" />
+  <rect x="9" y="18" width="14" height="1" fill="#c98a5e" />
+  <rect x="12" y="18" width="1" height="1" fill="#7a4a2e" />
+  <rect x="19" y="18" width="1" height="1" fill="#7a4a2e" />
+  <rect x="13" y="18" width="6" height="1" fill="#f4c20d" />
+  <rect x="14" y="18" width="1" height="1" fill="#c99700" />
+  <rect x="16" y="18" width="1" height="1" fill="#c99700" />
+  <rect x="18" y="18" width="1" height="1" fill="#c99700" />
+  <rect x="10" y="19" width="12" height="1" fill="#c98a5e" />
+  <rect x="14" y="19" width="4" height="1" fill="#a86c43" />
+  <rect x="11" y="20" width="10" height="1" fill="#c98a5e" />
+  <!-- neck -->
+  <rect x="12" y="21" width="8" height="1" fill="#a86c43" />
+  <rect x="12" y="22" width="8" height="1" fill="#c98a5e" />
+  <!-- red paisley bowling shirt with bright piping -->
+  <rect x="10" y="23" width="12" height="1" fill="#c4655a" />
+  <rect x="10" y="23" width="2" height="1" fill="#d83b2b" />
+  <rect x="20" y="23" width="2" height="1" fill="#d83b2b" />
+  <rect x="14" y="23" width="4" height="1" fill="#a86c43" />
+  <rect x="7" y="24" width="18" height="1" fill="#c4655a" />
+  <rect x="13" y="24" width="6" height="1" fill="#d83b2b" />
+  <rect x="14" y="24" width="4" height="1" fill="#c98a5e" />
+  <rect x="5" y="25" width="22" height="1" fill="#c4655a" />
+  <rect x="4" y="26" width="24" height="1" fill="#c4655a" />
+  <rect x="3" y="27" width="26" height="1" fill="#c4655a" />
+  <rect x="3" y="28" width="26" height="4" fill="#c4655a" />
+  <rect x="3" y="28" width="1" height="4" fill="#a3504a" />
+  <rect x="28" y="28" width="1" height="4" fill="#a3504a" />
+  <!-- placket piping -->
+  <rect x="15" y="25" width="2" height="7" fill="#d83b2b" />
+  <!-- paisley flecks -->
+  <rect x="8" y="26" width="1" height="1" fill="#98443c" />
+  <rect x="11" y="28" width="1" height="1" fill="#98443c" />
+  <rect x="20" y="27" width="1" height="1" fill="#98443c" />
+  <rect x="23" y="29" width="1" height="1" fill="#98443c" />
+  <rect x="7" y="30" width="1" height="1" fill="#98443c" />
+  <rect x="24" y="26" width="1" height="1" fill="#98443c" />
+  <rect x="6" y="28" width="1" height="1" fill="#d89086" />
+  <rect x="21" y="30" width="1" height="1" fill="#d89086" />
+  <rect x="10" y="30" width="1" height="1" fill="#d89086" />
+  <!-- silver chain + pendant -->
+  <rect x="12" y="25" width="1" height="1" fill="#d8d8e0" />
+  <rect x="19" y="25" width="1" height="1" fill="#d8d8e0" />
+  <rect x="13" y="26" width="1" height="1" fill="#d8d8e0" />
+  <rect x="18" y="26" width="1" height="1" fill="#d8d8e0" />
+  <rect x="15" y="27" width="2" height="1" fill="#eaeaf0" />
 </svg>

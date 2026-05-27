@@ -81,16 +81,13 @@ resource "betteruptime_monitor" "health" {
   check_frequency    = 180 # seconds (3 min)
   regions            = ["eu"]
 
-  # Daily maintenance window — router reboot/update in this hour, so don't
-  # poll (or alert) 04:55–05:55 Prague time.
+  # Daily maintenance window — router reboot/update in this hour
   maintenance_from     = "04:55:00"
-  maintenance_to       = "05:55:00"
+  maintenance_to       = "05:20:00"
   maintenance_timezone = "Prague"
   maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 }
 
-# Run on each box:  sudo TUNNEL_TOKEN="$(token for that node)" sh monitoring.sh
-# Fetch one:  terraform output -json health_tunnel_tokens | jq -r .gus
 output "health_tunnel_tokens" {
   description = "Per-node cloudflared connector tokens for the health tunnels."
   sensitive   = true

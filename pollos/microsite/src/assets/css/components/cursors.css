@@ -64,6 +64,12 @@
 .cursor[data-char='jane'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/jane.svg');
 }
+.cursor[data-char='huell'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/huell.svg');
+}
+.cursor[data-char='hank'] .cursor-arrow {
+  background-image: url('../../img/icons/cursors/hank.svg');
+}
 .cursor[data-char='meth'] .cursor-arrow {
   background-image: url('../../img/icons/cursors/meth.svg');
 }

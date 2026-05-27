@@ -48,9 +48,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
-      - name: "Check formatting"
-        run: terraform fmt -check
-      - name: "Init (no backend, no creds)"
-        run: terraform init -backend=false
-      - name: "Validate"
-        run: terraform validate
+      - name: "Format check + validate"
+        run: make ci
+
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pollos/microsite-ws
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: "Install JS deps"
+        run: make install-ci
+
+      - name: "Typecheck + format check"
+        run: make ci

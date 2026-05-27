@@ -196,6 +196,30 @@ function startCursors() {
   }
 
   /**
+   * Build a cursor element (character art + caption) and add it to the layer.
+   * @param {string} character
+   * @param {string | undefined} color
+   * @param {string} name
+   * @returns {HTMLDivElement}
+   */
+  function createCursorEl(character, color, name) {
+    const el = document.createElement('div')
+    el.className = 'cursor'
+    el.dataset.char = character
+    el.style.color = color || '#888'
+    // The character pixel-art comes from a cached SVG chosen by data-char via
+    // CSS background-image (see cursors.css); the label sits below it.
+    const arrow = document.createElement('span')
+    arrow.className = 'cursor-arrow'
+    const label = document.createElement('span')
+    label.className = 'cursor-label'
+    label.textContent = name
+    el.append(arrow, label)
+    layer.appendChild(el)
+    return el
+  }
+
+  /**
    * Create or move a peer's cursor element.
    * @param {{ id: string, x: number, y: number, name?: string, color?: string }} msg
    * @returns {void}
@@ -204,21 +228,10 @@ function startCursors() {
     let peer = peers.get(msg.id)
     if (!peer) {
       const character = characterFor(msg.id)
-      const el = document.createElement('div')
-      el.className = 'cursor'
-      el.dataset.char = character
-      el.style.color = msg.color || '#888'
-      // The character pixel-art comes from a cached SVG chosen by data-char via
-      // CSS background-image (see cursors.css); the label sits below it.
-      const arrow = document.createElement('span')
-      arrow.className = 'cursor-arrow'
-      const label = document.createElement('span')
-      label.className = 'cursor-label'
-      label.textContent = CHARACTER_NAMES[character] || 'Guest'
-      el.append(arrow, label)
-      layer.appendChild(el)
+      const el = createCursorEl(character, msg.color, CHARACTER_NAMES[character] || 'Guest')
       peer = { el, lastSeen: 0 }
       peers.set(msg.id, peer)
+      updatePopulation()
     }
     peer.lastSeen = performance.now()
     const px = msg.x * width
@@ -237,6 +250,7 @@ function startCursors() {
     // Play the leave animation (see cursors.css), then drop the element.
     peer.el.classList.add('is-leaving')
     setTimeout(() => peer.el.remove(), 160)
+    updatePopulation()
   }
 
   /**
@@ -245,7 +259,75 @@ function startCursors() {
   function clearPeers() {
     peers.forEach(peer => peer.el.remove())
     peers.clear()
+    updatePopulation()
   }
+
+  // When no real visitors are connected, a few wandering bots keep the page
+  // feeling alive. They're purely local decoration — never sent over the relay
+  // — and vanish the moment a real peer appears.
+  const BOT_COUNT = 4
+
+  /** @typedef {{ el: HTMLDivElement, x: number, y: number, tx: number, ty: number }} Bot */
+  /** @type {Bot[]} */
+  const bots = []
+  let lastPopulation = ''
+
+  /**
+   * @returns {void}
+   */
+  function spawnBots() {
+    if (bots.length) return
+    for (let i = 0; i < BOT_COUNT; i++) {
+      const character = pick(CHARACTERS)
+      const color = `hsl(${Math.floor(Math.random() * 360)} 70% 55%)`
+      const el = createCursorEl(character, color, CHARACTER_NAMES[character] || 'Guest')
+      bots.push({
+        el,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        tx: Math.random() * width,
+        ty: Math.random() * height,
+      })
+    }
+  }
+
+  /**
+   * @returns {void}
+   */
+  function clearBots() {
+    bots.forEach(bot => bot.el.remove())
+    bots.length = 0
+  }
+
+  /**
+   * Show bots only while alone; log the bot/real split whenever it changes.
+   * @returns {void}
+   */
+  function updatePopulation() {
+    const real = peers.size
+    if (real > 0) clearBots()
+    else spawnBots()
+    const population = `${bots.length} bots / ${real} real`
+    if (population !== lastPopulation) {
+      console.log(`[cursors] ${population}`)
+      lastPopulation = population
+    }
+  }
+
+  // Drift each bot toward a roaming target, retargeting on arrival. The easing
+  // plus the .cursor transition keeps the motion smooth and lifelike.
+  setInterval(() => {
+    if (document.hidden || !bots.length) return
+    for (const bot of bots) {
+      bot.x += (bot.tx - bot.x) * 0.04
+      bot.y += (bot.ty - bot.y) * 0.04
+      if (Math.hypot(bot.tx - bot.x, bot.ty - bot.y) < 6) {
+        bot.tx = Math.random() * width
+        bot.ty = Math.random() * height
+      }
+      bot.el.style.transform = `translate(${bot.x}px, ${bot.y}px)`
+    }
+  }, 60)
 
   // Throttled sender — emits at most one move per interval, only when the
   // pointer actually moved and the socket is open.
@@ -295,4 +377,5 @@ function startCursors() {
   })
 
   connect()
+  updatePopulation() // start populated with bots until a real peer arrives
 }

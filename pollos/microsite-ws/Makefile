@@ -1,9 +1,13 @@
-.PHONY: install dev deploy tail typecheck format format-check
+.PHONY: install install-ci dev deploy tail ci format
 
 # Install pinned tools (node + wrangler via mise) and npm dev deps.
 install:
 	mise install
 	npm install
+
+# Install npm deps from the lockfile (CI; runner provides node).
+install-ci:
+	npm ci --no-audit --no-fund
 
 # Run the Worker + Durable Object locally (ws://localhost:8787/cursors).
 dev:
@@ -19,13 +23,10 @@ tail:
 	mise exec -- wrangler tail
 
 # Type-check without emitting.
-typecheck:
+ci:
 	npm run typecheck
+	npm run format:check
 
 # Format source with Prettier (config in .prettierrc).
 format:
 	npm run format
-
-# Check formatting without writing — use in CI.
-format-check:
-	npm run format:check

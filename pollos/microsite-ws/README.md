@@ -38,9 +38,8 @@ idle — so normal microsite traffic stays nowhere near the caps.
 ## Develop
 
 ```bash
-mise install            # node + wrangler
-npm install             # typescript + workers-types
-npm run typecheck       # tsc --noEmit
+make install
+make ci
 npm run dev             # local wrangler dev (ws://localhost:8787/cursors)
 ```
 

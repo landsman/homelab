@@ -1,18 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
-  <!-- receding comb-over -->
-  <rect x="11" y="4" width="10" height="1" fill="#6e4a2a" />
+  <!-- side part, hair swept across the forehead (left side covered) -->
+  <rect x="10" y="3" width="11" height="1" fill="#5e3f22" />
+  <rect x="9" y="4" width="14" height="1" fill="#6e4a2a" />
+  <rect x="10" y="4" width="6" height="1" fill="#8a5e34" />
   <rect x="9" y="5" width="14" height="1" fill="#6e4a2a" />
-  <rect x="11" y="5" width="4" height="1" fill="#835833" />
-  <rect x="16" y="5" width="1" height="1" fill="#4a3018" />
+  <rect x="10" y="5" width="6" height="1" fill="#7a5430" />
+  <rect x="17" y="5" width="1" height="1" fill="#4a3018" />
   <rect x="9" y="6" width="14" height="1" fill="#6e4a2a" />
-  <rect x="10" y="6" width="2" height="1" fill="#e3b08a" />
-  <rect x="20" y="6" width="2" height="1" fill="#e3b08a" />
-  <rect x="9" y="7" width="2" height="1" fill="#6e4a2a" />
+  <rect x="9" y="7" width="6" height="1" fill="#6e4a2a" />
+  <rect x="10" y="7" width="3" height="1" fill="#7a5430" />
+  <rect x="15" y="7" width="6" height="1" fill="#e3b08a" />
   <rect x="21" y="7" width="2" height="1" fill="#6e4a2a" />
-  <rect x="11" y="7" width="10" height="1" fill="#e3b08a" />
   <!-- face -->
   <rect x="9" y="8" width="14" height="1" fill="#c98a5e" />
   <rect x="11" y="8" width="10" height="1" fill="#e3b08a" />
+  <rect x="11" y="8" width="3" height="1" fill="#6e4a2a" />
   <rect x="9" y="9" width="14" height="1" fill="#e3b08a" />
   <rect x="13" y="9" width="6" height="1" fill="#f0c39c" />
   <rect x="9" y="10" width="14" height="1" fill="#e3b08a" />

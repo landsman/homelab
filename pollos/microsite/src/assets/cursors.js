@@ -326,8 +326,9 @@ function startCursors() {
       tx: Math.random() * width,
       ty: Math.random() * height,
       speed: 0.012 + Math.random() * 0.02,
-      // Hold still through the pop entrance (delay + ~180ms), then wander.
-      startAt: performance.now() + popDelayMs + 220,
+      // Pop in, then linger a random 2–4s before wandering off, so the herd
+      // never starts moving in unison (especially right after page load).
+      startAt: performance.now() + popDelayMs + 2000 + Math.random() * 2000,
     })
     if (!botRaf) botRaf = requestAnimationFrame(animateBots)
   }

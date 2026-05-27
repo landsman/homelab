@@ -25,6 +25,27 @@
   transition: none;
 }
 
+/* Wrapper for the art + label so the pop and idle bob scale/sway the whole
+   thing together (character *and* name), and a staggered bot stays fully hidden
+   until its entrance. .cursor itself only carries the JS-set position. */
+.cursor-inner {
+  display: block;
+  position: relative;
+  transform-origin: top left; /* scale/sway from the pointer tip */
+  /* Idle bob keeps a still cursor feeling alive (real peers + bots); the entry
+     pop is listed last so it wins for its first 180ms, then idle takes over.
+     A random per-element delay (set in cursors.js) keeps them out of sync. */
+  animation:
+    cursor-idle 3.4s ease-in-out infinite,
+    cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
+  /* backwards fill on the pop keeps a staggered bot hidden (scale 0 + opacity 0)
+     through its delay so it doesn't flash before popping in. */
+  animation-fill-mode: none, backwards;
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
+}
+
 .cursor-arrow {
   display: block;
   /* Square pixel-art bust, scaled up from the 32×32 source SVG. */
@@ -36,19 +57,6 @@
   background: center / contain no-repeat;
   image-rendering: pixelated;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
-  transform-origin: top left; /* scale/sway from the pointer tip */
-  /* Idle bob keeps a still cursor feeling alive (real peers + bots); the entry
-     pop is listed last so it wins for its first 180ms, then idle takes over.
-     A random per-element delay (set in cursors.js) keeps them out of sync. */
-  animation:
-    cursor-idle 3.4s ease-in-out infinite,
-    cursor-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.25);
-  /* backwards fill on the pop keeps a staggered bot hidden (scale 0) through its
-     delay so it doesn't flash before popping in. */
-  animation-fill-mode: none, backwards;
-  transition:
-    transform 150ms ease,
-    opacity 150ms ease;
 }
 
 /* Gentle sway + bob so a motionless character never looks frozen. */
@@ -127,7 +135,7 @@
 
 /* Fade + shrink out on leave — cursors.js adds this class, then removes the
    element after the transition. */
-.cursor.is-leaving .cursor-arrow {
+.cursor.is-leaving .cursor-inner {
   animation: none;
   opacity: 0;
   transform: scale(0);
@@ -160,7 +168,7 @@
   .cursor {
     transition: none;
   }
-  .cursor-arrow {
+  .cursor-inner {
     animation: none;
     transition: none;
   }

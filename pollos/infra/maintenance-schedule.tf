@@ -36,6 +36,15 @@ locals {
   ]...)
 }
 
+# Recreate a report when its event definition changes. ignore_changes on the
+# restapi_object (below) suppresses the false JSON:API drift but would also
+# swallow real edits to a window; triggers_replace bumps this resource whenever
+# the report content changes, which then forces the report to be recreated.
+resource "terraform_data" "maintenance_trigger" {
+  for_each         = local.maintenance_reports
+  triggers_replace = each.value
+}
+
 resource "restapi_object" "maintenance" {
   for_each = local.maintenance_reports
 
@@ -56,8 +65,10 @@ resource "restapi_object" "maintenance" {
 
   # BetterStack is JSON:API — GET nests attributes under data.attributes while
   # POST expects them at the root, so the provider would otherwise see perpetual
-  # drift on `data`. These are one-shot announcements; no reconciliation needed.
+  # drift on `data`. Suppress that, but recreate the report when the event
+  # definition actually changes (via the trigger above).
   lifecycle {
-    ignore_changes = [data]
+    ignore_changes       = [data]
+    replace_triggered_by = [terraform_data.maintenance_trigger[each.key]]
   }
 }

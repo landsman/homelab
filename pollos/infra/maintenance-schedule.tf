@@ -58,7 +58,8 @@ resource "restapi_object" "maintenance" {
     starts_at   = each.value.starts_at
     ends_at     = each.value.ends_at
     affected_resources = [{
-      status_page_resource_id = betteruptime_status_page_resource.node[each.value.node].id
+      # tonumber so jsonencode emits an integer — the API rejects a quoted id.
+      status_page_resource_id = tonumber(betteruptime_status_page_resource.node[each.value.node].id)
       status                  = "maintenance"
     }]
   })

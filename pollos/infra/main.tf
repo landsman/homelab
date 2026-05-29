@@ -9,6 +9,10 @@ terraform {
       source  = "BetterStackHQ/better-uptime"
       version = "~> 0.11"
     }
+    restapi = {
+      source  = "Mastercard/restapi"
+      version = "~> 2.0"
+    }
   }
 
   backend "s3" {
@@ -31,6 +35,20 @@ provider "cloudflare" {
 
 provider "betteruptime" {
   api_token = var.betteruptime_api_token
+}
+
+# Generic REST client for BetterStack endpoints the provider doesn't model —
+# e.g. status-page maintenance reports (see maintenance-schedule.tf).
+provider "restapi" {
+  uri                  = "https://uptime.betterstack.com/api/v2"
+  write_returns_object = true
+  create_method        = "POST"
+  update_method        = "PATCH"
+  destroy_method       = "DELETE"
+  headers = {
+    Authorization = "Bearer ${var.betteruptime_api_token}"
+    Content-Type  = "application/json"
+  }
 }
 
 resource "cloudflare_pages_project" "site" {

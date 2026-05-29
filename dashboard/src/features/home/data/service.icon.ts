@@ -3,6 +3,7 @@ export enum ServiceIcon {
   APPLE_NOTES = 'apple-notes',
   BLUESKY = 'bluesky',
   AZURE_DEVOPS = 'azure-devops',
+  BETTERSTACK = 'betterstack',
   CLOUDFLARE = 'cloudflare',
   TAILSCALE = 'tailscale',
   X = 'x',

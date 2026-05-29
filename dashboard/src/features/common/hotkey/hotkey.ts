@@ -11,6 +11,7 @@ export enum Hotkey {
   SHIFT_FIVE = 'Shift+5',
   SHIFT_SIX = 'Shift+6',
   SHIFT_SEVEN = 'Shift+7',
+  SHIFT_EIGHT = 'Shift+8',
   SHIFT_A = 'Shift+A',
   SHIFT_B = 'Shift+B',
   SHIFT_C = 'Shift+C',

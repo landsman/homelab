@@ -121,6 +121,12 @@ export const HOME_CATEGORIES: HomeCategory[] = [
       { name: 'Vaadin Docs', url: 'https://vaadin.com/docs', icon: ServiceIcon.VAADIN },
       { name: 'Azure DevOps', url: 'https://dev.azure.com', icon: ServiceIcon.AZURE_DEVOPS },
       {
+        name: 'Better Stack',
+        url: 'https://uptime.betterstack.com',
+        icon: ServiceIcon.BETTERSTACK,
+        shortcut: Hotkey.SHIFT_EIGHT,
+      },
+      {
         name: 'Supabase',
         url: 'https://supabase.com/dashboard/projects',
         icon: ServiceIcon.SUPABASE,

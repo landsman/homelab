@@ -72,6 +72,9 @@
     <script defer src="/assets/vendor/htmx-2.0.4.min.js"></script>
     <script defer src="/assets/app.js?v={{ASSET_VERSION}}"></script>
     <script defer src="/assets/cursors.js?v={{ASSET_VERSION}}"></script>
-    <script async src="https://www.youtube.com/iframe_api"></script>
+    <!-- YouTube IFrame API is injected lazily by app.js on first play intent.
+         Loading it here delayed first paint by ~1s (the cross-origin embed
+         blocks the main document's first render) for no benefit — audio only
+         ever starts on a user click. -->
   </body>
 </html>

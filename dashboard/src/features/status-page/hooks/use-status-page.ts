@@ -5,6 +5,7 @@ import type { StatusPageData, StatusComponent, Incident } from '../api/types'
 import { fetchAtlassian } from '../api/atlassian'
 import { fetchStatusio } from '../api/statusio'
 import { fetchInstatus } from '../api/instatus'
+import { fetchBetterStack } from '../api/betterstack'
 import { fetchGoogleWorkspace } from '../api/google-workspace'
 import { fetchIncidentio } from '../api/incidentio'
 import { fetchSlack } from '../api/slack'
@@ -27,6 +28,7 @@ async function fetchStatusPage(service: Service): Promise<StatusPageData> {
     return await match(service)
       .with({ type: SERVICE_TYPE.STATUSIO }, s => fetchStatusio(s.statusioId!))
       .with({ type: SERVICE_TYPE.INSTATUS }, s => fetchInstatus(s.url))
+      .with({ type: SERVICE_TYPE.BETTERSTACK }, s => fetchBetterStack(s.url))
       .with({ type: SERVICE_TYPE.GOOGLE_WORKSPACE }, () => fetchGoogleWorkspace())
       .with({ type: SERVICE_TYPE.INCIDENTIO }, s => fetchIncidentio(s.url))
       .with({ type: SERVICE_TYPE.SLACK }, () => fetchSlack())

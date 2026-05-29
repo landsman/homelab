@@ -2,6 +2,7 @@ export const SERVICE_TYPE = {
   ATLASSIAN: 'atlassian',
   STATUSIO: 'statusio',
   INSTATUS: 'instatus',
+  BETTERSTACK: 'betterstack',
   GOOGLE_WORKSPACE: 'google-workspace',
   INCIDENTIO: 'incidentio',
   SLACK: 'slack',
@@ -86,6 +87,13 @@ export const SERVICES: Service[] = [
     url: 'https://status.maven.org',
     type: SERVICE_TYPE.ATLASSIAN,
     keywords: ['java'],
+  },
+  {
+    name: 'Better Stack',
+    url: 'https://status.betterstack.com',
+    type: SERVICE_TYPE.BETTERSTACK,
+    icon: 'betterstack',
+    keywords: ['monitoring', 'uptime', 'status', 'logs', 'telemetry', 'observability'],
   },
   {
     name: 'Perplexity',

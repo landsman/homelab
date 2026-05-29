@@ -9,7 +9,7 @@
 
 resource "betteruptime_status_page" "pollos" {
   company_name  = "Los Pollos Hermanos"
-  company_url   = "https://www.pollos.cz"
+  company_url   = "https://betterstack.com/?ref=b-dowu"
   subdomain     = "landsman"
   custom_domain = "status.pollos.cz"
   timezone      = "Prague"

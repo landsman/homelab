@@ -41,7 +41,7 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      - uses: cloudflare/wrangler-action@v3
+      - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
@@ -90,7 +90,7 @@ jobs:
       - name: Build static assets (generates /setup index)
         run: make build
         working-directory: pollos/microsite
-      - uses: cloudflare/wrangler-action@v3
+      - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}

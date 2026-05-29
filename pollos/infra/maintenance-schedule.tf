@@ -67,4 +67,11 @@ resource "restapi_object" "maintenance" {
       status                  = "maintenance"
     }]
   })
+
+  # BetterStack is JSON:API — GET nests attributes under data.attributes while
+  # POST expects them at the root, so the provider would otherwise see perpetual
+  # drift on `data`. These are one-shot announcements; no reconciliation needed.
+  lifecycle {
+    ignore_changes = [data]
+  }
 }

@@ -51,11 +51,11 @@ resource "betteruptime_status_page_resource" "node" {
 # insuit.cz apps shown in the "apps" section. Each gets its own monitor.
 locals {
   status_services = {
-    welcome = { url = "https://welcome.insuit.cz", public_name = "welcome.insuit.cz" }
-    eat     = { url = "https://eat.insuit.cz", public_name = "eat.insuit.cz" }
-    git     = { url = "https://git.insuit.cz", public_name = "git.insuit.cz" }
-    read    = { url = "https://read.insuit.cz", public_name = "read.insuit.cz" }
-    music   = { url = "https://music.insuit.cz", public_name = "music.insuit.cz" }
+    welcome = { url = "https://welcome.insuit.cz", public_name = "welcome.insuit.cz", check_frequency = 300 }
+    eat     = { url = "https://eat.insuit.cz", public_name = "eat.insuit.cz", check_frequency = 300 }
+    git     = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300 }
+    read    = { url = "https://read.insuit.cz", public_name = "read.insuit.cz", check_frequency = 300 }
+    music   = { url = "https://music.insuit.cz", public_name = "music.insuit.cz", check_frequency = 1800 }
   }
 }
 
@@ -71,7 +71,7 @@ resource "betteruptime_monitor" "service" {
   monitor_type       = "status"
   pronounceable_name = each.value.public_name
   monitor_group_id   = tonumber(betteruptime_monitor_group.apps.id)
-  check_frequency    = 300 # seconds (5 min)
+  check_frequency    = each.value.check_frequency # seconds (per service)
   regions            = ["eu"]
 }
 

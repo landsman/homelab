@@ -1,5 +1,5 @@
-# Public status page (status.pollos.cz) and its per-node resources, fully
-# managed in Terraform. Each node resource is wired to its monitor from
+# Public status page (status.pollos.cz), its sections and resources, fully
+# managed in Terraform. Node resources are wired to their monitors from
 # monitoring.tf, so maintenance-schedule.tf can reference the ids directly —
 # no hardcoded ids, no UI clicking.
 #
@@ -23,13 +23,58 @@ resource "betteruptime_status_page" "pollos" {
   # dark_logo_url = "https://www.pollos.cz/icons/logo-dark.png"
 }
 
-# One public resource per node, backed by its uptime monitor.
+# Sections, top to bottom.
+resource "betteruptime_status_page_section" "nodes" {
+  status_page_id = betteruptime_status_page.pollos.id
+  name           = "pollos cluster nodes"
+  position       = 0
+}
+
+resource "betteruptime_status_page_section" "services" {
+  status_page_id = betteruptime_status_page.pollos.id
+  name           = "services"
+  position       = 1
+}
+
+# One public resource per node in the "pollos cluster nodes" section.
 resource "betteruptime_status_page_resource" "node" {
   for_each = local.monitor_nodes
 
-  status_page_id = betteruptime_status_page.pollos.id
-  resource_id    = tonumber(betteruptime_monitor.health[each.key].id)
-  resource_type  = "Monitor"
-  public_name    = "pollos ${each.key}"
-  widget_type    = "history"
+  status_page_id         = betteruptime_status_page.pollos.id
+  status_page_section_id = tonumber(betteruptime_status_page_section.nodes.id)
+  resource_id            = tonumber(betteruptime_monitor.health[each.key].id)
+  resource_type          = "Monitor"
+  public_name            = "pollos ${each.key}"
+  widget_type            = "history"
+}
+
+# Non-node services shown in the "services" section. Each gets its own monitor.
+locals {
+  status_services = {
+    music = {
+      url         = "https://music.insuit.cz"
+      public_name = "music.insuit.cz"
+    }
+  }
+}
+
+resource "betteruptime_monitor" "service" {
+  for_each = local.status_services
+
+  url                = each.value.url
+  monitor_type       = "status"
+  pronounceable_name = each.value.public_name
+  check_frequency    = 180 # seconds (3 min)
+  regions            = ["eu"]
+}
+
+resource "betteruptime_status_page_resource" "service" {
+  for_each = local.status_services
+
+  status_page_id         = betteruptime_status_page.pollos.id
+  status_page_section_id = tonumber(betteruptime_status_page_section.services.id)
+  resource_id            = tonumber(betteruptime_monitor.service[each.key].id)
+  resource_type          = "Monitor"
+  public_name            = each.value.public_name
+  widget_type            = "history"
 }

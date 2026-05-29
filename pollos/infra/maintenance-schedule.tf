@@ -16,8 +16,8 @@ locals {
     ram_upgrade = {
       title   = "RAM upgrade 16 → 32 GB"
       message = "Replacing RAM in each pollos node, one at a time. ~2h downtime expected per node."
-      start   = "2026-06-06T10:00:00Z" # first node's window start (RFC3339, UTC)
-      step_h  = 2                      # downtime per node, hours
+      start   = "2026-05-29T22:00:00+02:00" # first node's window start, 22:00 Prague (CEST)
+      step_h  = 2                           # downtime per node, hours
       order   = ["gus", "mike", "walter", "jesse"]
     }
   }

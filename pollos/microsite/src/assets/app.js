@@ -26,6 +26,14 @@ let pendingStart = false
 
 const mini = document.getElementById('mini-player')
 
+// Reveal the mini-player up front. The YouTube API is no longer loaded on
+// page load, so we can't wait for its onReady to unhide the button —
+// otherwise it would never appear on pages without the home-page logo (e.g.
+// /setup/), leaving no way to start playback. Clicking it lazily loads the
+// API. Done in JS (not by dropping the `hidden` attribute in the HTML) so the
+// button stays hidden when JS is unavailable — without it the button is dead.
+mini.hidden = false
+
 /**
  * Inject the YouTube IFrame API on first demand. Loading it eagerly on page
  * load delays first paint by ~1s — the cross-origin embed iframe blocks the
@@ -65,7 +73,6 @@ window.onYouTubeIframeAPIReady = () => {
     events: {
       onReady: () => {
         playerReady = true
-        mini.hidden = false
         if (pendingStart) {
           pendingStart = false
           startPlayback()

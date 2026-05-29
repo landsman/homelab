@@ -4,38 +4,34 @@
 # is managed through the generic `restapi` provider: created on `apply`, DELETEd
 # on `destroy` or when removed from `maintenance_events`.
 #
-# To schedule maintenance: add an entry to `maintenance_events`, `apply`, do the
-# work. Once done, delete the entry and `apply` again — the reports are removed.
+# To schedule maintenance: add an entry to `maintenance_windows`, `apply`, do the
+# work. Once done, delete the entry and `apply` again — the report is removed.
 # These are public announcements only; they do NOT silence monitor alerts (the
 # per-node daily window in monitoring.tf handles routine mutes).
 
 locals {
-  # Keyed by event name. `order` lists the nodes in the sequence they go down;
-  # each gets a `step_h`-hour window, staggered so only one is down at a time.
-  maintenance_events = {
-    ram_upgrade = {
-      title   = "RAM upgrade 16 → 32 GB"
-      message = "Replacing RAM in each pollos node, one at a time. ~2h downtime expected per node."
-      start   = "2026-05-29T22:00:00+02:00" # first node's window start, 22:00 Prague (CEST)
-      step_h  = 2                           # downtime per node, hours
-      order   = ["gus", "mike", "walter", "jesse"]
+  # One entry = one maintenance window for one node. Entries are independent, so
+  # schedule a single server, or several (each with its own start) for a rolling
+  # upgrade. The map key is a free-form id, only used for Terraform addressing.
+  maintenance_windows = {
+    ram_upgrade_gus = {
+      node     = "gus"
+      title    = "RAM upgrade 16 → 32 GB"
+      message  = "Replacing RAM in gus. ~2h downtime expected."
+      start    = "2026-05-29T22:00:00+02:00" # 22:00 Prague (CEST)
+      duration = "2h"
     }
   }
 
-  # Flatten events into one report per node, staggered by step_h hours. The
-  # leading {} keeps merge() valid when maintenance_events is empty (otherwise
-  # merge([]...) errors); the index in the key keeps it unique if a node repeats.
-  maintenance_reports = merge({}, [
-    for ev, cfg in local.maintenance_events : {
-      for i, node in cfg.order : "${ev}.${i}-${node}" => {
-        node      = node
-        title     = "${cfg.title} — ${node}"
-        message   = cfg.message
-        starts_at = timeadd(cfg.start, "${i * cfg.step_h}h")
-        ends_at   = timeadd(cfg.start, "${(i + 1) * cfg.step_h}h")
-      }
+  maintenance_reports = {
+    for k, w in local.maintenance_windows : k => {
+      node      = w.node
+      title     = "${w.title} — ${w.node}"
+      message   = w.message
+      starts_at = w.start
+      ends_at   = timeadd(w.start, w.duration)
     }
-  ]...)
+  }
 }
 
 # Recreate a report when its event definition changes. ignore_changes on the

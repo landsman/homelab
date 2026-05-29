@@ -10,20 +10,6 @@
 # per-node daily window in monitoring.tf handles routine mutes).
 
 locals {
-  # status.pollos.cz lives in the BetterStack UI (no TF data source exists for
-  # status pages), so its id and per-node resource ids are pinned here. They are
-  # stable identifiers, not secrets — read them once with:
-  #   curl -s https://uptime.betterstack.com/api/v2/status-pages/208946/resources \
-  #     -H "Authorization: Bearer $TF_VAR_betteruptime_api_token" \
-  #     | jq '.data[] | {id, public_name: .attributes.public_name}'
-  status_page_id = "208946"
-  status_page_resource_ids = {
-    gus    = "" # TODO: fill from the curl above
-    mike   = ""
-    walter = ""
-    jesse  = ""
-  }
-
   # Keyed by event name. `order` lists the nodes in the sequence they go down;
   # each gets a `step_h`-hour window, staggered so only one is down at a time.
   maintenance_events = {
@@ -53,7 +39,7 @@ locals {
 resource "restapi_object" "maintenance" {
   for_each = local.maintenance_reports
 
-  path         = "/status-pages/${local.status_page_id}/status-reports"
+  path         = "/status-pages/${betteruptime_status_page.pollos.id}/status-reports"
   id_attribute = "data/id" # BetterStack wraps the created object under "data"
 
   data = jsonencode({
@@ -63,7 +49,7 @@ resource "restapi_object" "maintenance" {
     starts_at   = each.value.starts_at
     ends_at     = each.value.ends_at
     affected_resources = [{
-      status_page_resource_id = local.status_page_resource_ids[each.value.node]
+      status_page_resource_id = betteruptime_status_page_resource.node[each.value.node].id
       status                  = "maintenance"
     }]
   })

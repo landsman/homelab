@@ -22,10 +22,12 @@ locals {
     }
   }
 
-  # Flatten events into one report per node, staggered by step_h hours.
-  maintenance_reports = merge([
+  # Flatten events into one report per node, staggered by step_h hours. The
+  # leading {} keeps merge() valid when maintenance_events is empty (otherwise
+  # merge([]...) errors); the index in the key keeps it unique if a node repeats.
+  maintenance_reports = merge({}, [
     for ev, cfg in local.maintenance_events : {
-      for i, node in cfg.order : "${ev}.${node}" => {
+      for i, node in cfg.order : "${ev}.${i}-${node}" => {
         node      = node
         title     = "${cfg.title} — ${node}"
         message   = cfg.message

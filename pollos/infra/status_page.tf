@@ -26,17 +26,17 @@ resource "betteruptime_status_page" "pollos" {
 # Sections, top to bottom.
 resource "betteruptime_status_page_section" "nodes" {
   status_page_id = betteruptime_status_page.pollos.id
-  name           = "pollos cluster nodes"
+  name           = "servers"
   position       = 0
 }
 
 resource "betteruptime_status_page_section" "services" {
   status_page_id = betteruptime_status_page.pollos.id
-  name           = "services"
+  name           = "apps"
   position       = 1
 }
 
-# One public resource per node in the "pollos cluster nodes" section.
+# One public resource per node in the "servers" section.
 resource "betteruptime_status_page_resource" "node" {
   for_each = local.monitor_nodes
 
@@ -48,13 +48,14 @@ resource "betteruptime_status_page_resource" "node" {
   widget_type            = "history"
 }
 
-# Non-node services shown in the "services" section. Each gets its own monitor.
+# insuit.cz apps shown in the "apps" section. Each gets its own monitor.
 locals {
   status_services = {
-    music = {
-      url         = "https://music.insuit.cz"
-      public_name = "music.insuit.cz"
-    }
+    welcome = { url = "https://welcome.insuit.cz", public_name = "welcome.insuit.cz" }
+    eat     = { url = "https://eat.insuit.cz", public_name = "eat.insuit.cz" }
+    git     = { url = "https://git.insuit.cz", public_name = "git.insuit.cz" }
+    read    = { url = "https://read.insuit.cz", public_name = "read.insuit.cz" }
+    music   = { url = "https://music.insuit.cz", public_name = "music.insuit.cz" }
   }
 }
 
@@ -64,7 +65,7 @@ resource "betteruptime_monitor" "service" {
   url                = each.value.url
   monitor_type       = "status"
   pronounceable_name = each.value.public_name
-  check_frequency    = 180 # seconds (3 min)
+  check_frequency    = 1800 # seconds (30 min)
   regions            = ["eu"]
 }
 

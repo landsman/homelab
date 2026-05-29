@@ -8,10 +8,16 @@ You can easily install them from microsite: https://www.pollos.cz
 
 ## HW
 
-- 4x HP Prodesk 600 G3 Mini i5-6500T
-- 4x SSD Kingston 240GB
-- 2x 16GB Sk Hynix DDR4 3200Mhz HMA82GS6DJR8N - XN
-- 2x 16GB Kingston DDR4 3200MHz FURY so-dimm CL20 Impact
+- 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz)
+- 4x SATA SSD Kingston 240GB
+- 32GB DDR4 SO-DIMM per node (2x 16GB), running at 2133 MHz:
+
+| Node   | DIMM1 / DIMM3       | Part              | Rank | ECC         | Speed |
+|--------|---------------------|-------------------|------|-------------|-------|
+| gus    | Kingston / Kingston | KF3200C20S4/16G   | 1    | no          | 2133  |
+| mike   | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
+| walter | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
+| jesse  | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 
 ![stack photo](microsite/src/assets/img/stack-photo.jpg)
 

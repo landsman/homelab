@@ -9,7 +9,7 @@ You can easily install them from microsite: https://www.pollos.cz
 ## HW
 
 - 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz)
-- 4x SSD Kingston 240GB
+- 4x SATA SSD Kingston 240GB
 - 32GB DDR4 SO-DIMM per node (2x 16GB), running at 2133 MHz:
 
 | Node   | DIMM1 / DIMM3       | Part              | Rank | ECC         | Speed |

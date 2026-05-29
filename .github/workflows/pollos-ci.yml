@@ -47,7 +47,7 @@ jobs:
         working-directory: pollos/infra
     steps:
       - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
       - name: "Format check + validate"
         run: make ci
 

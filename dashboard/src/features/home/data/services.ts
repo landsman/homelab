@@ -124,6 +124,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Better Stack',
         url: 'https://uptime.betterstack.com',
         icon: ServiceIcon.BETTERSTACK,
+        shortcut: Hotkey.SHIFT_EIGHT,
       },
       {
         name: 'Supabase',

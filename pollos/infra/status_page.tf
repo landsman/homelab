@@ -59,13 +59,19 @@ locals {
   }
 }
 
+# Group all app monitors under "apps" in the BetterStack dashboard.
+resource "betteruptime_monitor_group" "apps" {
+  name = "apps"
+}
+
 resource "betteruptime_monitor" "service" {
   for_each = local.status_services
 
   url                = each.value.url
   monitor_type       = "status"
   pronounceable_name = each.value.public_name
-  check_frequency    = 1800 # seconds (30 min)
+  monitor_group_id   = tonumber(betteruptime_monitor_group.apps.id)
+  check_frequency    = 300 # seconds (5 min)
   regions            = ["eu"]
 }
 

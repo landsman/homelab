@@ -17,11 +17,30 @@
 let player = null
 let playerReady = false
 let started = false
+// True once the IFrame API <script> has been injected — guards against
+// loading it more than once.
+let apiRequested = false
 // Set when the user clicks before the YT API has finished loading; consumed
 // in onReady so the click intent isn't lost.
 let pendingStart = false
 
 const mini = document.getElementById('mini-player')
+
+/**
+ * Inject the YouTube IFrame API on first demand. Loading it eagerly on page
+ * load delays first paint by ~1s — the cross-origin embed iframe blocks the
+ * main document's first render. Audio only ever starts on a user click
+ * (autoplay is blocked), so there's nothing to gain from loading it sooner.
+ * @returns {void}
+ */
+function loadYouTubeApi() {
+  if (apiRequested) return
+  apiRequested = true
+  const tag = document.createElement('script')
+  tag.src = 'https://www.youtube.com/iframe_api'
+  tag.async = true
+  document.head.appendChild(tag)
+}
 
 /**
  * Reflect YT playback state on the mini-player: toggles the `playing` class
@@ -63,12 +82,14 @@ window.onYouTubeIframeAPIReady = () => {
 /**
  * Unmute, max volume, start playback. First-play helper — subsequent
  * play/pause toggles go through {@link togglePlayback} via the mini button.
- * If the YT API hasn't loaded yet, queue the intent for onReady.
+ * On the first call this lazily loads the IFrame API; until the player is
+ * ready the intent is queued and replayed from onReady.
  * @returns {void}
  */
 function startPlayback() {
   if (!playerReady) {
     pendingStart = true
+    loadYouTubeApi()
     return
   }
   player.unMute()

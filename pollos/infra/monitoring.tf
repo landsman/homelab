@@ -13,6 +13,16 @@ locals {
   # single label under the zone (gus-health.pollos.cz) so Universal SSL's
   # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
   zone_domain = "pollos.cz"
+
+  # Daily maintenance window — the homelab network/router reboots in this hour,
+  # taking every monitored target (nodes AND apps) offline. Shared so the node
+  # and service monitors can't drift; applied to both (see status_page.tf).
+  daily_maintenance = {
+    maintenance_from     = "04:55:00"
+    maintenance_to       = "05:20:00"
+    maintenance_timezone = "Prague"
+    maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+  }
 }
 
 # One tunnel per box → each node is up/down independently. config_src
@@ -82,10 +92,10 @@ resource "betteruptime_monitor" "health" {
   regions            = ["eu"]
 
   # Daily maintenance window — router reboot/update in this hour
-  maintenance_from     = "04:55:00"
-  maintenance_to       = "05:20:00"
-  maintenance_timezone = "Prague"
-  maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+  maintenance_from     = local.daily_maintenance.maintenance_from
+  maintenance_to       = local.daily_maintenance.maintenance_to
+  maintenance_timezone = local.daily_maintenance.maintenance_timezone
+  maintenance_days     = local.daily_maintenance.maintenance_days
 }
 
 output "health_tunnel_tokens" {

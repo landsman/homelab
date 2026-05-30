@@ -73,6 +73,13 @@ resource "betteruptime_monitor" "service" {
   monitor_group_id   = tonumber(betteruptime_monitor_group.apps.id)
   check_frequency    = each.value.check_frequency # seconds (per service)
   regions            = ["eu"]
+
+  # Same daily window as the node monitors — the apps live on the same homelab
+  # network and go down during the morning reboot (see monitoring.tf).
+  maintenance_from     = local.daily_maintenance.maintenance_from
+  maintenance_to       = local.daily_maintenance.maintenance_to
+  maintenance_timezone = local.daily_maintenance.maintenance_timezone
+  maintenance_days     = local.daily_maintenance.maintenance_days
 }
 
 resource "betteruptime_status_page_resource" "service" {

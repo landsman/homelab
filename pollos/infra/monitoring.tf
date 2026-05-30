@@ -18,8 +18,11 @@ locals {
   # taking every monitored target (nodes AND apps) offline. Shared so the node
   # and service monitors can't drift; applied to both (see status_page.tf).
   daily_maintenance = {
-    maintenance_from     = "04:55:00"
-    maintenance_to       = "05:20:00"
+    maintenance_from = "04:55:00"
+    maintenance_to   = "05:20:00"
+    # BetterStack wants a Rails ActiveSupport::TimeZone friendly name (e.g.
+    # "Prague", "Amsterdam") — NOT an IANA id like "Europe/Prague"; days are the
+    # abbreviated forms. See https://betterstack.com/docs/uptime/api/create-a-new-monitor/
     maintenance_timezone = "Prague"
     maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
   }

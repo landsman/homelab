@@ -23,7 +23,7 @@
     "@tanstack/react-router": "^1.170.9",
     "clsx": "^2.1.1",
     "date-fns": "^4.3.0",
-    "react": "^19.2.6",
+    "react": "^19.2.7",
     "react-dom": "^19.2.6",
     "ts-pattern": "^5.9.0"
   },
@@ -31,7 +31,7 @@
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/router-plugin": "^1.168.12",
-    "@types/react": "^19.2.14",
+    "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.5.0",

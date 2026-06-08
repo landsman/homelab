@@ -1,8 +1,35 @@
 #!/bin/sh
 set -eu
 
-# docker (root)
-curl -fsSL https://get.docker.com | sudo sh
-sudo usermod -aG docker $USER
-exec sg docker newgrp `id -gn`
-docker run --rm hello-world
+#
+# MANUAL STEP: run on every fresh box at the console, as root, after 002-users.sh.
+#
+# What it does:
+#   - installs Docker via the official get.docker.com script
+#   - adds 'ansible' and 'containers' users to the docker group
+#   - installs lazydocker from GitHub releases (arm64)
+#
+# After this finishes, log out and back in (or `newgrp docker`) so group
+# membership takes effect, then sanity-check with:
+#   sudo -u containers docker run --rm hello-world
+#
+
+# docker engine
+curl -fsSL https://get.docker.com | sh
+
+# allow the workload + admin users to talk to the docker socket
+usermod -aG docker containers
+usermod -aG docker ansible
+
+# lazydocker (not in apt — pull arm64 release tarball)
+LAZYDOCKER_VERSION=$(curl -fsSL https://api.github.com/repos/jesseduffield/lazydocker/releases/latest \
+  | grep -oE '"tag_name":\s*"v[^"]+"' | head -n1 | sed -E 's/.*"v([^"]+)".*/\1/')
+TMPDIR=$(mktemp -d)
+curl -fsSL -o "${TMPDIR}/lazydocker.tar.gz" \
+  "https://github.com/jesseduffield/lazydocker/releases/download/v${LAZYDOCKER_VERSION}/lazydocker_${LAZYDOCKER_VERSION}_Linux_arm64.tar.gz"
+tar -xzf "${TMPDIR}/lazydocker.tar.gz" -C "${TMPDIR}" lazydocker
+install -m 0755 "${TMPDIR}/lazydocker" /usr/local/bin/lazydocker
+rm -rf "${TMPDIR}"
+
+echo
+echo "docker ready. log out + back in (or 'newgrp docker') before running docker as containers/ansible."

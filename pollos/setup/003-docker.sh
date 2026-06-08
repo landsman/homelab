@@ -21,12 +21,18 @@ curl -fsSL https://get.docker.com | sh
 usermod -aG docker containers
 usermod -aG docker ansible
 
-# lazydocker (not in apt — pull arm64 release tarball)
+# lazydocker (not in apt — pull release tarball from GitHub)
+case "$(uname -m)" in
+  x86_64)  LAZYDOCKER_ARCH=x86_64 ;;
+  aarch64) LAZYDOCKER_ARCH=arm64 ;;
+  armv7l)  LAZYDOCKER_ARCH=armv7 ;;
+  *) echo "unsupported arch: $(uname -m)" >&2; exit 1 ;;
+esac
 LAZYDOCKER_VERSION=$(curl -fsSL https://api.github.com/repos/jesseduffield/lazydocker/releases/latest \
   | grep -oE '"tag_name":\s*"v[^"]+"' | head -n1 | sed -E 's/.*"v([^"]+)".*/\1/')
 TMPDIR=$(mktemp -d)
 curl -fsSL -o "${TMPDIR}/lazydocker.tar.gz" \
-  "https://github.com/jesseduffield/lazydocker/releases/download/v${LAZYDOCKER_VERSION}/lazydocker_${LAZYDOCKER_VERSION}_Linux_arm64.tar.gz"
+  "https://github.com/jesseduffield/lazydocker/releases/download/v${LAZYDOCKER_VERSION}/lazydocker_${LAZYDOCKER_VERSION}_Linux_${LAZYDOCKER_ARCH}.tar.gz"
 tar -xzf "${TMPDIR}/lazydocker.tar.gz" -C "${TMPDIR}" lazydocker
 install -m 0755 "${TMPDIR}/lazydocker" /usr/local/bin/lazydocker
 rm -rf "${TMPDIR}"

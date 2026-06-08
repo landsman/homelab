@@ -1,1 +1,1 @@
-pollos/setup/004-typescript.sh
+../../../setup/004-typescript.sh

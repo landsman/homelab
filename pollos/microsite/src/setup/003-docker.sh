@@ -1,1 +1,1 @@
-pollos/setup/004-docker.sh
+../../../setup/003-docker.sh

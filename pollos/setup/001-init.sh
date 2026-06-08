@@ -32,6 +32,7 @@ set -eu
 #   rsync            sync files form host <> remote
 #   unzip            open compressed archives
 #   tmux             terminal multiplexer
+#   rclone           sync/mount cloud storage (S3, B2, GDrive, etc.) for easier sending data to remote buckets
 
 apt-get update -y
 apt-get install -y \
@@ -55,7 +56,8 @@ apt-get install -y \
   make \
   rsync \
   unzip \
-  tmux
+  tmux \
+  rclone
 
 systemctl enable --now ssh
 systemctl enable --now chrony

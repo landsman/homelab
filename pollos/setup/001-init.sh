@@ -24,7 +24,10 @@ set -eu
 #   uidmap           subuid/subgid tools for rootless containers
 #   slirp4netns      user-mode networking for rootless containers
 #   fuse-overlayfs   rootless overlayfs storage driver
-#
+#   make             automatisation for apps builds
+#   rsync            sync files form host <> remote
+#   unzip            open compressed archives
+#   tmux             terminal multiplexer
 
 apt-get update -y
 apt-get install -y \
@@ -35,6 +38,7 @@ apt-get install -y \
   gnupg \
   vim \
   htop \
+  btop \
   screenfetch \
   hstr \
   chrony \
@@ -42,7 +46,11 @@ apt-get install -y \
   python3-apt \
   uidmap \
   slirp4netns \
-  fuse-overlayfs
+  fuse-overlayfs \
+  make \
+  rsync \
+  unzip \
+  tmux
 
 systemctl enable --now ssh
 systemctl enable --now chrony

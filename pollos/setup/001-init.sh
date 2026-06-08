@@ -7,6 +7,9 @@ set -eu
 # What it does:
 #   - installs base packages incl. openssh-server + chrony
 #   - enables ssh + chrony
+#   - generates en_US.UTF-8 locale and sets it as system default
+#     (otherwise SSH clients forwarding cs_CZ.UTF-8 / other locales spam
+#     "Can't set locale" warnings on every apt/perl invocation)
 #
 # Packages installed from apt:
 #   openssh-server   remote login; not present on minimal Debian
@@ -14,6 +17,7 @@ set -eu
 #   ca-certificates  TLS roots for apt + curl over https
 #   curl             fetching k3s/helm install scripts later
 #   gnupg            verifying apt repo signatures (docker, k3s, etc.)
+#   locales          generate UTF-8 locales so SSH-forwarded LC_* doesn't whine
 #   vim              edit configs locally when ssh dies
 #   htop             quick cpu/ram check
 #   screenfetch      pretty system info banner on login
@@ -36,6 +40,7 @@ apt-get install -y \
   ca-certificates \
   curl \
   gnupg \
+  locales \
   vim \
   htop \
   btop \
@@ -54,3 +59,10 @@ apt-get install -y \
 
 systemctl enable --now ssh
 systemctl enable --now chrony
+
+# Locale: enable en_US.UTF-8 in /etc/locale.gen, generate, set as default.
+# Idempotent — sed is a no-op if line is already uncommented, locale-gen
+# rebuilds existing locales harmlessly.
+sed -i 's/^# *\(en_US\.UTF-8 UTF-8\)/\1/' /etc/locale.gen
+locale-gen
+update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8

@@ -66,3 +66,21 @@ systemctl enable --now chrony
 sed -i 's/^# *\(en_US\.UTF-8 UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
+# hstr: bind Ctrl-R globally in /etc/bash.bashrc. The apt package only ships
+# the binary; without this hook Ctrl-R still triggers readline's default
+# reverse-i-search. Guarded by a marker so re-running the script is a no-op.
+if ! grep -q '# >>> hstr config >>>' /etc/bash.bashrc; then
+  cat >> /etc/bash.bashrc <<'EOF'
+
+# >>> hstr config >>>
+export HSTR_CONFIG=hicolor
+shopt -s histappend
+export HISTCONTROL=ignorespace
+export HISTFILESIZE=10000
+export HISTSIZE=${HISTFILESIZE}
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
+# <<< hstr config <<<
+EOF
+fi

@@ -55,25 +55,18 @@ Host jesse.pollos
 
 ### Speech-to-text (whisper)
 
-[setup/005-whisper.sh](setup/005-whisper.sh) builds [whisper.cpp](https://github.com/ggml-org/whisper.cpp) from source,
-downloads the multilingual `large-v3-turbo-q8_0` model and runs `whisper-server` as a systemd service.
-Any audio/video container works — the server converts via ffmpeg before inference.
-The API binds to localhost only (SSH tunnel in) and the service is started on demand —
-stopped it costs nothing, running it holds ~1.5 GB RAM:
+[../whisper](../whisper) — docker app wrapping [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+`whisper-server` with the multilingual `large-v3-turbo-q8_0` model. On-demand: start it when
+needed, stop it to free ~1.5 GB RAM; monitor with lazydocker or `make logs`.
 
 ```sh
-# start (model loads in ~15 s; /health returns "loading model" until ready)
-ssh walter.pollos -- sudo systemctl start whisper-server
+ssh walter.pollos 'cd whisper && make up'
 
 ssh -L 8004:127.0.0.1:8004 walter.pollos
-
-# plain text
-curl -F file=@video.mp4 -F response_format=text http://127.0.0.1:8004/inference
-
-# subtitles, force Czech (default is language auto-detect)
 curl -F file=@video.mp4 -F response_format=srt -F language=cs http://127.0.0.1:8004/inference
 
-# done — free the RAM
-ssh walter.pollos -- sudo systemctl stop whisper-server
+ssh walter.pollos 'cd whisper && make down'
 ```
+
+See [../whisper/README.md](../whisper/README.md) for setup and all options.
 

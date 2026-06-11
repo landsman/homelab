@@ -44,3 +44,36 @@ Host walter.pollos
 Host jesse.pollos
   HostName 192.168.0.117
 ```
+
+### Ports
+
+| Port | Service        | Notes                                              |
+|------|----------------|----------------------------------------------------|
+| 8004 | whisper-server | speech-to-text API, 127.0.0.1 only — SSH tunnel in |
+
+## Apps
+
+### Speech-to-text (whisper)
+
+[setup/005-whisper.sh](setup/005-whisper.sh) builds [whisper.cpp](https://github.com/ggml-org/whisper.cpp) from source,
+downloads the multilingual `large-v3-turbo-q8_0` model and runs `whisper-server` as a systemd service.
+Any audio/video container works — the server converts via ffmpeg before inference.
+The API binds to localhost only (SSH tunnel in) and the service is started on demand —
+stopped it costs nothing, running it holds ~1.5 GB RAM:
+
+```sh
+# start (model loads in ~15 s; /health returns "loading model" until ready)
+ssh walter.pollos -- sudo systemctl start whisper-server
+
+ssh -L 8004:127.0.0.1:8004 walter.pollos
+
+# plain text
+curl -F file=@video.mp4 -F response_format=text http://127.0.0.1:8004/inference
+
+# subtitles, force Czech (default is language auto-detect)
+curl -F file=@video.mp4 -F response_format=srt -F language=cs http://127.0.0.1:8004/inference
+
+# done — free the RAM
+ssh walter.pollos -- sudo systemctl stop whisper-server
+```
+

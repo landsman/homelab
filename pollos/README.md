@@ -28,6 +28,12 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 ```yml
 # ~/.ssh/config
 
+# HostNames are Tailscale MagicDNS names (== each box's hostname), not LAN IPs.
+# Works from anywhere as long as Tailscale is running on this Mac: at home
+# Tailscale connects directly over the LAN (full speed, peer-to-peer), away
+# it falls back to the encrypted tunnel. No exit node or subnet routes needed.
+# Boxes join the tailnet via setup/005-tailscale.sh.
+
 Host *.pollos
    User ansible
    # stored in 1password
@@ -35,16 +41,16 @@ Host *.pollos
    IdentitiesOnly yes
 
 Host gus.pollos
-  HostName 192.168.0.115
+  HostName gus
 
 Host mike.pollos
-  HostName 192.168.0.113
+  HostName mike
 
 Host walter.pollos
-  HostName 192.168.0.116
+  HostName walter
 
 Host jesse.pollos
-  HostName 192.168.0.117
+  HostName jesse
 ```
 
 ### Ports

@@ -13,6 +13,10 @@ terraform {
       source  = "Mastercard/restapi"
       version = "~> 3.0"
     }
+    tailscale = {
+      source  = "tailscale/tailscale"
+      version = "~> 0.17"
+    }
   }
 
   backend "s3" {
@@ -35,6 +39,11 @@ provider "cloudflare" {
 
 provider "betteruptime" {
   api_token = var.betteruptime_api_token
+}
+
+provider "tailscale" {
+  api_key = var.tailscale_api_key
+  tailnet = var.tailscale_tailnet
 }
 
 # Generic REST client for BetterStack endpoints the provider doesn't model —

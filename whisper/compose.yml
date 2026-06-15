@@ -11,5 +11,6 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8004/health"]
       interval: 30s
+      timeout: 5s
       start_period: 60s
     restart: "no"

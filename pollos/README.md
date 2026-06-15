@@ -28,18 +28,27 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 ```yml
 # ~/.ssh/config
 
-# HostNames are Tailscale MagicDNS names (== each box's hostname), not LAN IPs.
-# Works from anywhere as long as Tailscale is running on this Mac: at home
-# Tailscale connects directly over the LAN (full speed, peer-to-peer), away
-# it falls back to the encrypted tunnel. No exit node or subnet routes needed.
-# Boxes join the tailnet via setup/005-tailscale.sh.
+# Each box is reachable two ways and ssh picks automatically:
+#   1. on the home LAN -> direct to its 192.168.0.x IP. A 1s `nc` probe in the
+#      Match blocks decides this; works even with Tailscale off on this Mac.
+#   2. anywhere else    -> Tailscale MagicDNS name (== hostname), connected
+#      directly over the LAN at home or via the encrypted tunnel away.
+# "First obtained value wins": when the probe succeeds the Match block sets the
+# LAN IP first; otherwise it falls through to the MagicDNS name below. So the
+# raw IP is the fallback whenever Tailscale isn't up. No exit node or subnet
+# routes needed. Boxes join the tailnet via setup/005-tailscale.sh.
 
-Host *.pollos
-   User ansible
-   # stored in 1password
-   IdentityFile ~/.ssh/id_ed25519_homelab
-   IdentitiesOnly yes
+# LAN-first: use the raw IP when the box answers on the home network
+Match host gus.pollos    exec "nc -z -w1 192.168.0.115 22"
+  HostName 192.168.0.115
+Match host mike.pollos   exec "nc -z -w1 192.168.0.113 22"
+  HostName 192.168.0.113
+Match host walter.pollos exec "nc -z -w1 192.168.0.116 22"
+  HostName 192.168.0.116
+Match host jesse.pollos  exec "nc -z -w1 192.168.0.117 22"
+  HostName 192.168.0.117
 
+# fallback: Tailscale MagicDNS (direct over LAN at home, tunnel when away)
 Host gus.pollos
   HostName gus
 
@@ -51,6 +60,12 @@ Host walter.pollos
 
 Host jesse.pollos
   HostName jesse
+
+Host *.pollos
+   User ansible
+   # stored in 1password
+   IdentityFile ~/.ssh/id_ed25519_homelab
+   IdentitiesOnly yes
 ```
 
 ### Ports

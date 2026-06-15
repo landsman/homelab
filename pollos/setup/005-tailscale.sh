@@ -40,6 +40,11 @@ TS_TAGS="${TS_TAGS:-tag:pollos}"
 # tailscale engine
 curl -fsSL https://tailscale.com/install.sh | sh
 
+# come back on every reboot. install.sh usually does this already; explicit +
+# idempotent here. tailscaled persists the login, so the node reconnects on
+# boot without re-running `tailscale up`.
+systemctl enable --now tailscaled
+
 # join the tailnet. re-running is harmless — tailscale up just reconciles state.
 set -- \
   --auth-key="${TS_AUTHKEY}" \

@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=myoung34/github-runner:2.334.0
+ARG BASE_IMAGE=myoung34/github-runner:2.335.1
 FROM ${BASE_IMAGE}
 
 # Add Node.js 22 (for npx / sentry-cli) + postgresql-client (for psql vault upsert) + shellcheck (for shell linting in `make qa`)

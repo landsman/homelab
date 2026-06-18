@@ -39,6 +39,13 @@ set -eu
 #   ssh <hostname>.pollos       # once ssh config HostName points at the MagicDNS name
 #
 
+# installs packages, enables a systemd service, configures the daemon — all
+# need root. bail early with a clear message rather than failing halfway.
+if [ "$(id -u)" -ne 0 ]; then
+  echo "run this as root (e.g. sudo -i first)." >&2
+  exit 1
+fi
+
 TS_TAGS="${TS_TAGS:-tag:pollos}"
 
 # already enrolled? then the auth key is optional — `tailscale up` just
@@ -58,11 +65,14 @@ if ! command -v tailscale >/dev/null 2>&1; then
   # mktemp, not a fixed /tmp path: world-writable /tmp + a predictable name +
   # running as root invites a symlink/tamper attack on the installer (CWE-377).
   install_tmp="$(mktemp)"
+  # a bare EXIT trap won't fire when dash is killed by a signal; route the
+  # common interrupts through `exit 1` so the temp file always gets cleaned up.
   trap 'rm -f "$install_tmp"' EXIT
-  curl -fsSL https://tailscale.com/install.sh > "$install_tmp"
+  trap 'exit 1' INT TERM HUP
+  curl -fsSL --retry 3 https://tailscale.com/install.sh > "$install_tmp"
   sh "$install_tmp"
   rm -f "$install_tmp"
-  trap - EXIT
+  trap - EXIT INT TERM HUP
 fi
 
 # come back on every reboot. install.sh usually does this already; explicit +
@@ -84,7 +94,7 @@ fi
 
 # join the tailnet. re-running is harmless — tailscale up just reconciles state.
 set -- \
-  --hostname="$(hostname)" \
+  --hostname="$(hostname -s)" \
   --advertise-tags="${TS_TAGS}"
 if [ "${TS_SSH:-0}" = "1" ]; then
   set -- "$@" --ssh
@@ -94,12 +104,15 @@ fi
 # expose it to other local users. removed on any exit.
 if [ -n "${TS_AUTHKEY:-}" ]; then
   keyfile="$(mktemp)"
+  # cover signal interrupts too — this file holds the auth key, so guarantee
+  # it's wiped even on Ctrl-C / SIGTERM during `tailscale up`.
   trap 'rm -f "$keyfile"' EXIT
+  trap 'exit 1' INT TERM HUP
   printf '%s' "${TS_AUTHKEY}" > "$keyfile"
   set -- "$@" --auth-key="file:${keyfile}"
 fi
 tailscale up "$@"
 
 echo
-echo "tailscale up. node=$(hostname) ip=$(tailscale ip -4 2>/dev/null | head -n1)"
-echo "from your Mac:  tailscale status  ->  ssh $(hostname).pollos"
+echo "tailscale up. node=$(hostname -s) ip=$(tailscale ip -4 2>/dev/null | head -n1)"
+echo "from your Mac:  tailscale status  ->  ssh $(hostname -s).pollos"

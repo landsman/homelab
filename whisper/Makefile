@@ -1,7 +1,7 @@
 MODEL = large-v3-turbo-q8_0
 HOST = walter.pollos
 
-.PHONY: help rsync build model up down logs status
+.PHONY: help rsync build model up down logs status cluster
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -33,3 +33,7 @@ logs: ## Follow server logs
 
 status: ## Show container state + health
 	docker compose ps
+
+cluster: ## Transcribe one file across all boxes (FILE=path/to/audio)
+	@test -n "$(FILE)" || { echo "usage: make cluster FILE=path/to/audio"; exit 1; }
+	./transcribe-cluster.sh "$(FILE)"

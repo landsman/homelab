@@ -26,10 +26,15 @@ resource "tailscale_acl" "this" {
 
     # Tailscale SSH — only takes effect on nodes started with
     # `tailscale up --ssh` (TS_SSH=1). Harmless otherwise.
+    #
+    # src is autogroup:admin, not autogroup:member: SSH here grants root, so
+    # don't hand it to every device on the tailnet (other people's phones, an
+    # untrusted node). The general acls block above stays permissive on purpose
+    # — this narrows only the root-shell path.
     ssh = [
       {
         action = "accept"
-        src    = ["autogroup:member"]
+        src    = ["autogroup:admin"]
         dst    = ["tag:pollos"]
         users  = ["ansible", "root"]
       },

@@ -55,9 +55,12 @@ fi
 # exit status from sh (which exits 0 on empty stdin), and dash has no pipefail,
 # so `set -e` would sail right past a failed download and break confusingly later.
 if ! command -v tailscale >/dev/null 2>&1; then
-  curl -fsSL https://tailscale.com/install.sh > /tmp/tailscale-install.sh
-  sh /tmp/tailscale-install.sh
-  rm -f /tmp/tailscale-install.sh
+  # mktemp, not a fixed /tmp path: world-writable /tmp + a predictable name +
+  # running as root invites a symlink/tamper attack on the installer (CWE-377).
+  install_tmp="$(mktemp)"
+  curl -fsSL https://tailscale.com/install.sh > "$install_tmp"
+  sh "$install_tmp"
+  rm -f "$install_tmp"
 fi
 
 # come back on every reboot. install.sh usually does this already; explicit +

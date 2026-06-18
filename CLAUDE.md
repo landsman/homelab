@@ -70,3 +70,9 @@
 - Target: `linux/arm64` (Raspberry Pi)
 - `make docker-build` to build the image
 - GitHub Actions: `.github/workflows/dashboard-build.yml`
+
+## Pull requests & Gemini review
+- Never commit or push to `main` — always branch + PR, squash-merge (e.g. `gh pr merge <n> --squash --delete-branch`)
+- After **every** push to a PR branch, request a fresh review: `gh pr comment <n> --body "/gemini review"`
+- When the review lands, address **every** comment — leave none unanswered: reply on each thread pointing to the fix/commit, then mark the thread resolved (`resolveReviewThread` mutation via `gh api graphql`)
+- Once all threads are resolved and the PR is clean, close it out (squash-merge)

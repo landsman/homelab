@@ -5,7 +5,7 @@
 # Output is plain text only; srt/vtt would need per-chunk timestamp offsetting.
 #
 # Prereq: ffmpeg + ffprobe locally; each box set up once (make build && make model).
-# Usage:  ./transcribe-split.sh "/path/to/recording.m4a"
+# Usage:  ./transcribe-cluster.sh "/path/to/recording.m4a"
 set -euo pipefail
 
 BOXES=(walter.pollos jesse.pollos mike.pollos gus.pollos)
@@ -13,6 +13,9 @@ N=${#BOXES[@]}
 SILENCE_DB=-30       # noise floor (dB) for silence detection
 SILENCE_MIN=0.5      # min silence length (s) to count as a cut candidate
 LANG_OPT=cs          # force language; chunks can be too short to auto-detect
+
+# reject anything that could break out of the remote curl command
+[[ "$LANG_OPT" =~ ^[A-Za-z0-9._/-]+$ ]] || { echo "invalid LANG_OPT: $LANG_OPT" >&2; exit 1; }
 
 src=${1:?usage: $0 audio-file}
 work=$(mktemp -d)
@@ -54,22 +57,36 @@ for ((i=0; i<N; i++)); do
 done
 
 transcribe() {  # box  localwav  outfile
-  local box=$1 wav=$2 out=$3 remote
+  local box=$1 wav=$2 out=$3 remote=""
+  # runs as a background subshell — this EXIT trap guarantees the remote temp dir
+  # is removed and the server stopped even if scp/curl fails or we're interrupted
+  trap '
+    [ -n "$remote" ] && ssh "$box" "rm -rf \"$remote\"" 2>/dev/null || true
+    ssh "$box" "cd whisper && make down >/dev/null" 2>/dev/null || true
+  ' EXIT
+
+  # start server, wait for the model to load — bounded so a dead box fails fast
   ssh "$box" 'cd whisper && make up >/dev/null && \
-              until curl -sf http://127.0.0.1:8004/health >/dev/null; do sleep 2; done'
+              for _ in $(seq 1 60); do \
+                curl -sf http://127.0.0.1:8004/health >/dev/null && exit 0; \
+                sleep 2; \
+              done; \
+              echo "whisper-server not healthy" >&2; exit 1'
   remote=$(ssh "$box" 'mktemp -d')
   scp -q "$wav" "$box:$remote/part.wav"
   echo "[$box] $(basename "$wav")"
-  ssh "$box" "curl -s -F file=@$remote/part.wav -F response_format=text \
+  # -sSf: fail on HTTP errors instead of writing the error body into the transcript
+  ssh "$box" "curl -sSf -F file=@$remote/part.wav -F response_format=text \
               -F language=$LANG_OPT http://127.0.0.1:8004/inference" > "$out"
-  ssh "$box" "rm -rf '$remote'; cd whisper && make down >/dev/null"
 }
 
-# one chunk per box, all in parallel
+# one chunk per box, all in parallel; wait on each PID so any failure aborts
+pids=()
 for ((i=0; i<N; i++)); do
   transcribe "${BOXES[$i]}" "${parts[$i]}" "$work/out$i.txt" &
+  pids+=($!)
 done
-wait
+for pid in "${pids[@]}"; do wait "$pid"; done
 
 # stitch in order
 out="${src%.*}.txt"

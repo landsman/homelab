@@ -3,7 +3,7 @@ services:
     build: .
     image: whisper:latest
     container_name: whisper
-    command: -m /models/ggml-large-v3-turbo-q8_0.bin --host 0.0.0.0 --port 8004 --convert -l auto
+    command: -m /models/ggml-large-v3-turbo-q8_0.bin --host 0.0.0.0 --port 8004 --convert -l auto -pp -pr
     ports:
       - "127.0.0.1:8004:8004"
     volumes:

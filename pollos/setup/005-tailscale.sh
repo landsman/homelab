@@ -58,9 +58,11 @@ if ! command -v tailscale >/dev/null 2>&1; then
   # mktemp, not a fixed /tmp path: world-writable /tmp + a predictable name +
   # running as root invites a symlink/tamper attack on the installer (CWE-377).
   install_tmp="$(mktemp)"
+  trap 'rm -f "$install_tmp"' EXIT
   curl -fsSL https://tailscale.com/install.sh > "$install_tmp"
   sh "$install_tmp"
   rm -f "$install_tmp"
+  trap - EXIT
 fi
 
 # come back on every reboot. install.sh usually does this already; explicit +
@@ -75,6 +77,10 @@ while [ ! -S /var/run/tailscale/tailscaled.sock ] && [ "$i" -lt 15 ]; do
   sleep 1
   i=$((i + 1))
 done
+if [ ! -S /var/run/tailscale/tailscaled.sock ]; then
+  echo "tailscaled socket still absent after 15s; aborting." >&2
+  exit 1
+fi
 
 # join the tailnet. re-running is harmless — tailscale up just reconciles state.
 set -- \

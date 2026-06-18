@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
       - 'github-runner/**'
-      - '!github-runner/README.md'
+      - '!**/*.md'
 
 jobs:
   build:

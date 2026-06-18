@@ -21,6 +21,7 @@ Playground for my local homelab.
 - [Gotenberg](gotenberg) for rendering PDFs
 - [ArchiveBox](archivebox) for archiving whole websites
 - [IP service](ip-service)
+- [Whisper](whisper) speech-to-text API for transcribing videos, runs on-demand on a pollos node
 
 ## Useful links
 

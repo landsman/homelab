@@ -6,6 +6,7 @@ on:
     paths:
       - 'pollos/**'
       - '.github/workflows/pollos-deploy.yml'
+      - '!**/*.md'
   workflow_dispatch:
 
 jobs:

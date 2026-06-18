@@ -44,3 +44,29 @@ Host walter.pollos
 Host jesse.pollos
   HostName 192.168.0.117
 ```
+
+### Ports
+
+| Port | Service        | Notes                                              |
+|------|----------------|----------------------------------------------------|
+| 8004 | whisper-server | speech-to-text API, 127.0.0.1 only — SSH tunnel in |
+
+## Apps
+
+### Speech-to-text (whisper)
+
+[../whisper](../whisper) — docker app wrapping [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+`whisper-server` with the multilingual `large-v3-turbo-q8_0` model. On-demand: start it when
+needed, stop it to free ~1.5 GB RAM; monitor with lazydocker or `make logs`.
+
+```sh
+ssh walter.pollos 'cd whisper && make up'
+
+ssh -L 8004:127.0.0.1:8004 walter.pollos
+curl -F file=@video.mp4 -F response_format=srt -F language=cs http://127.0.0.1:8004/inference
+
+ssh walter.pollos 'cd whisper && make down'
+```
+
+See [../whisper/README.md](../whisper/README.md) for setup and all options.
+

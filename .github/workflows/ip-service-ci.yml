@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'ip-service/**'
+      - '!**/*.md'
 
 jobs:
   build:

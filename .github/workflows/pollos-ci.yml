@@ -5,11 +5,13 @@ on:
     paths:
       - 'pollos/**'
       - '.github/workflows/pollos-ci.yml'
+      - '!**/*.md'
   push:
     branches: [main]
     paths:
       - 'pollos/**'
       - '.github/workflows/pollos-ci.yml'
+      - '!**/*.md'
   workflow_dispatch:
 
 jobs:

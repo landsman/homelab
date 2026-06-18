@@ -284,21 +284,83 @@ moment there's work.
   the open decisions flagged, here required not optional. It's local to the box;
   the worker still only calls **outbound** otherwise.
 
-**Aggressive variant: scale-to-zero everything (no idle footprint).** Don't keep
-even the poller up — the coordinator wakes boxes when the queue goes empty→non-
-empty and tears them down when it drains. Either **SSH fan-out** (coordinator
-`ssh box 'docker compose up -d worker'`, reusing the cluster key — zero idle
-footprint, but the coordinator now holds SSH to every box, a broad credential that
-cuts against least privilege, [[feedback_least_privilege_iac]]) or a **tiny wake
-endpoint** (a ~MB always-on agent per box exposing an inbound `POST /wake` the
-coordinator calls — re-introduces one inbound port the pull model avoided). Net:
-this only frees the ~10 MB the poller would use, while adding a broad credential
-or an inbound surface — **not worth it** unless you truly want bare-idle boxes;
-the default already frees the RAM that matters.
+**Can the coordinator start the worker/whisper containers on the _other_ nodes?**
+Not directly — **Docker is per-host**: a container on gus has no access to
+walter/jesse/mike's Docker daemon on its own. Cross-host start/stop needs one of:
+
+- **Docker-over-SSH** — `docker -H ssh://user@walter compose up -d worker` (the CLI
+  tunnels the Docker API over SSH; `DOCKER_HOST=tcp://…:2376` with mTLS is the
+  other form). Works and reuses the cluster key, but the coordinator then holds
+  **root-equivalent Docker access to every box** — a broad credential that cuts
+  against least privilege ([[feedback_least_privilege_iac]]). Plain TCP `2375`
+  (no TLS) is a remote-root footgun — never.
+- **Per-box agent** — a tiny always-on container per box holding only its _local_
+  `docker.sock`; the coordinator asks it to `up`/`down` worker+whisper (it can
+  poll outbound, so no inbound port). Each box keeps a narrow credential (just a
+  token). This is the clean way to also scale the _worker_ container to zero.
+- **Cluster orchestrator** (Swarm / Nomad / k8s) — real cross-host scheduling, but
+  a whole control plane for four boxes. Overkill.
+
+**Recommendation: don't.** The default above already gives ad-hoc start where it
+matters — each box's always-on poller (~10 MB) brings _its own_ whisper (~1.5 GB)
+up on demand and down when idle, with the coordinator never reaching across hosts
+(pure pull, outbound-only, narrow per-box token). Centrally launching the worker
+container too only reclaims that ~10 MB while adding a broad credential or a
+control plane — worth it only if you insist on _bare_-idle boxes, and then via the
+per-box agent, not coordinator→every-daemon access.
 
 **Coordinator support.** Expose a cheap `GET /tasks/pending-count` (or enough in
 `/state`) so a worker can decide "anything for me?" without claiming, and so the
 TUI can show whisper up/down per box.
+
+## Would k3s help? (orchestration alternative)
+
+Short answer: **yes for the mechanics, but it's a platform decision, not a feature
+toggle.** k3s (lightweight Kubernetes) is exactly the "cluster orchestrator"
+option from above — it would cleanly solve the cross-host question the per-box
+agent works around.
+
+**What it buys us**
+
+- **Cross-host scheduling for free** — declare a worker `Deployment`/`DaemonSet`
+  and k3s starts/stops pods on any node; no Docker-over-SSH, no per-box agent, no
+  central daemon credential. This _is_ the answer to "can the coordinator start
+  containers on the other nodes."
+- **True scale-to-zero via KEDA** — KEDA has a **Postgres scaler**: a
+  `ScaledObject` watching `SELECT count(*) … WHERE status='pending'` scales the
+  whisper-worker Deployment 0 → N → 0 on queue depth. That replaces our custom
+  poll/back-off + `docker.sock` whisper start/stop with declarative autoscaling —
+  the exact "start on new job, kill when drained" behaviour, run by the platform.
+- **Self-healing / rescheduling** off dead nodes, **Secrets** for the token,
+  **Service DNS** across nodes (replaces `whisper-net` + host IPs), and **Traefik**
+  ingress (or the **Tailscale operator**) for the API/TUI.
+
+**What it costs**
+
+- **A whole control plane to run and learn** — manifests/Helm, CNI, RBAC, ingress,
+  storage classes, upgrades, `CrashLoopBackOff` debugging. The rest of the homelab
+  is plain `docker compose` + rsync; standing up k3s for **one** service is a big
+  jump.
+- **Image distribution** — compose builds on-box; k3s nodes pull from a
+  **registry** (or `ctr images import`). New moving part vs. `make rsync &&
+  compose build`.
+- **Model files** — the ~1.5 GB ggml model per node becomes a per-node `hostPath`
+  PV, an init-container download, or a fat image. Manageable, but more plumbing.
+- **Control plane is always-on** — the opposite of "scale everything to zero,"
+  though RAM-trivial on 32 GB boxes (~0.5–1 GB server + ~256 MB/agent).
+
+**The queue stays either way.** Even on k3s you keep the Postgres pull-queue +
+chunk leases — they do chunk-level load-balancing and retry that k8s doesn't. k3s
+only takes over **worker count & placement** (via KEDA), not the work
+distribution. Clean split of responsibilities.
+
+**Verdict.** If whisper-queue is your _first_ k8s workload and everything else
+stays compose, **don't** adopt k3s just for this — the pull-queue already
+self-balances and self-heals at the app layer, and the per-box poller already
+frees the RAM that matters, with far less to operate. If you're already minded to
+move the homelab to k3s, this service is a great fit and **KEDA's Postgres scaler
+is the cleanest possible answer** to the worker-lifecycle question — but adopt it
+cluster-wide, not for one service.
 
 ## Deployment
 
@@ -385,10 +447,11 @@ from a phone.
 - **HTTP layer** — `huma` (OpenAPI 3.1 + validation generated from the handlers,
   Scalar docs, +1 dep) vs hand-rolled `net/http` + a checked-in `openapi.json`.
   Default: huma, so the spec can't drift from the code.
-- **Postgres location** — a dedicated `postgres:18` sidecar on gus (cluster stays
-  self-contained) vs reusing the Pi's existing [`database`](../../database)
-  service over the LAN (one less container, but the cluster now depends on the Pi
-  and adds cross-host latency on every claim). Default: sidecar on gus.
+- **Postgres (prod)** — external/managed, **not in Docker** (the compose DB is
+  local-dev only): provisioned separately (e.g. in `pollos/infra` Terraform) and
+  passed via `DATABASE_URL`. Reusing the Pi's [`database`](../../database) is an
+  option but adds a cross-host dependency + per-claim latency. Default: a managed
+  instance provisioned in IaC.
 - **Notification channel** — ntfy (self-hosted, on-prem, iOS app) vs Pushover
   (hosted) vs a bare webhook. Default: ntfy, behind a pluggable notifier URL.
 - **Coordinator exposure** — Tailscale `serve` (VPN-only, for the phone upload)
@@ -397,6 +460,10 @@ from a phone.
 - **TUI SSH entry** — `tsnet` node on `:22` (`ssh whisper-queue`, VPN-only) vs a
   published `:2222` (`ssh -p 2222 gus`) vs host `ForceCommand` on the box's `:22`.
   Default: tsnet; `:2222` as the no-frills fallback.
+- **Orchestration** — plain Docker compose + app-level pull queue & scale-to-zero
+  (recommended) vs **k3s + KEDA** (see [Would k3s
+  help?](#would-k3s-help-orchestration-alternative)). Default: compose; revisit
+  k3s only if the whole homelab moves to it.
 - **srt/vtt** — text-only for v1; timestamped formats need per-chunk offsetting (later).
 - **Model/language per job** — global config vs per-file sidecar (e.g. `name.lang`).
   Default: global, `-l auto` with `cs` override.

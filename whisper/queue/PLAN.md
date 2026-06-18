@@ -405,6 +405,17 @@ Adminer on `127.0.0.1:8000`; run the coordinator with `go run` against
   Postgres + Adminer), `up-coordinator`, `up-worker`, `down`, `logs`, `status`,
   `deploy-workers` (loop rsync+up over all four).
 
+**Config in code, minimal manual steps.** Everything that defines the system lives
+in git — `compose.yml`, the `Makefile`, and a checked-in `.env.example` (real
+secrets injected, never committed). A single `make deploy` fans rsync + `compose
+up` across all boxes; the only by-hand inputs are the one-time secret and the
+Tailscale/Cloudflare hostname. This is the "less heavy than k3s" sweet spot. If you
+later want real cross-host scheduling without a full control plane, **Docker Swarm**
+is the small step up — one `docker stack deploy -c compose.yml` from gus schedules
+services across nodes, `docker service scale` adjusts counts, secrets/overlay-net
+built in — same compose file, no KEDA-style queue autoscaling. Full Kubernetes is
+the [appendix below](#appendix-the-k3s--keda-variant-for-illustration).
+
 ## Phases
 
 1. **Scaffold** — Go module, `coordinator|worker|tui` subcommands, config (token,
@@ -513,6 +524,111 @@ introduces.
 scale-to-zero idea: keep the polish service a tiny poller and start/stop the
 Ollama container on demand instead of holding a model in RAM between jobs.
 
+---
+
+## Appendix: the k3s + KEDA variant (for illustration)
+
+Not the path we're taking now (default is plain compose, [Deployment](#deployment))
+— this is a sketch so the k8s option is concrete. The appeal: **everything is
+declarative and in git**, and KEDA does the scale-to-zero for us, including killing
+the worker container, not just whisper.
+
+**Cluster bring-up** (one-time, scriptable in `pollos/infra` so it's still
+config-in-code):
+
+```sh
+# gus — control plane
+curl -sfL https://get.k3s.io | sh -
+# walter / jesse / mike — agents join gus
+curl -sfL https://get.k3s.io | K3S_URL=https://gus:6443 K3S_TOKEN=<node-token> sh -
+helm install keda kedacore/keda -n keda --create-namespace
 ```
 
+**Repo layout** — all manifests in `whisper/queue/k8s/`, applied with one command
+(`kubectl apply -k whisper/queue/k8s/`) or auto-synced by Flux/Argo (GitOps).
+Secrets stay in git **encrypted** via SOPS or Sealed Secrets — so even secrets are
+config-in-code, nothing hand-typed on a box.
+
+**The key piece — KEDA scales workers 0 → N → 0 on queue depth:**
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: whisper-worker }
+spec:
+  scaleTargetRef: { name: whisper-worker } # the Deployment below
+  minReplicaCount: 0 # ← scale to zero when the queue is empty
+  maxReplicaCount: 4 # one per box
+  cooldownPeriod: 300 # 5-min idle grace before going to 0
+  triggers:
+    - type: postgresql
+      metadata:
+        query: "SELECT count(*) FROM tasks WHERE status='pending'"
+        targetQueryValue: "1" # ~1 pending chunk per replica
+      authenticationRef: { name: whisper-pg-auth } # conn string from a Secret
 ```
+
+**Worker = whisper as a sidecar in one pod**, so scaling the Deployment to 0 kills
+*both* (no `docker.sock`, no custom poll/back-off — k8s owns the lifecycle):
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: whisper-worker }
+spec:
+  replicas: 0 # KEDA owns this number
+  template:
+    spec:
+      initContainers: # fetch the ggml model once per pod (or cache on a node hostPath)
+        - name: model
+          image: curlimages/curl
+          args: ["-fLo", "/models/ggml.bin", "https://…/ggml-large-v3-turbo-q8_0.bin"]
+          volumeMounts: [{ name: models, mountPath: /models }]
+      containers:
+        - name: whisper # worker reaches it on localhost
+          image: registry.pollos/whisper:latest
+          args: ["-m", "/models/ggml.bin", "--host", "127.0.0.1", "--port", "8004", "-l", "auto"]
+          volumeMounts: [{ name: models, mountPath: /models }]
+        - name: worker
+          image: registry.pollos/whisper-queue:latest
+          args: ["worker"]
+          env:
+            - { name: COORDINATOR_URL, value: "http://coordinator:8005" } # Service DNS, no whisper-net
+            - { name: WHISPER_URL, value: "http://127.0.0.1:8004" }
+            - { name: TOKEN, valueFrom: { secretKeyRef: { name: whisper-secrets, key: TOKEN } } }
+      volumes:
+        - { name: models, emptyDir: {} }
+```
+
+**Coordinator** — 1 replica pinned to gus (it owns the `inbox/work/done` dir),
+external Postgres via `DATABASE_URL`, exposed by a Service + Ingress (Traefik ships
+with k3s) or the Tailscale operator for the API (`:8005`) and SSH TUI (`:2222`):
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: coordinator }
+spec:
+  replicas: 1
+  template:
+    spec:
+      nodeSelector: { kubernetes.io/hostname: gus }
+      containers:
+        - name: coordinator
+          image: registry.pollos/whisper-queue:latest
+          args: ["coordinator"]
+          ports: [{ containerPort: 8005 }, { containerPort: 2222 }]
+          env:
+            - { name: DATABASE_URL, valueFrom: { secretKeyRef: { name: whisper-secrets, key: DATABASE_URL } } }
+          volumeMounts: [{ name: work, mountPath: /data }]
+      volumes:
+        - { name: work, hostPath: { path: /srv/whisper-queue } } # local PV on gus
+```
+
+**What this removes vs. compose:** the custom poll/back-off + `docker.sock`
+whisper start/stop (KEDA does it), `whisper-net` (Service DNS), and the rsync
+fan-out (one `kubectl apply`). **What it adds to operate:** an image **registry**
+the nodes pull from, model distribution, and an always-on control plane — the
+trade-offs in [Would k3s help?](#would-k3s-help-orchestration-alternative). The
+Postgres pull-queue + chunk leases stay exactly as designed; k3s only owns worker
+**count and placement**.

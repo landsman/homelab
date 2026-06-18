@@ -22,8 +22,13 @@ set -eu
 # to tag:pollos via TS_AUTHKEY. Mint it in pollos/infra Terraform (tailscale
 # provider) — do NOT hardcode it here.
 #
-# Usage:
+# Usage (first join):
 #   TS_AUTHKEY=tskey-auth-xxxx ./005-tailscale.sh
+#
+# Re-running is safe and idempotent: the install is skipped if Tailscale is
+# already present, and TS_AUTHKEY is only required for the first join — once the
+# node is authenticated you can re-run with no key to reconcile tags/SSH (so an
+# expired 90-day key never blocks a re-run).
 #
 # Optional env:
 #   TS_TAGS=tag:pollos   ACL tags to advertise (must be allowed by the key)
@@ -34,24 +39,55 @@ set -eu
 #   ssh <hostname>.pollos       # once ssh config HostName points at the MagicDNS name
 #
 
-: "${TS_AUTHKEY:?set TS_AUTHKEY to a pre-authorized tagged auth key}"
 TS_TAGS="${TS_TAGS:-tag:pollos}"
 
-# tailscale engine
-curl -fsSL https://tailscale.com/install.sh | sh
+# already enrolled? then the auth key is optional — `tailscale up` just
+# reconciles tags/SSH/hostname against the existing login. require a key only
+# for the first join, so a re-run after the 90-day key expires still works.
+if command -v tailscale >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
+  echo "tailscale already authenticated; reconciling without an auth key."
+else
+  : "${TS_AUTHKEY:?set TS_AUTHKEY to a pre-authorized tagged auth key for the first join}"
+fi
+
+# tailscale engine — skip if already installed. download then run instead of
+# piping curl straight into sh: a piped `curl ... | sh` takes the pipeline's
+# exit status from sh (which exits 0 on empty stdin), and dash has no pipefail,
+# so `set -e` would sail right past a failed download and break confusingly later.
+if ! command -v tailscale >/dev/null 2>&1; then
+  curl -fsSL https://tailscale.com/install.sh > /tmp/tailscale-install.sh
+  sh /tmp/tailscale-install.sh
+  rm -f /tmp/tailscale-install.sh
+fi
 
 # come back on every reboot. install.sh usually does this already; explicit +
 # idempotent here. tailscaled persists the login, so the node reconnects on
 # boot without re-running `tailscale up`.
 systemctl enable --now tailscaled
 
+# tailscaled needs a beat after install before its socket accepts commands;
+# wait for it so the `tailscale up` below doesn't race a not-yet-ready daemon.
+i=0
+while [ ! -S /var/run/tailscale/tailscaled.sock ] && [ "$i" -lt 15 ]; do
+  sleep 1
+  i=$((i + 1))
+done
+
 # join the tailnet. re-running is harmless — tailscale up just reconciles state.
 set -- \
-  --auth-key="${TS_AUTHKEY}" \
   --hostname="$(hostname)" \
   --advertise-tags="${TS_TAGS}"
 if [ "${TS_SSH:-0}" = "1" ]; then
   set -- "$@" --ssh
+fi
+# first join only: hand the key to tailscale through a 0600 temp file via
+# --auth-key=file:, so the secret never lands in argv where `ps`/`/proc` would
+# expose it to other local users. removed on any exit.
+if [ -n "${TS_AUTHKEY:-}" ]; then
+  keyfile="$(mktemp)"
+  trap 'rm -f "$keyfile"' EXIT
+  printf '%s' "${TS_AUTHKEY}" > "$keyfile"
+  set -- "$@" --auth-key="file:${keyfile}"
 fi
 tailscale up "$@"
 

@@ -28,27 +28,19 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 ```yml
 # ~/.ssh/config
 
-# Each box is reachable two ways and ssh picks automatically:
-#   1. on the home LAN -> direct to its 192.168.0.x IP. A 1s `nc` probe in the
-#      Match blocks decides this; works even with Tailscale off on this Mac.
-#   2. anywhere else    -> Tailscale MagicDNS name (== hostname), connected
-#      directly over the LAN at home or via the encrypted tunnel away.
-# "First obtained value wins": when the probe succeeds the Match block sets the
-# LAN IP first; otherwise it falls through to the MagicDNS name below. So the
-# raw IP is the fallback whenever Tailscale isn't up. No exit node or subnet
-# routes needed. Boxes join the tailnet via setup/005-tailscale.sh.
+# Every box is a Tailscale node, reachable by its MagicDNS name (== hostname).
+# Keep Tailscale running on this Mac and one config works everywhere: at home
+# Tailscale connects directly over the LAN at full speed, away it falls back to
+# the encrypted tunnel — no exit node or subnet routes needed. Boxes join the
+# tailnet via setup/005-tailscale.sh.
+#
+# (No per-host LAN probe on purpose: probing 192.168.0.x:22 adds a 1s timeout to
+#  every connection when away, and on a foreign 192.168.0.0/24 network — hotel,
+#  cafe — it can succeed against a stranger's box and trip host-key verification.
+#  If Tailscale is ever off, the boxes are still reachable on the home LAN by raw
+#  IP: gus 192.168.0.115, mike 192.168.0.113, walter 192.168.0.116,
+#  jesse 192.168.0.117.)
 
-# LAN-first: use the raw IP when the box answers on the home network
-Match host gus.pollos    exec "nc -z -w1 192.168.0.115 22"
-  HostName 192.168.0.115
-Match host mike.pollos   exec "nc -z -w1 192.168.0.113 22"
-  HostName 192.168.0.113
-Match host walter.pollos exec "nc -z -w1 192.168.0.116 22"
-  HostName 192.168.0.116
-Match host jesse.pollos  exec "nc -z -w1 192.168.0.117 22"
-  HostName 192.168.0.117
-
-# fallback: Tailscale MagicDNS (direct over LAN at home, tunnel when away)
 Host gus.pollos
   HostName gus
 

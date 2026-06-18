@@ -17,8 +17,9 @@ model: ## Download the ggml model (~874 MB) into ./models
 	@if [ -f models/ggml-$(MODEL).bin ]; then \
 		echo "Model ggml-$(MODEL).bin already present — skipping download."; \
 	else \
-		curl -fL -o models/ggml-$(MODEL).bin \
-			https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-$(MODEL).bin; \
+		curl -fL -o models/ggml-$(MODEL).bin.tmp \
+			https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-$(MODEL).bin && \
+		mv models/ggml-$(MODEL).bin.tmp models/ggml-$(MODEL).bin; \
 	fi
 
 up: ## Start the server (healthy once the model is loaded)

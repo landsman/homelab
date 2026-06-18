@@ -14,8 +14,12 @@ build: ## Build the whisper-server image (run on the box)
 
 model: ## Download the ggml model (~874 MB) into ./models
 	mkdir -p models
-	curl -fL -o models/ggml-$(MODEL).bin \
-		https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-$(MODEL).bin
+	@if [ -f models/ggml-$(MODEL).bin ]; then \
+		echo "Model ggml-$(MODEL).bin already present — skipping download."; \
+	else \
+		curl -fL -o models/ggml-$(MODEL).bin \
+			https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-$(MODEL).bin; \
+	fi
 
 up: ## Start the server (healthy once the model is loaded)
 	docker compose up -d

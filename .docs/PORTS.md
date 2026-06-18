@@ -13,6 +13,7 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 8001 | [readeck](../readeck)                 |                                            |
 | 8002 | [archivebox](../archivebox)           |                                            |
 | 8003 | [yt-archive](../yt-archive)           | MeTube web UI (also tailscale serve → 443) |
+| 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
 | 8080 | [dashboard](../dashboard)             | nginx (also tailscale serve → 443 at /dashboard)    |
 | 9925 | [mealie](../mealie)                   |                                            |
 

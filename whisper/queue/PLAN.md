@@ -83,19 +83,19 @@ task:  pending ──claim──▶ claimed ──start──▶ running ──r
 
 ## Coordinator HTTP API (JSON, bearer token)
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET`  | `/tasks/claim?worker=<name>` | atomically claim next chunk; `204` if none |
-| `GET`  | `/tasks/{id}/audio` | download the chunk wav |
-| `PATCH`| `/tasks/{id}/progress` | `{percent}` (ETA estimate; or real % if log-tail enabled) |
-| `POST` | `/tasks/{id}/heartbeat` | renew lease |
-| `PUT`  | `/tasks/{id}/result` | `{text}`; marks done, triggers stitch check |
-| `POST` | `/tasks/{id}/fail` | `{error}`; retry or mark file failed |
-| `GET`  | `/state` | full snapshot for the TUI (files, tasks, workers) |
-| `POST` | `/files` | **upload** a recording (multipart); saves to inbox + enqueues → `202 {id, status:"queued"}` |
-| `GET`  | `/files/{id}` | file status (for clients that poll instead of receiving push) |
-| `GET`  | `/openapi.json` | OpenAPI 3.1 spec, generated from the handlers |
-| `GET`  | `/docs` | Scalar API reference UI (renders the spec; "try it" calls) |
+| Method  | Path                         | Purpose                                                                                     |
+| ------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
+| `GET`   | `/tasks/claim?worker=<name>` | atomically claim next chunk; `204` if none                                                  |
+| `GET`   | `/tasks/{id}/audio`          | download the chunk wav                                                                      |
+| `PATCH` | `/tasks/{id}/progress`       | `{percent}` (ETA estimate; or real % if log-tail enabled)                                   |
+| `POST`  | `/tasks/{id}/heartbeat`      | renew lease                                                                                 |
+| `PUT`   | `/tasks/{id}/result`         | `{text}`; marks done, triggers stitch check                                                 |
+| `POST`  | `/tasks/{id}/fail`           | `{error}`; retry or mark file failed                                                        |
+| `GET`   | `/state`                     | full snapshot for the TUI (files, tasks, workers)                                           |
+| `POST`  | `/files`                     | **upload** a recording (multipart); saves to inbox + enqueues → `202 {id, status:"queued"}` |
+| `GET`   | `/files/{id}`                | file status (for clients that poll instead of receiving push)                               |
+| `GET`   | `/openapi.json`              | OpenAPI 3.1 spec, generated from the handlers                                               |
+| `GET`   | `/docs`                      | Scalar API reference UI (renders the spec; "try it" calls)                                  |
 
 ## Ingest (upload) & notifications
 
@@ -106,7 +106,7 @@ recording (not just a path): the coordinator streams it to `inbox/`, creates the
 The inbox drop stays as the local alternative; `GET /files/{id}` lets a client
 poll status when it can't receive push.
 
-- **iOS — Apple Shortcut.** A Shortcut we build: *Share Sheet / record →* "Get
+- **iOS — Apple Shortcut.** A Shortcut we build: _Share Sheet / record →_ "Get
   Contents of URL" → `POST https://gus.<tailnet>:8005/files`, header
   `Authorization: Bearer <token>`, request body = the audio file. It surfaces the
   `202` ("queued") as the result. Works from the share sheet of Voice Memos,
@@ -136,13 +136,14 @@ channel:
 
 ## Storage
 
-- **PostgreSQL** — a `postgres:18` container on the coordinator box: tables
-  `files`, `tasks`, `workers` (last heartbeat). Row locks + `FOR UPDATE SKIP
-  LOCKED` give correct concurrent claims, and concurrent heartbeat/progress
-  writes don't serialize behind one writer the way SQLite would. State on a named
-  volume → survives restart, resume in flight. Only the coordinator talks to it
-  over a private docker network; workers never touch the DB (they go through the
-  HTTP API).
+- **PostgreSQL** — an external/managed instance, **not in Docker in production**:
+  tables `files`, `tasks`, `workers` (last heartbeat). Row locks + `FOR UPDATE
+SKIP LOCKED` give correct concurrent claims, and concurrent heartbeat/progress
+  writes don't serialize behind one writer the way SQLite would. The coordinator
+  reaches it via `DATABASE_URL` from its env file; only the coordinator talks to
+  the DB (workers go through the HTTP API). Survives restart → resume in flight.
+  For local dev a throwaway `postgres:18` container is provided in
+  [`compose.yml`](./compose.yml) — dev/debug only.
 - **Disk** work dir: `inbox/`, `work/<fileid>/chunkNN.wav`, `done/`, `failed/`.
 
 ## Stack
@@ -152,7 +153,7 @@ channel:
 ```
 whisper-queue coordinator   # HTTP API + OpenAPI/Scalar + Postgres + inbox watcher + splitter + stitcher
 whisper-queue worker        # poll/claim + on-demand whisper + chunk download + transcribe + log tail
-whisper-queue tui           # Bubble Tea dashboard over /state
+whisper-queue tui           # Bubble Tea dashboard — local client, or served over SSH (Wish)
 ```
 
 One binary, three roles, shipped as **containers** — same multi-stage build-on-box
@@ -164,7 +165,8 @@ running the TUI locally on the Mac.
 
 Native goroutines for the coordinator's concurrent workers; `fsnotify` for the
 inbox; `jackc/pgx` (pure-Go Postgres driver, no cgo — static build stays trivial)
-for state; `charmbracelet/bubbletea` + `lipgloss` for the TUI. The coordinator's
+for state; `charmbracelet/bubbletea` + `lipgloss` for the TUI, served over SSH
+with `charmbracelet/wish` (+ `tsnet` for a tailnet hostname). The coordinator's
 HTTP layer uses `danielgtaylor/huma`, so the **OpenAPI 3.1** spec is generated
 from the typed handlers (no drift) with request/response validation for free;
 **Scalar** renders that spec as the API reference at `/docs`. (CLAUDE.md's
@@ -177,7 +179,7 @@ options, and the choice is purely about how clean we keep the worker container:
 
 - **ETA estimate (default).** The coordinator knows each chunk's audio duration
   (it cut them); the worker stamps a start time. % = `min(99, elapsed /
-  (duration × realtime_factor))`, factor ~0.7 for the default model. Zero extra
+(duration × realtime_factor))`, factor ~0.7 for the default model. Zero extra
   privilege — the worker stays a plain HTTP container. Smooth enough for a
   dashboard; flips to 100 % on the real result.
 - **Real % (opt-in upgrade).** Mount `/var/run/docker.sock:ro` into the worker
@@ -198,8 +200,44 @@ averages a file's chunks for the overall bar.
 - **Done** — finished files + path to `done/<name>.txt`.
 - Add a file by dropping into `inbox/` (watched) — TUI just reflects it.
 
-Runs from the laptop, polls `GET /state` (or push via SSE / Postgres
-`LISTEN/NOTIFY` later) over LAN / SSH tunnel.
+Two ways to view it: a **local client** (`whisper-queue tui`) that polls
+`GET /state` over LAN / SSH tunnel (or push via SSE / Postgres `LISTEN/NOTIFY`
+later), or — better when everything runs in Docker — **served over SSH** (below).
+
+## SSH-served TUI (`ssh` in, get the dashboard)
+
+Yes, this works cleanly even though it's all in Docker — and SSH-serving is
+actually the _best_ fit, because there's no local binary to install: the client is
+just `ssh`. This is the [terminal.shop](https://charm.land/blog/terminaldotshop/)
+pattern (Bubble Tea + Lip Gloss + Wish). The coordinator embeds an SSH server via
+[`charmbracelet/wish`](https://github.com/charmbracelet/wish); on connect it hands
+the session straight to the Bubble Tea dashboard. Because the server reads the DB
+directly, there's no `/state` polling and state is live.
+
+- **How.** `wish.NewServer(WithAddress(…), WithHostKeyPath(…),
+WithPublicKeyAuth(…), WithMiddleware(bubbletea.Middleware(handler),
+activeterm.Middleware(), logging.Middleware()))`. The `bubbletea` middleware
+  gives **each session its own `tea.Program`** wired to the SSH pty (window resize
+  handled), so concurrent viewers are fine. It is **not a shell** — Wish serves
+  only the TUI, there's no way to drop to a prompt on the box.
+- **Auth.** Public-key (`WithPublicKeyAuth`) — authorize the cluster key so only
+  your key gets in; on the VPN it's network-gated on top.
+- **The "special URL" you want.** SSH has no SNI/Host header, so a hostname must
+  resolve to an IP:port that listens for _this_ app — you can't multiplex apps by
+  hostname on one shared port the way HTTP does. Two clean ways to get bare
+  `ssh whisper-queue` (no `-p`):
+  - **Tailscale via `tsnet`** (recommended — you're on VPN): the TUI server joins
+    the tailnet as its **own node** and Wish listens on that node's `:22`, so
+    `ssh whisper-queue` (MagicDNS) drops you straight into the dashboard — no host
+    `:22` conflict, no public exposure. (Charm ships a wish + tailscale example.)
+  - **Host `ForceCommand`**: a `Match User tui` block in the box's `sshd_config`
+    whose `ForceCommand` attaches to the container TUI — gives `ssh tui@gus` on
+    the box's real `:22`, reusing host sshd. No extra dep, but edits host config.
+- **Simplest fallback.** Publish Wish on `:2222` from the container →
+  `ssh -p 2222 gus.pollos`. Zero proxy, works today.
+- **Proxy route (if ever needed).** An SSH reverse proxy like `sshpiper` routes by
+  username/key to upstream SSH servers — that's the "proxy" answer, but it's
+  overkill for one TUI; `tsnet` is simpler than running a proxy.
 
 ## Networking & auth
 
@@ -213,9 +251,13 @@ Runs from the laptop, polls `GET /state` (or push via SSE / Postgres
   **port 8005** (next free per [.docs/PORTS.md](../../.docs/PORTS.md)); add it there
   and to this service's README. Optionally a Cloudflare tunnel subdomain →
   `http://gus.pollos:8005` for the TUI from outside the LAN.
-- **Coordinator → Postgres**: over a private docker network on the coordinator
-  box; the DB is **not host-published** (least privilege). Connection string from
-  the same env file as the bearer token.
+- **Coordinator → Postgres**: an external/managed instance (**not in Docker** in
+  prod), reached over the LAN/tailnet via `DATABASE_URL` in the same env file as
+  the bearer token. Only the coordinator connects.
+- **TUI over SSH**: the coordinator's Wish server (see [SSH-served
+  TUI](#ssh-served-tui-ssh-in-get-the-dashboard)) is public-key gated; expose it
+  either as a `tsnet` tailnet node on `:22` (VPN-only, recommended) or a published
+  `:2222`. Its own SSH host key persists on a small volume.
 
 ## Worker lifecycle (scale-to-zero)
 
@@ -265,13 +307,14 @@ to a box, then `docker compose build && up` on the box (x86-64, so `linux/amd64`
 images built natively, no cross-compile). One `whisper/queue/` dir, one app image,
 compose profiles selected per box:
 
-- **`coordinator` profile** (run on gus): a `postgres:18` container (named volume
-  for the queue state) + the API/queue/splitter/stitcher container, wired over a
-  private docker network so only the coordinator reaches Postgres (not host-
-  published). The coordinator mounts `inbox/`, `work/`, `done/`, reads its DB URL +
-  bearer token from an env file, and publishes `:8005` (REST API + Scalar at
-  `/docs`). Image bundles ffmpeg (for splitting), like whisper's. Needs no docker
-  access.
+- **`coordinator` profile** (run on gus): the API/queue/splitter/stitcher
+  container. It connects to an **external Postgres** (not in Docker) via
+  `DATABASE_URL` from its env file — no DB container in prod. Mounts `inbox/`,
+  `work/`, `done/`, reads its bearer token from the same env file, publishes
+  `:8005` (REST API + Scalar at `/docs`), and serves the **TUI over SSH** (Wish on
+  a `tsnet` tailnet node, or a published `:2222`) — its SSH host key persists on a
+  small volume. Image bundles ffmpeg (for splitting), like whisper's. Needs no
+  docker access.
 - **`worker` profile** (run on every box, gus included): the poll/transcribe
   container. Joins `whisper-net` to reach `http://whisper:8004`; reads coordinator
   URL + token from an env file. Mounts `/var/run/docker.sock` to start/stop its
@@ -315,12 +358,13 @@ Adminer on `127.0.0.1:8000`; run the coordinator with `go run` against
    `failed/`.
 5. **Progress** — ETA estimate from chunk duration + start time; coordinator
    aggregates per-file %. (Real-% via `docker.sock:ro` log-tail is a later opt-in.)
-6. **TUI** — Bubble Tea over `/state`; queue / chunks / workers / done panes.
+6. **TUI** — Bubble Tea (queue / chunks / workers / done panes): local client over
+   `/state`, **and served over SSH** via Wish (public-key auth, `tsnet` hostname).
 7. **Worker lifecycle** — scale-to-zero: worker stays a tiny always-on poller,
    brings whisper up on first claim, stops it after an idle grace. Needs
    `docker.sock` on the worker.
 8. **Ingest & notifications** — `POST /files` multipart upload (`202`), `GET
-   /files/{id}` status, ntfy push on queued/started/done/failed, Tailscale
+/files/{id}` status, ntfy push on queued/started/done/failed, Tailscale
    `serve`, and the iOS Apple Shortcut.
 9. **Harden & ship** — bearer auth, `db`/coordinator/worker compose profiles,
    `whisper-net`, `make` targets, PORTS.md + README, optional Cloudflare tunnel.
@@ -350,6 +394,9 @@ from a phone.
 - **Coordinator exposure** — Tailscale `serve` (VPN-only, for the phone upload)
   vs the Cloudflare tunnel (public). Default: Tailscale; tunnel only if needed
   off-tailnet.
+- **TUI SSH entry** — `tsnet` node on `:22` (`ssh whisper-queue`, VPN-only) vs a
+  published `:2222` (`ssh -p 2222 gus`) vs host `ForceCommand` on the box's `:22`.
+  Default: tsnet; `:2222` as the no-frills fallback.
 - **srt/vtt** — text-only for v1; timestamped formats need per-chunk offsetting (later).
 - **Model/language per job** — global config vs per-file sidecar (e.g. `name.lang`).
   Default: global, `-l auto` with `cs` override.
@@ -366,12 +413,12 @@ duplicates, and emit a clean **Markdown** file (`done/<name>.md`) next to the ra
 
 **In-queue vs separate service — recommendation: a separate service.**
 
-- *In-queue* (a `polish` task type after stitch, reusing the lease/retry
+- _In-queue_ (a `polish` task type after stitch, reusing the lease/retry
   machinery) is tempting, but it couples the transcriber to a second, very
   different runtime — an LLM server with its own model, memory profile, and
   failure modes — and a different scaling story. The transcriber should stay
   single-responsibility: audio → raw text.
-- *Separate service* (**recommended**) — a small `transcript-polish` service in
+- _Separate service_ (**recommended**) — a small `transcript-polish` service in
   its own dir (e.g. `whisper/polish/`), loosely coupled: it consumes finished
   transcripts and writes Markdown back. Independently deployable, its prompt/model
   can evolve without touching the cluster, and it can be turned off entirely.
@@ -398,4 +445,7 @@ introduces.
 **Footprint.** Ollama is heavy with a model loaded, so apply the same
 scale-to-zero idea: keep the polish service a tiny poller and start/stop the
 Ollama container on demand instead of holding a model in RAM between jobs.
+
+```
+
 ```

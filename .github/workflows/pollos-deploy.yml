@@ -17,7 +17,7 @@ jobs:
       content: ${{ steps.filter.outputs.content }}
       worker: ${{ steps.filter.outputs.worker }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: filter
         with:
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
@@ -73,7 +73,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.POLLOS_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.POLLOS_CZ_R2_SECRET_ACCESS_KEY }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
       - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
       - run: terraform apply -auto-approve
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Build static assets (generates /setup index)
         run: make build
         working-directory: pollos/microsite

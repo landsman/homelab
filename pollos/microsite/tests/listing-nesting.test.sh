@@ -58,8 +58,15 @@ assert_hx_boost() {
 }
 
 # --- fixture setup dir: 1 script + 5 configs of assorted extensions ----------
+# Build with SETUP_SRC pointed at fixtures clobbers public/ with fixture output.
+# Restore the real build (and drop the tmpdir) from an EXIT trap so it runs on
+# any exit path — including an early `set -e` abort — not just the happy path.
 FIX=$(mktemp -d)
-trap 'rm -rf "$FIX"' EXIT
+cleanup() {
+    rm -rf "$FIX"
+    (cd "$ROOT" && make build >/dev/null 2>&1 || true)
+}
+trap cleanup EXIT
 
 cat > "$FIX/100-fixture.sh" <<'EOF'
 #!/bin/sh
@@ -93,9 +100,6 @@ for f in app.conf data.json orphan.yaml notes.md settings.ini; do
     assert_raw_header "/setup/$f"
     assert_hx_boost "$f"
 done
-
-# rebuild from the real source so we don't leave fixture output behind
-make build >/dev/null
 
 echo
 echo "  $PASS passed, $FAIL failed"

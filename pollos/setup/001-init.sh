@@ -101,15 +101,24 @@ fi
 export MISE_DATA_DIR=/opt/mise
 
 # binary, system-wide. MISE_INSTALL_PATH overrides the installer default of
-# $HOME/.local/bin so every user gets it.
-curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
+# $HOME/.local/bin so every user gets it. Download to a temp file first rather
+# than piping into sh — `curl | sh` masks a failed download (POSIX sh has no
+# pipefail), so a network hiccup would slip through and only surface later as a
+# confusing "mise: command not found".
+mise_installer=$(mktemp)
+curl -fsSL https://mise.run -o "${mise_installer}"
+MISE_INSTALL_PATH=/usr/local/bin/mise sh "${mise_installer}"
+rm -f "${mise_installer}"
 
 # system-wide tool pins. Fetched from the microsite (same place this script
 # came from) so the pins stay a real, lintable, renovate-bumpable TOML file in
 # the repo at setup/mise.toml instead of an opaque heredoc. mise trusts
-# /etc/mise/config.toml automatically.
+# /etc/mise/config.toml automatically. Force world-readable perms so mise shims
+# can read the global config under a restrictive root umask.
 mkdir -p /etc/mise
+chmod 0755 /etc/mise
 curl -fsSL https://pollos.cz/setup/mise.toml -o /etc/mise/config.toml
+chmod 0644 /etc/mise/config.toml
 
 # put mise's shims on PATH for every login shell.
 cat > /etc/profile.d/mise.sh <<'EOF'
@@ -119,6 +128,8 @@ EOF
 chmod 0644 /etc/profile.d/mise.sh
 
 # download everything pinned above into the shared store and (re)generate shims.
-mise install
-mise reshim
+# Use the absolute path — /usr/local/bin may not be on root's PATH in a minimal
+# or non-interactive shell.
+/usr/local/bin/mise install
+/usr/local/bin/mise reshim
 chmod -R a+rX /opt/mise

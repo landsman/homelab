@@ -1,5 +1,5 @@
 #!/bin/sh
-# Runs every *.test.sh in this directory. Stops on first failure.
+# Runs every *.test.sh in this directory and reports the total failure count.
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)

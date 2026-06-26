@@ -32,7 +32,11 @@ set -eu
 #   rsync            sync files form host <> remote
 #   unzip            open compressed archives
 #   tmux             terminal multiplexer
-#   rclone           sync/mount cloud storage (S3, B2, GDrive, etc.) for easier sending data to remote buckets
+#
+# Tools installed outside apt (further down):
+#   mise             version manager — https://mise.jdx.dev
+#   rclone           sync/mount cloud storage (S3, B2, GDrive, etc.); pinned via
+#                    mise instead of apt, whose build lags upstream badly
 
 apt-get update -y
 apt-get install -y \
@@ -56,8 +60,7 @@ apt-get install -y \
   make \
   rsync \
   unzip \
-  tmux \
-  rclone
+  tmux
 
 systemctl enable --now ssh
 systemctl enable --now chrony
@@ -86,3 +89,36 @@ if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
 # <<< hstr config <<<
 EOF
 fi
+
+# mise (https://mise.jdx.dev): single-binary version manager. We use it instead
+# of apt for tools where Debian ships a stale build (rclone, etc.) — pin the
+# exact version in /etc/mise/config.toml and stay in control of upgrades.
+#
+# Shared, world-readable tool store under /opt/mise (the default would be
+# /root/.local/share/mise, which only root could use); shims go on every login
+# shell's PATH via /etc/profile.d so all users get `rclone` without running
+# `mise activate`.
+export MISE_DATA_DIR=/opt/mise
+
+# binary, system-wide. MISE_INSTALL_PATH overrides the installer default of
+# $HOME/.local/bin so every user gets it.
+curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
+
+# system-wide tool pins. Fetched from the microsite (same place this script
+# came from) so the pins stay a real, lintable, renovate-bumpable TOML file in
+# the repo at setup/mise.toml instead of an opaque heredoc. mise trusts
+# /etc/mise/config.toml automatically.
+mkdir -p /etc/mise
+curl -fsSL https://pollos.cz/setup/mise.toml -o /etc/mise/config.toml
+
+# put mise's shims on PATH for every login shell.
+cat > /etc/profile.d/mise.sh <<'EOF'
+export MISE_DATA_DIR=/opt/mise
+export PATH="$MISE_DATA_DIR/shims:$PATH"
+EOF
+chmod 0644 /etc/profile.d/mise.sh
+
+# download everything pinned above into the shared store and (re)generate shims.
+mise install
+mise reshim
+chmod -R a+rX /opt/mise

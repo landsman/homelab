@@ -86,7 +86,9 @@ child_li() {
   raw_paths+=("/setup/${1}")
 }
 
-consumed=""
+# Associative array (the script is bash) so a config is marked consumed by exact
+# key — robust against filenames with spaces or glob characters.
+declare -A consumed=()
 for f in "${sh_files[@]}"; do
   # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
   alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
@@ -112,17 +114,17 @@ for f in "${sh_files[@]}"; do
   #   - `consumed` makes the FIRST script (sorted) that references a config win,
   #     so a config used by several scripts nests under the lowest-numbered one.
   for o in "${other_files[@]}"; do
-    case " ${consumed} " in *" ${o} "*) continue ;; esac
+    [[ -n "${consumed[$o]:-}" ]] && continue
     if grep -qF -- "${o}" "${SETUP_SRC}/${f}"; then
       child_li "${o}" "${f}"
-      consumed+=" ${o}"
+      consumed["${o}"]=1
     fi
   done
 done
 
 # Config files not referenced by any script — list them standalone at the end.
 for o in "${other_files[@]}"; do
-  case " ${consumed} " in *" ${o} "*) continue ;; esac
+  [[ -n "${consumed[$o]:-}" ]] && continue
   setup_items+="<li><a href=\"${o}\" hx-boost=\"false\">${o}</a></li>"$'\n'
   raw_paths+=("/setup/${o}")
 done

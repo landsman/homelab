@@ -120,7 +120,10 @@ chmod 0755 /etc/mise
 curl -fsSL https://pollos.cz/setup/mise.toml -o /etc/mise/config.toml
 chmod 0644 /etc/mise/config.toml
 
-# put mise's shims on PATH for every login shell.
+# Put mise's shims on PATH for every login shell. Non-interactive contexts
+# (systemd units, cron, Ansible — which runs modules through `/bin/sh -c`, i.e.
+# dash) read neither profile.d nor *.bashrc, so they must call tools by their
+# absolute shim path instead, e.g. /opt/mise/shims/rclone.
 cat > /etc/profile.d/mise.sh <<'EOF'
 export MISE_DATA_DIR=/opt/mise
 export PATH="$MISE_DATA_DIR/shims:$PATH"

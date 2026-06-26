@@ -106,18 +106,26 @@ export MISE_DATA_DIR=/opt/mise
 # pipefail), so a network hiccup would slip through and only surface later as a
 # confusing "mise: command not found".
 mise_installer=$(mktemp)
+trap 'rm -f "${mise_installer}"' EXIT
 curl -fsSL https://mise.run -o "${mise_installer}"
 MISE_INSTALL_PATH=/usr/local/bin/mise sh "${mise_installer}"
 rm -f "${mise_installer}"
+trap - EXIT
 
-# system-wide tool pins. Fetched from the microsite (same place this script
-# came from) so the pins stay a real, lintable, renovate-bumpable TOML file in
-# the repo at setup/mise.toml instead of an opaque heredoc. mise trusts
-# /etc/mise/config.toml automatically. Force world-readable perms so mise shims
-# can read the global config under a restrictive root umask.
+# system-wide tool pins — a real, lintable, renovate-bumpable TOML file in the
+# repo at setup/mise.toml instead of an opaque heredoc. Prefer a copy sitting
+# next to this script (running from a repo clone) so pin changes can be tested
+# without deploying; otherwise fetch from the microsite (the same place this
+# script came from), with MISE_TOML_SOURCE to point at a staging copy. mise
+# trusts /etc/mise/config.toml automatically; force world-readable perms so the
+# shims can read it under a restrictive root umask.
 mkdir -p /etc/mise
 chmod 0755 /etc/mise
-curl -fsSL https://pollos.cz/setup/mise.toml -o /etc/mise/config.toml
+if [ -f "$(dirname "$0")/mise.toml" ]; then
+  cp "$(dirname "$0")/mise.toml" /etc/mise/config.toml
+else
+  curl -fsSL "${MISE_TOML_SOURCE:-https://pollos.cz/setup/mise.toml}" -o /etc/mise/config.toml
+fi
 chmod 0644 /etc/mise/config.toml
 
 # Put mise's shims on PATH for every login shell. Non-interactive contexts

@@ -66,6 +66,8 @@ assert_contains    "mise.toml matches source"           "public/setup/mise.toml"
 assert_contains    "mise.toml listing link is hx-boost=\"false\"" \
                    "public/setup/index.html" '<a href="mise.toml" hx-boost="false">'
 assert_raw_header  "mise.toml served as text/plain"      "/setup/mise.toml"
+assert_contains    "mise.toml nested as a child entry"   "public/setup/index.html" '<li class="child">'
+assert_contains    "mise.toml notes its parent script"   "public/setup/index.html" "fetched by 001-init.sh"
 
 # --- .sh scripts get a stripped alias + raw-file header ----------------------
 assert_exists      "001-init.sh alias copied to /init.sh" "public/init.sh"

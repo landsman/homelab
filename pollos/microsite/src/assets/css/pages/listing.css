@@ -101,6 +101,28 @@ main.listing {
         text-decoration: none;
       }
     }
+
+    /* Config files (mise.toml) nested under the script that fetches them:
+       indented, with a tree connector and a muted "fetched by …" note. */
+    &.child {
+      padding-left: 1.6rem;
+
+      .branch {
+        opacity: 0.35;
+        margin-right: -0.3rem;
+      }
+
+      .note {
+        margin-left: auto;
+        font-size: 12px;
+        opacity: 0.5;
+      }
+    }
+
+    /* Drop the divider above a child so it reads as part of its parent. */
+    &:has(+ .child) {
+      border-bottom: none;
+    }
   }
 
   footer {

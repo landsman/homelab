@@ -69,26 +69,62 @@ SETUP_SRC="src/setup"
 setup_items=""
 aliases=()
 raw_paths=()
+
+# Split scripts from non-script config files (e.g. mise.toml) so we can nest
+# each config under the script that consumes it.
+sh_files=()
+other_files=()
 while IFS= read -r f; do
-  if [[ "${f}" == *.sh ]]; then
-    # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
-    alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
-    # hx-boost="false" → htmx-boosted body must not intercept these; browser
-    # navigates to raw text/plain script (otherwise htmx tries to swap script
-    # source into the page).
-    setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a><a class=\"alias\" href=\"/${alias}\" hx-boost=\"false\">/${alias}</a></li>"$'\n'
-    # Copy the script to public/<alias> so the short URL serves it directly
-    # (no redirect, no `_redirects` file needed). -L follows symlinks.
-    cp -L "${SETUP_SRC}/${f}" "public/${alias}"
-    aliases+=("${alias}")
-  else
-    # Non-script setup files (e.g. mise.toml) — served raw, same as scripts:
-    # hx-boost="false" so the browser navigates to the raw file instead of
-    # letting htmx swap it into the page, plus a text/plain header rule below.
-    setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a></li>"$'\n'
-    raw_paths+=("/setup/${f}")
-  fi
+  if [[ "${f}" == *.sh ]]; then sh_files+=("${f}"); else other_files+=("${f}"); fi
 done < <(cd "${SETUP_SRC}" && find -L . -maxdepth 1 -type f ! -name "index.html" | sed 's|^\./||' | sort)
+
+# `child_li <file> <parent-script>` — a config file rendered as an indented
+# child of the script that fetches it. Served raw like the scripts.
+child_li() {
+  setup_items+="<li class=\"child\"><span class=\"branch\" aria-hidden=\"true\">└─</span><a href=\"${1}\" hx-boost=\"false\">${1}</a><span class=\"note\">fetched by ${2}</span></li>"$'\n'
+  raw_paths+=("/setup/${1}")
+}
+
+consumed=""
+for f in "${sh_files[@]}"; do
+  # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
+  alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
+  # hx-boost="false" → htmx-boosted body must not intercept these; browser
+  # navigates to raw text/plain script (otherwise htmx tries to swap script
+  # source into the page).
+  setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a><a class=\"alias\" href=\"/${alias}\" hx-boost=\"false\">/${alias}</a></li>"$'\n'
+  # Copy the script to public/<alias> so the short URL serves it directly
+  # (no redirect, no `_redirects` file needed). -L follows symlinks.
+  cp -L "${SETUP_SRC}/${f}" "public/${alias}"
+  aliases+=("${alias}")
+  # Nest config files under the script that uses them. THIS is where the
+  # parent↔child relationship is defined: there is no hardcoded map — we grep
+  # each script for the config's filename, so the single source of truth is the
+  # reference inside the script itself (001-init.sh does
+  # `curl .../mise.toml` → mise.toml nests under it). Add a config + reference it
+  # from a script and it auto-nests; reference nothing and it falls through to
+  # the standalone list below.
+  #
+  # Caveats (harmless for today's distinctly-named, single-reference files):
+  #   - grep -F is a plain substring match, not whole-word — a generic name like
+  #     config.toml could match unintended paths.
+  #   - `consumed` makes the FIRST script (sorted) that references a config win,
+  #     so a config used by several scripts nests under the lowest-numbered one.
+  for o in "${other_files[@]}"; do
+    case " ${consumed} " in *" ${o} "*) continue ;; esac
+    if grep -qF -- "${o}" "${SETUP_SRC}/${f}"; then
+      child_li "${o}" "${f}"
+      consumed+=" ${o}"
+    fi
+  done
+done
+
+# Config files not referenced by any script — list them standalone at the end.
+for o in "${other_files[@]}"; do
+  case " ${consumed} " in *" ${o} "*) continue ;; esac
+  setup_items+="<li><a href=\"${o}\" hx-boost=\"false\">${o}</a></li>"$'\n'
+  raw_paths+=("/setup/${o}")
+done
 
 if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"

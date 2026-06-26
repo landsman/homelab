@@ -68,6 +68,7 @@ SETUP_SRC="src/setup"
 
 setup_items=""
 aliases=()
+raw_paths=()
 while IFS= read -r f; do
   if [[ "${f}" == *.sh ]]; then
     # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
@@ -81,7 +82,11 @@ while IFS= read -r f; do
     cp -L "${SETUP_SRC}/${f}" "public/${alias}"
     aliases+=("${alias}")
   else
-    setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
+    # Non-script setup files (e.g. mise.toml) — served raw, same as scripts:
+    # hx-boost="false" so the browser navigates to the raw file instead of
+    # letting htmx swap it into the page, plus a text/plain header rule below.
+    setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a></li>"$'\n'
+    raw_paths+=("/setup/${f}")
   fi
 done < <(cd "${SETUP_SRC}" && find -L . -maxdepth 1 -type f ! -name "index.html" | sed 's|^\./||' | sort)
 
@@ -89,13 +94,18 @@ if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"
 fi
 
-# _headers — CF Pages matches by incoming URL, so each alias needs its own
-# header rule in addition to the /setup/*.sh catch-all from src/_headers.
+# _headers — CF Pages matches by incoming URL, so each alias (and each raw
+# non-.sh setup file) needs its own rule in addition to the /setup/*.sh
+# catch-all from src/_headers.
+header_paths=("${raw_paths[@]}")
+for a in "${aliases[@]}"; do
+  header_paths+=("/${a}")
+done
 {
   echo ""
-  echo "# Auto-generated per-alias header rules"
-  for a in "${aliases[@]}"; do
-    echo "/${a}"
+  echo "# Auto-generated raw-file header rules"
+  for p in "${header_paths[@]}"; do
+    echo "${p}"
     echo "  Content-Type: text/plain; charset=utf-8"
     echo "  X-Content-Type-Options: nosniff"
     echo "  Content-Disposition: inline"

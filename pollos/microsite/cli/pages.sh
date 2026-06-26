@@ -64,7 +64,8 @@ render_page \
 # -----------------------------------------------------------------------------
 # /setup/  — directory listing (Cloudflare Pages has no native autoindex)
 # -----------------------------------------------------------------------------
-SETUP_SRC="src/setup"
+# Overridable so tests can point the listing generator at a fixture dir.
+SETUP_SRC="${SETUP_SRC:-src/setup}"
 
 setup_items=""
 aliases=()

@@ -1,5 +1,9 @@
 version: 2
 
+# cooldown: wait 72h (3 days) after a release before opening version-update PRs,
+# so a compromised/broken fresh release has time to be pulled. Version updates
+# only — security updates ignore cooldown.
+
 updates:
   ## ci
   - package-ecosystem: github-actions
@@ -7,6 +11,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   ## dashboard
   - package-ecosystem: npm
@@ -14,12 +20,16 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: docker
     directory: /dashboard/docker
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   ## ip service
   - package-ecosystem: npm
@@ -27,12 +37,16 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: docker
     directory: /ip-service/docker
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   ## compose services
   - package-ecosystem: docker-compose
@@ -40,24 +54,32 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: docker-compose
     directory: /readeck
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: docker-compose
     directory: /database
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
 
   ## dockerfile services
   - package-ecosystem: docker
@@ -65,3 +87,5 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3

@@ -12,7 +12,7 @@ site/                 the page — this directory IS the deploy artifact
   assets/js/          theme override, animated favicon (plain JS + JSDoc)
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
-infra/                Terraform: Pages project, custom domains, DNS, apex→www redirect
+infra/                Terraform: the Pages project only — see DNS cutover below
 ```
 
 Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
@@ -50,11 +50,41 @@ Terraform state shares the existing `pollos-cz-tf-state` R2 bucket under key
 
 Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
-1. `terraform apply` — Pages project, `insuit.cz` + `www.insuit.cz` domains, DNS,
-   301 www→apex.
+1. `terraform apply` — creates the `insuit-cz` Pages project. It manages nothing
+   else in the zone.
 2. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.
+
+## DNS cutover (manual, deliberate)
+
+`insuit.cz` is a live, hand-curated zone: Google Workspace MX, nine Tunnel
+CNAMEs, a GitHub Pages CNAME, a proxied wildcard, and existing Redirect Rules.
+Terraform never touches records it doesn't declare, so none of that is at risk —
+but the apex and `www` need changing by hand, because two collisions make them
+unsafe to automate:
+
+- Both already hold **A + AAAA** records. A CNAME cannot coexist with A/AAAA on
+  the same name, so a declared `cloudflare_dns_record` would fail the apply.
+- Cloudflare allows **one ruleset per phase per zone**. Managing
+  `http_request_dynamic_redirect` in Terraform would overwrite _every_ Redirect
+  Rule in the zone, including the live `www.insuit.cz → github.com/landsman` one.
+
+Today the domain serves: `insuit.cz` → 301 → `www.insuit.cz` → 301 →
+`github.com/landsman`.
+
+To point it at this site, in the Cloudflare dashboard:
+
+1. **Redirect Rules** → delete (or disable) the `www.insuit.cz →
+github.com/landsman` rule. Keep the apex→www rule; it's the direction this
+   site's `og:url` already assumes.
+2. **DNS** → delete the A and AAAA records on `www.insuit.cz`, and replace them
+   with `CNAME www → insuit-cz.pages.dev`, proxied.
+3. **Workers & Pages → insuit-cz → Custom domains** → add `www.insuit.cz`.
+4. Leave the apex A/AAAA and the `*` wildcard alone — the apex→www rule fires at
+   the edge before origin, so the apex never needs to reach `46.28.105.54`.
+
+Verify with `curl -sI https://www.insuit.cz` before and after.
 
 ## Ports
 

@@ -40,8 +40,13 @@ html {
 
 body {
   display: flex;
+  /* Paired declarations, not duplicates: browsers without `safe` / `svh` drop
+     the second line and keep the first. `safe center` stops a viewport shorter
+     than the text (landscape phone) clipping the top out of scroll reach. */
   align-items: center;
+  align-items: safe center;
   justify-content: center;
+  min-height: 100vh;
   min-height: 100svh;
   margin: 0;
   padding: clamp(20px, 6vw, 35px);

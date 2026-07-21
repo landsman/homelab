@@ -26,13 +26,13 @@ a::after {
   width: 100%;
   height: var(--underline-height);
   background: currentcolor;
-  transform: rotateY(90deg);
+  transform: scaleX(0);
   transform-origin: right top;
   transition: transform var(--speed);
 }
 a:hover::after,
 a:focus-visible::after {
-  transform: rotateY(0deg);
+  transform: scaleX(1);
   transform-origin: left top;
 }
 
@@ -40,7 +40,7 @@ a:focus-visible::after {
    as links. */
 @media (hover: none) {
   a::after {
-    transform: rotateY(0deg);
+    transform: scaleX(1);
     transform-origin: left top;
   }
 }

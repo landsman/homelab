@@ -16,9 +16,8 @@
   /* Layout */
   --wrapper-width: 800px;
   --page-padding: clamp(20px, 6vw, 35px);
-  /* Optical centering — lifts the block above the true middle, but collapses
-     to 0 on a short viewport so nothing drifts off-screen. */
-  --wrapper-offset: clamp(0px, 14vh, 130px);
+  /* Gap under the pinned links on a tall viewport; see page.css. */
+  --footer-breathing-room: 6vh;
 
   /* Spacing */
   --space: 20px;

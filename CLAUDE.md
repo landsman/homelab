@@ -71,8 +71,11 @@
 - `make docker-build` to build the image
 - GitHub Actions: `.github/workflows/dashboard-build.yml`
 
-## Pull requests & Gemini review
+## Pull requests & Claude review
 - Never commit or push to `main` — always branch + PR, squash-merge (e.g. `gh pr merge <n> --squash --delete-branch`)
-- After **every** push to a PR branch, request a fresh review: `gh pr comment <n> --body "/gemini review"`
-- When the review lands, address **every** comment — leave none unanswered: reply on each thread pointing to the fix/commit, then mark the thread resolved (`resolveReviewThread` mutation via `gh api graphql`)
-- Once all threads are resolved and the PR is clean, close it out (squash-merge)
+- Reviews come from Anthropic's managed **Code Review** (Claude GitHub App). Gemini Code Assist is no longer used — never comment `/gemini review`
+- Reviews run automatically per the repo's Review Behavior setting. To request one explicitly, post a top-level PR comment: `@claude review` (single run) or `@claude review always` (subscribe the PR to every push)
+- Findings land as inline comments tagged 🔴 Important / 🟡 Nit / 🟣 Pre-existing, plus a `Claude Code Review` check run. The check never blocks merge
+- **Replying to an inline finding does not notify Claude.** To act on one, fix the code and push — a push-triggered re-review resolves the thread itself. Resolve a thread by hand only when rejecting a finding, and say why in the reply
+- Repo-wide review tuning lives in `REVIEW.md` at the root; it outranks `CLAUDE.md` for review behaviour
+- Once findings are addressed and CI is green, squash-merge

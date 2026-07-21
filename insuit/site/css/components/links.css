@@ -11,6 +11,13 @@
   gap: var(--icon-gap);
 }
 
+/* A real element rather than a::before, which would land inside the anchor —
+   clickable, and swept by the underline. */
+.links .separator {
+  color: var(--color-separator);
+  user-select: none;
+}
+
 a {
   position: relative;
   color: inherit;

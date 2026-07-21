@@ -11,6 +11,7 @@
   /* Color */
   --color-fg: #2f3337;
   --color-bg: #ffffff;
+  --color-separator: #c2c7cd;
 
   /* Layout */
   --wrapper-width: 800px;
@@ -24,7 +25,7 @@
   --space-content-top: clamp(24px, 5vh, 35px);
   --space-content-bottom: clamp(28px, 6vh, 40px);
   --links-gap-row: var(--space);
-  --links-gap-column: 35px;
+  --links-gap-column: 16px;
 
   /* Components */
   --icon-size: 1.25em;
@@ -41,5 +42,6 @@
   :root {
     --color-fg: #e6e8ea;
     --color-bg: #16181a;
+    --color-separator: #4a5058;
   }
 }

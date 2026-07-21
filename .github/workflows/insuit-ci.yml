@@ -1,0 +1,45 @@
+name: "insuit.cz ci"
+
+on:
+  pull_request:
+    paths:
+      - 'insuit/**'
+      - '.github/workflows/insuit-ci.yml'
+      - '!**/*.md'
+  push:
+    branches: [main]
+    paths:
+      - 'insuit/**'
+      - '.github/workflows/insuit-ci.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: insuit
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: "Install JS deps"
+        run: make install
+
+      - name: "Format check (oxfmt)"
+        run: make format-check
+
+  infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: insuit/infra
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - name: "Format check + validate"
+        run: make ci

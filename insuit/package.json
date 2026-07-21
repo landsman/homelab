@@ -1,0 +1,12 @@
+{
+  "name": "insuit-cz",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "oxfmt --check .",
+    "format:fix": "oxfmt ."
+  },
+  "devDependencies": {
+    "oxfmt": "^0.59.0"
+  }
+}

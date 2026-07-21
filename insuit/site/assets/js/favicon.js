@@ -6,7 +6,7 @@
    SVG (SMIL or CSS) in a favicon. So the frames are rendered to data URIs
    once at load and then cycled — no per-frame canvas work.
 
-   Deferred, not blocking: the static /favicon/mark.svg covers the page until
+   Deferred, not blocking: the static /assets/icons/favicon.svg covers the page until
    this runs, and covers it entirely when JS is off. */
 
 /** Number of frames in one full revolution. */

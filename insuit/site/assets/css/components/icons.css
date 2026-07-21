@@ -21,11 +21,11 @@
 }
 
 .icon-github {
-  -webkit-mask-image: url("/icons/github.svg");
-  mask-image: url("/icons/github.svg");
+  -webkit-mask-image: url("/assets/icons/github.svg");
+  mask-image: url("/assets/icons/github.svg");
 }
 
 .icon-theme {
-  -webkit-mask-image: url("/icons/theme.svg");
-  mask-image: url("/icons/theme.svg");
+  -webkit-mask-image: url("/assets/icons/theme.svg");
+  mask-image: url("/assets/icons/theme.svg");
 }

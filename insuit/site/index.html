@@ -7,7 +7,7 @@
     <title>Michal Landsman</title>
     <meta
       name="description"
-      content="Michal Landsman — developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
     />
 
     <meta property="og:type" content="website" />
@@ -15,34 +15,34 @@
     <meta property="og:title" content="Michal Landsman" />
     <meta
       property="og:description"
-      content="Michal Landsman — developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
     />
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Michal Landsman" />
     <meta
       name="twitter:description"
-      content="Michal Landsman — developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
     />
 
     <!-- favicon.js swaps this href to animate; it stays the static disc
          without JS. -->
-    <link rel="icon" type="image/svg+xml" href="/favicon/mark.svg" />
-    <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
 
     <link
       rel="preload"
-      href="/fonts/fira-mono-latin-400-normal.woff2"
+      href="/assets/fonts/fira-mono-latin-400-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/assets/style.css" />
 
     <!-- Blocking, not deferred: a stored override has to land on <html> before
          first paint, or the page flashes the OS theme first. -->
-    <script src="/theme.js"></script>
-    <script src="/favicon.js" defer></script>
+    <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/favicon.js" defer></script>
   </head>
   <body>
     <main class="wrapper">
@@ -82,7 +82,16 @@
         <a href="https://x.com/Landsman" title="x.com/Landsman" target="_blank" rel="noopener">X</a>
       </nav>
 
-      <button id="theme-toggle" class="theme-toggle" type="button" hidden>
+      <!-- Static title/label so they exist before theme.js refines them to
+           name the specific theme a click would switch to. -->
+      <button
+        id="theme-toggle"
+        class="theme-toggle"
+        type="button"
+        title="Switch theme"
+        aria-label="Switch theme"
+        hidden
+      >
         <span class="icon-theme" aria-hidden="true"></span>
       </button>
     </footer>

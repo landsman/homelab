@@ -5,15 +5,18 @@ Hosted on Cloudflare Pages.
 
 ```
 site/                 the page — this directory IS the deploy artifact
-  style.css           entry point, @imports only
-  css/                tokens, fonts, reset, page, typography
-  css/components/     links, icons
-  fonts/ icons/       self-hosted Fira Mono (SIL OFL), masked brand glyphs
-infra/                Terraform: Pages project, custom domains, DNS, www→apex redirect
+  index.html          the only page; everything else is under assets/
+  assets/style.css    stylesheet entry point, @imports only
+  assets/css/         tokens, fonts, reset, page, typography
+  assets/css/components/  links, icons, theme toggle
+  assets/js/          theme override, animated favicon (plain JS + JSDoc)
+  assets/fonts/       self-hosted Fira Mono (SIL OFL)
+  assets/icons/       masked glyphs + favicon
+infra/                Terraform: Pages project, custom domains, DNS, apex→www redirect
 ```
 
-Every colour, size, spacing and duration lives in `css/tokens.css` — the other
-files only reference custom properties.
+Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
+other files only reference custom properties.
 
 ## Local
 

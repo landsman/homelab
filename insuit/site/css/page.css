@@ -31,7 +31,11 @@ body {
   margin: auto;
 }
 
-.links {
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
   width: var(--wrapper-width);
   max-width: 100%;
   margin-inline: auto;

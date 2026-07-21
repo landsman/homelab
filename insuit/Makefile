@@ -1,4 +1,4 @@
-.PHONY: install dev format qa
+.PHONY: install dev format lint qa
 
 install:
 	npm install --no-audit --no-fund
@@ -10,5 +10,10 @@ dev:
 format:
 	npm run format:fix
 
-qa: ## Run all quality checks (format)
+# oxlint with eslint-plugin-jsdoc, enforcing JSDoc on function declarations.
+lint:
+	npm run lint
+
+qa: ## Run all quality checks (format, lint)
 	npm run format
+	npm run lint

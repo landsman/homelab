@@ -11,7 +11,7 @@
     />
 
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://insuit.cz/" />
+    <meta property="og:url" content="https://www.insuit.cz/" />
     <meta property="og:title" content="Michal Landsman" />
     <meta
       property="og:description"
@@ -33,6 +33,10 @@
       crossorigin
     />
     <link rel="stylesheet" href="/style.css" />
+
+    <!-- Blocking, not deferred: a stored override has to land on <html> before
+         first paint, or the page flashes the OS theme first. -->
+    <script src="/theme.js"></script>
   </head>
   <body>
     <main class="wrapper">
@@ -48,16 +52,28 @@
 
     <footer>
       <nav class="links">
-        <a href="https://github.com/landsman" target="_blank" rel="noopener"
+        <a
+          href="https://github.com/landsman"
+          title="github.com/landsman"
+          target="_blank"
+          rel="noopener"
           ><span class="icon-github" aria-hidden="true"></span>GitHub</a
         >
         <span class="separator" aria-hidden="true">·</span>
-        <a href="https://www.linkedin.com/in/landsmanmichal" target="_blank" rel="noopener"
+        <a
+          href="https://www.linkedin.com/in/landsmanmichal"
+          title="linkedin.com/in/landsmanmichal"
+          target="_blank"
+          rel="noopener"
           >LinkedIn</a
         >
         <span class="separator" aria-hidden="true">·</span>
-        <a href="https://x.com/Landsman" target="_blank" rel="noopener">X</a>
+        <a href="https://x.com/Landsman" title="x.com/Landsman" target="_blank" rel="noopener">X</a>
       </nav>
+
+      <button id="theme-toggle" class="theme-toggle" type="button" hidden>
+        <span class="icon-theme" aria-hidden="true"></span>
+      </button>
     </footer>
   </body>
 </html>

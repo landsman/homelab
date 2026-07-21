@@ -4,9 +4,12 @@
   "type": "module",
   "scripts": {
     "format": "oxfmt --check .",
-    "format:fix": "oxfmt ."
+    "format:fix": "oxfmt .",
+    "lint": "oxlint"
   },
   "devDependencies": {
-    "oxfmt": "^0.59.0"
+    "eslint-plugin-jsdoc": "^63.2.0",
+    "oxfmt": "^0.59.0",
+    "oxlint": "^1.74.0"
   }
 }

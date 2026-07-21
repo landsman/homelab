@@ -1,11 +1,13 @@
-/* Brand glyphs as cacheable files, masked so they inherit the text colour and
-   flip with the dark-mode theme.
+/* Brand and UI glyphs as cacheable files, masked so they inherit the text
+   colour and flip with the theme.
 
    The -webkit- longhands cover Safari < 15.4. Without them the mask is ignored
    and `background: currentcolor` paints a solid square — worth four lines to
-   avoid. */
+   avoid. Explicit selector list rather than [class^="icon-"], which would miss
+   an element that happened to carry another class first. */
 
-.icon-github {
+.icon-github,
+.icon-theme {
   flex: none;
   width: var(--icon-size);
   height: var(--icon-size);
@@ -16,6 +18,14 @@
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+}
+
+.icon-github {
   -webkit-mask-image: url("/icons/github.svg");
   mask-image: url("/icons/github.svg");
+}
+
+.icon-theme {
+  -webkit-mask-image: url("/icons/theme.svg");
+  mask-image: url("/icons/theme.svg");
 }

@@ -63,24 +63,24 @@ resource "cloudflare_dns_record" "www" {
   ttl     = 1
 }
 
-# Apex is primary here (mirror of the pollos.cz rule, direction flipped).
-resource "cloudflare_ruleset" "redirect_www_to_apex" {
+# www is primary, matching the og:url in the page head and the pollos.cz setup.
+resource "cloudflare_ruleset" "redirect_apex_to_www" {
   zone_id = var.cloudflare_zone_id
-  name    = "Redirect www to apex"
+  name    = "Redirect apex to www"
   kind    = "zone"
   phase   = "http_request_dynamic_redirect"
 
   rules = [{
     action      = "redirect"
-    expression  = "(http.host eq \"www.insuit.cz\")"
-    description = "301 www.insuit.cz -> insuit.cz"
+    expression  = "(http.host eq \"insuit.cz\")"
+    description = "301 insuit.cz -> www.insuit.cz"
     enabled     = true
     action_parameters = {
       from_value = {
         status_code           = 301
         preserve_query_string = true
         target_url = {
-          expression = "concat(\"https://insuit.cz\", http.request.uri.path)"
+          expression = "concat(\"https://www.insuit.cz\", http.request.uri.path)"
         }
       }
     }

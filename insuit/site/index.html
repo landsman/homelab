@@ -25,10 +25,9 @@
       content="Michal Landsman — developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
     />
 
-    <!-- PNG only, no .ico — every browser that matters reads these, and .ico
-         exists for IE. -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16.png" />
+    <!-- favicon.js swaps this href to animate; it stays the static disc
+         without JS. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon/mark.svg" />
     <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" />
 
     <link
@@ -43,6 +42,7 @@
     <!-- Blocking, not deferred: a stored override has to land on <html> before
          first paint, or the page flashes the OS theme first. -->
     <script src="/theme.js"></script>
+    <script src="/favicon.js" defer></script>
   </head>
   <body>
     <main class="wrapper">

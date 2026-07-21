@@ -1,4 +1,4 @@
-.PHONY: install dev format format-check ci
+.PHONY: install dev format qa
 
 install:
 	npm install --no-audit --no-fund
@@ -10,8 +10,5 @@ dev:
 format:
 	npm run format:fix
 
-# Check formatting without writing — use in CI.
-format-check:
+qa: ## Run all quality checks (format)
 	npm run format
-
-ci: format-check

@@ -30,8 +30,8 @@ jobs:
       - name: "Install JS deps"
         run: make install
 
-      - name: "Format check (oxfmt)"
-        run: make format-check
+      - name: "Quality checks (oxfmt)"
+        run: make qa
 
   infra:
     runs-on: ubuntu-latest

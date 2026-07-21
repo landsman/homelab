@@ -4,9 +4,16 @@ Personal one-page site. Plain `index.html` + `style.css` — no build step, no J
 Hosted on Cloudflare Pages.
 
 ```
-site/     the page — this directory IS the deploy artifact
-infra/    Terraform: Pages project, custom domains, DNS, www→apex redirect
+site/                 the page — this directory IS the deploy artifact
+  style.css           entry point, @imports only
+  css/                tokens, fonts, reset, page, typography
+  css/components/     links, icons
+  fonts/ icons/       self-hosted Fira Mono (SIL OFL), masked brand glyphs
+infra/                Terraform: Pages project, custom domains, DNS, www→apex redirect
 ```
+
+Every colour, size, spacing and duration lives in `css/tokens.css` — the other
+files only reference custom properties.
 
 ## Local
 

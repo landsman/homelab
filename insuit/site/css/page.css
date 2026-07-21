@@ -1,0 +1,28 @@
+/* Page chrome — centered single column. */
+
+body {
+  display: flex;
+  /* Paired declarations, not duplicates: browsers without `safe` / `svh` drop
+     the second line and keep the first. `safe center` stops a viewport shorter
+     than the text (landscape phone) clipping the top out of scroll reach. */
+  align-items: center;
+  align-items: safe center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: var(--page-padding);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.wrapper {
+  width: var(--wrapper-width);
+  max-width: 100%;
+  margin-bottom: var(--wrapper-offset);
+}

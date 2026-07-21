@@ -1,0 +1,45 @@
+/* Design tokens — every value the other files reference lives here. */
+
+:root {
+  /* Type */
+  --font-mono: "Fira Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-size-base: clamp(16px, 4.2vw, 18px);
+  --font-size-h1: clamp(20px, 5.5vw, 24px);
+  --line-height-base: 1.7;
+  --line-height-h1: 1.3;
+
+  /* Color */
+  --color-fg: #2f3337;
+  --color-bg: #ffffff;
+
+  /* Layout */
+  --wrapper-width: 800px;
+  --page-padding: clamp(20px, 6vw, 35px);
+  /* Optical centering — lifts the block above the true middle, but collapses
+     to 0 on a short viewport so nothing drifts off-screen. */
+  --wrapper-offset: clamp(0px, 14vh, 130px);
+
+  /* Spacing */
+  --space: 20px;
+  --space-content-top: clamp(24px, 5vh, 35px);
+  --space-content-bottom: clamp(28px, 6vh, 40px);
+  --links-gap-row: var(--space);
+  --links-gap-column: 35px;
+
+  /* Components */
+  --icon-size: 1.25em;
+  --icon-gap: 10px;
+  --underline-height: 2px;
+
+  /* Motion */
+  --speed: 200ms;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fg: #e6e8ea;
+    --color-bg: #16181a;
+  }
+}

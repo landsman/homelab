@@ -1,0 +1,16 @@
+/* Brand glyphs as cacheable files, masked so they inherit the text colour and
+   flip with the dark-mode theme. */
+
+[class^="icon-"] {
+  flex: none;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background: currentcolor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+}
+
+.icon-github {
+  mask-image: url("/icons/github.svg");
+}

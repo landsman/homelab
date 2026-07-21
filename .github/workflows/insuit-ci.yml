@@ -30,7 +30,7 @@ jobs:
       - name: "Install JS deps"
         run: make install
 
-      - name: "Quality checks (oxfmt)"
+      - name: "Quality checks (oxfmt + oxlint)"
         run: make qa
 
   infra:

@@ -1,7 +1,12 @@
-.PHONY: install dev format lint qa
+.PHONY: install bucket dev format lint qa
 
 install:
 	npm install --no-audit --no-fund
+
+# One-time: create the R2 bucket holding Terraform state. Needs `wrangler login`
+# first. npx rather than a devDependency — this runs once, ever.
+bucket:
+	npx wrangler r2 bucket create insuit-cz-tf-state
 
 # Serve site/ locally — stdlib http.server, nothing to install.
 dev:

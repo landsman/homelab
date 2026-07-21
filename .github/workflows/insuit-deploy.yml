@@ -20,13 +20,13 @@ jobs:
       TF_VAR_cloudflare_api_token: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
       TF_VAR_cloudflare_account_id: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
       TF_VAR_cloudflare_zone_id: ${{ vars.INSUIT_CZ_CF_ZONE_ID }}
-      # State lives in the shared pollos R2 bucket under key insuit-cz.tfstate.
-      AWS_ACCESS_KEY_ID: ${{ secrets.POLLOS_CZ_R2_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.POLLOS_CZ_R2_SECRET_ACCESS_KEY }}
+      # State lives in insuit's own R2 bucket, with a token scoped to it.
+      AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
-      - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
+      - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
       - run: terraform apply -auto-approve
 
   content:

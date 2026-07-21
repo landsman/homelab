@@ -30,21 +30,31 @@ make qa        # check formatting without writing — what CI runs
 ## Bootstrap (once)
 
 1. `insuit.cz` must be a zone in the Cloudflare account (nameservers pointed at CF).
-2. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit`, `Zone · DNS · Edit` (zone `insuit.cz`).
+2. Create the R2 bucket that holds Terraform state:
 
-GitHub repo **secret**:
+   ```bash
+   make bucket
+   ```
 
-- `INSUIT_CZ_CF_API_TOKEN`
+3. Create an API token — My Profile → API Tokens — scopes:
+   `Account · Cloudflare Pages · Edit`. Terraform no longer manages DNS here
+   (see the cutover section), so no zone scope is needed.
+4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
+   only** — R2 → Manage API tokens.
+
+GitHub repo **secrets**:
+
+- `INSUIT_CZ_CF_API_TOKEN` — Cloudflare API token
+- `INSUIT_CZ_R2_ACCESS_KEY_ID` — R2 token, scoped to this bucket
+- `INSUIT_CZ_R2_SECRET_ACCESS_KEY` — R2 token secret
 
 GitHub repo **variables**:
 
 - `INSUIT_CZ_CF_ACCOUNT_ID` — Cloudflare account ID (same account as pollos)
 - `INSUIT_CZ_CF_ZONE_ID` — `insuit.cz` zone ID
 
-Terraform state shares the existing `pollos-cz-tf-state` R2 bucket under key
-`insuit-cz.tfstate`, so the deploy reuses `POLLOS_CZ_R2_ACCESS_KEY_ID` /
-`POLLOS_CZ_R2_SECRET_ACCESS_KEY`. No extra bucket to create.
+State lives in its own bucket with its own token rather than sharing pollos's,
+so neither project's credentials reach the other's state.
 
 ## CI/CD
 

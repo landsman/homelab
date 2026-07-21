@@ -7,10 +7,10 @@ terraform {
     }
   }
 
-  # Shares the pollos R2 state bucket under a separate key — same Cloudflare
-  # account, same CI; a second bucket would only add another bootstrap step.
+  # Own R2 bucket and own R2 token, so insuit's state and credentials aren't
+  # entangled with pollos's. See the README for the one-time create.
   backend "s3" {
-    bucket                      = "pollos-cz-tf-state"
+    bucket                      = "insuit-cz-tf-state"
     key                         = "insuit-cz.tfstate"
     region                      = "auto"
     use_lockfile                = true

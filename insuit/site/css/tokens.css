@@ -3,8 +3,8 @@
 :root {
   /* Type */
   --font-mono: "Fira Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-size-base: clamp(16px, 4.2vw, 18px);
-  --font-size-h1: clamp(20px, 5.5vw, 24px);
+  --font-size-base: clamp(1rem, 4.2vw, 1.125rem);
+  --font-size-h1: clamp(1.25rem, 5.5vw, 1.5rem);
   --line-height-base: 1.7;
   --line-height-h1: 1.3;
 

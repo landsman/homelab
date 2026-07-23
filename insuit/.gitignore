@@ -3,3 +3,7 @@
 
 # Node deps (prettier).
 node_modules/
+
+# OG font symlink — recreated by `make install`, points at the site's 400
+# weight so the file isn't committed twice.
+og/fira-mono-latin-400-normal.woff2

@@ -6,26 +6,35 @@ Source for the social-share image (`og:image` / `twitter:image`), shown when
 ```
 og.html                          the card — edit this
 photo.jpg                        portrait (grayscale is applied in CSS)
-fira-mono-latin-400-normal.woff2 body weight
-fira-mono-latin-700-normal.woff2 name weight (not shipped with the site,
-                                 which only uses 400)
+fira-mono-latin-700-normal.woff2 name weight (used only here; the site ships
+                                 only the 400 weight)
+fira-mono-latin-400-normal.woff2 SYMLINK → ../site/assets/fonts/... (gitignored,
+                                 created by `make install`, so the 400 weight
+                                 isn't committed twice)
 ```
 
 ## Regenerate
 
-From `insuit/`:
+CI does this automatically: **`.github/workflows/insuit-og.yml`** re-renders the
+card and commits the PNG whenever a PR changes anything under `og/`. You don't
+have to run it by hand.
+
+To preview locally (from `insuit/`):
 
 ```bash
-make og
+make install   # once — creates the font symlink
+make og        # renders og/og.html → ../site/assets/icons/og-image.png
 ```
 
-Renders `og.html` at 1200×630 via headless Chrome into
-`../site/assets/icons/og-image.png` — the only file that ships. Chrome loads
-`og.html` directly (`file://`), so no dev server is needed. Override the browser
-path with `make og CHROME=/path/to/chrome` if it isn't at the macOS default.
+`make og` renders at 1200×630 with headless **Chromium in Docker** — no local
+browser, and the same image on any machine or in CI (that's why it's
+provider-independent rather than tied to a local Chrome or to Cloudflare). It
+mounts the whole `insuit/` dir so the font symlink resolves, and loads `og.html`
+over `file://`, so no dev server is needed. Override the image with
+`make og OG_RENDER_IMAGE=…`.
 
-The `og.html` is self-contained (relative font/photo paths), so you can also
-just open it in a browser at 1200×630 and screenshot.
+`og.html` is self-contained (relative paths), so you can also just open it in a
+browser at 1200×630 and screenshot.
 
 ## Notes
 

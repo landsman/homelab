@@ -1,18 +1,26 @@
 .PHONY: install bucket dev og format lint qa
 
+# npm deps + the OG font symlink. The 400 weight already ships in site/; rather
+# than duplicate the file, og/ links to it (the 700 weight lives only in og/,
+# so it's a real file there). Symlink is gitignored — this recreates it.
 install:
 	npm install --no-audit --no-fund
+	ln -sf ../site/assets/fonts/fira-mono-latin-400-normal.woff2 \
+	  og/fira-mono-latin-400-normal.woff2
 
-# Render the Open Graph card from og/og.html to the shipped PNG, via headless
-# Chrome (macOS path). Edit og/og.html, run this, commit the PNG. Self-contained
-# — no dev server needed; Chrome loads the file directly.
-CHROME ?= /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+# Render the Open Graph card (og/og.html) to the shipped PNG, via headless
+# Chromium in Docker — provider-independent and reproducible, no local browser.
+# CI regenerates this on any og/ change (see .github/workflows/insuit-og.yml);
+# run it locally to preview. Mounts the whole dir so the font symlink resolves.
+OG_RENDER_IMAGE ?= zenika/alpine-chrome@sha256:beefd07cbbee1dfd5d6c3b31274db46a1d9ea1611025f4de01f1f6cbcfcc8af2
 og:
-	"$(CHROME)" --headless --disable-gpu --hide-scrollbars \
+	docker run --rm \
+	  -v "$(CURDIR)":/work:ro -v "$(CURDIR)/site/assets/icons":/out \
+	  $(OG_RENDER_IMAGE) \
+	  --no-sandbox --headless --disable-gpu --hide-scrollbars \
 	  --force-device-scale-factor=1 --window-size=1200,630 \
 	  --default-background-color=00000000 --virtual-time-budget=5000 \
-	  --screenshot="$(CURDIR)/site/assets/icons/og-image.png" \
-	  "file://$(CURDIR)/og/og.html"
+	  --screenshot=/out/og-image.png "file:///work/og/og.html"
 	@echo "wrote site/assets/icons/og-image.png"
 
 # One-time: create the R2 bucket holding Terraform state. Needs `wrangler login`

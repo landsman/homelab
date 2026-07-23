@@ -1,0 +1,25 @@
+/* Theme override button. Stays hidden until the script unhides it — without
+   JS it wouldn't do anything, and the OS preference already applies. */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+  margin: -6px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity var(--speed);
+}
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle {
+    transition: none;
+  }
+}

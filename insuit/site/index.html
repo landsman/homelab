@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Michal Landsman</title>
+    <meta
+      name="description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.insuit.cz/" />
+    <meta property="og:title" content="Michal Landsman" />
+    <meta
+      property="og:description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Michal Landsman" />
+    <meta
+      name="twitter:description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+
+    <!-- favicon.js swaps this href to animate; it stays the static disc
+         without JS. -->
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
+
+    <link
+      rel="preload"
+      href="/assets/fonts/fira-mono-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+
+    <!-- Blocking, not deferred: a stored override has to land on <html> before
+         first paint, or the page flashes the OS theme first. -->
+    <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/favicon.js" defer></script>
+  </head>
+  <body>
+    <main class="wrapper">
+      <h1>Hello there!</h1>
+
+      <div class="content">
+        <p>I'm Michal, a developer in Prague.</p>
+        <p>
+          Infrastructure, backends, and the client apps on top of them. Some of it as CTO, all of it
+          hands-on.
+        </p>
+        <p>
+          Design taken as seriously as the deploy — down to the wording. Rebuildable from zero, or
+          it isn't done.
+        </p>
+      </div>
+    </main>
+
+    <footer>
+      <nav class="links">
+        <a
+          href="https://github.com/landsman"
+          title="github.com/landsman"
+          target="_blank"
+          rel="noopener"
+          ><span class="icon-github" aria-hidden="true"></span>GitHub</a
+        >
+        <span class="separator" aria-hidden="true">·</span>
+        <a
+          href="https://www.linkedin.com/in/landsmanmichal"
+          title="linkedin.com/in/landsmanmichal"
+          target="_blank"
+          rel="noopener"
+          >LinkedIn</a
+        >
+        <span class="separator" aria-hidden="true">·</span>
+        <a href="https://x.com/Landsman" title="x.com/Landsman" target="_blank" rel="noopener">X</a>
+      </nav>
+
+      <!-- Static title/label so they exist before theme.js refines them to
+           name the specific theme a click would switch to. -->
+      <button
+        id="theme-toggle"
+        class="theme-toggle"
+        type="button"
+        title="Switch theme"
+        aria-label="Switch theme"
+        hidden
+      >
+        <span class="icon-theme" aria-hidden="true"></span>
+      </button>
+    </footer>
+  </body>
+</html>

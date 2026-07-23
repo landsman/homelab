@@ -1,0 +1,12 @@
+/* Minimal reset. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Stop iOS Safari inflating text after a rotate. */
+  -webkit-text-size-adjust: 100%;
+}

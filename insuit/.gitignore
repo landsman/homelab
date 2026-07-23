@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Node deps (prettier).
+node_modules/

@@ -1,0 +1,22 @@
+/* Headings and body copy. */
+
+h1 {
+  margin: 0;
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: normal;
+}
+
+.content {
+  margin: var(--space-content-top) 0 var(--space-content-bottom);
+}
+.content p {
+  margin: var(--space) 0;
+  text-wrap: pretty;
+}
+.content > :first-child {
+  margin-top: 0;
+}
+.content > :last-child {
+  margin-bottom: 0;
+}

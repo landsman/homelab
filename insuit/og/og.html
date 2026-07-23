@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>og</title>
+    <!--
+      Source for the Open Graph / Twitter card image.
+      Self-contained: fonts and photo are referenced relatively, so it renders
+      the same via file://, http, or `make og`. Edit here, then `make og` from
+      insuit/ to re-render insuit/site/assets/icons/og-image.png.
+    -->
+    <style>
+      @font-face {
+        font-family: "Fira Mono";
+        font-style: normal;
+        font-weight: 400;
+        src: url("./fira-mono-latin-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Fira Mono";
+        font-style: normal;
+        font-weight: 700;
+        src: url("./fira-mono-latin-700-normal.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #16181a;
+        color: #e6e8ea;
+        font-family: "Fira Mono", monospace;
+      }
+
+      /* Grayscale portrait, faint, in a panel on the right. */
+      .photo {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 560px;
+        background: url("./photo.jpg") center 20% / cover no-repeat;
+        filter: grayscale(100%) brightness(0.82) contrast(1.03);
+        opacity: 0.55;
+      }
+      /* Dark veil: opaque behind the text on the left, clearing toward the
+         right so the portrait shows through. */
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          #16181a 0%,
+          #16181a 34%,
+          rgba(22, 24, 26, 0.82) 58%,
+          rgba(22, 24, 26, 0.4) 100%
+        );
+      }
+
+      /* Hairline inset frame — quiet editorial polish. */
+      .frame {
+        position: absolute;
+        inset: 44px;
+        border: 1px solid #2a2f36;
+      }
+
+      .content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 184px 110px 96px;
+      }
+
+      h1 {
+        font-size: 68px;
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -1px;
+      }
+      .rule {
+        width: 64px;
+        height: 2px;
+        margin: 36px 0;
+        background: #3a4048;
+      }
+      p {
+        max-width: 680px;
+        font-size: 27px;
+        line-height: 1.55;
+        color: #7c828b;
+      }
+      .lead {
+        display: block;
+        margin-bottom: 6px;
+        color: #cfd3d8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="photo"></div>
+      <div class="veil"></div>
+      <div class="frame"></div>
+      <div class="content">
+        <h1>Michal Landsman</h1>
+        <div class="rule"></div>
+        <p>
+          <span class="lead">Developer in Prague.</span> Design taken as seriously as the deploy.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

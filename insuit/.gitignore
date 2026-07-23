@@ -1,5 +1,13 @@
 # macOS
 .DS_Store
 
-# Node deps (prettier).
+# Node deps.
 node_modules/
+
+# OG fonts — symlinks into @fontsource (node_modules), recreated by
+# `make install`; no font is committed for the card.
+og/*.woff2
+
+# OG card — rendered by `make og`, regenerated in CI and handed to the deploy
+# as an artifact, never committed.
+site/assets/icons/og-image.png

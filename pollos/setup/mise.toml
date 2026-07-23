@@ -1,0 +1,10 @@
+# Tool versions for pollos boxes, managed by mise — https://mise.jdx.dev
+#
+# Installed verbatim to /etc/mise/config.toml by setup/001-init.sh — the
+# system-wide config every user on the box inherits. This is the single source
+# of truth for pinned tool versions: bump them here (by hand, or let renovate
+# open the PR) and re-run `mise install` on the box.
+
+[tools]
+# https://github.com/rclone/rclone/releases
+rclone = "1.69.1"

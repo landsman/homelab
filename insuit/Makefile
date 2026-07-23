@@ -1,27 +1,24 @@
 .PHONY: install bucket dev og format lint qa
 
-# npm deps + the OG font symlink. The 400 weight already ships in site/; rather
-# than duplicate the file, og/ links to it (the 700 weight lives only in og/,
-# so it's a real file there). Symlink is gitignored — this recreates it.
+# npm deps, the OG fonts, and the render browser. Fira Mono comes from the
+# @fontsource npm package rather than being committed under og/ — the two
+# weights are symlinked in (gitignored), so no font is stored in the repo for
+# the OG card. Playwright's chromium is what `make og` renders with.
 install:
 	npm install --no-audit --no-fund
-	ln -sf ../site/assets/fonts/fira-mono-latin-400-normal.woff2 \
+	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-400-normal.woff2 \
 	  og/fira-mono-latin-400-normal.woff2
+	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-700-normal.woff2 \
+	  og/fira-mono-latin-700-normal.woff2
+	npx playwright install chromium
 
-# Render the Open Graph card (og/og.html) to the shipped PNG, via headless
-# Chromium in Docker — provider-independent and reproducible, no local browser.
-# CI regenerates this on any og/ change (see .github/workflows/insuit-og.yml);
-# run it locally to preview. Mounts the whole dir so the font symlink resolves.
-OG_RENDER_IMAGE ?= zenika/alpine-chrome@sha256:beefd07cbbee1dfd5d6c3b31274db46a1d9ea1611025f4de01f1f6cbcfcc8af2
+# Render the Open Graph card (og/og.html) to a PNG with Playwright's headless
+# Chromium — maintained (Microsoft), provider-independent, runs locally and in
+# CI. Not committed: CI regenerates it and hands it to the deploy as an
+# artifact (see .github/workflows/insuit-deploy.yml). Run this to preview.
 og:
-	docker run --rm \
-	  --user "$(shell id -u):$(shell id -g)" -e HOME=/tmp \
-	  -v "$(CURDIR)":/work:ro -v "$(CURDIR)/site/assets/icons":/out \
-	  $(OG_RENDER_IMAGE) \
-	  --no-sandbox --headless --disable-gpu --hide-scrollbars \
-	  --force-device-scale-factor=1 --window-size=1200,630 \
-	  --default-background-color=00000000 --virtual-time-budget=5000 \
-	  --screenshot=/out/og-image.png "file:///work/og/og.html"
+	npx playwright screenshot --viewport-size="1200,630" --wait-for-timeout=1500 \
+	  "file://$(CURDIR)/og/og.html" site/assets/icons/og-image.png
 	@echo "wrote site/assets/icons/og-image.png"
 
 # One-time: create the R2 bucket holding Terraform state. Needs `wrangler login`

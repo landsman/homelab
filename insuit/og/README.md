@@ -4,41 +4,34 @@ Source for the social-share image (`og:image` / `twitter:image`), shown when
 `insuit.cz` is linked on X, LinkedIn, Slack, etc.
 
 ```
-og.html                          the card — edit this
-photo.jpg                        portrait (grayscale is applied in CSS)
-fira-mono-latin-700-normal.woff2 name weight (used only here; the site ships
-                                 only the 400 weight)
-fira-mono-latin-400-normal.woff2 SYMLINK → ../site/assets/fonts/... (gitignored,
-                                 created by `make install`, so the 400 weight
-                                 isn't committed twice)
+og.html      the card — edit this
+photo.jpg    portrait (grayscale is applied in CSS)
+*.woff2      SYMLINKS into @fontsource/fira-mono (node_modules), created by
+             `make install` — gitignored, so no font is committed for the card
 ```
 
-## Regenerate
+The rendered PNG is **not committed**. CI regenerates it and hands it to the
+deploy as an artifact (see `.github/workflows/insuit-deploy.yml`), so it's never
+stored in git and never goes stale.
 
-CI does this automatically: **`.github/workflows/insuit-og.yml`** re-renders the
-card and commits the PNG whenever a PR changes anything under `og/`. You don't
-have to run it by hand.
+## Preview / regenerate locally
 
-To preview locally (from `insuit/`):
+From `insuit/`:
 
 ```bash
-make install   # once — creates the font symlink
-make og        # renders og/og.html → ../site/assets/icons/og-image.png
+make install   # deps, font symlinks, chromium
+make og        # renders og/og.html → site/assets/icons/og-image.png (gitignored)
 ```
 
-`make og` renders at 1200×630 with headless **Chromium in Docker** — no local
-browser, and the same image on any machine or in CI (that's why it's
-provider-independent rather than tied to a local Chrome or to Cloudflare). It
-mounts the whole `insuit/` dir so the font symlink resolves, and loads `og.html`
-over `file://`, so no dev server is needed. Override the image with
-`make og OG_RENDER_IMAGE=…`.
-
-`og.html` is self-contained (relative paths), so you can also just open it in a
-browser at 1200×630 and screenshot.
+`make og` uses **Playwright's headless Chromium** — maintained (Microsoft),
+provider-independent, and the same engine locally and in CI (no third-party
+Docker image to rot, nothing tied to Cloudflare). `og.html` is self-contained
+(relative paths), so you can also just open it in a browser at 1200×630 and
+screenshot.
 
 ## Notes
 
-- Fira Mono is licensed under the SIL OFL — see
-  [`../site/assets/fonts/fira-mono-LICENSE.txt`](../site/assets/fonts/fira-mono-LICENSE.txt).
+- Fira Mono (SIL OFL) comes from the `@fontsource/fira-mono` dev dependency; the
+  site ships its own committed 400 weight, so nothing is duplicated in git.
 - Card size is 1200×630 (1.91:1), the size `og:image:width/height` declare in
   `site/index.html`. Keep them in sync if you change the canvas.

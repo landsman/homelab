@@ -13,7 +13,12 @@ resource "tailscale_acl" "this" {
 
   acl = jsonencode({
     tagOwners = {
-      "tag:pollos" = ["autogroup:admin"]
+      # tag:terraform is the OAuth client's own identity (provider in main.tf).
+      # It must own tag:pollos so the provider can mint the tag:pollos enrollment
+      # key below. The boxes carry tag:pollos but are NOT owners, so a box can't
+      # mint new tag:pollos keys — only the Terraform automation can.
+      "tag:terraform" = ["autogroup:admin"]
+      "tag:pollos"    = ["autogroup:admin", "tag:terraform"]
     }
 
     acls = [

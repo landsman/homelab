@@ -42,9 +42,10 @@ provider "betteruptime" {
 }
 
 # OAuth client (not a personal API key): scoped, least-privilege creds that
-# don't carry the API key's 90-day personal-token expiry. The client needs the
-# `auth_keys` and `acl` write scopes and must own tag:pollos so it can mint the
-# tagged enrollment key in tailscale.tf.
+# don't carry the API key's 90-day personal-token expiry. Create it with the
+# "Policy File" (write) + "Auth Keys" (write) scopes and assign it tag:terraform
+# — tailscale.tf makes tag:terraform an owner of tag:pollos so this client can
+# mint the tagged enrollment key.
 provider "tailscale" {
   oauth_client_id     = var.tailscale_oauth_client_id
   oauth_client_secret = var.tailscale_oauth_client_secret

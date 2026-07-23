@@ -6,7 +6,6 @@
    avoid. Explicit selector list rather than [class^="icon-"], which would miss
    an element that happened to carry another class first. */
 
-.icon-github,
 .icon-theme {
   flex: none;
   width: var(--icon-size);
@@ -18,11 +17,6 @@
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-}
-
-.icon-github {
-  -webkit-mask-image: url("/assets/icons/github.svg");
-  mask-image: url("/assets/icons/github.svg");
 }
 
 .icon-theme {

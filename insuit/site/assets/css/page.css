@@ -52,7 +52,14 @@ footer {
     gap: calc(var(--space) * 2);
   }
 
+  /* Stack the links vertically — a wrapping row of four reads as ragged
+     fragments; the middots only make sense inline, so drop them. */
   .links {
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .links .separator {
+    display: none;
   }
 }

@@ -51,7 +51,6 @@ GitHub repo **secrets**:
 GitHub repo **variables**:
 
 - `INSUIT_CZ_CF_ACCOUNT_ID` — Cloudflare account ID (same account as pollos)
-- `INSUIT_CZ_CF_ZONE_ID` — `insuit.cz` zone ID
 
 State lives in its own bucket with its own token rather than sharing pollos's,
 so neither project's credentials reach the other's state.

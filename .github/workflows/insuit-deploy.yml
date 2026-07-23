@@ -19,7 +19,6 @@ jobs:
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
       TF_VAR_cloudflare_account_id: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-      TF_VAR_cloudflare_zone_id: ${{ vars.INSUIT_CZ_CF_ZONE_ID }}
       # State lives in insuit's own R2 bucket, with a token scoped to it.
       AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}

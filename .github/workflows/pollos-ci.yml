@@ -39,6 +39,9 @@ jobs:
       - name: "Build static site"
         run: make build
 
+      - name: "Run generator tests"
+        run: make test
+
       - name: "List build artifacts"
         run: find public -type f | sort
 

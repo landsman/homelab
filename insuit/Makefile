@@ -1,22 +1,23 @@
 .PHONY: install bucket dev og format lint qa
 
-# npm deps, the OG fonts, and the render browser. Fira Mono comes from the
-# @fontsource npm package rather than being committed under og/ — the two
-# weights are symlinked in (gitignored), so no font is stored in the repo for
-# the OG card. Playwright's chromium is what `make og` renders with.
+# npm deps + the OG fonts. Fira Mono comes from the @fontsource npm package
+# rather than being committed under og/ — the two weights are symlinked in
+# (gitignored), so no font is stored in the repo for the card. The render
+# browser is pulled by `make og`, not here, so this stays fast for CI's
+# format/lint job.
 install:
 	npm install --no-audit --no-fund
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-400-normal.woff2 \
 	  og/fira-mono-latin-400-normal.woff2
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-700-normal.woff2 \
 	  og/fira-mono-latin-700-normal.woff2
-	npx playwright install chromium
 
 # Render the Open Graph card (og/og.html) to a PNG with Playwright's headless
 # Chromium — maintained (Microsoft), provider-independent, runs locally and in
 # CI. Not committed: CI regenerates it and hands it to the deploy as an
 # artifact (see .github/workflows/insuit-deploy.yml). Run this to preview.
 og:
+	npx playwright install chromium
 	npx playwright screenshot --viewport-size="1200,630" --wait-for-timeout=1500 \
 	  "file://$(CURDIR)/og/og.html" site/assets/icons/og-image.png
 	@echo "wrote site/assets/icons/og-image.png"

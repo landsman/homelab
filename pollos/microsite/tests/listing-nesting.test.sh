@@ -101,6 +101,19 @@ for f in app.conf data.json orphan.yaml notes.md settings.ini; do
     assert_hx_boost "$f"
 done
 
+# Regression: a setup dir with only a script (no config files) must still
+# build. Guards the `${arr[@]}` empty-array expansion under `set -u`, which
+# aborts with "unbound variable" on bash 3.2 (macOS default) once other_files/
+# raw_paths are empty. $ONLY lives under $FIX so the EXIT trap cleans it.
+ONLY="$FIX/script-only"
+mkdir -p "$ONLY"
+cp "$FIX/100-fixture.sh" "$ONLY/100-fixture.sh"
+if (cd "$ROOT" && SETUP_SRC="$ONLY" make build >/dev/null 2>&1); then
+    pass "script-only setup dir builds (empty other_files/raw_paths)"
+else
+    fail "script-only setup dir aborted (empty-array expansion under set -u)"
+fi
+
 echo
 echo "  $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

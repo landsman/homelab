@@ -90,7 +90,7 @@ child_li() {
 # (exact whole line) — robust against filenames with spaces or glob chars, and
 # portable to bash 3.2 (macOS default) since `declare -A` needs bash 4+.
 consumed=""
-for f in "${sh_files[@]}"; do
+for f in ${sh_files[@]+"${sh_files[@]}"}; do
   # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
   alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
   # hx-boost="false" → htmx-boosted body must not intercept these; browser
@@ -114,7 +114,7 @@ for f in "${sh_files[@]}"; do
   #     config.toml could match unintended paths.
   #   - `consumed` makes the FIRST script (sorted) that references a config win,
   #     so a config used by several scripts nests under the lowest-numbered one.
-  for o in "${other_files[@]}"; do
+  for o in ${other_files[@]+"${other_files[@]}"}; do
     printf '%s\n' "${consumed}" | grep -Fxq -- "${o}" && continue
     if grep -qF -- "${o}" "${SETUP_SRC}/${f}"; then
       child_li "${o}" "${f}"
@@ -124,7 +124,7 @@ for f in "${sh_files[@]}"; do
 done
 
 # Config files not referenced by any script — list them standalone at the end.
-for o in "${other_files[@]}"; do
+for o in ${other_files[@]+"${other_files[@]}"}; do
   printf '%s\n' "${consumed}" | grep -Fxq -- "${o}" && continue
   setup_items+="<li><a href=\"${o}\" hx-boost=\"false\">${o}</a></li>"$'\n'
   raw_paths+=("/setup/${o}")
@@ -137,14 +137,14 @@ fi
 # _headers — CF Pages matches by incoming URL, so each alias (and each raw
 # non-.sh setup file) needs its own rule in addition to the /setup/*.sh
 # catch-all from src/_headers.
-header_paths=("${raw_paths[@]}")
-for a in "${aliases[@]}"; do
+header_paths=(${raw_paths[@]+"${raw_paths[@]}"})
+for a in ${aliases[@]+"${aliases[@]}"}; do
   header_paths+=("/${a}")
 done
 {
   echo ""
   echo "# Auto-generated raw-file header rules"
-  for p in "${header_paths[@]}"; do
+  for p in ${header_paths[@]+"${header_paths[@]}"}; do
     echo "${p}"
     echo "  Content-Type: text/plain; charset=utf-8"
     echo "  X-Content-Type-Options: nosniff"

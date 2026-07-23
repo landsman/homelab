@@ -41,7 +41,7 @@ The Docker image is a two-stage build: `node:20-alpine` compiles the app, `nginx
 ```bash
 make qa      # typecheck + format check + lint
 make format  # auto-format all files with Prettier
-make lint    # ESLint only
+make lint    # oxlint only
 ```
 
 ## Adding a service

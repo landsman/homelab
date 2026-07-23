@@ -8,6 +8,8 @@ on:
   pull_request:
     paths:
       - 'insuit/og/**'
+      - 'insuit/Makefile'
+      - '.github/workflows/insuit-og.yml'
 
 jobs:
   render:

@@ -15,6 +15,7 @@ install:
 OG_RENDER_IMAGE ?= zenika/alpine-chrome@sha256:beefd07cbbee1dfd5d6c3b31274db46a1d9ea1611025f4de01f1f6cbcfcc8af2
 og:
 	docker run --rm \
+	  --user "$(shell id -u):$(shell id -g)" -e HOME=/tmp \
 	  -v "$(CURDIR)":/work:ro -v "$(CURDIR)/site/assets/icons":/out \
 	  $(OG_RENDER_IMAGE) \
 	  --no-sandbox --headless --disable-gpu --hide-scrollbars \

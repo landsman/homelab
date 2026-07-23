@@ -40,3 +40,11 @@ footer {
   max-width: 100%;
   margin-inline: auto;
 }
+
+/* Narrow viewport: the links and the toggle stop sharing a line and stack. */
+@media (width <= 480px) {
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

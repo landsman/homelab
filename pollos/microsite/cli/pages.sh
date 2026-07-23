@@ -64,38 +64,88 @@ render_page \
 # -----------------------------------------------------------------------------
 # /setup/  — directory listing (Cloudflare Pages has no native autoindex)
 # -----------------------------------------------------------------------------
-SETUP_SRC="src/setup"
+# Overridable so tests can point the listing generator at a fixture dir.
+SETUP_SRC="${SETUP_SRC:-src/setup}"
 
 setup_items=""
 aliases=()
+raw_paths=()
+
+# Split scripts from non-script config files (e.g. mise.toml) so we can nest
+# each config under the script that consumes it.
+sh_files=()
+other_files=()
 while IFS= read -r f; do
-  if [[ "${f}" == *.sh ]]; then
-    # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
-    alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
-    # hx-boost="false" → htmx-boosted body must not intercept these; browser
-    # navigates to raw text/plain script (otherwise htmx tries to swap script
-    # source into the page).
-    setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a><a class=\"alias\" href=\"/${alias}\" hx-boost=\"false\">/${alias}</a></li>"$'\n'
-    # Copy the script to public/<alias> so the short URL serves it directly
-    # (no redirect, no `_redirects` file needed). -L follows symlinks.
-    cp -L "${SETUP_SRC}/${f}" "public/${alias}"
-    aliases+=("${alias}")
-  else
-    setup_items+="<li><a href=\"${f}\">${f}</a></li>"$'\n'
-  fi
+  if [[ "${f}" == *.sh ]]; then sh_files+=("${f}"); else other_files+=("${f}"); fi
 done < <(cd "${SETUP_SRC}" && find -L . -maxdepth 1 -type f ! -name "index.html" | sed 's|^\./||' | sort)
+
+# `child_li <file> <parent-script>` — a config file rendered as an indented
+# child of the script that fetches it. Served raw like the scripts.
+child_li() {
+  setup_items+="<li class=\"child\"><span class=\"branch\" aria-hidden=\"true\">└─</span><a href=\"${1}\" hx-boost=\"false\">${1}</a><span class=\"note\">fetched by ${2}</span></li>"$'\n'
+  raw_paths+=("/setup/${1}")
+}
+
+# Track consumed configs as a newline-delimited set, matched with `grep -Fxq`
+# (exact whole line) — robust against filenames with spaces or glob chars, and
+# portable to bash 3.2 (macOS default) since `declare -A` needs bash 4+.
+consumed=""
+for f in ${sh_files[@]+"${sh_files[@]}"}; do
+  # Strip leading "NNN-" → alias; keep ".sh" so `wget URL` saves with extension.
+  alias="$(echo "${f}" | sed -E 's/^[0-9]+-//')"
+  # hx-boost="false" → htmx-boosted body must not intercept these; browser
+  # navigates to raw text/plain script (otherwise htmx tries to swap script
+  # source into the page).
+  setup_items+="<li><a href=\"${f}\" hx-boost=\"false\">${f}</a><a class=\"alias\" href=\"/${alias}\" hx-boost=\"false\">/${alias}</a></li>"$'\n'
+  # Copy the script to public/<alias> so the short URL serves it directly
+  # (no redirect, no `_redirects` file needed). -L follows symlinks.
+  cp -L "${SETUP_SRC}/${f}" "public/${alias}"
+  aliases+=("${alias}")
+  # Nest config files under the script that uses them. THIS is where the
+  # parent↔child relationship is defined: there is no hardcoded map — we grep
+  # each script for the config's filename, so the single source of truth is the
+  # reference inside the script itself (001-init.sh does
+  # `curl .../mise.toml` → mise.toml nests under it). Add a config + reference it
+  # from a script and it auto-nests; reference nothing and it falls through to
+  # the standalone list below.
+  #
+  # Caveats (harmless for today's distinctly-named, single-reference files):
+  #   - grep -F is a plain substring match, not whole-word — a generic name like
+  #     config.toml could match unintended paths.
+  #   - `consumed` makes the FIRST script (sorted) that references a config win,
+  #     so a config used by several scripts nests under the lowest-numbered one.
+  for o in ${other_files[@]+"${other_files[@]}"}; do
+    printf '%s\n' "${consumed}" | grep -Fxq -- "${o}" && continue
+    if grep -qF -- "${o}" "${SETUP_SRC}/${f}"; then
+      child_li "${o}" "${f}"
+      consumed="${consumed}${o}"$'\n'
+    fi
+  done
+done
+
+# Config files not referenced by any script — list them standalone at the end.
+for o in ${other_files[@]+"${other_files[@]}"}; do
+  printf '%s\n' "${consumed}" | grep -Fxq -- "${o}" && continue
+  setup_items+="<li><a href=\"${o}\" hx-boost=\"false\">${o}</a></li>"$'\n'
+  raw_paths+=("/setup/${o}")
+done
 
 if [[ -z "${setup_items}" ]]; then
   setup_items="<li><em>(empty)</em></li>"
 fi
 
-# _headers — CF Pages matches by incoming URL, so each alias needs its own
-# header rule in addition to the /setup/*.sh catch-all from src/_headers.
+# _headers — CF Pages matches by incoming URL, so each alias (and each raw
+# non-.sh setup file) needs its own rule in addition to the /setup/*.sh
+# catch-all from src/_headers.
+header_paths=(${raw_paths[@]+"${raw_paths[@]}"})
+for a in ${aliases[@]+"${aliases[@]}"}; do
+  header_paths+=("/${a}")
+done
 {
   echo ""
-  echo "# Auto-generated per-alias header rules"
-  for a in "${aliases[@]}"; do
-    echo "/${a}"
+  echo "# Auto-generated raw-file header rules"
+  for p in ${header_paths[@]+"${header_paths[@]}"}; do
+    echo "${p}"
     echo "  Content-Type: text/plain; charset=utf-8"
     echo "  X-Content-Type-Options: nosniff"
     echo "  Content-Disposition: inline"

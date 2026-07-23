@@ -32,7 +32,11 @@ set -eu
 #   rsync            sync files form host <> remote
 #   unzip            open compressed archives
 #   tmux             terminal multiplexer
-#   rclone           sync/mount cloud storage (S3, B2, GDrive, etc.) for easier sending data to remote buckets
+#
+# Tools installed outside apt (further down):
+#   mise             version manager — https://mise.jdx.dev
+#   rclone           sync/mount cloud storage (S3, B2, GDrive, etc.); pinned via
+#                    mise instead of apt, whose build lags upstream badly
 
 apt-get update -y
 apt-get install -y \
@@ -56,8 +60,7 @@ apt-get install -y \
   make \
   rsync \
   unzip \
-  tmux \
-  rclone
+  tmux
 
 systemctl enable --now ssh
 systemctl enable --now chrony
@@ -86,3 +89,58 @@ if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
 # <<< hstr config <<<
 EOF
 fi
+
+# mise (https://mise.jdx.dev): single-binary version manager. We use it instead
+# of apt for tools where Debian ships a stale build (rclone, etc.) — pin the
+# exact version in /etc/mise/config.toml and stay in control of upgrades.
+#
+# Shared, world-readable tool store under /opt/mise (the default would be
+# /root/.local/share/mise, which only root could use); shims go on every login
+# shell's PATH via /etc/profile.d so all users get `rclone` without running
+# `mise activate`.
+export MISE_DATA_DIR=/opt/mise
+
+# binary, system-wide. MISE_INSTALL_PATH overrides the installer default of
+# $HOME/.local/bin so every user gets it. Download to a temp file first rather
+# than piping into sh — `curl | sh` masks a failed download (POSIX sh has no
+# pipefail), so a network hiccup would slip through and only surface later as a
+# confusing "mise: command not found".
+mise_installer=$(mktemp)
+trap 'rm -f "${mise_installer}"' EXIT
+curl -fsSL https://mise.run -o "${mise_installer}"
+MISE_INSTALL_PATH=/usr/local/bin/mise sh "${mise_installer}"
+rm -f "${mise_installer}"
+trap - EXIT
+
+# system-wide tool pins — a real, lintable, renovate-bumpable TOML file in the
+# repo at setup/mise.toml instead of an opaque heredoc. Prefer a copy sitting
+# next to this script (running from a repo clone) so pin changes can be tested
+# without deploying; otherwise fetch from the microsite (the same place this
+# script came from), with MISE_TOML_SOURCE to point at a staging copy. mise
+# trusts /etc/mise/config.toml automatically; force world-readable perms so the
+# shims can read it under a restrictive root umask.
+mkdir -p /etc/mise
+chmod 0755 /etc/mise
+if [ -f "$0" ] && [ -f "$(dirname "$0")/mise.toml" ]; then
+  cp "$(dirname "$0")/mise.toml" /etc/mise/config.toml
+else
+  curl -fsSL "${MISE_TOML_SOURCE:-https://pollos.cz/setup/mise.toml}" -o /etc/mise/config.toml
+fi
+chmod 0644 /etc/mise/config.toml
+
+# Put mise's shims on PATH for every login shell. Non-interactive contexts
+# (systemd units, cron, Ansible — which runs modules through `/bin/sh -c`, i.e.
+# dash) read neither profile.d nor *.bashrc, so they must call tools by their
+# absolute shim path instead, e.g. /opt/mise/shims/rclone.
+cat > /etc/profile.d/mise.sh <<'EOF'
+export MISE_DATA_DIR=/opt/mise
+export PATH="$MISE_DATA_DIR/shims:$PATH"
+EOF
+chmod 0644 /etc/profile.d/mise.sh
+
+# download everything pinned above into the shared store and (re)generate shims.
+# Use the absolute path — /usr/local/bin may not be on root's PATH in a minimal
+# or non-interactive shell.
+/usr/local/bin/mise install
+/usr/local/bin/mise reshim
+chmod -R a+rX /opt/mise

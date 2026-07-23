@@ -41,9 +41,14 @@ provider "betteruptime" {
   api_token = var.betteruptime_api_token
 }
 
+# OAuth client (not a personal API key): scoped, least-privilege creds that
+# don't carry the API key's 90-day personal-token expiry. The client needs the
+# `auth_keys` and `acl` write scopes and must own tag:pollos so it can mint the
+# tagged enrollment key in tailscale.tf.
 provider "tailscale" {
-  api_key = var.tailscale_api_key
-  tailnet = var.tailscale_tailnet
+  oauth_client_id     = var.tailscale_oauth_client_id
+  oauth_client_secret = var.tailscale_oauth_client_secret
+  tailnet             = var.tailscale_tailnet
 }
 
 # Generic REST client for BetterStack endpoints the provider doesn't model —

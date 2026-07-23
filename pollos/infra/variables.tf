@@ -16,13 +16,18 @@ variable "betteruptime_api_token" {
   sensitive = true
 }
 
-variable "tailscale_api_key" {
+variable "tailscale_oauth_client_id" {
   type      = string
   sensitive = true
 }
 
-# Tailnet identifier the API key belongs to, e.g. the org/email or "-" for the
-# key's default tailnet.
+variable "tailscale_oauth_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+# Tailnet identifier the OAuth client belongs to, e.g. the org/email or "-" for
+# the client's default tailnet.
 variable "tailscale_tailnet" {
   type    = string
   default = "-"

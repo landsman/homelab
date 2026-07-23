@@ -15,6 +15,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      og: ${{ steps.filter.outputs.og }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            og:
+              - 'insuit/og/**'
+              - 'insuit/Makefile'
+
   site:
     runs-on: ubuntu-latest
     defaults:
@@ -43,3 +57,31 @@ jobs:
       - uses: hashicorp/setup-terraform@v4
       - name: "Format check + validate"
         run: make ci
+
+  # Render the OG card when its source changes, so a broken card is caught
+  # before merge. Uploads the PNG as an artifact you can download from the PR
+  # to eyeball it. The deploy renders its own copy — this only validates.
+  og:
+    needs: changes
+    if: needs.changes.outputs.og == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: insuit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: "Install (deps, font symlinks)"
+        run: make install
+      - name: "Chromium + system deps"
+        run: npx playwright install --with-deps chromium
+      - name: "Render OG card"
+        run: make og
+      - name: "Upload preview"
+        uses: actions/upload-artifact@v4
+        with:
+          name: og-preview
+          path: insuit/site/assets/icons/og-image.png
+          retention-days: 7

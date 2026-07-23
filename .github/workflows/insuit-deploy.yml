@@ -28,13 +28,42 @@ jobs:
       - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
       - run: terraform apply -auto-approve
 
+  # Render the OG card and hand it to the deploy as an artifact — it isn't
+  # committed. Regenerated each deploy (a static file that isn't in git can't be
+  # gated on change, since the deploy always needs it).
+  og:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: insuit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: "Install (deps, font symlinks, chromium)"
+        run: make install
+      - name: "Chromium system deps"
+        run: npx playwright install --with-deps chromium
+      - name: "Render OG card"
+        run: make og
+      - uses: actions/upload-artifact@v4
+        with:
+          name: og-image
+          path: insuit/site/assets/icons/og-image.png
+          retention-days: 1
+
   content:
-    needs: infra
+    needs: [infra, og]
     runs-on: ubuntu-latest
     environment: production
     steps:
       - uses: actions/checkout@v7
-      # No build step — insuit/site ships as-is.
+      - name: "Pull in the rendered OG card"
+        uses: actions/download-artifact@v4
+        with:
+          name: og-image
+          path: insuit/site/assets/icons
       - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}

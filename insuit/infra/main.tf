@@ -28,7 +28,8 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages project and nothing else.
+# Deliberately narrow: this manages the Pages project, plus the zone identity
+# DNS records in dns.tf (Google Workspace MX + verification TXT).
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages

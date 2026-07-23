@@ -32,10 +32,10 @@ build: ## Build static assets into dist/
 typecheck: ## Run TypeScript type checker
 	npm run typecheck
 
-lint: ## Run ESLint (includes filename-case check)
+lint: ## Run oxlint (includes filename-case check)
 	npm run lint
 
-lint-fix: ## Auto-fix ESLint issues
+lint-fix: ## Auto-fix oxlint issues
 	npm run lint:fix
 
 shellcheck: ## Run ShellCheck on docker/ and tests/deploy/ shell scripts

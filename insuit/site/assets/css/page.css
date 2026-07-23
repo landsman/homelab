@@ -1,0 +1,42 @@
+/* Page chrome — centered column with the links pinned to the bottom. */
+
+body {
+  display: flex;
+  flex-direction: column;
+  /* Paired declaration: browsers without `svh` drop the second and keep the first. */
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: var(--page-padding);
+  /* Extra breathing room under the links once the viewport is tall enough to
+     spare it — max() means a short landscape phone keeps the plain padding. */
+  padding-bottom: max(var(--page-padding), var(--footer-breathing-room));
+  font-family: var(--font-mono);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* `margin: auto` does the centering rather than justify-content, because auto
+   margins collapse to 0 when the content overflows — so a viewport shorter
+   than the text scrolls from the top instead of clipping it out of reach.
+   It also absorbs all the free space, which is what drops the footer to the
+   bottom edge. */
+.wrapper {
+  width: var(--wrapper-width);
+  max-width: 100%;
+  margin: auto;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
+  width: var(--wrapper-width);
+  max-width: 100%;
+  margin-inline: auto;
+}

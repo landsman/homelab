@@ -1,0 +1,13 @@
+/* insuit.cz stylesheet entry. Native CSS @import — order matters. */
+
+/* Foundations. */
+@import url("./css/tokens.css");
+@import url("./css/fonts.css");
+@import url("./css/reset.css");
+@import url("./css/page.css");
+@import url("./css/typography.css");
+
+/* Components. */
+@import url("./css/components/links.css");
+@import url("./css/components/icons.css");
+@import url("./css/components/theme-toggle.css");

@@ -1,0 +1,10 @@
+/* Self-hosted so there's no third-party request; latin subset only, 16 KB.
+   SIL OFL — see fonts/fira-mono-LICENSE.txt. */
+
+@font-face {
+  font-family: "Fira Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/fira-mono-latin-400-normal.woff2") format("woff2");
+}

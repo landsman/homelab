@@ -1,0 +1,59 @@
+/* Link row + the wipe underline. */
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--links-gap-row) var(--links-gap-column);
+}
+.links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--icon-gap);
+}
+
+/* A real element rather than a::before, which would land inside the anchor —
+   clickable, and swept by the underline. */
+.links .separator {
+  color: var(--color-separator);
+  user-select: none;
+}
+
+a {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Underline wipes in from the left on hover, out to the right on leave. */
+a::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: var(--underline-height);
+  background: currentcolor;
+  transform: scaleX(0);
+  transform-origin: right top;
+  transition: transform var(--speed);
+}
+a:hover::after,
+a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left top;
+}
+
+/* Touch devices never fire :hover — show the underline so links still read
+   as links. */
+@media (hover: none) {
+  a::after {
+    transform: scaleX(1);
+    transform-origin: left top;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a::after {
+    transition: none;
+  }
+}

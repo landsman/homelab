@@ -1,0 +1,42 @@
+name: Deploy insuit.cz
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'insuit/**'
+      - '.github/workflows/insuit-deploy.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+jobs:
+  infra:
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: insuit/infra
+    env:
+      TF_VAR_cloudflare_api_token: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+      TF_VAR_cloudflare_account_id: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+      # State lives in insuit's own R2 bucket, with a token scoped to it.
+      AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
+      - run: terraform apply -auto-approve
+
+  content:
+    needs: infra
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+      # No build step — insuit/site ships as-is.
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy insuit/site --project-name=insuit-cz --branch=main

@@ -121,7 +121,7 @@ trap - EXIT
 # shims can read it under a restrictive root umask.
 mkdir -p /etc/mise
 chmod 0755 /etc/mise
-if [ -f "$(dirname "$0")/mise.toml" ]; then
+if [ -f "$0" ] && [ -f "$(dirname "$0")/mise.toml" ]; then
   cp "$(dirname "$0")/mise.toml" /etc/mise/config.toml
 else
   curl -fsSL "${MISE_TOML_SOURCE:-https://pollos.cz/setup/mise.toml}" -o /etc/mise/config.toml

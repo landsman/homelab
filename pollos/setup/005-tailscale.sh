@@ -103,7 +103,8 @@ fi
 # --auth-key=file:, so the secret never lands in argv where `ps`/`/proc` would
 # expose it to other local users. removed on any exit.
 if [ -n "${TS_AUTHKEY:-}" ]; then
-  keyfile="$(mktemp)"
+  # umask 077 so the file is 0600 even where mktemp's default is laxer.
+  keyfile="$(umask 077 && mktemp)"
   # cover signal interrupts too — this file holds the auth key, so guarantee
   # it's wiped even on Ctrl-C / SIGTERM during `tailscale up`.
   trap 'rm -f "$keyfile"' EXIT

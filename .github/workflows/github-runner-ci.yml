@@ -20,3 +20,18 @@ jobs:
 
       - name: "try to build docker image"
         run: make build
+
+  # The scan lives in landsman/config and is called, not copied — one place to
+  # change the scanner, the image or a default pack for every repo of mine.
+  # Its own job so a finding reads as a finding rather than as a broken build.
+  #
+  # p/secrets only, deliberately. github-runner-test.yml already runs Trivy over
+  # this same Dockerfile for misconfiguration and over its base image for CVEs,
+  # and semgrep's p/dockerfile is seven rules covering the ground Trivy already
+  # holds. What semgrep adds here that Trivy does not is a credential committed
+  # into the Dockerfile or the compose file beside it.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets
+      path: github-runner

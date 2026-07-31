@@ -40,3 +40,21 @@ jobs:
 
       - name: "Build"
         run: make build
+
+  # The scan lives in landsman/config and is called, not copied — one place to
+  # change the scanner, the image or a default pack for every repo of mine.
+  # Its own job so a finding reads as a finding rather than as a broken build.
+  #
+  # missing-user is excluded, and it is a real finding rather than a wrong rule:
+  # docker/Dockerfile ends on nginx:alpine with no USER, so the container runs as
+  # root. Fixing it properly is nginxinc/nginx-unprivileged, which serves on 8080
+  # instead of 80 and so is a change to whatever runs the image, not to this file
+  # — more than adding a scanner should quietly drag in. Carried deliberately so
+  # the other 117 rules can start reporting today; drop the exclude with that
+  # switch.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets p/typescript p/dockerfile
+      path: dashboard
+      exclude-rules: dockerfile.security.missing-user.missing-user

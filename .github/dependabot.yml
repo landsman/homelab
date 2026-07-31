@@ -1,8 +1,13 @@
 version: 2
 
-# cooldown: wait 72h (3 days) after a release before opening version-update PRs,
-# so a compromised/broken fresh release has time to be pulled. Version updates
-# only — security updates ignore cooldown.
+# cooldown: wait 7 days after a release before opening version-update PRs, so a
+# compromised or broken fresh release has time to be pulled first. Version
+# updates only — security updates ignore cooldown, which is what keeps this from
+# being a week of sitting on a known CVE.
+#
+# Seven rather than the three it was, and the same number my other repos use: a
+# supply-chain compromise is usually caught in days, not hours, so three was
+# short enough to open the PR while the bad version was still up.
 
 updates:
   ## ci
@@ -12,7 +17,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ## dashboard
   - package-ecosystem: npm
@@ -21,7 +26,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: docker
     directory: /dashboard/docker
@@ -29,7 +34,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ## ip service
   - package-ecosystem: npm
@@ -38,7 +43,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: docker
     directory: /ip-service/docker
@@ -46,7 +51,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ## compose services
   - package-ecosystem: docker-compose
@@ -55,7 +60,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: docker-compose
     directory: /readeck
@@ -63,7 +68,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: docker-compose
     directory: /database
@@ -71,7 +76,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
@@ -79,7 +84,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ## dockerfile services
   - package-ecosystem: docker
@@ -88,7 +93,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
@@ -104,7 +109,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7
 
   - package-ecosystem: terraform
     directory: /pollos/infra
@@ -112,4 +117,4 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     cooldown:
-      default-days: 3
+      default-days: 7

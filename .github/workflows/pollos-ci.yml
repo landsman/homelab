@@ -73,3 +73,12 @@ jobs:
 
       - name: "Typecheck + format check"
         run: make ci
+
+  # The scan lives in landsman/config and is called, not copied — one place to
+  # change the scanner, the image or a default pack for every repo of mine.
+  # Its own job so a finding reads as a finding rather than as a broken build.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets p/typescript p/terraform
+      path: pollos

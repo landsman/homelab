@@ -60,7 +60,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: "Pull in the rendered OG card"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: og-image
           path: insuit/site/assets/icons

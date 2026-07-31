@@ -89,3 +89,27 @@ updates:
     open-pull-requests-limit: 5
     cooldown:
       default-days: 3
+
+  ## terraform
+  # One entry per root module, because that is the unit dependabot resolves: it
+  # reads the required_providers of the directory it is pointed at and nothing
+  # below it. Both pin with `~>`, so a PR shows up when the constraint stops
+  # covering the newest release — cloudflare 5.x here, 6.0 when it lands.
+  #
+  # Providers only. `required_version = ">= 1.15"`, the terraform binary itself,
+  # is not something this ecosystem touches; that stays a hand edit.
+  - package-ecosystem: terraform
+    directory: /insuit/infra
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: terraform
+    directory: /pollos/infra
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3

@@ -13,7 +13,7 @@ site/                 the pages — this directory IS the deploy artifact
   assets/js/          theme override, animated favicon (plain JS + JSDoc)
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
-infra/                Terraform: Pages project + zone identity DNS (MX, TXT)
+infra/                Terraform: Pages project, zone identity DNS, cache rule
 ```
 
 Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
@@ -51,8 +51,9 @@ make qa        # check formatting without writing — what CI runs
    ```
 
 3. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit` and `Zone · DNS · Edit` on `insuit.cz`
-   (Terraform owns the MX and verification TXT records, see below).
+   `Account · Cloudflare Pages · Edit`, plus `Zone · DNS · Edit` and
+   `Zone · Cache Rules · Edit` on `insuit.cz` (Terraform owns the MX and
+   verification TXT records and one cache rule, both below).
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
 
@@ -112,6 +113,26 @@ terraform plan   # must be clean before letting CI apply
 No SPF or DMARC record exists on the zone today. Worth adding
 (`v=spf1 include:_spf.google.com ~all` + a `_dmarc` TXT) — not done here because
 mail policy changes shouldn't ride along with a backup commit.
+
+## Browser cache
+
+A deploy used to render half-applied for anyone who had visited in the last
+four hours: new HTML, stale CSS. The cause was the zone's Browser Cache TTL
+default of 4 hours, which Cloudflare applies whenever the origin asks for less.
+Pages asks for `max-age=0, must-revalidate`; the browser was told 14400.
+
+`infra/cache.tf` sets Browser TTL to **respect origin** for `www.insuit.cz`, so
+browsers revalidate and pick up a deploy on the next load. Check it after a
+change to the rule:
+
+```bash
+curl -sI https://www.insuit.cz/assets/css/page.css | grep -i cache-control
+# want: max-age=0, must-revalidate  (not 14400)
+```
+
+Purging the cache is not the fix and never was — a purge clears Cloudflare's
+edge, and the stale copy lives in the visitor's browser. The edge was already
+behaving: HTML is `DYNAMIC` (never cached) and assets come back `REVALIDATED`.
 
 ## DNS cutover (manual, deliberate)
 

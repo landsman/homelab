@@ -11,3 +11,6 @@ og/*.woff2
 # OG card — rendered by `make og`, regenerated in CI and handed to the deploy
 # as an artifact, never committed.
 site/assets/icons/og-image.png
+
+# `make dev` scratch state from wrangler's asset server.
+.wrangler/

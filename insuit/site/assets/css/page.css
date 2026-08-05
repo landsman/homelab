@@ -40,26 +40,3 @@ footer {
   max-width: 100%;
   margin-inline: auto;
 }
-
-/* Narrow viewport: the links and the toggle stop sharing a line and stack,
-   centered — left-aligned they read as two stray fragments. */
-@media (width <= 480px) {
-  footer {
-    flex-direction: column;
-    align-items: center;
-    /* Wider than the row gap so the toggle reads as its own thing rather than
-       a fourth link. */
-    gap: calc(var(--space) * 2);
-  }
-
-  /* Stack the links vertically — a wrapping row of four reads as ragged
-     fragments; the middots only make sense inline, so drop them. */
-  .links {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .links .separator {
-    display: none;
-  }
-}

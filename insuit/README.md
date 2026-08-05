@@ -1,11 +1,12 @@
 # insuit.cz
 
-Personal one-page site. Plain `index.html` + `style.css` — no build step, no JS.
-Hosted on Cloudflare Pages.
+Personal site — a home page and a contact page. Plain HTML + `style.css`, no
+build step. Hosted on Cloudflare Pages.
 
 ```
-site/                 the page — this directory IS the deploy artifact
-  index.html          the only page; everything else is under assets/
+site/                 the pages — this directory IS the deploy artifact
+  index.html          home; everything else is under assets/
+  contact.html        where to find me — served at `/contact`, see URLs below
   assets/style.css    stylesheet entry point, @imports only
   assets/css/         tokens, fonts, reset, page, typography
   assets/css/components/  links, icons, theme toggle
@@ -18,9 +19,22 @@ infra/                Terraform: the Pages project only — see DNS cutover belo
 Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
 other files only reference custom properties.
 
+## URLs
+
+There is no trailing slash and no `.html`, and that isn't configuration — on
+Pages the file layout decides it. A flat `contact.html` is canonical at
+`/contact`; both `/contact/` and `/contact.html` 308 to it. Naming the file
+`contact/index.html` inverts the whole thing: `/contact/` becomes canonical and
+the bare `/contact` redirects to it. So link to `/contact`, and keep new pages
+flat.
+
+That is also why `make dev` runs Cloudflare's own asset server instead of a
+plain static one — a dumb file server 404s on every URL the site links to.
+
 ## Local
 
 ```bash
+make           # list the targets
 make install   # oxfmt
 make dev       # http://localhost:4321
 make format    # oxfmt (the Vite+ formatter — handles HTML and CSS)

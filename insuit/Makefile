@@ -34,9 +34,12 @@ og: ## Render the Open Graph card to site/assets/icons/
 bucket: ## Create the R2 bucket for Terraform state (once, ever)
 	npx wrangler r2 bucket create insuit-cz-tf-state
 
-# Serve site/ locally — stdlib http.server, nothing to install.
-dev: ## Serve site/ on http://localhost:4321
-	cd site && python3 -m http.server 4321
+# Cloudflare's own asset server rather than a plain static one: it is what
+# resolves /contact to contact.html and redirects the .html and trailing-slash
+# forms to it. A dumb file server would 404 on the URLs the site actually links
+# to. npx — first run fetches wrangler, then it's cached.
+dev: ## Serve site/ on http://localhost:4321, the way Pages serves it
+	npx wrangler pages dev site --port 4321
 
 format: ## Format everything with oxfmt
 	npm run format:fix

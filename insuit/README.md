@@ -19,6 +19,18 @@ infra/                Terraform: the Pages project only — see DNS cutover belo
 Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
 other files only reference custom properties.
 
+## URLs
+
+There is no trailing slash and no `.html`, and that isn't configuration — on
+Pages the file layout decides it. A flat `contact.html` is canonical at
+`/contact`; both `/contact/` and `/contact.html` 308 to it. Naming the file
+`contact/index.html` inverts the whole thing: `/contact/` becomes canonical and
+the bare `/contact` redirects to it. So link to `/contact`, and keep new pages
+flat.
+
+That is also why `make dev` runs Cloudflare's own asset server instead of a
+plain static one — a dumb file server 404s on every URL the site links to.
+
 ## Local
 
 ```bash

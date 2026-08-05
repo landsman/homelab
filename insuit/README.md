@@ -1,11 +1,12 @@
 # insuit.cz
 
-Personal one-page site. Plain `index.html` + `style.css` — no build step, no JS.
-Hosted on Cloudflare Pages.
+Personal site — a home page and a contact page. Plain HTML + `style.css`, no
+build step. Hosted on Cloudflare Pages.
 
 ```
-site/                 the page — this directory IS the deploy artifact
-  index.html          the only page; everything else is under assets/
+site/                 the pages — this directory IS the deploy artifact
+  index.html          home; everything else is under assets/
+  contact.html        where to find me — served at `/contact`, see URLs below
   assets/style.css    stylesheet entry point, @imports only
   assets/css/         tokens, fonts, reset, page, typography
   assets/css/components/  links, icons, theme toggle

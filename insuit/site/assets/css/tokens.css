@@ -11,10 +11,8 @@
   /* Palettes — each colour written once; the blocks below only pick one. */
   --light-fg: #2f3337;
   --light-bg: #ffffff;
-  --light-separator: #c2c7cd;
   --dark-fg: #e6e8ea;
   --dark-bg: #16181a;
-  --dark-separator: #4a5058;
 
   /* Layout */
   --wrapper-width: 800px;
@@ -49,7 +47,6 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
-  --color-separator: var(--light-separator);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,7 +54,6 @@
     color-scheme: dark;
     --color-fg: var(--dark-fg);
     --color-bg: var(--dark-bg);
-    --color-separator: var(--dark-separator);
   }
 }
 
@@ -65,12 +61,10 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
-  --color-separator: var(--light-separator);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);
-  --color-separator: var(--dark-separator);
 }

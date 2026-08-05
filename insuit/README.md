@@ -21,6 +21,7 @@ other files only reference custom properties.
 ## Local
 
 ```bash
+make           # list the targets
 make install   # oxfmt
 make dev       # http://localhost:4321
 make format    # oxfmt (the Vite+ formatter — handles HTML and CSS)

@@ -11,8 +11,8 @@
   /* Palettes — each colour written once; the blocks below only pick one. */
   --light-fg: #2f3337;
   --light-bg: #ffffff;
-  --dark-fg: #e6e8ea;
-  --dark-bg: #16181a;
+  --dark-fg: #d7dce1;
+  --dark-bg: #1c2024;
 
   /* Layout */
   --wrapper-width: 800px;

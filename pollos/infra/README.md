@@ -94,8 +94,14 @@ Then `make authkey` and `make tunnel-tokens` do the rest. Both print a secret on
 stdout and nothing else, so they compose:
 
 ```sh
-TS_AUTHKEY=$(make -s authkey)
+TS_AUTHKEY=$(make -s authkey)     # or: make -s authkey | pbcopy
 ```
+
+**Don't copy these out of the terminal by eye.** Terraform prints raw output
+without a trailing newline, so zsh marks the line end with an inverse `%` —
+select the key and you select the `%` with it, and Tailscale rejects it as
+`invalid key: unable to validate API key`, which reads like a broken key rather
+than a copy-paste artifact. Command substitution and `pbcopy` both avoid it.
 
 This is a `-backend-config` file rather than `.tfvars` on purpose: Terraform
 resolves the backend **before** variables exist, so a `backend` block can't

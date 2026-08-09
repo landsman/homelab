@@ -26,9 +26,12 @@ ci: fmt-check validate
 init-remote:
 	@terraform init -reconfigure -backend-config=backend.hcl >&2
 
-# Tailscale enrollment key for setup/005-tailscale.sh. Prints a secret — pipe it
-# somewhere rather than leaving it in scrollback:
-#   TS_AUTHKEY=$(make -s authkey)
+# Tailscale enrollment key for setup/005-tailscale.sh. Never copy this one out
+# of the terminal by eye: it is printed without a trailing newline, so zsh marks
+# the end of the line with an inverse `%` that gets selected along with the key
+# and makes it invalid. Capture it instead:
+#   TS_AUTHKEY=$(make -s authkey)     # command substitution, always exact
+#   make -s authkey | pbcopy          # straight to the clipboard
 authkey: init-remote
 	@terraform output -raw tailscale_authkey
 

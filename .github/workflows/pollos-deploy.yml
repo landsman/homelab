@@ -35,28 +35,11 @@ jobs:
               - 'pollos/microsite-ws/**'
               - '.github/workflows/pollos-deploy.yml'
 
-  worker:
-    needs: changes
-    if: needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v7
-      - uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
-          accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
-          workingDirectory: pollos/microsite-ws
-          command: deploy
-
   infra:
-    needs: [changes, worker]
-    # Runs when infra OR the worker changed. The worker job deploys the Worker
-    # script first so cloudflare_workers_custom_domain has a service to bind to.
-    if: |
-      always() &&
-      (needs.worker.result == 'success' || needs.worker.result == 'skipped') &&
-      (needs.changes.outputs.infra == 'true' || needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch')
+    needs: changes
+    # Runs when infra OR the worker changed — the worker's custom domain lives
+    # in Terraform.
+    if: needs.changes.outputs.infra == 'true' || needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: production
     defaults:
@@ -79,7 +62,7 @@ jobs:
     needs: [changes, infra]
     if: |
       always() &&
-      (needs.infra.result == 'success' || needs.infra.result == 'skipped') &&
+      needs.infra.result != 'failure' && needs.infra.result != 'cancelled' &&
       (needs.changes.outputs.content == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     environment: production
@@ -93,3 +76,24 @@ jobs:
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
           command: pages deploy pollos/microsite/public --project-name=pollos-cz --branch=main
+
+  worker:
+    needs: [changes, infra, content]
+    # Last: infra owns the Worker's custom domain, content owns the Pages site.
+    # Both `needs` are checked explicitly — a skipped job upstream of a failure
+    # would otherwise let this one through.
+    if: |
+      always() &&
+      needs.infra.result != 'failure' && needs.infra.result != 'cancelled' &&
+      needs.content.result != 'failure' && needs.content.result != 'cancelled' &&
+      (needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
+          workingDirectory: pollos/microsite-ws
+          command: deploy

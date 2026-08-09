@@ -8,6 +8,15 @@ version: 2
 # Seven rather than the three it was, and the same number my other repos use: a
 # supply-chain compromise is usually caught in days, not hours, so three was
 # short enough to open the PR while the bad version was still up.
+#
+# groups: one PR per block per week instead of one per dependency. The cost is
+# that a single bad bump blocks the whole batch — split the group by
+# dependency-type when that starts happening, majors alone are the usual culprit.
+# Version updates only; security updates open their own PR regardless.
+#
+# commit-message.prefix: without it dependabot guesses the prefix from recent
+# history, which is how `build(deps-dev):` got into the log. The convention here
+# is `deps:`, and it has to be repeated per block — there is no global default.
 
 updates:
   ## ci
@@ -16,8 +25,14 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## dashboard
   - package-ecosystem: npm
@@ -25,16 +40,28 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker
     directory: /dashboard/docker
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## ip service
   - package-ecosystem: npm
@@ -42,16 +69,28 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker
     directory: /ip-service/docker
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## compose services
   - package-ecosystem: docker-compose
@@ -59,32 +98,56 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /readeck
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /database
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## dockerfile services
   - package-ecosystem: docker
@@ -92,8 +155,46 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
+
+  ## pollos microsite
+  # Two npm roots: the Astro site and the worker in front of it. Separate
+  # package.json files, so separate entries — dependabot resolves one manifest
+  # per directory and does not walk down.
+  - package-ecosystem: npm
+    directory: /pollos/microsite
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: npm
+    directory: /pollos/microsite-ws
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
 
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
@@ -108,13 +209,25 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: terraform
     directory: /pollos/infra
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps

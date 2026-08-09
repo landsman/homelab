@@ -81,17 +81,27 @@ not in the policy, so those survive.
 
 ## Reading state
 
-Both runbooks below need a value Terraform minted, which means initialising the
-R2 backend for real:
+Both runbooks below read a value Terraform minted, which means initialising the
+R2 backend for real. Create `backend.hcl` here once — it's gitignored:
 
-```sh
-export AWS_ACCESS_KEY_ID=...        # POLLOS_CZ_R2_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY=...    # POLLOS_CZ_R2_SECRET_ACCESS_KEY
-terraform init -backend-config="endpoints={s3=\"https://<account_id>.r2.cloudflarestorage.com\"}"
+```hcl
+endpoints  = { s3 = "https://<POLLOS_CZ_CF_ACCOUNT_ID>.r2.cloudflarestorage.com" }
+access_key = "<POLLOS_CZ_R2_ACCESS_KEY_ID>"
+secret_key = "<POLLOS_CZ_R2_SECRET_ACCESS_KEY>"
 ```
 
-The endpoint isn't hardcoded in `main.tf` because the account id doesn't belong
-in a public repo — CI passes it from the `POLLOS_CZ_CF_ACCOUNT_ID` variable.
+Then `make authkey` and `make tunnel-tokens` do the rest. Both print a secret on
+stdout and nothing else, so they compose:
+
+```sh
+TS_AUTHKEY=$(make -s authkey)
+```
+
+This is a `-backend-config` file rather than `.tfvars` on purpose: Terraform
+resolves the backend **before** variables exist, so a `backend` block can't
+reference `var.*`. A partial backend config is the only native way to keep the
+account id and R2 secret out of a public repo. CI passes the same values inline
+from the `pollos` environment and never reads this file.
 
 Outputs are marked `sensitive`, which keeps them out of plan/apply logs but
 **not** out of the state file. Anyone with the R2 credentials can read every
@@ -103,7 +113,7 @@ Puts a box on the tailnet as a plain node, reachable by MagicDNS name from
 anywhere. Script: [`../setup/005-tailscale.sh`](../setup/005-tailscale.sh).
 
 ```sh
-TS_AUTHKEY=$(terraform output -raw tailscale_authkey)
+TS_AUTHKEY=$(make -s authkey)
 
 # on the box (gus/mike/walter/jesse), as root:
 TS_AUTHKEY="$TS_AUTHKEY" wget -qO- https://pollos.cz/tailscale.sh | sh
@@ -118,7 +128,7 @@ Gives a box the connector token for its own tunnel and nothing else. Script:
 [`../setup/003-monitoring.sh`](../setup/003-monitoring.sh).
 
 ```sh
-terraform output -json health_tunnel_tokens    # one token per node
+make tunnel-tokens    # one token per node
 
 # on the box, as root:
 sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh

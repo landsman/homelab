@@ -3,6 +3,8 @@
 .playwright-mcp
 
 # Claude Code — keep shared config (settings.json, settings.template.json, skills/),
-# ignore per-user / runtime files.
-.claude/settings.local.json
-.claude/scheduled_tasks.lock
+# ignore per-user / runtime files. `**/` because a pattern containing a slash is
+# anchored to this directory, so the bare form missed nested .claude dirs like
+# pollos/infra/.claude/.
+**/.claude/settings.local.json
+**/.claude/scheduled_tasks.lock

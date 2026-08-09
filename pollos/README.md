@@ -6,6 +6,11 @@ The scripts in [setup](setup) folder take a fresh Debian install and turn it int
 
 You can easily install them from microsite: https://www.pollos.cz
 
+Everything around the boxes — DNS, the microsite, health tunnels, uptime
+monitors and the Tailscale tailnet — is Terraform in [infra](infra/README.md),
+applied by CI on merge. That README also holds the credential list and the
+runbooks for enrolling a box.
+
 The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).
 
 ## HW

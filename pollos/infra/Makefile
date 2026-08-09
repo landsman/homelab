@@ -1,4 +1,4 @@
-.PHONY: fmt fmt-check validate ci
+.PHONY: fmt fmt-check validate ci init-remote authkey tunnel-tokens
 
 # Format all .tf files in place.
 fmt:
@@ -15,3 +15,23 @@ validate:
 
 # Full PR check — formatting + validation.
 ci: fmt-check validate
+
+# Init against the real R2 state, needed to read outputs. Backend settings can't
+# come from variables — Terraform resolves the backend before variables exist —
+# so they go in backend.hcl, which is gitignored because it holds the R2 secret
+# and the account id. See README; CI passes the same values inline instead.
+#
+# -reconfigure because `validate` inits with -backend=false; without it
+# Terraform refuses to switch back with "Backend configuration changed".
+init-remote:
+	@terraform init -reconfigure -backend-config=backend.hcl >&2
+
+# Tailscale enrollment key for setup/005-tailscale.sh. Prints a secret — pipe it
+# somewhere rather than leaving it in scrollback:
+#   TS_AUTHKEY=$(make -s authkey)
+authkey: init-remote
+	@terraform output -raw tailscale_authkey
+
+# Per-node cloudflared connector tokens for setup/003-monitoring.sh. Prints secrets.
+tunnel-tokens: init-remote
+	@terraform output -json health_tunnel_tokens

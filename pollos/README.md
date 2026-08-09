@@ -6,6 +6,11 @@ The scripts in [setup](setup) folder take a fresh Debian install and turn it int
 
 You can easily install them from microsite: https://www.pollos.cz
 
+Everything around the boxes — DNS, the microsite, health tunnels, uptime
+monitors and the Tailscale tailnet — is Terraform in [infra](infra/README.md),
+applied by CI on merge. That README also holds the credential list and the
+runbooks for enrolling a box.
+
 The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).
 
 ## HW
@@ -28,23 +33,36 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 ```yml
 # ~/.ssh/config
 
+# Every box is a Tailscale node, reachable by its MagicDNS name (== hostname).
+# Keep Tailscale running on this Mac and one config works everywhere: at home
+# Tailscale connects directly over the LAN at full speed, away it falls back to
+# the encrypted tunnel — no exit node or subnet routes needed. Boxes join the
+# tailnet via setup/005-tailscale.sh.
+#
+# (No per-host LAN probe on purpose: probing 192.168.0.x:22 adds a 1s timeout to
+#  every connection when away, and on a foreign 192.168.0.0/24 network — hotel,
+#  cafe — it can succeed against a stranger's box and trip host-key verification.
+#  If Tailscale is ever off, the boxes are still reachable on the home LAN by raw
+#  IP: gus 192.168.0.115, mike 192.168.0.113, walter 192.168.0.116,
+#  jesse 192.168.0.117.)
+
+Host gus.pollos
+  HostName gus
+
+Host mike.pollos
+  HostName mike
+
+Host walter.pollos
+  HostName walter
+
+Host jesse.pollos
+  HostName jesse
+
 Host *.pollos
    User ansible
    # stored in 1password
    IdentityFile ~/.ssh/id_ed25519_homelab
    IdentitiesOnly yes
-
-Host gus.pollos
-  HostName 192.168.0.115
-
-Host mike.pollos
-  HostName 192.168.0.113
-
-Host walter.pollos
-  HostName 192.168.0.116
-
-Host jesse.pollos
-  HostName 192.168.0.117
 ```
 
 ### Ports

@@ -95,6 +95,26 @@ updates:
     cooldown:
       default-days: 7
 
+  ## pollos microsite
+  # Two npm roots: the Astro site and the worker in front of it. Separate
+  # package.json files, so separate entries — dependabot resolves one manifest
+  # per directory and does not walk down.
+  - package-ecosystem: npm
+    directory: /pollos/microsite
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: npm
+    directory: /pollos/microsite-ws
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7
+
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
   # reads the required_providers of the directory it is pointed at and nothing

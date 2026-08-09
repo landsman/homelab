@@ -41,7 +41,7 @@ jobs:
     # in Terraform.
     if: needs.changes.outputs.infra == 'true' || needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    environment: production
+    environment: pollos
     defaults:
       run:
         working-directory: pollos/infra
@@ -67,7 +67,7 @@ jobs:
       needs.infra.result != 'failure' && needs.infra.result != 'cancelled' &&
       (needs.changes.outputs.content == 'true' || needs.changes.outputs.infra == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    environment: production
+    environment: pollos
     steps:
       - uses: actions/checkout@v7
       - name: Build static assets (generates /setup index)
@@ -90,7 +90,7 @@ jobs:
       needs.content.result != 'failure' && needs.content.result != 'cancelled' &&
       (needs.changes.outputs.worker == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    environment: production
+    environment: pollos
     steps:
       - uses: actions/checkout@v7
       - uses: cloudflare/wrangler-action@v4

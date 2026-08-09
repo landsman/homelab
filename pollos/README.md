@@ -6,6 +6,8 @@ The scripts in [setup](setup) folder take a fresh Debian install and turn it int
 
 You can easily install them from microsite: https://www.pollos.cz
 
+The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).
+
 ## HW
 
 - 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz)

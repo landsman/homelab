@@ -50,11 +50,15 @@ resource "tailscale_acl" "this" {
 # Reusable, pre-authorized auth key scoped to tag:pollos. Feed it to
 # setup/005-tailscale.sh via TS_AUTHKEY; nodes come up already tagged and
 # approved, no manual click in the admin console.
+#
+# Keep `description` to alphanumerics and spaces — Tailscale rejects punctuation
+# with "description had invalid characters (400)", so no parentheses, slashes or
+# dots, which rules out naming the script here.
 resource "tailscale_tailnet_key" "pollos" {
   reusable      = true
   ephemeral     = false # servers must stay registered while powered off
   preauthorized = true
-  description   = "pollos box enrollment (setup/005-tailscale.sh)"
+  description   = "pollos box enrollment"
   tags          = ["tag:pollos"]
   expiry        = 7776000 # 90 days (max), in seconds
 

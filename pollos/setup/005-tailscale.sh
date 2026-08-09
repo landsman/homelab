@@ -22,8 +22,12 @@ set -eu
 # to tag:pollos via TS_AUTHKEY. Mint it in pollos/infra Terraform (tailscale
 # provider) — do NOT hardcode it here.
 #
-# Usage (first join):
-#   TS_AUTHKEY=tskey-auth-xxxx ./005-tailscale.sh
+# Usage (first join), as root:
+#   sudo TS_AUTHKEY=tskey-auth-xxxx ./005-tailscale.sh
+#
+# The assignment goes AFTER sudo. `export TS_AUTHKEY=... ; sudo ./005-...` looks
+# equivalent but isn't — sudo resets the environment, so the key never arrives
+# and the script stops on the check below.
 #
 # Re-running is safe and idempotent: the install is skipped if Tailscale is
 # already present, and TS_AUTHKEY is only required for the first join — once the
@@ -54,7 +58,7 @@ TS_TAGS="${TS_TAGS:-tag:pollos}"
 if command -v tailscale >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
   echo "tailscale already authenticated; reconciling without an auth key."
 else
-  : "${TS_AUTHKEY:?set TS_AUTHKEY to a pre-authorized tagged auth key for the first join}"
+  : "${TS_AUTHKEY:?no auth key. first join needs: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"
 fi
 
 # tailscale engine — skip if already installed. download then run instead of

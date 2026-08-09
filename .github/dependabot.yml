@@ -13,6 +13,10 @@ version: 2
 # that a single bad bump blocks the whole batch — split the group by
 # dependency-type when that starts happening, majors alone are the usual culprit.
 # Version updates only; security updates open their own PR regardless.
+#
+# commit-message.prefix: without it dependabot guesses the prefix from recent
+# history, which is how `build(deps-dev):` got into the log. The convention here
+# is `deps:`, and it has to be repeated per block — there is no global default.
 
 updates:
   ## ci
@@ -27,6 +31,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## dashboard
   - package-ecosystem: npm
@@ -40,6 +46,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker
     directory: /dashboard/docker
@@ -52,6 +60,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## ip service
   - package-ecosystem: npm
@@ -65,6 +75,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker
     directory: /ip-service/docker
@@ -77,6 +89,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## compose services
   - package-ecosystem: docker-compose
@@ -90,6 +104,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /readeck
@@ -102,6 +118,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /database
@@ -114,6 +132,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
@@ -126,6 +146,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## dockerfile services
   - package-ecosystem: docker
@@ -139,6 +161,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## pollos microsite
   # Two npm roots: the Astro site and the worker in front of it. Separate
@@ -155,6 +179,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: npm
     directory: /pollos/microsite-ws
@@ -167,6 +193,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
@@ -187,6 +215,8 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps
 
   - package-ecosystem: terraform
     directory: /pollos/infra
@@ -199,3 +229,5 @@ updates:
           - "*"
     cooldown:
       default-days: 7
+    commit-message:
+      prefix: deps

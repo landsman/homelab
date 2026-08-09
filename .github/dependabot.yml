@@ -8,6 +8,11 @@ version: 2
 # Seven rather than the three it was, and the same number my other repos use: a
 # supply-chain compromise is usually caught in days, not hours, so three was
 # short enough to open the PR while the bad version was still up.
+#
+# groups: one PR per block per week instead of one per dependency. The cost is
+# that a single bad bump blocks the whole batch — split the group by
+# dependency-type when that starts happening, majors alone are the usual culprit.
+# Version updates only; security updates open their own PR regardless.
 
 updates:
   ## ci
@@ -16,6 +21,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -25,6 +34,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -33,6 +46,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -42,6 +59,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -50,6 +71,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -59,6 +84,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -67,6 +96,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -75,6 +108,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -83,6 +120,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -92,6 +133,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -104,6 +149,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -112,6 +161,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -128,6 +181,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7
 
@@ -136,5 +193,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
     cooldown:
       default-days: 7

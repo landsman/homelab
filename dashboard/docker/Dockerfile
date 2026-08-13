@@ -12,17 +12,24 @@ COPY . .
 RUN make build
 
 # ── Stage 2: serve ──────────────────────────────────────────────────────────
-FROM nginx:alpine AS runner
+# The unprivileged variant rather than nginx:alpine + a USER line: it already
+# ships the writable pid path and cache dirs a non-root master needs, and it
+# listens on 8080 because a non-root process cannot bind 80 everywhere.
+FROM nginxinc/nginx-unprivileged:alpine AS runner
 
 # Runtime subpath the app is mounted at. '/' serves at root.
 # Override at container start: `docker run -e BASE_PATH=/dashboard/ ...`
 # Applied once at boot by docker/30-substitute-base-path.sh.
 ENV BASE_PATH=/
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Owned by nginx because 30-substitute-base-path.sh rewrites index.html in place
+# at boot, as the unprivileged user.
+COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/30-substitute-base-path.sh /docker-entrypoint.d/30-substitute-base-path.sh
 
-EXPOSE 80
+USER nginx
+
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

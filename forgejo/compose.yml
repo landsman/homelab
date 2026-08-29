@@ -9,11 +9,12 @@ services:
       USER_GID: 1000
       FORGEJO__server__ROOT_URL: ${FORGEJO_URL}
       FORGEJO__server__SSH_DOMAIN: ${FORGEJO_SSH_DOMAIN}
+      FORGEJO__service__SSH_PORT: ${FORGEJO_SSH_PORT}
     networks:
       - forgejo
     ports:
       - '3000:3000'
-      - '222:22'
+      - '${FORGEJO_SSH_PORT}:22'
     volumes:
       - forgejo:/data
       - /etc/timezone:/etc/timezone:ro

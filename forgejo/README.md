@@ -44,3 +44,6 @@ make cron-install
 The Actions runner runs on a dedicated box — see [../forgejo-runner](../forgejo-runner).
 Nothing runner-related lives here anymore.
 
+Known Forgejo registry/package and Actions limitations: see
+[forgejo-runner/CAVEATS.md](../forgejo-runner/CAVEATS.md).
+

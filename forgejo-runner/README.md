@@ -10,17 +10,19 @@ It runs non-root (`1001`), reaching the socket via the host `docker` group gid.
 
 ## Setup on a fresh box
 
-1. `cp runner/config.example.yml runner/config.yml`
-2. Forgejo UI → **Settings → Actions → Runners → Create new runner**, copy the
-   **UUID** and **Token** into `runner/config.yml` → `server.connections.forgejo`
-   (`url` uses the publicly reachable `https://git.insuit.cz/`).
-3. `make rsync` — pushes this dir to `jesse.pollos:forgejo-runner/`
-4. `ssh jesse.pollos 'cd forgejo-runner && make prepare'` — one-time: owns
-   `data/` for uid `1001` and writes `.env` with the docker group gid
-5. `ssh jesse.pollos 'cd forgejo-runner && make up'`
+1. `make rsync` — pushes this dir (incl. the example config) to
+   `jesse.pollos:forgejo-runner/`
+2. On the box, once: `make config` — copies `runner/config.example.yml` →
+   `runner/config.yml` (existing config is kept)
+3. Edit `runner/config.yml` on jesse, filling the **UUID** and **Token** from
+   Forgejo UI → **Settings → Actions → Runners → Create new runner**
+   into `server.connections.forgejo` (`url` uses the publicly reachable
+   `https://git.insuit.cz/`).
+4. `make prepare` — one-time: owns `data/` for uid `1001` and writes `.env`
+   with the docker group gid
+5. `make up`
 6. Verify the runner shows **online** in the Forgejo UI.
-7. One-time, for cross-arch image builds:
-   `ssh jesse.pollos 'cd forgejo-runner && make qemu'`
+7. One-time, for cross-arch image builds: `make qemu`
 
 `runner/config.yml`, `.env` and `data/` are gitignored — the token and socket
 gid never land in the public `homelab` repo.

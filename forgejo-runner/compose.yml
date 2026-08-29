@@ -1,0 +1,11 @@
+services:
+  runner:
+    image: code.forgejo.org/forgejo/runner:13
+    container_name: forgejo-runner
+    restart: unless-stopped
+    user: "1001:${DOCKER_GID:?run 'make prepare' on the box first}"
+    volumes:
+      - ./data:/data
+      - ./runner/config.yml:/data/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: forgejo-runner daemon --config /data/config.yml

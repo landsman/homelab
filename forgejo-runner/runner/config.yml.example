@@ -2,31 +2,27 @@ log:
   level: info
 
 runner:
-  capacity: 1
+  capacity: 2
   timeout: 3h
   shutdown_timeout: 30s
   labels:
     - "ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-22.04"
     - "self-hosted:host"
-  envs:
-    DOCKER_HOST: tcp://dind.docker.internal:2375
 
 cache:
   enabled: true
   dir: /data/cache
 
 container:
-  docker_host: tcp://dind:2375
-  network: bridge
+  docker_host: 'automount'
   privileged: false
   force_pull: false
   valid_volumes:
     - /data/**
-  options: '--add-host=dind.docker.internal:host-gateway'
 
 server:
   connections:
     forgejo:
-      url: 'http://forgejo:3000/'
+      url: 'https://git.insuit.cz/'
       uuid: '<UUID from Forgejo UI>'
       token: '<TOKEN from Forgejo UI>'

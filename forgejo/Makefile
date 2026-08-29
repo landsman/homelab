@@ -38,12 +38,7 @@ cron-install:
 	@echo "Cron job installed."
 
 runner-register:
-	@test -n "$(TOKEN)" || (echo "Usage: make runner-register TOKEN=<registration-token>" && exit 1)
-	@test -n "$(FORGEJO_URL)" || (echo "Error: FORGEJO_URL is not set. Run: export FORGEJO_URL=https://your-forgejo-url" && exit 1)
-	docker exec -it forgejo-runner forgejo-runner register \
-		--instance $(FORGEJO_URL) \
-		--token $(TOKEN) \
-		--name raspberry-pi \
-		--labels "ubuntu-latest:docker://node:20-bookworm,self-hosted:host" \
-		--no-interactive
-	docker restart forgejo-runner
+	@echo "Registration is config-based with Forgejo 16:"
+	@echo "  1. Forgejo UI -> Settings -> Actions -> Runners -> Create new runner"
+	@echo "  2. Copy the UUID and Token into runner/config.yml -> server.connections.forgejo"
+	@echo "  3. docker compose restart runner"

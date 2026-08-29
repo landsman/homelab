@@ -47,16 +47,18 @@ The runner uses Docker-in-Docker (`dind`) to execute workflow jobs in isolated c
 
 ### First-time registration
 
-1. Get a registration token from Forgejo: **Site Administration → Actions → Runners → Create new runner token**
-2. Start services: `make up`
-3. Register: `make runner-register TOKEN=<registration-token>`
+With Forgejo 16, registration is config-based (no CLI step):
 
-The `.runner` file is stored in the `runner` Docker volume and persists across restarts.
+1. Forgejo UI: **Settings → Actions → Runners → Create new runner**
+2. Copy the **UUID** and **Token** into `runner/config.yml` under `server.connections.forgejo`
+3. Restart: `docker compose restart runner`
+
+No `.runner` file is involved anymore.
 
 ### Labels
 
-| Label           | Execution       | Image              |
-|-----------------|-----------------|--------------------|
-| `ubuntu-latest` | Docker via dind | `node:20-bookworm` |
-| `self-hosted`   | Host shell      | —                  |
+| Label           | Execution       | Image                                          |
+|-----------------|-----------------|------------------------------------------------|
+| `ubuntu-latest` | Docker via dind | `ghcr.io/catthehacker/ubuntu:act-22.04`        |
+| `self-hosted`   | Host shell      | —                                              |
 

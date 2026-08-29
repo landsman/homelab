@@ -3,6 +3,14 @@
 Hard-won notes for the homelab Forgejo instance and its Actions runner. First
 discovered while wiring a private container-image CI pipeline.
 
+> **Warning:** Forgejo has **no repo- or package-scoped `package` permission**.
+> A token limited to a repository list can never carry `package`, and any
+> package-scoped (or all-resources `read:package`) token reaches every package
+> the owning account can read across all owners. Wait for
+> [forgejo/forgejo#12573](https://codeberg.org/forgejo/forgejo/issues/12573)
+> before assuming credentials can be scoped down to a single image; until then,
+> account membership is the only isolation knob.
+
 ## Token / package scoping — the big one
 
 - Package tokens are **owner-scoped**, not repo- or package-scoped. A token

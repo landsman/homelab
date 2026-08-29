@@ -8,6 +8,12 @@ The runner is a single container sharing the host Docker socket (`automount`),
 so workflow jobs can run `docker buildx` against the box's own daemon — no dind.
 It runs non-root (`1001`), reaching the socket via the host `docker` group gid.
 
+## Caveats
+
+Known limitations and gotchas of Forgejo's registry/package and Actions
+behavior are collected in [CAVEATS.md](CAVEATS.md) — read it before wiring up
+image CI on this instance.
+
 ## Setup on a fresh box
 
 1. `make rsync` — pushes this dir (incl. the example config) to

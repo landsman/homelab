@@ -10,7 +10,7 @@ It runs non-root (`1001`), reaching the socket via the host `docker` group gid.
 
 ## Setup on a fresh box
 
-1. `cp runner/config.yml.example runner/config.yml`
+1. `cp runner/config.example.yml runner/config.yml`
 2. Forgejo UI → **Settings → Actions → Runners → Create new runner**, copy the
    **UUID** and **Token** into `runner/config.yml` → `server.connections.forgejo`
    (`url` uses the publicly reachable `https://git.insuit.cz/`).

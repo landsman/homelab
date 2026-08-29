@@ -1,0 +1,28 @@
+log:
+  level: info
+
+runner:
+  capacity: 2
+  timeout: 3h
+  shutdown_timeout: 30s
+  labels:
+    - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-22.04"
+    - "self-hosted:host"
+
+cache:
+  enabled: true
+  dir: /data/cache
+
+container:
+  docker_host: 'automount'
+  privileged: false
+  force_pull: true
+  valid_volumes:
+    - /data/**
+
+server:
+  connections:
+    forgejo:
+      url: 'https://git.insuit.cz/'
+      uuid: '<UUID from Forgejo UI>'
+      token: '<TOKEN from Forgejo UI>'

@@ -20,58 +20,11 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
 
-  # docker env for executing ci jobs
-  runner-tools:
-    build:
-      context: ../github-runner
-      dockerfile: Dockerfile
-      args:
-        BASE_IMAGE: ubuntu:24.04
-    image: runner-tools:latest
-    platform: linux/arm64
-    profiles:
-      - build
-
-  # docker in docker
-  dind:
-    image: docker:dind
-    container_name: forgejo-dind
-    restart: unless-stopped
-    privileged: true
-    networks:
-      - forgejo
-    volumes:
-      - dind-certs:/certs/client
-    environment:
-      DOCKER_TLS_CERTDIR: ''
-
-  # runner daemon
-  runner:
-    image: code.forgejo.org/forgejo/runner:13
-    container_name: forgejo-runner
-    restart: unless-stopped
-    depends_on:
-      - forgejo
-      - dind
-    networks:
-      - forgejo
-    volumes:
-      - runner:/data
-      - ./runner/config.yml:/data/config.yml:ro
-    environment:
-      DOCKER_HOST: tcp://dind:2375
-    user: '1000:1000'
-    command: forgejo-runner daemon --config /data/config.yml
-
 volumes:
   forgejo:
     external: true
     name: forgejo_forgejo
-  dind-certs:
-  runner:
 
 networks:
   forgejo:
     external: false
-
-

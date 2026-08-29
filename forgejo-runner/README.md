@@ -37,5 +37,9 @@ ssh jesse.pollos 'cd forgejo-runner && make status'
 
 | Label           | Execution       | Image                                          |
 |-----------------|-----------------|------------------------------------------------|
-| `ubuntu-latest` | Docker via host socket | `ghcr.io/catthehacker/ubuntu:act-22.04` |
+| `ubuntu-latest` | Docker via host socket | `docker.gitea.com/runner-images:ubuntu-22.04` |
 | `self-hosted`   | Host shell      | —                                             |
+
+The label image is the Gitea project's runner image (built on the catthehacker
+`act` base, org-maintained and version-pinned); `force_pull: true` keeps the job
+image refreshed.

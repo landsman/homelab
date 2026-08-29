@@ -6,7 +6,7 @@ runner:
   timeout: 3h
   shutdown_timeout: 30s
   labels:
-    - "ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-22.04"
+    - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-22.04"
     - "self-hosted:host"
 
 cache:
@@ -16,7 +16,7 @@ cache:
 container:
   docker_host: 'automount'
   privileged: false
-  force_pull: false
+  force_pull: true
   valid_volumes:
     - /data/**
 

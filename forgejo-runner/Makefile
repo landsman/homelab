@@ -1,12 +1,16 @@
 HOST = jesse.pollos
 
-.PHONY: help rsync prepare up down logs status register qemu
+.PHONY: help rsync prepare config up down logs status register qemu
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 rsync: ## Copy this dir to the box (HOST=$(HOST))
 	rsync -av --exclude data --exclude .env ./ $(HOST):forgejo-runner/
+
+config: ## Copy the example config to runner/config.yml (run on the box, first time)
+	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
+	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
 
 prepare: ## chown data + write .env with the docker group gid (run on the box)
 	mkdir -p data/.cache

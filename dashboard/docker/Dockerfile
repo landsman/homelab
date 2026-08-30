@@ -17,6 +17,12 @@ RUN make build
 # listens on 8080 because a non-root process cannot bind 80 everywhere.
 FROM nginxinc/nginx-unprivileged:alpine AS runner
 
+# The base image ships whatever Alpine packages it had at its last rebuild, so a
+# fixed openssl sits in the repo for days before the tag catches up. Patch here
+# instead of waiting; needs root because the base already drops to UID 101.
+USER root
+RUN apk upgrade --no-cache
+
 # Runtime subpath the app is mounted at. '/' serves at root.
 # Override at container start: `docker run -e BASE_PATH=/dashboard/ ...`
 # Applied once at boot by docker/30-substitute-base-path.sh.

@@ -2,7 +2,9 @@
 
 Self-hosted Git service running in Docker on Raspberry Pi.
 
-Source: https://codeberg.org/forgejo/forgejo
+- Source: https://codeberg.org/forgejo/forgejo
+- iOS app: https://codeberg.org/secana/Forji
+- Android app: https://codeberg.org/gitnex/GitNex
 
 ## Configuration
 

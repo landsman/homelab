@@ -19,12 +19,16 @@ esac
 # Escape sed delimiter '|' and '&' (special in replacement)
 ESCAPED=$(printf '%s\n' "$BASE_PATH" | sed 's/[|&]/\\&/g')
 
-# Portable in-place edit (BSD vs GNU sed differ on `-i` syntax).
-TMP="${INDEX}.tmp"
+# Portable in-place edit (BSD vs GNU sed differ on `-i` syntax). The scratch
+# file sits in /tmp and the result is written back through the existing file
+# rather than moved over it: the container runs as a non-root user that owns
+# index.html but not the directory around it, so creating a sibling there fails.
+TMP=$(mktemp)
+trap 'rm -f "$TMP"' EXIT
 sed \
     -e "s|window.__BASE_PATH__ = '/';|window.__BASE_PATH__ = '${ESCAPED}';|" \
     -e "s|<base href=\"/\">|<base href=\"${ESCAPED}\">|" \
     "$INDEX" > "$TMP"
-mv "$TMP" "$INDEX"
+cat "$TMP" > "$INDEX"
 
 echo "base-path: rewrote <base href> + __BASE_PATH__ → '${BASE_PATH}'"

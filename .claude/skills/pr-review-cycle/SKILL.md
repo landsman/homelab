@@ -1,55 +1,81 @@
 ---
 name: pr-review-cycle
-description: Ship a branch end-to-end with a Gemini Code Assist feedback loop. Creates a branch, commits the change, pushes, opens a PR, then iterates with Gemini reviews (resolving, replying, or fixing) for up to N rounds. Use when the user says "ship this and iterate with gemini", "open a PR and cycle reviews", "do the full review dance", "go through the gemini cycle", or invokes this skill explicitly.
+description: Ship a branch end-to-end with a Claude review feedback loop. Creates a branch, commits the change, pushes, opens a PR, then iterates on review findings (fixing, rejecting, re-triggering) for up to N rounds. Use when the user says "ship this and iterate", "open a PR and cycle reviews", "do the full review dance", or invokes this skill explicitly.
 disable-model-invocation: false
 ---
 
-# PR Review Cycle (with Gemini Code Assist)
+# PR Review Cycle
 
-Drive a complete branch-to-merge-candidate cycle: branch → commit → push → PR → iterate on Gemini reviews. The whole thing is one continuous loop until either Gemini stops finding issues, the agreed iteration cap is hit, or the user calls it done.
+Drive a complete branch-to-merge-candidate cycle: branch → commit → push → PR →
+iterate on review findings. One continuous loop until the review comes back
+clean, the iteration cap is hit, or the user calls it done.
+
+## Who reviews
+
+Two paths, both Claude, both already wired up in this repo.
+
+**Automatic** — Anthropic's managed Code Review app reviews per the repo's
+Review Behavior setting. Findings land as inline comments tagged 🔴 Important /
+🟡 Nit / 🟣 Pre-existing, plus a `Claude Code Review` check run that never
+blocks merge. What it reports is tuned by [`REVIEW.md`](../../../REVIEW.md) at
+the repo root — read that before arguing with a finding, because half of what
+looks like a bad review is a rule that file already covers.
+
+**On demand** — a PR comment containing `@claude` triggers
+[`.github/workflows/claude-mentions.yml`](../../../.github/workflows/claude-mentions.yml),
+which calls the shared `landsman/config/.github/workflows/claude.yml`. That
+workflow is gated to comments authored by `landsman` that contain `@claude`, so
+a `gh pr comment` you post with the user's token passes; a comment from anyone
+else never allocates a runner.
+
+Never post `/gemini review` — Gemini Code Assist is not used in this repo.
 
 ## Preflight
 
-Before doing any of the steps, verify the environment. If any check fails, stop and tell the user.
+Verify the environment before any step. If a check fails, stop and tell the user.
 
 1. **Repo + remote**: `git rev-parse --is-inside-work-tree` is `true`, and `git remote -v` includes an `origin` pointing at GitHub.
-2. **gh CLI**: `gh --version` succeeds, and `gh auth status` shows a logged-in account.
-3. **Clean branch state**: the user is on the main branch (`main` or `master`) OR on a branch whose only purpose is the change about to ship. If on a stale branch with unrelated commits, ask before continuing.
-4. **Pre-existing staged changes**: if `git status` shows files staged from before this session (especially `AD` entries from prior tool runs), do NOT use plain `git commit` — those will get swept in. Use `git commit --only -- <paths>` so only the work-related files land.
+2. **gh CLI**: `gh --version` succeeds and `gh auth status` shows a logged-in account.
+3. **Clean branch state**: the user is on `main` OR on a branch whose only purpose is the change about to ship. A stale branch with unrelated commits needs asking first.
+4. **Pre-existing staged changes**: if `git status` shows files staged from before this session, do NOT use plain `git commit` — use `git commit --only -- <paths>` so only the work-related files land.
 
 ## Step 1 — Branch
 
-Create a descriptive branch name from the change topic. Convention: `<scope>-<kebab-summary>` (e.g. `dashboard-shift-shortcuts`, `api-fix-cache-key`).
+Never commit to `main`. Name the branch `<scope>-<kebab-summary>`
+(`dashboard-shift-shortcuts`, `api-fix-cache-key`).
 
 ```bash
 git checkout -b <branch-name>
 ```
 
-If the user is mid-conversation with uncommitted dashboard/etc. changes already on the working tree, branch first, then stage — never destructively reset.
+Uncommitted work already in the tree: branch first, then stage. Never
+destructively reset.
 
 ## Step 2 — Code change
 
-Make the change. If the change is already done in the working tree (most common case when this skill is invoked after a coding session), skip to Step 3. Otherwise, do the work the user described, running the project's local checks before committing (typecheck, format, tests — check the Makefile or `package.json` for the canonical targets).
+If the change is already in the working tree — the common case when this skill
+is invoked after a coding session — skip to Step 3. Otherwise do the work, then
+run the project's local checks before committing (`make typecheck`, `make
+format`, `make qa`; check the Makefile for the canonical targets).
 
 ## Step 3 — Commit
 
-Use `git commit --only -- <paths>` (NOT `git commit -a`) so pre-existing index state is preserved. Stage explicitly with `git add <paths>`.
+Stage explicitly with `git add <paths>`, then `git commit --only -- <paths>`
+(never `git commit -a`) so pre-existing index state is preserved. Use a HEREDOC
+so multi-line bodies format correctly.
 
-Match the repo's existing commit-message style — read `git log --oneline -10` and follow it. End the message with the standard trailer:
+Message convention is `<type>: <subject>`, or `<type>(<scope>): <subject>` —
+lowercase, no full stop, subject says **why** rather than what. Types:
+`security`, `deps`, `devops`, `fe`, `be`, `docs`, `chore`.
 
-```
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-```
-
-Use a HEREDOC for the message so multi-line bodies format correctly.
+No `Co-Authored-By:` trailer, no session URL, no mention of the tool that typed
+it — in the commit message, the PR body, or a reply.
 
 ## Step 4 — Push
 
 ```bash
 git push -u origin <branch-name>
 ```
-
-Pick up the PR URL from the push output (`Create a pull request for ... by visiting: ...`) — that's the same as `https://github.com/<owner>/<repo>/pull/new/<branch>`.
 
 ## Step 5 — Open the PR
 
@@ -60,30 +86,28 @@ gh pr create --title "<short title>" --body "$(cat <<'EOF'
 
 ## Test plan
 - [ ] ...
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 ```
 
-- Title: imperative, under ~70 chars, e.g. `dashboard: require Shift for all keyboard shortcuts`.
-- Summary: 1–3 bullets, focus on the WHY.
-- Test plan: bulleted checklist of what to verify.
-- Capture the returned PR number — you'll need it throughout the cycle.
+Title: imperative, under ~70 chars, same convention as the commit subject.
+Summary: 1–3 bullets on the why. Capture the PR number — you need it throughout.
 
-If `gh` returns a "uncommitted changes" warning about unrelated AD entries from the user's index, that's harmless — call it out once in the user-facing summary.
+## Step 6 — Wait for the review
 
-## Step 6 — Wait for Gemini
+The managed app reviews on PR open and on subsequent pushes. Give it a few
+minutes, then poll; if nothing has appeared after two polls, check whether a
+`Claude Code Review` check run exists at all (`gh pr checks <pr>`) before
+assuming the review is slow — it may simply not be enabled for the repo, in
+which case trigger it explicitly per Step 9.
 
-Gemini Code Assist auto-reviews new PRs (and replies to explicit `/gemini review` triggers). Typical turnaround is **5–7 minutes**. To wait without burning prompt cache:
+Use `ScheduleWakeup` to wait rather than a synchronous `sleep` loop; the harness
+wakes you back. Match the delay to the review's real turnaround (a few minutes),
+not to a cache window.
 
-- Use `ScheduleWakeup` with `delaySeconds: 270` (stays inside the 5-min cache window) and re-fire the same skill prompt.
-- If the first poll comes up empty, schedule another 270s wakeup.
-- Never sleep in a loop synchronously; the harness wakes you back.
+## Step 7 — Read and triage
 
-## Step 7 — Read and triage Gemini comments
-
-Use the GraphQL API to fetch review threads with their resolution state:
+Fetch review threads with their resolution state:
 
 ```bash
 gh api graphql -f query='
@@ -94,7 +118,7 @@ query($owner: String!, $repo: String!, $pr: Int!) {
         nodes {
           id isResolved path line
           comments(first: 20) {
-            nodes { id author { login } body commit { oid } createdAt }
+            nodes { id author { login } body createdAt }
           }
         }
       }
@@ -103,43 +127,25 @@ query($owner: String!, $repo: String!, $pr: Int!) {
 }' -F owner="<owner>" -F repo="<repo>" -F pr=<pr>
 ```
 
-For each **open** thread authored by `gemini-code-assist`:
-
-1. **Read the comment fully** — including the inline `suggestion` block.
-2. **Decide**: is the suggestion correct, partially correct, wrong, or already addressed?
-
-### Triage rules
+Triage every **open** thread you did not author, whatever the tag on it.
 
 | Verdict | Action |
 |---|---|
-| Correct and worth fixing | Update the code. Don't reply yet — fix first, push, then resolve the thread in one go (see Step 8). |
-| Already fixed in a later commit | Resolve the thread via the mutation in Step 8. No reply needed; the GitHub UI marks it "outdated" naturally. |
-| Wrong / not applicable | Reply on the thread explaining why (see "Replying" below). Do NOT resolve — let the user resolve after reading. |
-| Partially right / needs nuance | Reply explaining the constraint, then either implement a partial fix or leave it. |
+| Correct and worth fixing | Fix the code. Do not reply — push, and the re-review resolves the thread itself (Step 8). |
+| Already fixed in a later commit | Leave it. The next re-review marks it outdated. |
+| Wrong / not applicable | Reply saying why, then resolve the thread by hand. This is the only case where you resolve manually. |
+| Partially right | Reply with the constraint, implement the part that holds, treat the rest as a rejection. |
 
-### Replying to a Gemini comment (when not fixing)
-
-Replies are posted as inline review comments on the same thread. Use the REST API:
+**Replying does not notify Claude.** A reply is for the user reading the thread
+later, not a way to continue a conversation with the reviewer — the only thing
+that triggers another look is a push or an `@claude` comment.
 
 ```bash
 gh api -X POST repos/<owner>/<repo>/pulls/<pr>/comments/<root-comment-id>/replies \
-  -f body="$(cat <<'EOF'
-<your explanation here>
-
-— Claude Code
-EOF
-)"
+  -f body="<one or two sentences on the constraint the finding missed>"
 ```
 
-**Always sign replies with `— Claude Code` on its own line at the bottom.** Keep replies concise: state what the comment got wrong (or what the constraint is), one or two sentences. Don't lecture.
-
-## Step 8 — Push fixes and resolve threads
-
-When you've changed code in response to one or more threads:
-
-1. Commit each logical fix as its own commit (don't bundle unrelated fixes).
-2. `git push` to the same branch.
-3. Resolve every thread you addressed using GraphQL:
+Resolve a rejected thread:
 
 ```bash
 gh api graphql -f query='
@@ -148,31 +154,46 @@ mutation($t: ID!) {
 }' -F t=<THREAD_ID>
 ```
 
-## Step 9 — Trigger the next review
+## Step 8 — Push fixes
 
-Gemini does NOT auto-re-review on subsequent pushes — you must ask explicitly:
+Each logical fix is its own commit — never amend, never squash, never
+`reset --soft` and recommit. Follow-up work goes on top as a new commit; the
+branch is squash-merged at the end anyway, so a long branch costs nothing.
 
 ```bash
-gh pr comment <pr> --body "/gemini review"
+git push
 ```
 
-Then go back to Step 6 (wait → poll → triage).
+The push triggers a re-review, which resolves the threads it considers
+addressed. You do not resolve those yourself.
+
+## Step 9 — Next round
+
+If the push did not produce a new review, ask for one explicitly:
+
+```bash
+gh pr comment <pr> --body "@claude review"
+```
+
+`@claude review always` subscribes the PR to a review on every push, which is
+worth posting once up front on a branch you expect to iterate on. Then back to
+Step 6.
 
 ## Iteration cap
 
-Default: **5 cycles**. Track the count and tell the user where you are ("Cycle 3 of 5: 1 new comment, fixing now"). Stop early if:
+Default **5 cycles**. Track it and say where you are ("Cycle 3 of 5: one new
+finding, fixing now"). Stop early when the review is clean, when two consecutive
+cycles surface only already-rejected findings, or when the user says so.
+`REVIEW.md` tells the reviewer to post Important findings only after round one,
+so a third round full of nits is a signal something is misconfigured.
 
-- Gemini's new review has no comments (all clean).
-- Two consecutive cycles surface only the same already-rejected comments.
-- The user says to stop or merge.
-
-After the cap, summarise: what was changed, what threads remain open and why, and ask the user whether to merge, push more, or abandon.
+After the cap, summarise what changed, which threads are still open and why, and
+ask whether to merge, keep pushing, or abandon.
 
 ## What NOT to do
 
-- Don't force-push to overwrite the branch unless the user explicitly asks. New commits are the default.
-- Don't skip pre-commit hooks (`--no-verify`) unless the user asks — investigate failures instead.
-- Don't auto-merge. The user merges.
-- Don't reply on the PR pretending to be the user — every reply you author should end with `— Claude Code`.
-- Don't poll with `sleep` loops or short `ScheduleWakeup` repeats inside the 300s cache-miss zone; either stay under 270s or go 1200s+ if waiting on something slow.
+- Don't force-push to overwrite the branch unless asked. New commits are the default.
+- Don't skip hooks (`--no-verify`) unless asked — investigate the failure instead.
+- Don't auto-merge. The user merges, squash-merge, `gh pr merge <n> --squash --delete-branch`.
 - Don't resolve a thread you didn't actually address — that hides feedback from the user.
+- Don't re-report what CI already catches, and don't argue a finding `REVIEW.md` already rules out of scope.

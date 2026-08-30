@@ -54,3 +54,6 @@ jobs:
       # the apk upgrade above only exists in the built image, not on the registry
       build: true
       context: dashboard
+      # ~93 MB today on the runner's store; the room is for node_modules
+      # creeping into dist, not for a second base image.
+      max-size-mb: 150

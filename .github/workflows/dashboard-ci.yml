@@ -46,7 +46,6 @@ jobs:
     with:
       packs: p/secrets p/typescript p/dockerfile
       path: dashboard
-      exclude-rules: dockerfile.security.missing-user.missing-user
 
   dockerfile:
     uses: landsman/config/.github/workflows/dockerfile.yml@main

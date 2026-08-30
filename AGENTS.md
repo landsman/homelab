@@ -71,6 +71,13 @@
 - `make docker-build` to build the image
 - GitHub Actions: `.github/workflows/dashboard-build.yml`
 
+## Skills
+
+Skills live in `.agents/skills/<name>/SKILL.md` — the neutral path, read by both
+Codex and opencode. `.claude/skills` is a symlink to that directory so Claude
+Code finds the same files; don't "fix" it into a real folder, that splits the
+skills in two.
+
 ## Pull requests & Claude review
 - Never commit or push to `main` — always branch + PR, squash-merge (e.g. `gh pr merge <n> --squash --delete-branch`)
 - Reviews come from Anthropic's managed **Code Review** (Claude GitHub App). Gemini Code Assist is no longer used — never comment `/gemini review`

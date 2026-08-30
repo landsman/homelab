@@ -51,3 +51,6 @@ jobs:
     uses: landsman/config/.github/workflows/dockerfile.yml@main
     with:
       dockerfile: dashboard/docker/Dockerfile
+      # the apk upgrade above only exists in the built image, not on the registry
+      build: true
+      context: dashboard

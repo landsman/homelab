@@ -8,8 +8,8 @@
     "format:fix": "prettier --write ."
   },
   "devDependencies": {
-    "oxlint": "^1.78.0",
-    "eslint-plugin-jsdoc": "^64.1.0",
+    "oxlint": "^1.80.0",
+    "eslint-plugin-jsdoc": "^64.2.1",
     "prettier": "^3.9.6"
   }
 }

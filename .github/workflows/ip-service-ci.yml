@@ -11,7 +11,14 @@ jobs:
   dockerfile:
     uses: landsman/config/.github/workflows/dockerfile.yml@main
     with:
-      dockerfile: dashboard/docker/Dockerfile
+      dockerfile: ip-service/docker/Dockerfile
+      # the apk upgrade in the Dockerfile only exists in the built image, never
+      # on the registry copy of the FROM
+      build: true
+      context: ip-service
+      # the bun runtime alone unpacks to ~150 MB, so the shared default is a
+      # ceiling this cannot pass on any day; 200 leaves room for the app only
+      max-size-mb: 200
 
   build:
     # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md

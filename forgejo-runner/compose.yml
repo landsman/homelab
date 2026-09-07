@@ -8,4 +8,29 @@ services:
       - ./data:/data
       - ./runner/config.yml:/data/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Fetch actions over the LAN instead of out through Cloudflare and back.
+      #
+      # git.insuit.cz is proxied (`server: cloudflare`), so a `uses:` on this box
+      # leaves the network, reaches an edge in Prague and comes back — for a
+      # service two hops away. Every job resolves its actions before its first
+      # step and nothing caches the fetched code, so an eight-job workflow makes
+      # that trip about ten times per run. It has already timed out at the connect
+      # stage, twice, against two different hosts.
+      #
+      # git's own URL rewriting does the job, through the environment so there is
+      # no config file to mount: the runner shells out to git (the failure carries
+      # libcurl's wording, not go-git's), and this makes that git reach the origin
+      # directly.
+      #
+      # It has to be the origin's real address and port. Forgejo publishes plain
+      # HTTP on 3000 and nothing on 443, so `--add-host` alone would not work —
+      # there is no TLS listener on the LAN side and no certificate for one.
+      #
+      # Optional on purpose: unset FORGEJO_INTERNAL_URL and GIT_CONFIG_COUNT is
+      # empty, which git ignores, and fetches go back out through Cloudflare.
+      # Set it in .env, e.g. FORGEJO_INTERNAL_URL=http://192.168.1.10:3000
+      GIT_CONFIG_COUNT: "${FORGEJO_INTERNAL_URL:+1}"
+      GIT_CONFIG_KEY_0: "url.${FORGEJO_INTERNAL_URL:-unset}/.insteadOf"
+      GIT_CONFIG_VALUE_0: "https://git.insuit.cz/"
     command: forgejo-runner daemon --config /data/config.yml

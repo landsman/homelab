@@ -61,6 +61,81 @@ discovered while wiring a private container-image CI pipeline.
   timeout — multi-minute stalls on first pulls. Avoid `cache-from` /
   `cache-to: type=gha` with this layout and let builds pull fresh.
 
+## Every job fetches its actions over the WAN
+
+`uses:` is resolved against `DEFAULT_ACTIONS_URL` — `https://data.forgejo.org` —
+at the start of each job, before any step runs. There is no runner-side cache for
+the fetched action *code*: the `cache:` block in the runner config is the Actions
+cache service (`actions/cache`) and nothing to do with this. So an eight-job
+workflow makes roughly ten round trips to one host in Germany on every run, and
+each one is a chance to fail.
+
+Seen once, on one job of one run:
+
+```
+☁️  git fetch 'https://data.forgejo.org/actions/checkout' # ref=v7
+could not fetch remote 'origin': fatal: unable to access
+  'https://data.forgejo.org/actions/checkout/': Failed to connect to
+  data.forgejo.org port 443 after 9611 ms: Could not connect to server
+```
+
+It is written down not because the cause is known — it is not — but so that the
+next person does not spend the afternoon debugging their workflow.
+
+### What the message rules out
+
+| Ruled out | Why |
+|-----------|-----|
+| DNS | the name resolved; the failure is `connect`, not `resolve` |
+| TLS or certificates | it never reached a handshake |
+| Rate limiting | `429` is an HTTP *response*; this got none |
+| A wrong URL or a missing tag | that is a `404`, not a timeout |
+| Runner or workflow configuration | other jobs **in the same run** reached the same host |
+
+What is left is a connect timeout: packets went out and nothing came back — no
+`RST`, just silence — so a SYN dropped somewhere between this box and Hetzner.
+A retry with no changes passed. `9611 ms` matches neither the IPv6 fallback (that
+fails immediately from a container with no IPv6 route, verified) nor Linux SYN
+retransmission (7 s or 15 s), so do not assume either.
+
+### Diagnose it *while it is happening*
+
+The evidence disappears the moment a retry succeeds, so run this during the
+failure, not after. `bash`, not `sh`, and no `ip` or `time` — neither exists in
+the runner image:
+
+```sh
+docker run --rm docker.gitea.com/runner-images:ubuntu-22.04 bash -c '
+echo "default (what happy-eyeballs picks):"
+curl -sSo /dev/null -w "  ip=%{remote_ip}  connect=%{time_connect}s  total=%{time_total}s\n" --max-time 30 https://data.forgejo.org/ || echo "  FAILED"
+echo "forced IPv4:"
+curl -4 -sSo /dev/null -w "  ip=%{remote_ip}  connect=%{time_connect}s\n" --max-time 30 https://data.forgejo.org/ || echo "  FAILED"
+echo "forced IPv6:"
+curl -6 -sSo /dev/null -w "  ip=%{remote_ip}  connect=%{time_connect}s\n" --max-time 30 https://data.forgejo.org/ || echo "  no IPv6 path out of the container"
+echo "v6 default route in the container:"
+grep -q "^00000000000000000000000000000000" /proc/net/ipv6_route && echo "  yes" || echo "  no"
+'
+```
+
+Also note **which** job failed. Always the same one points at that job — it may be
+sharing the runner's `capacity: 2` with another and losing a race. A different one
+each time points at the network.
+
+### If it becomes a pattern
+
+Do not add a retry: `uses:` is resolved before the first step, so there is nothing
+in the workflow to wrap. Remove the dependency instead — Forgejo can pull-mirror
+the action repository, and `uses:` takes a full URL to any instance:
+
+```yaml
+uses: https://git.insuit.cz/actions/checkout@v7
+```
+
+One migration in the UI, and every workflow on the instance stops depending on
+someone else's host being up. The cost is owning the mirror and its sync.
+
+One failure is not a pattern, and this was one.
+
 ## Cross-arch builds
 
 - `docker/setup-qemu-action` also stalls on that cache-restore before

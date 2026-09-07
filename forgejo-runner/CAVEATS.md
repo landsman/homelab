@@ -356,6 +356,37 @@ an email. The automatic `FORGEJO_TOKEN` cannot stand in — it belongs to the
 `forgejo-actions` system user, which has neither, and a branch pushed with it is
 the usual way to end up with dependency pull requests that no CI runs on.
 
+## `valid_volumes` silently drops mounts, including admin ones
+
+`container.valid_volumes` reads like it governs volumes a *workflow* asks for. It
+also gates `container.options`, so a bind mount set by the administrator is
+filtered by it too — and a volume that does not match is dropped with **no error,
+no warning, and nothing in the runner log**. The container simply starts without
+it.
+
+This cost 36 jobs. The runner had the mounts in its config, `docker compose exec`
+confirmed it could read them, and the cache directories stayed at 4 KB because
+the paths were outside the single `/data/**` entry:
+
+```yaml
+container:
+  options: >-
+    --volume /home/ansible/forgejo-runner/cache/gradle:/root/.gradle
+  valid_volumes:
+    - /data/**                              # ← the mount above never applied
+    - /home/ansible/forgejo-runner/cache/**  # ← needed as well
+```
+
+The only reliable check is the container itself, not the config:
+
+```sh
+docker inspect "$(docker ps --filter name=WORKFLOW -q | head -1)" \
+  --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}'
+```
+
+If a mount is missing from that list, `valid_volumes` filtered it. Config that
+parses, loads and reads back correctly is not evidence that it took effect.
+
 ## Parallel runs
 
 - The runner runs with `capacity: 2`; independent triggers execute concurrently

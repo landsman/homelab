@@ -29,8 +29,16 @@ container:
   docker_host: 'automount'
   privileged: false
   force_pull: true
+  # This gates `options` above as well, which is not obvious and fails in the
+  # quietest way there is: a volume not matched here is dropped from the job
+  # container with no error, no warning and nothing in the runner log. The caches
+  # looked configured and stayed empty across 36 jobs before anyone checked.
+  #
+  # `docker inspect <job-container>` is how you tell — if a mount is not in that
+  # list, it was filtered here.
   valid_volumes:
     - /data/**
+    - /home/ansible/forgejo-runner/cache/**
 
 server:
   connections:

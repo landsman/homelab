@@ -61,7 +61,9 @@ container to stop that:
 | `cache/gradle` → `/root/.gradle` | Gradle's dependency cache and build cache |
 
 `runner/config.example.yml` carries the real paths, so a fresh `make config`
-already has them; `make prepare` creates the directories. The path matters
+already has them; `make prepare` creates the directories. The cache paths must
+also appear in `container.valid_volumes` — that setting gates admin-set mounts
+too, and drops anything it does not match without a word ([CAVEATS](CAVEATS.md)). The path matters
 because the **host** daemon resolves these — the left-hand side is a path on this
 box, not one inside the runner container — so `make cache` warns if this checkout
 is not where the config expects it.

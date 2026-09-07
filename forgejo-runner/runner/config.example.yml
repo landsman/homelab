@@ -14,6 +14,18 @@ cache:
   dir: /data/cache
 
 container:
+  # Caches kept between jobs, because a job container is fresh every run:
+  #   mise    the JDK (173 MB), shellcheck, oxipng
+  #   gradle  the dependency cache and the build cache
+  #
+  # The *host* daemon resolves these, so the left side is a path on this box and
+  # not one inside the runner container. `make prepare` creates them, and warns
+  # if the runner is checked out somewhere other than the path below.
+  # Why these and not actions/cache: ../README.md
+  options: >-
+    --volume /home/ansible/forgejo-runner/cache/mise:/root/.local/share/mise
+    --volume /home/ansible/forgejo-runner/cache/gradle:/root/.gradle
+
   docker_host: 'automount'
   privileged: false
   force_pull: true

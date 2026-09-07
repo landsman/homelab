@@ -1,3 +1,4 @@
 data/
 .env
 runner/config.yml
+cache/

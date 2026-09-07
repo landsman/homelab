@@ -48,6 +48,45 @@ Nothing else is mirrored, so a workflow reaching for an action not in that table
 still goes out to the WAN. `actions/setup-java` and `jdx/mise-action` are not
 mirrored *anywhere* — not even by Forgejo — which is why a JVM job installs its
 toolchain with a script instead of an action.
+## Job caches
+
+A job container is fresh every run, so without help every JVM job downloads the
+JDK again, every lint job fetches shellcheck, and Gradle re-resolves its whole
+dependency graph. Two directories from this box are bind-mounted into every job
+container to stop that:
+
+| Mount | Holds |
+|-------|-------|
+| `cache/mise` → `/root/.local/share/mise` | the JDK (173 MB), shellcheck, oxipng |
+| `cache/gradle` → `/root/.gradle` | Gradle's dependency cache and build cache |
+
+`runner/config.example.yml` carries the real paths, so a fresh `make config`
+already has them; `make prepare` creates the directories. The path matters
+because the **host** daemon resolves these — the left-hand side is a path on this
+box, not one inside the runner container — so `make cache` warns if this checkout
+is not where the config expects it.
+
+Measured on two fresh containers sharing one cache: installing the toolchain and
+running shellcheck went from 12s to 4s, with 515 MB left in the mise mount. That
+was a laptop, so the ratio is the number to trust, not the seconds — and Gradle
+was not in the measurement, which makes it the larger unmeasured win.
+
+**Not `actions/cache`.** The Actions cache server is unreachable from job
+containers on this layout ([CAVEATS](CAVEATS.md)), so every round trip would
+stall until it timed out, and it would be one more action to fetch over the
+network path that is already the thing that fails.
+
+The caches are shared by every job on this runner, concurrent ones included.
+Gradle and mise both lock their own caches, so that is safe. It does mean jobs
+can slow each other down, and that anything able to run here can read what the
+others cached.
+
+Worth knowing if you are porting a GitHub workflow: `gradle/actions/setup-gradle`
+sets `cache-read-only` on non-default branches, and that does not need to come
+across. It exists because the Actions cache stores one tarball per key, so
+concurrent pull requests each save a snapshot and clobber each other. A shared
+filesystem has no keys — Gradle's dependency cache is content-addressed and its
+build cache is keyed by input hash.
 
 ## Caveats
 
@@ -76,8 +115,12 @@ gid never land in the public `homelab` repo.
 
 ## Operations
 
+`runner/config.yml` is read once at startup, so a change to it needs `make
+restart` — `make up` will say `Running` and do nothing.
+
 ```sh
 make rsync        # push changes to the box (after editing config, eg. capacity)
+ssh jesse.pollos 'cd forgejo-runner && make restart'   # apply a config change
 ssh jesse.pollos 'cd forgejo-runner && make logs'    # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'
 ```

@@ -151,9 +151,50 @@ executing on the box itself, the daemon would be local and this must not be set.
 ### `actions/upload-artifact` does not work past v3
 
 The mirror's own repository description on `data.forgejo.org` says so: *"@v4 will
-not work from this mirror."* Use the patched fork Forgejo itself uses —
-`https://data.forgejo.org/forgejo/upload-artifact@v5`. Getting this wrong loses
-artefacts precisely on the runs that failed, which is the only time they matter.
+not work from this mirror."* Use the patched fork Forgejo itself uses. Getting
+this wrong loses artefacts precisely on the runs that failed, which is the only
+time they matter.
+
+The reason is not a packaging problem, it is a deliberate check upstream. From the
+runner's own release notes for 3.4.0:
+
+> Although this version is able to run `actions/upload-artifact@v4` and
+> `actions/download-artifact@v4`, these actions will fail because **it does not run
+> against GitHub.com**. A fork of those two actions with this check disabled is
+> made available at […]
+
+So the action asserts it is talking to github.com and refuses otherwise. The forks
+are `forgejo/upload-artifact` and `forgejo/download-artifact` — a different
+repository, not a different namespace under the same one.
+
+#### The fork is explicitly temporary
+
+Both forks carry this description, and it is worth reading before depending on
+them:
+
+> Temporary fork until v4 supports GHES. See
+> <https://code.forgejo.org/forgejo/runner/src/branch/main/RELEASE-NOTES.md#3-4-0>
+> for more information.
+
+GHES is GitHub Enterprise Server — that is, upstream supporting *any* host that is
+not github.com, which is the same check that breaks it here. When that lands, the
+fork has no reason to exist and will stop being maintained.
+
+That matters because we mirror it:
+
+| Upstream | Mirror on this instance |
+|----------|--------------------------|
+| `code.forgejo.org/forgejo/upload-artifact` | `git.insuit.cz/tools-mirror/upload-artifact` |
+
+A mirror of a repository that is designed to go away fails in the quietest way
+available: it keeps syncing a repository nobody pushes to any more, and every
+workflow keeps passing on a pinned tag that is slowly ageing out of support. There
+is no error to notice.
+
+So when a Forgejo release note says v4 works against non-GitHub hosts, that is the
+signal to point these workflows back at `actions/upload-artifact` and retire both
+the fork and its mirror. Until then the fork is the correct choice and the note
+above is the reason.
 
 ### `GITHUB_TOKEN` is a Forgejo token, and tools believe it
 

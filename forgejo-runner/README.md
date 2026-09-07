@@ -8,6 +8,47 @@ The runner is a single container sharing the host Docker socket (`automount`),
 so workflow jobs can run `docker buildx` against the box's own daemon — no dind.
 It runs non-root (`1001`), reaching the socket via the host `docker` group gid.
 
+## Actions come from this instance
+
+`uses:` is resolved at the start of every job, before its first step, and there is
+no runner-side cache for the fetched code. So a workflow with eight jobs made
+about ten round trips to somebody else's server on every run, and one of them has
+already timed out for no reason anyone could reconstruct afterwards.
+
+The actions are mirrored under `tools-mirror` on `git.insuit.cz` and workflows
+point there:
+
+| Action | Origin | Fetched from |
+|--------|--------|--------------|
+| `checkout@v7` | `github.com/actions/checkout`, mirrored by `code.forgejo.org` | `git.insuit.cz/tools-mirror/checkout` |
+| `upload-artifact@v5` | `code.forgejo.org/forgejo/upload-artifact` (a fork — see CAVEATS) | `git.insuit.cz/tools-mirror/upload-artifact` |
+
+```yaml
+- uses: https://git.insuit.cz/tools-mirror/checkout@v7
+```
+
+Worth being precise about what this buys, because the obvious phrasing is wrong:
+the dependency was never on github.com or codeberg.org directly. Actions resolve
+against `DEFAULT_ACTIONS_URL`, which is `data.forgejo.org` — Forgejo's own host —
+and Codeberg carries Forgejo's *source*, not its actions. What the mirrors remove
+is a build depending on any host outside the LAN at all, including that one.
+
+Two rules for adding another:
+
+- **It has to be public on the instance.** The automatic token reads the
+  repositories associated with the workflow, not an unrelated private one, and the
+  runner fetches an action with a plain `git fetch` carrying no credentials. A
+  private mirror fails with an authentication error, not a helpful one. There is
+  nothing to protect in a copy of a public action.
+- **Check the tag resolves to the same commit as upstream** before pointing a
+  workflow at the copy. `git ls-remote <mirror> <tag>` against the same on the
+  origin; a mirror is a copy, and a copy can be wrong or stale.
+
+Nothing else is mirrored, so a workflow reaching for an action not in that table
+still goes out to the WAN. `actions/setup-java` and `jdx/mise-action` are not
+mirrored *anywhere* — not even by Forgejo — which is why a JVM job installs its
+toolchain with a script instead of an action.
+
 ## Caveats
 
 Known limitations and gotchas of Forgejo's registry/package and Actions

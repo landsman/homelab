@@ -1,8 +1,8 @@
 # Self-hosted GitHub runner
 
-Ephemeral GitHub Actions self-hosted runner for Raspberry Pi 5 (ARM64).
+Long-lived GitHub Actions self-hosted runner for Raspberry Pi 5 (ARM64).
 
-Each job spawns a fresh `custom-runner-nodejs` container that registers with GitHub, runs the job, and exits. 
+One `custom-runner-nodejs` container per repository registers with GitHub and stays up, taking one job after another.
 **No runner software is installed on the Pi itself — only Docker is required**.
 
 ## What's inside the image
@@ -59,16 +59,49 @@ jobs:
 ```
 Pi (Docker only)
   └─ container starts
-       └─ registers with GitHub as ephemeral runner
-            └─ picks up one job → runs → deregisters → exits
-  └─ Compose restarts the container → repeat
+       └─ registers with GitHub, holds a long poll
+            └─ picks up a job → runs → waits for the next one
+  └─ Compose restarts the container only if it exits
 ```
 
-The `EPHEMERAL=true` env var tells the runner to deregister itself after a single job, ensuring a clean environment for every run.
+### Why the runner is not ephemeral
+
+`EPHEMERAL=true` makes the runner deregister and exit after every single job, so Compose
+recreates the container each time. That is a clean workspace per run, and it was the original
+setup — but on rootless Docker every recreate is another chance for the daemon to fail
+unmounting the old rootfs. Enough of those and the container is left in `Dead` state, where
+`docker compose up` refuses to start it (`container is marked for removal`) and only a
+manual `docker rm -f` recovers it. Two runners reached that state after roughly two months.
+
+Ephemeral runners are also the ones affected by
+[actions/runner#1887](https://github.com/actions/runner/issues/1887), where the runner stays
+`Idle` but silently stops accepting dispatched jobs.
+
+The cost of dropping it is that `_work` persists between jobs. `actions/checkout` cleans the
+repository itself, and for build-and-push jobs the leftover Docker layer cache is a speedup,
+not a hazard. If a job ever needs a guaranteed-clean tree, give it its own container step
+rather than turning ephemeral back on.
+
+Because the runner now lives for weeks rather than minutes, `DISABLE_AUTO_UPDATE=true` matters
+more: the runner version is pinned in the `Dockerfile` (`BASE_IMAGE`), so updating it means
+bumping that pin and running `make restart`. GitHub eventually refuses connections from runners
+that are too far behind, so do not let the pin drift.
+
+### Why the container starts as root
+
+`RUN_AS_ROOT=false` in `compose.yml` means jobs run as the `runner` user. The container still
+*starts* as root, because the entrypoint has to: it reads the GID of the mounted docker socket,
+`groupmod`s the docker group onto it, then drops privileges. A `USER` line in the Dockerfile
+skips that and the runner loses the docker socket.
+
+Trivy flags the missing `USER` as DS-0002 and cannot see any of the above, so the check is
+excepted in [`.trivyignore`](.trivyignore) — scoped to this Dockerfile, with the reasoning in the
+file. Note also that the daemon is rootless, so uid 0 inside the container is host uid 1001, not
+root; see [../docker/README.md](../docker/README.md).
 
 ## Surviving `docker system prune`
 
-Ephemeral runners briefly enter "stopped" state between jobs, so a raw `docker system prune` will sweep them mid-cycle. Both runner services carry the `preserve=true` label in `compose.yml`, which is honored by:
+A runner is briefly stopped whenever it is restarted or its image is rebuilt, so a raw `docker system prune` can sweep it mid-cycle. Both runner services carry the `preserve=true` label in `compose.yml`, which is honored by:
 
 - The scheduled cleanup — `../docker/Makefile` `prune` target passes `--filter "label!=preserve=true"`
 - Interactive shells — install [`../docker/docker-prune-guard.sh`](../docker/docker-prune-guard.sh) via `make -C ../docker guard-install` to wrap `docker system prune` / `docker container prune` with the same filter
@@ -88,5 +121,4 @@ environment:
   ORG_NAME: your-github-org   # instead of REPO_URL
   GITHUB_TOKEN: ${GITHUB_TOKEN}  # needs org admin scope
   LABELS: self-hosted,pi5
-  EPHEMERAL: "true"
 ```

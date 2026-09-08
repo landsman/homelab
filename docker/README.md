@@ -67,7 +67,7 @@ sudo apt install -y uidmap slirp4netns fuse-overlayfs dbus-user-session
 |---------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `uidmap`            | Provides `newuidmap`/`newgidmap` — the binaries that remap container UIDs to an unprivileged range (`100000+`) on the host |
 | `slirp4netns`       | User-space network stack so containers get internet access without kernel bridge privileges                                |
-| `fuse-overlayfs`    | User-space overlay filesystem — replaces the kernel `overlay2` driver for copy-on-write image layers                       |
+| `fuse-overlayfs`    | Fallback copy-on-write driver, only needed on kernels below 5.11 — see [Storage driver](#9-storage-driver)                  |
 | `dbus-user-session` | Enables the per-user D-Bus session that `systemctl --user` and lingering depend on                                         |
 
 > These are not installed by default on Raspberry Pi OS Lite. Running the command is safe regardless — apt skips anything already present.
@@ -211,6 +211,68 @@ Docker will now refuse to start if `/mnt/raid0` is not mounted.
 
 ---
 
+## 9. Storage driver
+
+Rootless Docker has two ways to store image layers: the kernel's `overlay2`, or `fuse-overlayfs`
+in userspace. Prefer `overlay2`. `fuse-overlayfs` is a FUSE mount held by a userspace process,
+and when one of those wedges the daemon cannot unmount the container's rootfs — the container is
+left in `Dead` state, `docker compose up` answers `container is marked for removal and cannot be
+started`, and only `docker rm -f` clears it. Containers that are recreated often are the ones
+that hit it.
+
+Check what is in use before changing anything — on kernel 5.11+ Docker usually picks `overlay2`
+on its own, in which case there is nothing to do:
+
+```bash
+docker info --format '{{.Driver}}'   # overlay2 = done, fuse-overlayfs = read on
+uname -r                             # needs 5.11 or newer to switch
+```
+
+### Switching from fuse-overlayfs to overlay2
+
+**This discards every image and container on the host.** Each driver keeps its own layer store, so
+after the switch Docker sees no images and every container has to be recreated. **Named volumes
+survive** — they live in `<data-root>/volumes/` and belong to no driver — so application data is
+not at risk, but plan for a maintenance window and expect to re-pull everything.
+
+```bash
+# 1. Stop everything cleanly, so nothing is mid-write
+systemctl --user stop docker
+
+# 2. Add the driver next to the existing data-root
+#    (the file already holds data-root from section 8 — edit it, do not overwrite it)
+cat ~/.config/docker/daemon.json
+```
+
+```json
+{
+  "data-root": "/mnt/raid0/containers/docker",
+  "storage-driver": "overlay2"
+}
+```
+
+```bash
+# 3. Start the daemon and confirm
+systemctl --user start docker
+docker info --format '{{.Driver}}'      # overlay2
+
+# 4. Bring the apps back up — images re-pull on demand
+for d in ~/dev/apps/*/; do (cd "$d" && [ -f compose.yml ] && docker compose up -d); done
+```
+
+The old `fuse-overlayfs` layer directory is left behind under
+`/mnt/raid0/containers/docker/fuse-overlayfs`. Once everything is confirmed running, it can go:
+
+```bash
+du -sh /mnt/raid0/containers/docker/fuse-overlayfs
+rm -rf /mnt/raid0/containers/docker/fuse-overlayfs
+```
+
+To roll back, remove the `storage-driver` key and restart the daemon — the old layers are still
+there until the directory above is deleted.
+
+---
+
 ## Maintenance
 
 Create cleanup cron. It will remove old containers and images at 3:30 AM every day:
@@ -250,6 +312,29 @@ rm -rf ~/.local/share/docker
 ```
 
 ---
+
+### Container stuck in `Dead`, `docker compose up` says "marked for removal"
+
+The daemon failed to unmount the container's rootfs and parked it. Restarting the daemon does not
+clear it, because the metadata stays on disk — `up` keeps refusing with
+`container is marked for removal and cannot be started`.
+
+```bash
+docker ps -a --filter status=dead        # find them
+docker rm -f <id> <id>                   # usually enough after a daemon restart
+```
+
+If `rm -f` fails with `device or resource busy`, remove the metadata with the daemon down:
+
+```bash
+systemctl --user stop docker
+ls "$(docker info --format '{{.DockerRootDir}}')/containers/"   # confirm the IDs first
+rm -rf /mnt/raid0/containers/docker/containers/<id>
+systemctl --user start docker
+```
+
+Leftover layer directories are swept by the next `docker system prune`. If this keeps happening,
+the driver is the cause — see [Storage driver](#9-storage-driver).
 
 ### `dial unix /run/user/1000/docker.sock: no such file or directory`
 

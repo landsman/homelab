@@ -18,12 +18,13 @@ services:
       REPO_URL: ${SUPABASE_REPO_URL}
       ACCESS_TOKEN: ${ACCESS_TOKEN}
       LABELS: self-hosted,pi5
-      EPHEMERAL: "true"
       DISABLE_AUTO_UPDATE: "true"
+      # jobs run as the runner user, not uid 0 — see .trivyignore
+      RUN_AS_ROOT: "false"
     volumes:
       - /run/user/1001/docker.sock:/var/run/docker.sock
 
-  # https://github.com/landsman/raspberry-pi
+  # https://github.com/landsman/homelab
   raspberry-pi:
     image: custom-runner-nodejs:latest
     restart: always
@@ -36,7 +37,8 @@ services:
       REPO_URL: ${RASPBERRY_REPO_URL}
       ACCESS_TOKEN: ${ACCESS_TOKEN}
       LABELS: self-hosted,pi5
-      EPHEMERAL: "true"
       DISABLE_AUTO_UPDATE: "true"
+      # jobs run as the runner user, not uid 0 — see .trivyignore
+      RUN_AS_ROOT: "false"
     volumes:
       - /run/user/1001/docker.sock:/var/run/docker.sock

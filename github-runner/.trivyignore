@@ -1,0 +1,17 @@
+# Passed to the shared Dockerfile scan as `ignorefile` — see
+# .github/workflows/github-runner-ci.yml. Scoped to this Dockerfile only;
+# every other Dockerfile in the repo still fails on these.
+
+# DS-0002 "Specify at least 1 USER command in Dockerfile with non-root user".
+#
+# The entrypoint of myoung34/github-runner has to start as root: it reads the
+# GID of the mounted docker socket and groupmods the docker group onto it
+# before dropping to the runner user. A USER line skips that step and the
+# container loses the docker socket, which is the only thing these runners are
+# here for. The check is unsatisfiable for this image, not unaddressed.
+#
+# What it warns about is handled elsewhere. Jobs do not run as uid 0 —
+# RUN_AS_ROOT=false in compose.yml drops them to the runner user. And the
+# escape this check exists to limit lands on host uid 1001 rather than root,
+# because the daemon is rootless (see ../docker/README.md).
+AVD-DS-0002

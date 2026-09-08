@@ -25,6 +25,7 @@ jobs:
     uses: landsman/config/.github/workflows/dockerfile.yml@main
     with:
       dockerfile: github-runner/Dockerfile
+      ignorefile: github-runner/.trivyignore
 
   security:
     uses: landsman/config/.github/workflows/semgrep.yml@main

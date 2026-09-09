@@ -31,6 +31,7 @@ export enum ServiceIcon {
   GITHUB = 'github',
   FORGEJO = 'forgejo',
   GITLAB = 'gitlab',
+  PENPOT = 'penpot',
   FIGMA = 'figma',
   SLACK = 'slack',
   TOGGL = 'toggl',

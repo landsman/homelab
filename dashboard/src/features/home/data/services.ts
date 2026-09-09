@@ -101,6 +101,11 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         shortcut: Hotkey.SHIFT_L,
       },
       {
+        name: 'Penpot',
+        url: 'https://design.penpot.app',
+        icon: ServiceIcon.PENPOT,
+      },
+      {
         name: 'Figma',
         url: 'https://figma.com',
         icon: ServiceIcon.FIGMA,

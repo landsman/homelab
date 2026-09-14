@@ -128,13 +128,15 @@ in the workflow to wrap. Remove the dependency instead — Forgejo can pull-mirr
 the action repository, and `uses:` takes a full URL to any instance:
 
 ```yaml
-uses: https://git.insuit.cz/actions/checkout@v7
+uses: https://git.insuit.cz/tools-mirror/checkout@v7
 ```
 
 One migration in the UI, and every workflow on the instance stops depending on
 someone else's host being up. The cost is owning the mirror and its sync.
 
-One failure is not a pattern, and this was one.
+It became a pattern. The mirrors are in place, and a second failure — against
+`git.insuit.cz` itself — showed the path through Cloudflare was the problem, not
+the remote. See "Fetching actions over the LAN" in the [README](README.md).
 
 ## Cross-arch builds
 

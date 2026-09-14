@@ -31,15 +31,16 @@ Worth being precise about what this buys, because the obvious phrasing is wrong:
 the dependency was never on github.com or codeberg.org directly. Actions resolve
 against `DEFAULT_ACTIONS_URL`, which is `data.forgejo.org` — Forgejo's own host —
 and Codeberg carries Forgejo's *source*, not its actions. What the mirrors remove
-is a build depending on any host outside the LAN at all, including that one.
+is the dependency on that host. `git.insuit.cz` is still reached through
+Cloudflare unless the next section is set up.
 
 Two rules for adding another:
 
 - **It has to be public on the instance.** The automatic token reads the
-  repositories associated with the workflow, not an unrelated private one, and the
-  runner fetches an action with a plain `git fetch` carrying no credentials. A
-  private mirror fails with an authentication error, not a helpful one. There is
-  nothing to protect in a copy of a public action.
+  repositories associated with the workflow, not an unrelated private one, and
+  over the LAN the runner fetches without any token (next section). A private
+  mirror fails with an authentication error, not a helpful one. There is nothing
+  to protect in a copy of a public action.
 - **Check the tag resolves to the same commit as upstream** before pointing a
   workflow at the copy. `git ls-remote <mirror> <tag>` against the same on the
   origin; a mirror is a copy, and a copy can be wrong or stale.
@@ -51,30 +52,20 @@ toolchain with a script instead of an action.
 
 ## Fetching actions over the LAN
 
-`git.insuit.cz` is proxied by Cloudflare, so a `uses:` on this box leaves the
+`git.insuit.cz` is proxied by Cloudflare, so fetching the mirrors above leaves the
 network, reaches an edge in Prague and comes back — for a Forgejo instance two
-hops away. Actions resolve before a job's first step and a tag is fetched again
-every time, so an eight-job workflow makes that trip about ten times per run.
-It has already failed at the connect stage twice, against two different hosts,
-which is what ruled the remote out and pointed at this path.
+hops away, about ten times per eight-job run. A tag is fetched again every time,
+even with the clone cached. It has already failed at the connect stage twice,
+against two different hosts, which ruled the remote out and pointed at the path.
 
-Set `FORGEJO_INTERNAL_URL` in `.env` to the origin's real address:
+Set `FORGEJO_INTERNAL_URL` in `.env` to the origin's real address, with no
+trailing slash:
 
     FORGEJO_INTERNAL_URL=http://<forgejo-lan-ip>:3000
 
-`compose.yml` turns that into a git URL rewrite for the runner, through
-`GIT_CONFIG_*` so there is no config file to mount. Leave it unset and nothing
-changes.
-
-The rewrite alone would cost the runner its action cache. It keeps a bare clone
-of each action under `data/.cache/act` and reuses it only while
-`git remote get-url origin` equals the `uses:` URL — and `get-url` applies
-`insteadOf`, so every `uses:` would clone from scratch, and overlapping jobs
-would leave worktrees on disk that nothing removes. It would also drop the job
-token, which the
-runner scopes to `https://git.insuit.cz/`. `runner/git` is mounted over `git` in
-the container to handle both; delete it once the runner stops comparing through
-`get-url`.
+`runner/git` is mounted over `git` in the runner container and rewrites
+`https://git.insuit.cz/` to that address for the runner's own fetches. Leave the
+variable unset and it passes everything through.
 
 It must be the address **and port** Forgejo actually listens on. It publishes
 plain HTTP on 3000 and nothing on 443, so mapping the hostname to the LAN IP with
@@ -82,14 +73,34 @@ plain HTTP on 3000 and nothing on 443, so mapping the hostname to the LAN IP wit
 no certificate for one. Rewriting the whole URL handles the scheme and the port
 together.
 
-Check it before relying on it, from the runner box:
+Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
+
+- **The action cache.** The runner keeps a bare clone of each action under
+  `data/.cache/act` and reuses it only while `git remote get-url origin` equals
+  the `uses:` URL. `get-url` applies `insteadOf`, so a rewrite in the environment
+  makes every `uses:` clone from scratch, and overlapping jobs leave worktrees on
+  disk that nothing removes. The wrapper skips that one command.
+- **Host jobs.** A `self-hosted:host` job runs in this container and inherits its
+  environment. Its checkout would be rewritten too, and `actions/checkout` scopes
+  its token to `https://git.insuit.cz/`, so a private repository would fail on
+  auth. The wrapper only touches calls that start with `--no-replace-objects`,
+  which is how the runner invokes git and a checkout does not.
+
+The runner scopes its job token the same way, so it is not sent to the LAN
+address either — which is why a mirror has to be public, and why the token never
+crosses the LAN in plain HTTP. If a runner upgrade changes how it calls git, the
+fetches go back through Cloudflare without an error; the check below shows it.
+
+Check it on the box once the runner is up:
 
 ```sh
-git ls-remote http://<forgejo-lan-ip>:3000/tools-mirror/checkout v7
+docker compose exec runner git --no-replace-objects ls-remote --get-url https://git.insuit.cz/tools-mirror/checkout
+docker compose exec runner git --no-replace-objects ls-remote https://git.insuit.cz/tools-mirror/checkout v7
 ```
 
-That is the fetch the runner makes. If it prints a sha, the rewrite will work; if
-it hangs, the origin is not reachable there and the problem is not Cloudflare.
+The first should print the LAN address, which proves the wrapper is in place. The
+second makes the fetch the runner makes: a sha means it works; a hang means the
+origin is not reachable from this box, and the problem is not Cloudflare.
 
 ## Job caches
 

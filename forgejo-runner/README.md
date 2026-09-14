@@ -53,8 +53,8 @@ toolchain with a script instead of an action.
 
 `git.insuit.cz` is proxied by Cloudflare, so a `uses:` on this box leaves the
 network, reaches an edge in Prague and comes back — for a Forgejo instance two
-hops away. Actions resolve before a job's first step and nothing caches the
-fetched code, so an eight-job workflow makes that trip about ten times per run.
+hops away. Actions resolve before a job's first step and a tag is fetched again
+every time, so an eight-job workflow makes that trip about ten times per run.
 It has already failed at the connect stage twice, against two different hosts,
 which is what ruled the remote out and pointed at this path.
 
@@ -65,6 +65,16 @@ Set `FORGEJO_INTERNAL_URL` in `.env` to the origin's real address:
 `compose.yml` turns that into a git URL rewrite for the runner, through
 `GIT_CONFIG_*` so there is no config file to mount. Leave it unset and nothing
 changes.
+
+The rewrite alone would cost the runner its action cache. It keeps a bare clone
+of each action under `data/.cache/act` and reuses it only while
+`git remote get-url origin` equals the `uses:` URL — and `get-url` applies
+`insteadOf`, so every `uses:` would clone from scratch, and overlapping jobs
+would leave worktrees on disk that nothing removes. It would also drop the job
+token, which the
+runner scopes to `https://git.insuit.cz/`. `runner/git` is mounted over `git` in
+the container to handle both; delete it once the runner stops comparing through
+`get-url`.
 
 It must be the address **and port** Forgejo actually listens on. It publishes
 plain HTTP on 3000 and nothing on 443, so mapping the hostname to the LAN IP with

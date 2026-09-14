@@ -8,6 +8,7 @@ services:
       - ./data:/data
       - ./runner/config.yml:/data/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./runner/git:/usr/local/bin/git:ro
     environment:
       # Fetch actions over the LAN instead of out through Cloudflare and back.
       #
@@ -29,7 +30,11 @@ services:
       #
       # Optional on purpose: unset FORGEJO_INTERNAL_URL and GIT_CONFIG_COUNT is
       # empty, which git ignores, and fetches go back out through Cloudflare.
-      # Set it in .env, e.g. FORGEJO_INTERNAL_URL=http://192.168.1.10:3000
+      # Set it in .env, e.g. FORGEJO_INTERNAL_URL=http://<forgejo-lan-ip>:3000
+      #
+      # runner/git, mounted above, keeps the runner's action cache and job token
+      # working with the rewrite on — see the comment in that file.
+      FORGEJO_INTERNAL_URL: "${FORGEJO_INTERNAL_URL:-}"
       GIT_CONFIG_COUNT: "${FORGEJO_INTERNAL_URL:+1}"
       GIT_CONFIG_KEY_0: "url.${FORGEJO_INTERNAL_URL:-unset}/.insteadOf"
       GIT_CONFIG_VALUE_0: "https://git.insuit.cz/"

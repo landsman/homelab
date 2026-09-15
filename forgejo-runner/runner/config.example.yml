@@ -7,6 +7,10 @@ runner:
   shutdown_timeout: 30s
   labels:
     - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-22.04"
+    # This box's own name (`jesse`, `walter`), so a job can reach one runner on
+    # purpose. Same image as ubuntu-latest, and added next to it — never instead of
+    # it. Why: ../README.md#labels
+    - "<box>:docker://docker.gitea.com/runner-images:ubuntu-22.04"
     - "self-hosted:host"
 
 cache:

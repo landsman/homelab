@@ -1,8 +1,12 @@
 # forgejo-runner
 
 Forgejo Actions runner for [git.insuit.cz](https://git.insuit.cz), running on
-`jesse.pollos` (x86 Debian 13) as a dedicated CI box. Job containers run natively
-as `amd64`; cross-arch image builds fall back to QEMU.
+`jesse.pollos` and `walter.pollos` (both x86 Debian 13). Both register the same
+labels, so Forgejo hands a job to whichever polls first. Job containers run
+natively as `amd64`; cross-arch image builds fall back to QEMU.
+
+jesse is a dedicated CI box; walter also carries whisper and other long-running
+work, so jobs there compete for its four cores.
 
 The runner is a single container sharing the host Docker socket (`automount`),
 so workflow jobs can run `docker buildx` against the box's own daemon — no dind.
@@ -98,11 +102,11 @@ image CI on this instance.
 
 ## Setup on a fresh box
 
-1. `make rsync` — pushes this dir (incl. the example config) to
-   `jesse.pollos:forgejo-runner/`
+1. `make rsync HOST=walter.pollos` — pushes this dir (incl. the example config)
+   to `<host>:forgejo-runner/`; `HOST` defaults to `jesse.pollos`
 2. On the box, once: `make config` — copies `runner/config.example.yml` →
    `runner/config.yml` (existing config is kept)
-3. Edit `runner/config.yml` on jesse, filling the **UUID** and **Token** from
+3. Edit `runner/config.yml` on the box, filling the **UUID** and **Token** from
    Forgejo UI → **Settings → Actions → Runners → Create new runner**
    into `server.connections.forgejo` (`url` uses the publicly reachable
    `https://git.insuit.cz/`).
@@ -111,6 +115,9 @@ image CI on this instance.
 5. `make up`
 6. Verify the runner shows **online** in the Forgejo UI.
 7. One-time, for cross-arch image builds: `make qemu`
+
+Each box is its own runner in the Forgejo UI with its own token — never copy
+`runner/config.yml` between them.
 
 `runner/config.yml`, `.env` and `data/` are gitignored — the token and socket
 gid never land in the public `homelab` repo.
@@ -121,7 +128,7 @@ gid never land in the public `homelab` repo.
 restart` — `make up` will say `Running` and do nothing.
 
 ```sh
-make rsync        # push changes to the box (after editing config, eg. capacity)
+make rsync        # push changes to jesse; HOST=walter.pollos for walter
 ssh jesse.pollos 'cd forgejo-runner && make restart'   # apply a config change
 ssh jesse.pollos 'cd forgejo-runner && make logs'    # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'

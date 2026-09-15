@@ -1,12 +1,16 @@
-HOST = jesse.pollos
-
+.DEFAULT_GOAL := help
 .PHONY: help rsync prepare cache config up restart down logs status register qemu
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-rsync: ## Copy this dir to the box (HOST=$(HOST))
-	rsync -av --exclude data --exclude .env ./ $(HOST):forgejo-runner/
+# No default host: there is more than one runner box, and pushing to the wrong
+# one is silent.
+rsync: ## Copy this dir to a box (asks for it, or HOST=walter.pollos)
+	@host="$(HOST)"; \
+	[ -n "$$host" ] || { printf 'Host (jesse.pollos, walter.pollos): '; read -r host; }; \
+	[ -n "$$host" ] || { echo "No host given."; exit 1; }; \
+	rsync -av --exclude data --exclude .env ./ "$$host":forgejo-runner/
 
 config: ## Copy the example config to runner/config.yml (run on the box, first time)
 	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
@@ -71,7 +75,7 @@ status: ## Show runner container state
 register: ## Print registration steps (config-based, Forgejo 16)
 	@echo "1. Forgejo UI -> Settings -> Actions -> Runners -> Create new runner"
 	@echo "2. Fill the UUID and Token into runner/config.yml -> server.connections.forgejo"
-	@echo "3. make rsync && ssh $(HOST) 'cd forgejo-runner && make prepare && make up'"
+	@echo "3. make rsync && ssh <host> 'cd forgejo-runner && make prepare && make up'"
 	@echo "   (later config edits need 'make restart', not 'make up')"
 
 qemu: ## Register multiarch binfmt once (for cross-arch image builds)

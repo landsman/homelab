@@ -98,8 +98,8 @@ image CI on this instance.
 
 ## Setup on a fresh box
 
-1. `make rsync` — pushes this dir (incl. the example config) to
-   `jesse.pollos:forgejo-runner/`
+1. `make rsync` — asks for the box and pushes this dir (incl. the example
+   config) to `<host>:forgejo-runner/`; `HOST=walter.pollos` skips the question
 2. On the box, once: `make config` — copies `runner/config.example.yml` →
    `runner/config.yml` (existing config is kept)
 3. Edit `runner/config.yml` on jesse, filling the **UUID** and **Token** from

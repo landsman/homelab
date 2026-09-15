@@ -102,10 +102,11 @@ image CI on this instance.
    config) to `<host>:forgejo-runner/`; `HOST=walter.pollos` skips the question
 2. On the box, once: `make config` — copies `runner/config.example.yml` →
    `runner/config.yml` (existing config is kept)
-3. Edit `runner/config.yml` on jesse, filling the **UUID** and **Token** from
+3. Edit `runner/config.yml` on the box, filling the **UUID** and **Token** from
    Forgejo UI → **Settings → Actions → Runners → Create new runner**
    into `server.connections.forgejo` (`url` uses the publicly reachable
-   `https://git.insuit.cz/`).
+   `https://git.insuit.cz/`), and replacing `<box>` in `runner.labels` with the
+   box's name — see [Labels](#labels).
 4. `make prepare` — one-time: owns `data/` for uid `1001` and writes `.env`
    with the docker group gid
 5. `make up`
@@ -132,12 +133,31 @@ ssh jesse.pollos 'cd forgejo-runner && make status'
 | Label           | Execution              | Where a step actually runs                    |
 |-----------------|------------------------|-----------------------------------------------|
 | `ubuntu-latest` | Docker via host socket | `docker.gitea.com/runner-images:ubuntu-22.04` |
+| `jesse`, `walter` | Docker via host socket | the same image, on that box only            |
 | `self-hosted`   | `:host`                | *inside the runner container* — see below     |
 
 **Use `ubuntu-latest` for everything.** The label image is the Gitea project's
 runner image (built on the catthehacker `act` base, org-maintained and
 version-pinned); `force_pull: true` keeps the job image refreshed. It carries
 node, the docker client, make, curl, python3, sudo and apt.
+
+**A box label is for the job that has to reach one box on purpose.** Each runner
+also declares its own name, mapped to the same image. Everything under
+`container:` — the cache mounts included — belongs to the runner, not to a label,
+so a `runs-on: walter` job sees exactly the caches any other job on walter sees.
+That is what it is for: the caches are directories on each box's own disk, so a
+job that fills one (warming a Gradle dependency cache, say) has to run once per
+box. On `ubuntu-latest` it lands on whichever runner polls first, keeps that box
+warm, and never reaches the other — whose jobs then run cold with nothing
+anywhere saying so.
+
+Adding the label takes nothing away from `ubuntu-latest`. A runner matches when it
+carries every label the job asks for, and labels the job does not name are
+ignored — which is already why a job asking only for `ubuntu-latest` reaches a
+runner that also declares `self-hosted`. So the line goes **next to**
+`ubuntu-latest`; putting it there *instead* is the mistake, and it looks like
+every workflow queueing with nothing failing. A label change is a config change:
+`make restart`.
 
 `self-hosted` is mapped `self-hosted:host`, and "host" does not mean this box.
 It forks a shell from the runner *process*, and that process is itself a

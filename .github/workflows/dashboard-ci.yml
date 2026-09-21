@@ -58,6 +58,9 @@ jobs:
       - name: "End-to-end tests"
         run: npm run test:e2e
 
+      - name: "Feature tests"
+        run: npm run test:bdd
+
   security:
     uses: landsman/config/.github/workflows/semgrep.yml@main
     with:

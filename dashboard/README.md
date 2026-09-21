@@ -46,11 +46,18 @@ make test     # unit tests (vitest) + deploy shell tests
 make e2e      # end-to-end tests (Playwright, Chromium) — starts the dev server itself
 make e2e-head # the same run in one visible browser, slowed down to be watchable
               #   SLOW_MO=1000 to slow it further, ARGS="--debug" to step through
+make bdd      # Cucumber feature files; HEADED=1 SLOW_MO=500 to watch them
 ```
 
 End-to-end specs live in `tests/e2e/` and cover the basics: the service grid
 renders, search filters it, navigation and shortcuts switch pages. They drive a
 real browser, so they are kept out of `make qa` — CI runs them as their own step.
+
+`tests/bdd/` holds the same kind of coverage written as Gherkin for Cucumber-JS:
+`features/` are the scenarios, `steps/` binds each line to Playwright, and
+`support/` starts the app and hands every scenario its own browser context.
+Both runners drive the same browser — Cucumber exists for scenarios that someone
+outside the code has to read.
 
 ## Adding a service
 

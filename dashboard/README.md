@@ -39,11 +39,12 @@ The Docker image is a two-stage build: `node:20-alpine` compiles the app, `nginx
 ## Quality
 
 ```bash
-make qa      # typecheck + format check + lint + unit tests
-make format  # auto-format all files with Prettier
-make lint    # oxlint only
-make test    # unit tests (vitest) + deploy shell tests
-make e2e     # end-to-end tests (Playwright, Chromium) — starts the dev server itself
+make qa       # typecheck + format check + lint + unit tests
+make format   # auto-format all files with Prettier
+make lint     # oxlint only
+make test     # unit tests (vitest) + deploy shell tests
+make e2e      # end-to-end tests (Playwright, Chromium) — starts the dev server itself
+make e2e-head # the same run in a visible browser; ARGS="--debug" steps through it
 ```
 
 End-to-end specs live in `tests/e2e/` and cover the basics: the service grid

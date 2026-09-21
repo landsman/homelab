@@ -5,7 +5,7 @@ PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 
 ### DEV
-.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test e2e qa
+.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test e2e e2e-head qa
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*## "} /^### /{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-zA-Z_-]+:.*## /{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -48,6 +48,10 @@ test: ## Run unit tests
 e2e: ## Run Playwright end-to-end tests (starts the dev server itself)
 	npx playwright install chromium
 	npm run test:e2e
+
+e2e-head: ## Same, but in a visible browser window — pass ARGS="--debug" to step through
+	npx playwright install chromium
+	npm run test:e2e -- --headed $(ARGS)
 
 format: ## Format all files with Prettier
 	npm run format:fix

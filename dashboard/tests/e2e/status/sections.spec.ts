@@ -2,6 +2,12 @@ import { test, expect } from '@playwright/test'
 import { ROUTES } from '@/app/routes'
 
 test.beforeEach(async ({ page }) => {
+  // The cards poll real status APIs — blocked so the suite never leaves
+  // localhost. Nothing here asserts the fetched data, only the page around it.
+  await page.route(
+    url => url.hostname !== 'localhost',
+    route => route.abort()
+  )
   await page.goto(ROUTES.status)
 })
 

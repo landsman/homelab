@@ -2,7 +2,7 @@ import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import { buildProxies } from './src/proxy.config'
+import { buildProxies } from './src/proxy.config.ts'
 
 // Use relative asset URLs so the same build can be mounted under any subpath
 // (tailscale serve `/dashboard`, cloudflare tunnel, etc.). Runtime base

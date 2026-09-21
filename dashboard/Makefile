@@ -8,7 +8,7 @@ GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 .PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test browser e2e-deps e2e e2e-head bdd qa
 
 help: ## Show this help
-	@awk 'BEGIN {FS = ":.*## "} /^### /{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-zA-Z_-]+:.*## /{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "} /^### /{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-zA-Z0-9_-]+:.*## /{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install deps
 	npm ci

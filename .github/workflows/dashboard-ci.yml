@@ -41,6 +41,12 @@ jobs:
       - name: "Build"
         run: make build
 
+      - name: "Install Playwright browser"
+        run: npx playwright install --with-deps chromium
+
+      - name: "End-to-end tests"
+        run: npm run test:e2e
+
   security:
     uses: landsman/config/.github/workflows/semgrep.yml@main
     with:

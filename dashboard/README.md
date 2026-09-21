@@ -39,10 +39,16 @@ The Docker image is a two-stage build: `node:20-alpine` compiles the app, `nginx
 ## Quality
 
 ```bash
-make qa      # typecheck + format check + lint
+make qa      # typecheck + format check + lint + unit tests
 make format  # auto-format all files with Prettier
 make lint    # oxlint only
+make test    # unit tests (vitest) + deploy shell tests
+make e2e     # end-to-end tests (Playwright, Chromium) — starts the dev server itself
 ```
+
+End-to-end specs live in `tests/e2e/` and cover the basics: the service grid
+renders, search filters it, navigation and shortcuts switch pages. They drive a
+real browser, so they are kept out of `make qa` — CI runs them as their own step.
 
 ## Adding a service
 

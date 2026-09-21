@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
@@ -20,5 +20,9 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ['t1.insuit.cz', 'welcome.insuit.cz'],
     proxy: buildProxies('/'),
+  },
+  test: {
+    // tests/e2e belongs to Playwright; vitest would otherwise pick the specs up.
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
   },
 })

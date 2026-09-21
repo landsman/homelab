@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from '../fixture'
 import { ROUTES } from '@/app/routes'
 import { HOME_CATEGORIES } from '@/features/home/data/services'
 

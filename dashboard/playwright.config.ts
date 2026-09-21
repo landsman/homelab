@@ -17,7 +17,13 @@ export default defineConfig({
     trace: 'on-first-retry',
     launchOptions: { slowMo: SLOW_MO },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      // Roomier than the 1280x720 default, so a watched run shows the whole grid.
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 1000 } },
+    },
+  ],
   webServer: {
     command: 'npm run dev',
     url: `http://localhost:${PORT}`,

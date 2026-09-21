@@ -49,9 +49,10 @@ e2e: ## Run Playwright end-to-end tests (starts the dev server itself)
 	npx playwright install chromium
 	npm run test:e2e
 
-# One worker, one window, half a second between actions — otherwise it is six
-# Chromes racing each other too fast to read.
-SLOW_MO ?= 500
+# One worker, one window, a pause between actions — otherwise it is six Chromes
+# racing each other too fast to read. SLOW_MO also turns on the on-screen label
+# naming the running test (see tests/e2e/fixture.ts).
+SLOW_MO ?= 900
 
 e2e-head: ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
 	npx playwright install chromium

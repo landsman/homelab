@@ -44,7 +44,8 @@ make format   # auto-format all files with Prettier
 make lint     # oxlint only
 make test     # unit tests (vitest) + deploy shell tests
 make e2e      # end-to-end tests (Playwright, Chromium) — starts the dev server itself
-make e2e-head # the same run in a visible browser; ARGS="--debug" steps through it
+make e2e-head # the same run in one visible browser, slowed down to be watchable
+              #   SLOW_MO=1000 to slow it further, ARGS="--debug" to step through
 ```
 
 End-to-end specs live in `tests/e2e/` and cover the basics: the service grid

@@ -49,9 +49,13 @@ e2e: ## Run Playwright end-to-end tests (starts the dev server itself)
 	npx playwright install chromium
 	npm run test:e2e
 
-e2e-head: ## Same, but in a visible browser window — pass ARGS="--debug" to step through
+# One worker, one window, half a second between actions — otherwise it is six
+# Chromes racing each other too fast to read.
+SLOW_MO ?= 500
+
+e2e-head: ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
 	npx playwright install chromium
-	npm run test:e2e -- --headed $(ARGS)
+	SLOW_MO=$(SLOW_MO) npm run test:e2e -- --headed --workers=1 $(ARGS)
 
 format: ## Format all files with Prettier
 	npm run format:fix

@@ -33,6 +33,16 @@
 - Prefer editing existing files over creating new ones
 - After editing files, always run prettier on changed files
 
+## Tests (`dashboard/`)
+- **Every new user-facing feature ships with both a Cucumber scenario and an e2e spec** — a scenario in `tests/bdd/features/*.feature` saying what the feature is for, and a Playwright spec in `tests/e2e/<area>/` pinning the behaviour down. Not one or the other, and not "later"
+- Areas are `home/`, `status/` and `common/` (header, navigation, anything shared)
+- Specs import `test`/`expect` from `tests/e2e/fixture.ts`, never straight from `@playwright/test` — the fixture draws the on-screen label `make e2e-head` runs on
+- Locate by role, label or placeholder; paths come from `ROUTES` (`@/app/routes`), never a literal `/status`
+- Reuse a Cucumber step before writing a near-duplicate — the step file is the vocabulary, a second phrasing of the same action splits it
+- A test never reaches the network: the status specs abort every request off localhost, so a suite result never depends on GitHub being up
+- Pure logic (a filter, a formatter) gets a vitest test in `tests/` as well — it runs in milliseconds and says which function broke
+- Before pushing: `make test`, `make e2e`, `make bdd`. `make e2e-head` to watch a failure happen
+
 ## SVG icons
 - Brand/service logos go in `public/icons/<name>.svg` (20×20 viewBox) so the browser can cache them
 - UI icons that need `currentColor` (chevron, refresh, settings gear, etc.) stay inline in JSX — moving them to `<img>` breaks color theming

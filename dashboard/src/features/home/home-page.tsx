@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
 import { ServiceCard } from './ui/service-card.tsx'
 import { ServiceHotkey } from './ui/service-hot-key.tsx'
 import { HOME_CATEGORIES } from './data/services.ts'
+import { useFilteredCategories } from './hooks/use-filtered-categories.ts'
 import { SearchBar } from '../search/search-bar'
 
 interface HomePageProps {
@@ -11,15 +11,7 @@ interface HomePageProps {
 
 export function HomePage({ query, onQueryChange }: HomePageProps) {
   const servicesWithShortcuts = HOME_CATEGORIES.flatMap(c => c.services).filter(s => s.shortcut)
-  const q = query.trim().toLowerCase()
-
-  const categories = useMemo(() => {
-    if (!q) return HOME_CATEGORIES
-    return HOME_CATEGORIES.map(c => ({
-      ...c,
-      services: c.services.filter(s => s.name.toLowerCase().includes(q)),
-    })).filter(c => c.services.length > 0)
-  }, [q])
+  const categories = useFilteredCategories(query)
 
   return (
     <div className="flex flex-col gap-10 fade-in">

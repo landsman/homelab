@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { HotKey } from '../../features/common/hotkey/hot-key'
 import { Clock } from './clock.tsx'
@@ -24,9 +24,6 @@ export function Header({ onSettingsClick }: HeaderProps) {
   const { query, setQuery } = useSearch()
   const searchRef = useRef<HTMLInputElement>(null)
   useSearchFocus(searchRef)
-
-  // A query typed on one page means nothing on the other — drop it on navigation.
-  useEffect(() => setQuery(''), [pathname, setQuery])
 
   return (
     <header className="flex flex-col gap-3 pt-8 pb-6 px-6 md:px-10 xl:px-16 border-b border-(--border) overflow-x-hidden">

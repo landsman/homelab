@@ -1,4 +1,9 @@
 {
+  // `paths` lives here too: Playwright reads the tsconfig nearest the specs,
+  // and tests/ is covered by neither project below.
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] }
+  },
   "files": [],
   "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }

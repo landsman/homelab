@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { filterCategories } from '../../src/features/home/hooks/use-filtered-categories'
-import type { HomeCategory } from '../../src/features/home/data/services.types'
+import { filterCategories } from '@/features/home/hooks/use-filtered-categories'
+import type { HomeCategory } from '@/features/home/data/services.types'
 
 const CATEGORIES: HomeCategory[] = [
   {

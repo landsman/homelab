@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
+import { defineConfig, configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import { buildProxies } from './src/proxy.config'
+import { buildProxies } from './src/proxy.config.ts'
 
 // Use relative asset URLs so the same build can be mounted under any subpath
 // (tailscale serve `/dashboard`, cloudflare tunnel, etc.). Runtime base
@@ -14,11 +14,19 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  resolve: {
+    // `@` is the src root — tests reach into the app without counting ../
+    alias: { '@': '/src' },
+  },
   server: {
     host: true, // allow access from external hosts
     port: 5173,
     strictPort: true,
     allowedHosts: ['t1.insuit.cz', 'welcome.insuit.cz'],
     proxy: buildProxies('/'),
+  },
+  test: {
+    // tests/e2e belongs to Playwright; vitest would otherwise pick the specs up.
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
   },
 })

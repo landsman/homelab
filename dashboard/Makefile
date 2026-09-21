@@ -5,7 +5,7 @@ PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 
 ### DEV
-.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test e2e e2e-head bdd qa
+.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test browser e2e-deps e2e e2e-head bdd qa
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*## "} /^### /{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-zA-Z_-]+:.*## /{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -45,8 +45,13 @@ test: ## Run unit tests
 	npm test
 	sh tests/deploy/run.sh
 
-e2e: ## Run Playwright end-to-end tests (starts the dev server itself)
+browser: ## Install the Playwright browser if it is missing
 	npx playwright install chromium
+
+e2e-deps: ## The browser plus its system libraries — what a fresh CI runner needs
+	npx playwright install --with-deps chromium
+
+e2e: browser ## Run Playwright end-to-end tests (starts the dev server itself)
 	npm run test:e2e
 
 # One worker, one window, a pause between actions — otherwise it is six Chromes
@@ -54,12 +59,10 @@ e2e: ## Run Playwright end-to-end tests (starts the dev server itself)
 # naming the running test (see tests/e2e/fixture.ts).
 SLOW_MO ?= 900
 
-e2e-head: ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
-	npx playwright install chromium
+e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
 	SLOW_MO=$(SLOW_MO) npm run test:e2e -- --headed --workers=1 $(ARGS)
 
-bdd: ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
-	npx playwright install chromium
+bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
 	npm run test:bdd
 
 format: ## Format all files with Prettier

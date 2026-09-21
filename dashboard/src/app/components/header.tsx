@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { HotKey } from '../../features/common/hotkey/hot-key'
 import { Clock } from './clock.tsx'
@@ -22,9 +22,11 @@ function getDisplayName(): string {
 export function Header({ onSettingsClick }: HeaderProps) {
   const pathname = useRouterState({ select: s => s.location.pathname })
   const { query, setQuery } = useSearch()
-  const isStatus = pathname === ROUTES.status
   const searchRef = useRef<HTMLInputElement>(null)
-  useSearchFocus(searchRef, isStatus)
+  useSearchFocus(searchRef)
+
+  // A query typed on one page means nothing on the other — drop it on navigation.
+  useEffect(() => setQuery(''), [pathname, setQuery])
 
   return (
     <header className="flex flex-col gap-3 pt-8 pb-6 px-6 md:px-10 xl:px-16 border-b border-(--border) overflow-x-hidden">
@@ -54,7 +56,7 @@ export function Header({ onSettingsClick }: HeaderProps) {
 
         {/* Search — desktop center */}
         <div className="hidden md:flex flex-1 justify-center">
-          <div className={`w-80 lg:w-lg ${isStatus ? '' : 'invisible'}`}>
+          <div className="w-80 lg:w-lg">
             <SearchBar
               ref={searchRef}
               query={query}

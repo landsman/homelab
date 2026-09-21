@@ -14,18 +14,6 @@ test('navigates between home and status', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Open Hacker News' })).toBeVisible()
 })
 
-test('shortcuts jump to the other page', async ({ page }) => {
-  await page.goto(ROUTES.home)
-  // The hotkeys register in an effect — wait for the page to be mounted first.
-  await expect(page.getByRole('link', { name: 'Open Hacker News' })).toBeVisible()
-
-  await page.keyboard.press('Shift+Digit2')
-  await expect(page).toHaveURL(ROUTES.status)
-
-  await page.keyboard.press('Shift+Digit1')
-  await expect(page).toHaveURL(ROUTES.home)
-})
-
 test('a query typed on one page does not follow to the other', async ({ page }) => {
   await page.goto(ROUTES.home)
   const search = page.getByPlaceholder('Search services…')

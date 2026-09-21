@@ -41,6 +41,17 @@ jobs:
       - name: "Build"
         run: make build
 
+      # Keyed on the lockfile: only a dependency bump (which may move the
+      # Playwright version) has to re-download the ~90 MB browser.
+      - name: "Cache Playwright browser"
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('dashboard/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-playwright-
+
+      # Still runs on a cache hit — the browser is skipped, the apt system deps
+      # are not cached and have to be installed either way.
       - name: "Install Playwright browser"
         run: npx playwright install --with-deps chromium
 

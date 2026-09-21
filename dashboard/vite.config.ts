@@ -14,6 +14,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  resolve: {
+    // `@` is the src root — tests reach into the app without counting ../
+    alias: { '@': '/src' },
+  },
   server: {
     host: true, // allow access from external hosts
     port: 5173,

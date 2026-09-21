@@ -11,7 +11,7 @@ async function loadWithBase(base: string | undefined) {
       __BASE_PATH__: base,
     }
   }
-  return await import('../../src/app/config/routing/base-path')
+  return await import('@/app/config/routing/base-path')
 }
 
 describe('resolveAsset', () => {

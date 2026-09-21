@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { ROUTES } from '../../../src/app/routes'
+import { ROUTES } from '@/app/routes'
 
 test('renders the service grid', async ({ page }) => {
   await page.goto(ROUTES.home)

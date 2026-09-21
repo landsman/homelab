@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { ROUTES } from '../../../src/app/routes'
-import { HOME_CATEGORIES } from '../../../src/features/home/data/services'
+import { ROUTES } from '@/app/routes'
+import { HOME_CATEGORIES } from '@/features/home/data/services'
 
 // The hotkey strings are letter/digit combos ('Shift+R'), which is also valid
 // Playwright key-press syntax — so the catalog value goes straight into press().

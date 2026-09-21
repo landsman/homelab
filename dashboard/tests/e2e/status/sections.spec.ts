@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { ROUTES } from '../../../src/app/routes'
+import { ROUTES } from '@/app/routes'
 
 test.beforeEach(async ({ page }) => {
   await page.goto(ROUTES.status)

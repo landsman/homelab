@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { HOME_CATEGORIES } from '../../src/features/home/data/services'
+import { HOME_CATEGORIES } from '@/features/home/data/services'
 
 describe('home hotkeys', () => {
   it('hotkey have to be unique', async () => {

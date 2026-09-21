@@ -14,8 +14,10 @@ env:
 
 jobs:
   docker:
-    # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
-    runs-on: [self-hosted, pi5]
+    # GitHub's free arm64 runner: the job only builds and pushes to GHCR, so it
+    # needs no route into the home network — and the pi5 runner being down must
+    # not hold up a release. Native arm64, no emulation.
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write

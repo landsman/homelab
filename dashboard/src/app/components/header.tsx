@@ -37,7 +37,6 @@ export function Header({ onSettingsClick }: HeaderProps) {
               className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 status-pulse shrink-0"
               style={{ color: '#22c55e' }}
             />
-            homelab · dashboard
             <span className="normal-case tracking-normal">
               <IpAddress />
             </span>

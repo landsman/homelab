@@ -1,6 +1,6 @@
 services:
   runner:
-    image: code.forgejo.org/forgejo/runner:13
+    image: code.forgejo.org/forgejo/runner:13.2.0
     container_name: forgejo-runner
     restart: unless-stopped
     user: "1001:${DOCKER_GID:?run 'make prepare' on the box first}"

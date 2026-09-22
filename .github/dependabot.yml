@@ -93,6 +93,14 @@ updates:
       prefix: deps
 
   ## compose services
+  # Every image here is pinned to an exact version rather than a floating major
+  # (`:16`, `:13`, `:18`). Dependabot diffs the tag string, so a floating tag is
+  # invisible to it — `:16` stayed `:16` across 16.0.3 -> 16.0.5 and no PR ever
+  # opened. Pinning is what makes these entries do anything at all.
+  #
+  # Not listed: whisper and github-runner build their own image (`build: .`), so
+  # their tag is an output name, not an upstream dependency. dashboard and
+  # ip-service are our own GHCR builds, already covered by their npm/docker entries.
   - package-ecosystem: docker-compose
     directory: /forgejo
     schedule:
@@ -137,6 +145,62 @@ updates:
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker-compose
+    directory: /forgejo-runner
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker-compose
+    directory: /archivebox
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker-compose
+    directory: /mealie
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker-compose
+    directory: /yt-archive
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

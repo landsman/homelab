@@ -28,7 +28,9 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages project and nothing else.
+# Deliberately narrow: this manages the Pages project, the zone identity DNS
+# records in dns.tf (Google Workspace MX + verification TXT), and one cache
+# rule (cache.tf).
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages
@@ -47,6 +49,10 @@ provider "cloudflare" {
 #     would silently overwrite every Redirect Rule already in the zone —
 #     including the live www.insuit.cz -> github.com/landsman rule. Not worth
 #     owning for a single apex->www redirect that already exists.
+#
+#     cache.tf DOES take that bet for http_request_cache_settings — a
+#     different phase, and one nothing else in the zone was using. Read the
+#     warning there before adding a Cache Rule by hand.
 #
 #   * cloudflare_pages_domain. Attaching a custom domain can provision DNS on
 #     a same-account zone, which is the same collision as above. Attach the

@@ -1,0 +1,23 @@
+#!/bin/sh
+# Mounted over `git` in the runner container, in front of /usr/bin/git.
+#
+# Sends the runner's own action fetches for https://git.insuit.cz/ to
+# FORGEJO_INTERNAL_URL instead of out through Cloudflare. Those are the calls
+# that start with --no-replace-objects. A `self-hosted:host` job runs its steps
+# in this container too, and its checkout is left alone.
+#
+# Not for `remote get-url`: the runner reuses its cached clone of an action only
+# while that equals the `uses:` URL, and get-url applies insteadOf.
+#
+# The runner scopes the job token to https://git.insuit.cz/, so it is not sent
+# to the plain-HTTP origin. An action fetched this way has to be public.
+#
+# ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
+# sending --no-replace-objects first, fetches quietly go back through Cloudflare.
+if [ -n "$FORGEJO_INTERNAL_URL" ] && [ "$1" = --no-replace-objects ]; then
+  case " $* " in
+    *" remote get-url "*) ;;
+    *) set -- -c "url.$FORGEJO_INTERNAL_URL/.insteadOf=https://git.insuit.cz/" "$@" ;;
+  esac
+fi
+exec /usr/bin/git "$@"

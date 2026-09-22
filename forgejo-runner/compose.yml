@@ -8,4 +8,9 @@ services:
       - ./data:/data
       - ./runner/config.yml:/data/config.yml:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      # Fetches actions over the LAN when FORGEJO_INTERNAL_URL is set, and passes
+      # everything through when it is not. README: "Fetching actions over the LAN".
+      - ./runner/git:/usr/local/bin/git:ro
+    environment:
+      FORGEJO_INTERNAL_URL: "${FORGEJO_INTERNAL_URL:-}"
     command: forgejo-runner daemon --config /data/config.yml

@@ -16,12 +16,13 @@ config: ## Copy the example config to runner/config.yml (run on the box, first t
 	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
 	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
 
-prepare: ## chown data + write .env with the docker group gid (run on the box)
+prepare: ## chown data + set DOCKER_GID in .env, keeping its other keys (run on the box)
 	mkdir -p data/.cache
 	sudo chown -R 1001:1001 data
 	chmod 775 data/.cache
 	chmod g+s data/.cache
-	@printf 'DOCKER_GID=%s\n' "$$(getent group docker | cut -d: -f3)" > .env
+	@touch .env && grep -v '^DOCKER_GID=' .env > .env.tmp; \
+		printf 'DOCKER_GID=%s\n' "$$(getent group docker | cut -d: -f3)" >> .env.tmp && mv .env.tmp .env
 	@echo "Wrote .env with DOCKER_GID=$$(grep DOCKER_GID .env | cut -d= -f2)"
 	@$(MAKE) --no-print-directory cache
 

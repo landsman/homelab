@@ -21,6 +21,7 @@ cp .env.example .env
 make up                                           # start
 make down                                         # stop
 make logs                                         # follow logs
+make update                                       # backup, pull the image, recreate the container
 make backup                                       # run backup manually
 make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz
 make cron-install                                 # register daily backup cron job (fails if already exists, run: crontab -l | grep forgejo)

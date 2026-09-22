@@ -1,7 +1,7 @@
 VOLUME := forgejo_forgejo
 BACKUP_DIR := /home/containers/backup/forgejo
 
-.PHONY: up down logs backup restore cron-install
+.PHONY: up down logs update backup restore cron-install
 
 up:
 	docker compose up -d
@@ -11,6 +11,11 @@ down:
 
 logs:
 	docker compose logs -f
+
+update:
+	$(MAKE) backup
+	docker compose pull
+	docker compose up -d
 
 backup:
 	docker run --rm \

@@ -11,9 +11,9 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260908.1",
-    "prettier": "^3.9.6",
+    "@cloudflare/workers-types": "^5.20260916.1",
+    "prettier": "^3.9.7",
     "typescript": "^7.0.2",
-    "wrangler": "4.130.0"
+    "wrangler": "4.132.0"
   }
 }

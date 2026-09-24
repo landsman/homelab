@@ -1,12 +1,19 @@
 # Michal Landsman
 
-Developer in Prague — [insuit.cz](https://www.insuit.cz)
+Full-stack developer in Prague — Kotlin, Java, PHP, PostgreSQL, React
+
+[insuit.cz](https://www.insuit.cz)
 
 ## Experience
 
 ### Softopus
 
-<!-- TODO: role and dates -->
+Full Stack Engineer · freelance · May 2024 – present · remote
+
+Custom software for a range of clients, mostly in the public sector: websites,
+content platforms and web-based SaaS applications. The whole lifecycle, from
+client meetings and requirements to design discussions, implementation and
+reporting — across frontend, backend, CI/CD and infrastructure.
 
 #### The Fire Rescue Service of the Czech Republic
 
@@ -69,9 +76,45 @@ finalise the project reports.
 
 **Stack:** Kotlin, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure
 
-### <!-- TODO: employer -->
+### GRAET
 
-<!-- TODO: role and dates -->
+Co-Founder · Jul 2023 – Mar 2024
+
+- Defined the MVP features and built them
+- UI design together with the team, Figma components
+- AWS infrastructure as code with Terraform and Docker
+- Backend API in Spring Boot, Kotlin and PostgreSQL
+- Custom Stripe payment integrations
+- Frontend web app and admin in Next.js and TypeScript, with a custom UI kit and Storybook
+- Supabase for the waiting list, authentication and frontend data
+- An MVP of a native app wrapper
+
+### Trisbee
+
+CTO · Mar 2018 – Mar 2023 · hybrid
+
+Joined right after the founders bought a small startup, went with them through
+SWG's fintech accelerator in Riga, and rewrote the whole system from scratch
+once the first version could not scale — running both side by side until the
+migration was done. It became a modular B2B fintech marketplace: cashless,
+hardwareless payments for even the smallest businesses, across countries,
+currencies, languages and payment methods. The company grew from three people.
+
+- AWS, GCP, infrastructure as code with Terraform and Docker
+- Backend rewrite from Java and Play Framework to Spring and Kotlin
+- Node.js, TypeScript, React, Next.js, design systems and private packages
+- Native iOS and Android apps, and multi-platform development
+- Automation and no-code integrations with Google services, Zapier and a CRM
+- Reporting to clients and public institutions, including the Czech National Bank
+- Integrations for international partners, banks, clients and e-commerce plugins
+- Hiring, onboarding, Scrum, salaries, customer care, sales and meetups
+
+**Stack:** Kotlin, Spring, Java, TypeScript, React, Next.js, AWS, GCP,
+Terraform, Docker
+
+### Burda International CZ
+
+Backend developer · contract · Sep 2016 – Sep 2018 · on-site
 
 #### Marianne — magazine platform relaunch
 
@@ -90,15 +133,42 @@ GitLab instance. To support the project, I initiated an internal Redmine for
 managing feedback, tasks and bug reports. The new platform later carried the
 relaunches of other magazine websites, including ELLE.cz.
 
-**Stack:** Drupal, GitLab, Jenkins, Redmine
+**Stack:** PHP, Drupal, Symfony, Twig, Composer, JavaScript, Webpack, Sass,
+Redis, Varnish, Nginx, GitLab, Jenkins, Sentry, Redmine
 
 #### Magazine online subscription
 
 ![BurdaMedia Extra store](/assets/cv/predplatsi-burda.png)
 
-A custom e-commerce platform for Burda Czech, where customers could buy magazine
+A custom e-commerce platform for the publisher, where customers could buy magazine
 subscriptions — often bundled with gifts — as well as single issues, cookbooks
 and selected merchandise. Built on OpenCart, with custom-developed modules to
 support the publisher's needs.
 
-**Stack:** OpenCart
+**Stack:** PHP, OpenCart
+
+Beyond the two projects:
+
+- Payment gateway integrations
+- A migration plugin that moved thousands of articles and gigabytes of related data
+- A CDN for assets, separate from the apps, with better backups
+- Error monitoring with Sentry instead of log files on the servers
+- New servers, deployment and rollback, and weekly work with the hosting agency on caching and performance
+- Led the tender for the mobile app supplier, and built the embedded purchase flow inside the apps
+- An ad rendering engine in JavaScript
+- A few open-source plugins, still on the company's GitHub
+- Represented the company at Drupal conferences
+
+### StudioArt.cz
+
+Founder · Sep 2010 – Feb 2018 · remote
+
+A small software agency: understanding what a client needed, putting the right
+people together, and shipping an MVP that grew with the business. Along the way
+it built its own CMS, e-commerce platform and marketing tools.
+
+- Company websites with a custom CMS
+- Custom e-commerce, ERP and CRM
+- Mobile apps on early hybrid technologies
+- Graphics, from print to online
+- Marketing: PPC, A/B testing, SEO, copywriting

@@ -163,6 +163,8 @@ opened it online in full detail — amount, items, VAT and company details. That
 made it fully compliant with the new Czech law on the electronic registration
 of sales (EET), or simply a quick way to write a receipt.
 
+**Stack:** Java, Play Framework, PostgreSQL, AWS
+
 ### Burda International CZ
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site

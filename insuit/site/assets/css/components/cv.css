@@ -5,6 +5,19 @@
   margin-block: var(--space-content-top) var(--space-content-bottom);
 }
 
+/* Hierarchy, top to bottom: name → tagline → section label → company →
+   role and dates → body → project cards → stack. Only the 400 weight is
+   self-hosted, so size, colour and tracking do the work bold used to — and a
+   synthesised bold would smear the mono. */
+.cv h1 {
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-display);
+}
+.cv h1 + p {
+  margin-top: var(--space);
+}
+
 .cv h2,
 .cv h3,
 .cv h4 {
@@ -13,18 +26,45 @@
   line-height: var(--line-height-h1);
   font-weight: normal;
 }
+/* A label, not a headline: it names the list below and steps aside for it. */
 .cv h2 {
-  margin-top: var(--space-section);
+  margin-top: calc(var(--space-section) * 1.5);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  color: var(--color-muted);
 }
 .cv h3 {
   margin-top: var(--space-section);
-  font-weight: bold;
+}
+.cv h2 + h3 {
+  margin-top: var(--space);
 }
 .cv h4 {
   margin-top: calc(var(--space) * 2);
   font-size: var(--font-size-base);
-  font-weight: bold;
+}
+
+/* Role · dates · where — the line directly under a company, kept tight to it. */
+.cv h3 + p {
+  margin-top: var(--space-tight);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}
+
+/* "Stack:" lines — the label keeps the body colour, the list recedes. */
+.cv strong {
+  font-weight: normal;
+}
+.cv p:has(> strong:first-child) {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}
+.cv p > strong:first-child {
+  color: var(--color-fg);
 }
 
 .cv p,
@@ -77,6 +117,10 @@
   border: 0;
   cursor: pointer;
 }
+.project button span {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
 .project button:focus-visible {
   outline: var(--border-width) solid currentcolor;
   outline-offset: 4px;
@@ -87,8 +131,27 @@
   transition: border-color var(--speed);
 }
 .project button:hover img,
-.project button:focus-visible img {
+.project button:focus-visible img,
+.project button:hover .project-tile,
+.project button:focus-visible .project-tile {
   border-color: currentcolor;
+}
+
+/* Stand-in for a project with no logo: the same card as the logos around it —
+   white in both themes, like the share images themselves — with the name set
+   as a wordmark. */
+.project-tile {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  font-size: var(--font-size-h1);
+  letter-spacing: var(--tracking-label);
+  color: var(--tile-fg);
+  background: var(--tile-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+  transition: border-color var(--speed);
 }
 
 /* The dialog. */

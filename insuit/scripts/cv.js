@@ -3,6 +3,19 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { marked } from "marked";
 
+// Links out of the site — every project's website — open in a new tab, so the
+// CV stays open behind them. Same-site links keep the default.
+marked.use({
+  renderer: {
+    link({ href, title, tokens: text }) {
+      const external = /^https?:\/\//.test(href);
+      const attrs = external ? ' target="_blank" rel="noopener"' : "";
+      const tip = title ? ` title="${title}"` : "";
+      return `<a href="${href}"${tip}${attrs}>${this.parser.parseInline(text)}</a>`;
+    },
+  },
+});
+
 const site = new URL("../site/", import.meta.url);
 // ponytail: the markdown is ours, so marked's output goes in unsanitised.
 const md = readFileSync(new URL("cv.md", site), "utf8");
@@ -26,6 +39,12 @@ const slug = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
+// A project without a logo still gets a tile the size of one, so the row of
+// cards stays even: the name before the dash, set as a wordmark. Decorative —
+// the button's own text already names the project.
+const tile = (text) =>
+  `<span class="project-tile" aria-hidden="true">${text.split(" — ")[0]}</span>`;
+
 const card = ({ heading, image, rest }) => {
   const name = marked.parseInline(heading.text);
   const logo = image ? marked.parseInline(image.raw) : "";
@@ -40,7 +59,7 @@ const card = ({ heading, image, rest }) => {
     hx-get="/cv/${file}"
     hx-target="#project-dialog-content"
     hx-on::after-request="event.detail.successful && document.getElementById('project-dialog').showModal()"
-  >${logo}<span>${name}</span></button>
+  >${logo || tile(heading.text)}<span>${name}</span></button>
 </h4>`;
 };
 

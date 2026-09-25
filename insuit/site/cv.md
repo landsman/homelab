@@ -115,21 +115,29 @@ PostgreSQL, Supabase, Docker, Terraform, AWS, Stripe, Figma
 
 CTO · Mar 2018 – Mar 2023 · hybrid
 
-Joined right after the founders bought a small startup, went with them through
-SWG's fintech accelerator in Riga, and rewrote the whole system from scratch
-once the first version could not scale, running both side by side until the
-migration was done. It became a modular B2B fintech marketplace: cashless,
-hardwareless payments for even the smallest businesses, across countries,
-currencies, languages and payment methods. The company grew from three people.
+I joined the founders early and led the technology team as the company grew
+from three people. When the first version could not keep up with what customers
+needed, I made the call to rebuild it, and the team carried it through: both
+systems ran side by side until the migration was done. What we ended up with was
+the team's work: a modular B2B payments platform, cashless and without extra
+hardware, built for even the smallest businesses across several countries,
+currencies, languages and payment methods. Running a fintech marketplace was
+uncommon in our market then, and I learned a lot along the way, mostly from the
+things that did not work the first time.
 
-- AWS, GCP, infrastructure as code with Terraform and Docker
-- Backend rewrite from Java and Play Framework to Spring and Kotlin
-- Node.js, TypeScript, React, Next.js, design systems and private packages
+What we worked on together:
+
+- Infrastructure on AWS and GCP, as code with Terraform and Docker
+- Moving the backend API from Java and Play Framework to Spring and Kotlin
+- Web apps in Node.js, TypeScript, React and Next.js, with a design system and
+  private packages
 - Native iOS and Android apps, and multi-platform development
 - Automation and no-code integrations with Google services, Zapier and a CRM
+- Integrations for partners, banks, clients and e-commerce plugins
 - Reporting to clients and public institutions, including the Czech National Bank
-- Integrations for international partners, banks, clients and e-commerce plugins
-- Hiring, onboarding, Scrum, salaries, customer care, sales and meetups
+
+On the leading side: hiring and onboarding, Scrum, salaries and the hard
+conversations too, plus customer care, sales and meetups when they were needed.
 
 **Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
 Terraform, AWS, GCP, GitHub Actions

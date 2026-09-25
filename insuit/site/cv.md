@@ -392,3 +392,13 @@ Jenkins, Adobe Photoshop, Adobe Illustrator
 
 A new website for the sports and leisure club in the small town of Nové
 Veselí, running on our own PHP CMS.
+
+#### Házená Nové Veselí: Facebook presence for a handball club
+
+[hazena.noveveseli.cz](https://hazena.noveveseli.cz/)
+
+![A match-day poster for Házená Nové Veselí, 29 September 2013: three home games and the club's team photo](/assets/cv/hazena-nove-veseli.jpg)
+
+Set up the club's Facebook page and looked after it: promotion, marketing
+materials made in Photoshop, filming video spots and posting regularly, then
+handed it over to the club.

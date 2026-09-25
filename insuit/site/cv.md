@@ -2,7 +2,7 @@
 
 Full-stack developer in Prague. Kotlin, Java, PHP, TypeScript, PostgreSQL, React, Terraform, Linux
 
-[insuit.cz](https://www.insuit.cz)
+[insuit.cz](/)
 
 ## Experience
 

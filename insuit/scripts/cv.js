@@ -5,13 +5,11 @@ import { imageSize } from "image-size";
 import { marked } from "marked";
 
 // Links out of the site — every project's website — open in a new tab, so the
-// CV stays open behind them. Links to insuit.cz keep the default.
+// CV stays open behind them. Links within the site keep the default.
 marked.use({
   renderer: {
     link({ href, title, tokens: text }) {
-      // insuit.cz is this site, so a link to it stays in the tab even when absolute.
-      const external =
-        /^https?:\/\//.test(href) && !/^https?:\/\/(www\.)?insuit\.cz(\/|$)/.test(href);
+      const external = /^https?:\/\//.test(href);
       const attrs = external ? ' target="_blank" rel="noopener"' : "";
       const tip = title ? ` title="${title}"` : "";
       // The icon shows in the project dialog only (cv.css); the hidden text

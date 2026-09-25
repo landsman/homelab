@@ -418,6 +418,13 @@ Several custom online shops for our clients, such as the Ssport sports shop in 2
 A website for Czech Arsenal fans: articles, match pages with a preview, report,
 line-ups and player ratings, and a prediction game.
 
+#### Angel for You: cosmetics & day spa
+
+![The Angel for You website in 2013: a slider, news with dates, a new product teaser and a contact form](/assets/cv/angel-for-you.jpg)
+
+A Czech and English website for a cosmetics salon and day spa, built from a
+design by S.S.Design.
+
 #### Sokol Nové Veselí
 
 [sokol.noveveseli.cz](https://sokol.noveveseli.cz/)

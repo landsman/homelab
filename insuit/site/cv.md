@@ -1,6 +1,6 @@
 # Michal Landsman
 
-Full-stack developer in Prague — Kotlin, Java, PHP, PostgreSQL, React
+Full-stack developer in Prague. Kotlin, Java, PHP, PostgreSQL, React
 
 [insuit.cz](https://www.insuit.cz)
 
@@ -13,7 +13,7 @@ Full Stack Engineer · freelance · May 2024 – present · remote
 Custom software for a range of clients, mostly in the public sector: websites,
 content platforms and web-based SaaS applications. The whole lifecycle, from
 client meetings and requirements to design discussions, implementation and
-reporting — across frontend, backend, CI/CD and infrastructure.
+reporting, across frontend, backend, CI/CD and infrastructure.
 
 **Technologies:** Kotlin, Java, PHP, TypeScript, Go, .NET, Spring Boot, Vaadin,
 Symfony, Bun, React, PostgreSQL, Microsoft SQL Server, Docker Swarm, Kubernetes,
@@ -29,7 +29,7 @@ New website for the Fire Rescue Service of the Czech Republic.
 
 A full relaunch: a new CMS, content migration, containerising the existing
 microservices, and new infrastructure to run them. It started with the first
-client meetings — discussing the site's design and content, shaping the
+client meetings: discussing the site's design and content, shaping the
 requirements, and translating them into design and code.
 
 **Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
@@ -67,11 +67,11 @@ and translate them into design and code.
 **Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
-#### CASEC — chemicals finally under control
+#### CASEC: chemicals finally under control
 
 [casecsoftware.cz](https://casecsoftware.cz/en/homepage/)
 
-![CASEC — Chemical Abstracts Service Evidence Center](/assets/cv/casec.png)
+![CASEC, Chemical Abstracts Service Evidence Center](/assets/cv/casec.png)
 
 The company's legacy desktop application, reverse-engineered and reimagined as
 a modern web-based SaaS product.
@@ -83,7 +83,7 @@ finalise the project reports.
 **Technologies:** Kotlin, Java, TypeScript, Spring Boot, Vaadin, PostgreSQL,
 Azure Cloud
 
-#### Masaryk University — SIMU
+#### Masaryk University: SIMU
 
 [portfolio.med.muni.cz](https://portfolio.med.muni.cz/)
 
@@ -117,7 +117,7 @@ CTO · Mar 2018 – Mar 2023 · hybrid
 
 Joined right after the founders bought a small startup, went with them through
 SWG's fintech accelerator in Riga, and rewrote the whole system from scratch
-once the first version could not scale — running both side by side until the
+once the first version could not scale, running both side by side until the
 migration was done. It became a modular B2B fintech marketplace: cashless,
 hardwareless payments for even the smallest businesses, across countries,
 currencies, languages and payment methods. The company grew from three people.
@@ -140,7 +140,7 @@ Terraform, AWS, GCP, GitHub Actions
 
 When I met the founders, František and Matěj, they had just bought a small
 startup. A few days later they asked if I would fly with them to Riga, where
-SWG's fintech-focused startup accelerator was taking place — so I did. After
+SWG's fintech-focused startup accelerator was taking place, so I did. After
 gaining experience, we rebranded. From then on we sold actively, testing and
 adapting the solution for customers. It was hard: every time we adjusted
 something, another piece fell apart. Under the requirements and the pressure to
@@ -157,7 +157,7 @@ scalable, supporting multiple countries, currencies, languages, payment methods
 and more. The company is B2B oriented and provides cashless, hardware-less
 solutions for even the smallest businesses.
 
-#### Malá pokladna — EET, mobile POS
+#### Malá pokladna: EET, mobile POS
 
 ![The Malá pokladna app on an Android phone, ringing up a sale at a florist's table](/assets/cv/mala-pokladna.jpg)
 
@@ -168,7 +168,7 @@ Trisbee.
 
 Users loved it for its simplicity and for how it connected to the physical
 world: pre-printed paper receipt pads, each receipt carrying a unique code that
-opened it online in full detail — amount, items, VAT and company details. That
+opened it online in full detail: amount, items, VAT and company details. That
 made it fully compliant with the new Czech law on the electronic registration
 of sales (EET), or simply a quick way to write a receipt.
 
@@ -194,7 +194,7 @@ Alongside the projects:
 Webpack, Gulp, Grunt, Redis, Nginx, Varnish, Debian, Composer, GitLab, Jenkins,
 Sentry, Redmine
 
-#### Marianne — magazine platform relaunch
+#### Marianne: magazine platform relaunch
 
 [marianne.cz](https://www.marianne.cz/)
 
@@ -219,7 +219,7 @@ Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 ![BurdaMedia Extra store](/assets/cv/predplatsi-burda.png)
 
 A custom e-commerce platform for the publisher, where customers could buy magazine
-subscriptions — often bundled with gifts — as well as single issues, cookbooks
+subscriptions, often bundled with gifts, as well as single issues, cookbooks
 and selected merchandise. Built on OpenCart, with custom-developed modules to
 support the publisher's needs.
 

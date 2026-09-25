@@ -40,10 +40,9 @@ const slug = (text) =>
     .replace(/^-|-$/g, "");
 
 // A project without a logo still gets a tile the size of one, so the row of
-// cards stays even: the name before the dash, set as a wordmark. Decorative —
+// cards stays even: the name before the colon, set as a wordmark. Decorative —
 // the button's own text already names the project.
-const tile = (text) =>
-  `<span class="project-tile" aria-hidden="true">${text.split(" — ")[0]}</span>`;
+const tile = (text) => `<span class="project-tile" aria-hidden="true">${text.split(":")[0]}</span>`;
 
 const card = ({ heading, image, rest }) => {
   const name = marked.parseInline(heading.text);
@@ -91,8 +90,8 @@ const rendered = body.match(/hx-get=/g)?.length ?? 0;
 if (rendered !== expected)
   throw new Error(`cv: ${expected} projects in cv.md, ${rendered} rendered`);
 
-const title = "CV — Michal Landsman";
-const description = "Michal Landsman, full-stack developer in Prague — experience and projects.";
+const title = "Michal Landsman · CV";
+const description = "Michal Landsman, full-stack developer in Prague: experience and projects.";
 
 writeFileSync(
   new URL("cv.html", site),

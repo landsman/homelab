@@ -411,8 +411,8 @@ to that CMS's community.
 ![The Spalding online shop in 2013: best sellers and new products under a basketball slider](/assets/cv/spalding.jpg)
 ![The Uhlsport online shop: a goalkeeper shirt's product page with size choice and related products](/assets/cv/uhlsport.jpg)
 
-Several custom online shops for our clients, such as the Czech Spalding and
-Uhlsport shops.
+Several custom online shops for sports brands: football, handball and
+basketball.
 
 #### Client websites
 

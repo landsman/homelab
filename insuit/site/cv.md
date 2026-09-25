@@ -334,6 +334,14 @@ Full Stack Engineer · contract · Sep 2014 – Sep 2015 · on-site
 
 **Technologies:** PHP, Joomla, Google Analytics
 
+#### McDonald's: Srdcem spolu, Ice Hockey World Championship 2015
+
+[mcdonaldscup.cz](https://www.mcdonaldscup.cz/)
+
+The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
+Fans sent a photo and a message of support for the Czech national team, and
+the messages were shown on screens inside Prague's O2 Arena during the games.
+
 ### StudioArt.cz
 
 Founder · Sep 2010 – Feb 2018 · remote

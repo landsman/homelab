@@ -395,7 +395,8 @@ Veselí, running on our own PHP CMS.
 
 #### Házená Nové Veselí: Facebook presence for a handball club
 
-[hazena.noveveseli.cz](https://hazena.noveveseli.cz/)
+[hazena.noveveseli.cz](https://hazena.noveveseli.cz/) ·
+[YouTube channel](https://www.youtube.com/user/hazenanv)
 
 ![A match-day poster for Házená Nové Veselí, 29 September 2013: three home games and the club's team photo](/assets/cv/hazena-nove-veseli.jpg)
 

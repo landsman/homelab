@@ -106,7 +106,7 @@ Co-Founder · Jul 2023 – Mar 2024
 - Supabase for the waiting list, authentication and frontend data
 - An MVP of a native app wrapper
 
-**Technologies:** Kotlin, Spring Boot, PostgreSQL, TypeScript, Next.js, Storybook,
+**Technologies:** Kotlin, Java, Spring Boot, PostgreSQL, TypeScript, Next.js, Storybook,
 Supabase, Stripe, AWS, Terraform, Docker, Figma
 
 ### Trisbee

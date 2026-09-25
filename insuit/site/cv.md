@@ -1,3 +1,5 @@
+![Michal Landsman](/assets/cv/portrait.webp)
+
 # Michal Landsman
 
 Full-stack developer in Prague. Kotlin, Java, PHP, TypeScript, PostgreSQL, React, Terraform, Linux

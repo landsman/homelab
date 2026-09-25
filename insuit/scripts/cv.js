@@ -174,6 +174,20 @@ writeFileSync(
     <title>${title}</title>
     <meta name="description" content="${description}" />
 
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="https://www.insuit.cz/cv" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="https://www.insuit.cz/assets/icons/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Michal Landsman, developer in Prague." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="https://www.insuit.cz/assets/icons/og-image.png" />
+
     <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
 

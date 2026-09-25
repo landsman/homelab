@@ -70,6 +70,7 @@
   --icon-gap-small: 0.35em;
   --underline-height: 2px;
   --cv-image-width: 320px;
+  --cv-portrait-size: clamp(72px, 20vw, 112px);
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
   --cv-print-image-width: 34mm;

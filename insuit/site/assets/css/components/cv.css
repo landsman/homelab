@@ -9,6 +9,21 @@
    role and dates → body → project cards → technologies. Two real weights are
    self-hosted, 400 and 500: the medium marks the name and the companies, size,
    colour and tracking do the rest — a synthesised bold would smear the mono. */
+/* The portrait sits to the right of the name and tagline. It comes first in
+   cv.md so both can wrap beside it. */
+.cv > p:first-child:has(> img:only-child) {
+  float: right;
+  margin: 0 0 var(--space) var(--space);
+}
+.cv > p:first-child > img:only-child {
+  width: var(--cv-portrait-size);
+  height: var(--cv-portrait-size);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.cv > p:first-child:has(> img:only-child) + h1 {
+  margin-top: 0;
+}
 .cv h1 {
   font-size: var(--font-size-display);
   font-weight: var(--font-weight-medium);

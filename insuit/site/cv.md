@@ -21,7 +21,8 @@ Argo CD, Azure Cloud, GitHub, GitLab CI/CD
 
 #### The Fire Rescue Service of the Czech Republic
 
-[hzscr.gov.cz](https://hzscr.gov.cz/)
+[hzscr.gov.cz](https://hzscr.gov.cz/) ·
+[the old site, archived](https://archiv.hzscr.gov.cz/)
 
 ![Hasičský záchranný sbor České republiky](/assets/cv/hzscr.png)
 
@@ -37,7 +38,8 @@ Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 #### The Ministry of the Interior of the Czech Republic
 
-[mv.gov.cz](https://mv.gov.cz/)
+[mv.gov.cz](https://mv.gov.cz/) ·
+[the old site, archived](https://archiv.mv.gov.cz/)
 
 ![Ministerstvo vnitra](/assets/cv/mv.png)
 
@@ -53,7 +55,8 @@ Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 #### The Police of the Czech Republic
 
-[policie.gov.cz](https://policie.gov.cz/)
+[policie.gov.cz](https://policie.gov.cz/) ·
+[the old site, archived](https://archiv.policie.gov.cz/)
 
 ![Policie České republiky](/assets/cv/policie.png)
 

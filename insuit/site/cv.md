@@ -67,6 +67,8 @@ GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
 
 [casecsoftware.cz](https://casecsoftware.cz/en/homepage/)
 
+![CASEC — Chemical Abstracts Service Evidence Center](/assets/cv/casec.png)
+
 The company's legacy desktop application, reverse-engineered and reimagined as
 a modern web-based SaaS product.
 

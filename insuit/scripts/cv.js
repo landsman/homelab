@@ -49,13 +49,17 @@ const slug = (text) =>
 // the button's own text already names the project.
 const tile = (text) => `<span class="project-tile" aria-hidden="true">${text.split(":")[0]}</span>`;
 
-const card = ({ heading, image, rest }) => {
+// A project can carry any number of images: the first is its card, and the
+// dialog shows them all — one on its own, several as a gallery.
+const card = ({ heading, images, rest }) => {
   const name = marked.parseInline(heading.text);
-  const logo = image ? marked.parseInline(image.raw) : "";
+  const [logo = ""] = images;
+  const pictures =
+    images.length > 1 ? `<div class="project-gallery">${images.join("")}</div>` : logo;
   const file = slug(heading.text);
   writeFileSync(
     new URL(`${file}.html`, fragments),
-    `<h4 id="project-dialog-title">${name}</h4>\n${logo}\n${render(rest)}`,
+    `<h4 id="project-dialog-title">${name}</h4>\n${pictures}\n${render(rest)}`,
   );
   return `<h4 class="project">
   <button
@@ -76,11 +80,15 @@ const flush = () => {
 for (const t of tokens) {
   if (t.type === "heading" && t.depth < 4) flush();
   if (t.type === "heading" && t.depth === 4) {
-    (group ??= []).push({ heading: t, image: null, rest: [] });
+    (group ??= []).push({ heading: t, images: [], rest: [] });
   } else if (group) {
     const project = group.at(-1);
-    const isImage = t.type === "paragraph" && t.tokens.length === 1 && t.tokens[0].type === "image";
-    if (isImage && !project.image) project.image = t.tokens[0];
+    // A paragraph of nothing but images — one per line, or several side by side.
+    const pictures = t.type === "paragraph" ? t.tokens.filter((i) => i.type === "image") : [];
+    const onlyImages =
+      pictures.length > 0 &&
+      t.tokens.every((i) => i.type === "image" || (i.type === "text" && !i.text.trim()));
+    if (onlyImages) project.images.push(...pictures.map((i) => marked.parseInline(i.raw)));
     else project.rest.push(t);
   } else {
     out.push(render([t]));

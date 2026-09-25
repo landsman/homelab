@@ -246,3 +246,17 @@ html:has(.cv) {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Several images for one project: a grid in the dialog, each at the column's
+   full width rather than the single image's cap, cropped to the card shape so
+   the row stays even. */
+.project-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--cv-gallery-min), 1fr));
+  gap: calc(var(--space) / 2);
+}
+.cv .project-gallery img {
+  max-width: none;
+  aspect-ratio: var(--cv-logo-ratio);
+  object-fit: cover;
+}

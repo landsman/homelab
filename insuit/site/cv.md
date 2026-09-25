@@ -144,6 +144,7 @@ Terraform, AWS, GCP, GitHub Actions
 
 #### Payment app kickoff
 
+![Trisbee, together without payment terminals: a hand holding a phone with the payment screen](/assets/cv/trisbee-kickoff.jpg)
 ![The Trisbee app on an iPhone, taking a 1337 Kč payment at a tea stall](/assets/cv/trisbee-app.jpg)
 
 When I met the founders, František and Matěj, they had just bought a small

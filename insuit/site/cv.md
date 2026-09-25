@@ -36,23 +36,6 @@ and translate them into design and code.
 **Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
-#### The Fire Rescue Service of the Czech Republic
-
-[hzscr.gov.cz](https://hzscr.gov.cz/) ·
-[the old site, archived](https://archiv.hzscr.gov.cz/)
-
-![Hasičský záchranný sbor České republiky](/assets/cv/hzscr.png)
-
-New website for the Fire Rescue Service of the Czech Republic.
-
-A full relaunch: a new CMS, content migration, containerising the existing
-microservices, and new infrastructure to run them. It started with the first
-client meetings: discussing the site's design and content, shaping the
-requirements, and translating them into design and code.
-
-**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
-Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
-
 #### The Ministry of the Interior of the Czech Republic
 
 [mv.gov.cz](https://mv.gov.cz/) ·
@@ -66,6 +49,23 @@ A full relaunch: a new CMS, content migration, containerising the existing
 microservices with Docker, and new infrastructure to run them. Alongside it,
 meetings with the client to discuss the site's design and content, shape the
 requirements, and translate them into design and code.
+
+**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
+Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
+
+#### The Fire Rescue Service of the Czech Republic
+
+[hzscr.gov.cz](https://hzscr.gov.cz/) ·
+[the old site, archived](https://archiv.hzscr.gov.cz/)
+
+![Hasičský záchranný sbor České republiky](/assets/cv/hzscr.png)
+
+New website for the Fire Rescue Service of the Czech Republic.
+
+A full relaunch: a new CMS, content migration, containerising the existing
+microservices, and new infrastructure to run them. It started with the first
+client meetings: discussing the site's design and content, shaping the
+requirements, and translating them into design and code.
 
 **Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab

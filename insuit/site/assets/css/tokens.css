@@ -26,11 +26,14 @@
   --space-content-bottom: clamp(28px, 6vh, 40px);
   --links-gap-row: var(--space);
   --links-gap-column: 16px;
+  --space-section: 56px;
 
   /* Components */
   --icon-size: 1.25em;
   --icon-gap: 10px;
   --underline-height: 2px;
+  --cv-image-width: 400px;
+  --cv-image-radius: 6px;
 
   /* Motion */
   --speed: 200ms;

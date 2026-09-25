@@ -1,0 +1,52 @@
+/* CV page — rendered from cv.md, so it styles bare elements under .cv rather
+   than classes the markdown cannot carry. */
+
+.cv {
+  margin-block: var(--space-content-top) var(--space-content-bottom);
+}
+
+.cv h2,
+.cv h3,
+.cv h4 {
+  margin: 0;
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: normal;
+}
+.cv h2 {
+  margin-top: var(--space-section);
+  text-transform: uppercase;
+}
+.cv h3 {
+  margin-top: var(--space-section);
+  font-weight: bold;
+}
+.cv h4 {
+  margin-top: calc(var(--space) * 2);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+}
+
+.cv p,
+.cv ul {
+  margin: var(--space) 0;
+  text-wrap: pretty;
+}
+.cv ul {
+  padding-left: 1.5em;
+}
+
+/* The logos are 1200×630 share cards — mostly white space around the mark. */
+.cv img {
+  display: block;
+  width: 100%;
+  max-width: var(--cv-image-width);
+  height: auto;
+  border-radius: var(--cv-image-radius);
+}
+
+/* Links in running text carry the underline; the wipe is for the link rows. */
+.cv a::after {
+  transform: scaleX(1);
+  transform-origin: left top;
+}

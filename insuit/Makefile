@@ -1,4 +1,4 @@
-.PHONY: help install bucket dev og format lint qa
+.PHONY: help install bucket dev og cv format lint qa
 
 # Bare `make` lists the targets. Each one's `##` comment is its description —
 # there is no second list to keep in sync.
@@ -38,8 +38,14 @@ bucket: ## Create the R2 bucket for Terraform state (once, ever)
 # resolves /contact to contact.html and redirects the .html and trailing-slash
 # forms to it. A dumb file server would 404 on the URLs the site actually links
 # to. npx — first run fetches wrangler, then it's cached.
-dev: ## Serve site/ on http://localhost:4321, the way Pages serves it
+dev: cv ## Serve site/ on http://localhost:4321, the way Pages serves it
 	npx wrangler pages dev site --port 4321
+
+# The CV page is a build output of site/cv.md, like the OG card — gitignored,
+# rendered here, in CI and before every deploy. Edit the markdown, not the HTML.
+cv: ## Render site/cv.md to site/cv.html
+	node scripts/cv.js
+	@echo "wrote site/cv.html"
 
 format: ## Format everything with oxfmt
 	npm run format:fix

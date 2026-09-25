@@ -7,6 +7,8 @@ on:
       - 'insuit/**'
       - '.github/workflows/insuit-deploy.yml'
       - '!**/*.md'
+      # cv.md is the CV page's source, not docs — re-included after the skip.
+      - 'insuit/site/cv.md'
   workflow_dispatch:
 
 jobs:
@@ -59,6 +61,14 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      # cv.html is rendered from cv.md, never committed — build it before the
+      # upload or /cv 404s.
+      - name: "Render the CV page"
+        working-directory: insuit
+        run: npm ci --no-audit --no-fund && make cv
       - name: "Pull in the rendered OG card"
         uses: actions/download-artifact@v8
         with:

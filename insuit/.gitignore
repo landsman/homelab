@@ -14,3 +14,6 @@ site/assets/icons/og-image.png
 
 # `make dev` scratch state from wrangler's asset server.
 .wrangler/
+
+# CV page — rendered from site/cv.md by `make cv`, never committed.
+site/cv.html

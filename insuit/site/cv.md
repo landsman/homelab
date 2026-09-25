@@ -205,6 +205,20 @@ Burza #4 and Fuchs2. It paved the way for Boom Events, a new company with a
 dedicated team, built on the technology and cloud infrastructure developed at
 Trisbee.
 
+#### Trisbee POS
+
+[ocellot.cz](https://www.ocellot.cz)
+
+A cash register system for hospitality. We acquired a local POS already used in
+several restaurants and bars, where bartenders rated its UX highly. We adapted
+its source code to run in Docker on AWS with autoscaling, so it could grow and
+later reach markets outside the Czech Republic. We took care of its
+maintenance, worked through a fair share of technical debt, and relaunched the
+native app wrappers for macOS, iPadOS, Windows, Android and Linux. The system
+kept working offline, caching data through an internet or power outage.
+
+**Technologies:** Docker, AWS
+
 ### Burda International CZ
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site

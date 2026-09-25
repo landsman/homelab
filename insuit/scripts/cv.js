@@ -98,13 +98,22 @@ const card = ({ heading, images, tall, rest }) => {
 </h4>`;
 };
 
+// The dialogs only exist on screen, so a printed CV would show cards and no
+// details. Each project is also written out in full, hidden on screen and shown
+// in print instead of the cards (cv.css): name, first picture, text, links.
+const printed = ({ heading, images, rest }) => `<section class="project-print">
+  <h4>${marked.parseInline(heading.text)}</h4>
+  ${images[0] ?? ""}
+${render(rest)}
+</section>`;
+
 const out = [];
 let group = null;
 const flush = () => {
   // A small label names the row of cards, the way "Experience" names the jobs.
   if (group)
     out.push(
-      `<p class="projects-label">Projects</p>\n<div class="projects">\n${group.map(card).join("\n")}\n</div>`,
+      `<p class="projects-label">Projects</p>\n<div class="projects">\n${group.map(card).join("\n")}\n</div>\n<div class="projects-print">\n${group.map(printed).join("\n")}\n</div>`,
     );
   group = null;
 };

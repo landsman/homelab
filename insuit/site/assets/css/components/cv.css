@@ -522,3 +522,51 @@ html:has(.cv) {
 .video-play:focus-visible .video-badge {
   transform: translate(-50%, -50%) scale(1.1);
 }
+
+/* Screen shows the cards; print shows every project in full instead. */
+.projects-print {
+  display: none;
+}
+
+@media print {
+  .cv {
+    margin: 0;
+  }
+  .cv h3 {
+    break-after: avoid;
+  }
+  .projects,
+  .projects-label,
+  .project-dialog,
+  .photo-dialog,
+  footer {
+    display: none;
+  }
+  .projects-print {
+    display: block;
+  }
+  /* Each project: its name, a small picture floated beside the text, and the
+     text itself, kept on one page. */
+  .project-print {
+    display: flow-root;
+    margin-top: calc(var(--space) * 2);
+    break-inside: avoid;
+  }
+  .cv .project-print h4 {
+    margin: 0 0 var(--space);
+    font-weight: var(--font-weight-medium);
+  }
+  .cv .project-print img {
+    float: right;
+    width: var(--cv-print-image-width);
+    margin: 0 0 var(--space) calc(var(--space) * 2);
+  }
+  .cv .project-print p {
+    margin: var(--space) 0;
+  }
+  /* The link text is already the site's address (policie.gov.cz), which is
+     what paper needs; only the new-tab icon goes. */
+  .project-print .icon-external {
+    display: none;
+  }
+}

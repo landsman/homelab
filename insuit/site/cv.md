@@ -276,7 +276,7 @@ relaunches of other magazine websites, including ELLE.cz.
 **Technologies:** PHP, JavaScript, Symfony, Twig, Drupal, Sass, Webpack, Redis,
 Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 
-#### Dny Marianne
+#### Dny Marianne: shopping fever event
 
 [dny.marianne.cz](https://dny.marianne.cz/)
 

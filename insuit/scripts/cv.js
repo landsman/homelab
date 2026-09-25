@@ -1,6 +1,7 @@
 // Renders site/cv.md into site/cv.html — the markdown is the source, the page is
 // a build output (gitignored), so the two can never drift. `make cv` runs it.
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { imageSize } from "image-size";
 import { marked } from "marked";
 
 // Links out of the site — every project's website — open in a new tab, so the
@@ -53,14 +54,28 @@ const tile = (text) => `<span class="project-tile" aria-hidden="true">${text.spl
 
 // A project can carry any number of images: the first is its card, and the
 // dialog shows them all — one on its own, several as a gallery.
-const card = ({ heading, images, rest }) => {
+// A gallery of mostly tall pictures — phone screenshots — gets a row of
+// equal-height frames instead of the equal-size grid, which would crop each one
+// to a strip of its status bar. A picture whose size cannot be read (a few
+// JPEGs trip the reader, browsers render them fine) counts as wide.
+const isTall = (href) => {
+  try {
+    const { width, height } = imageSize(readFileSync(new URL(`.${href}`, site)));
+    return height > width;
+  } catch (error) {
+    console.warn(`cv: cannot read the size of ${href} (${error.message}), treating it as wide`);
+    return false;
+  }
+};
+
+const card = ({ heading, images, tall, rest }) => {
   const name = marked.parseInline(heading.text);
   const [logo = ""] = images;
   // In the dialog every image is a button that opens it full size (assets/js/cv.js).
   const zoomable = images.map((i) => `<button type="button" class="photo-zoom">${i}</button>`);
   const pictures =
     images.length > 1
-      ? `<div class="project-gallery">${zoomable.join("")}</div>`
+      ? `<div class="project-gallery${tall.filter(Boolean).length > tall.length / 2 ? " project-gallery-tall" : ""}">${zoomable.join("")}</div>`
       : zoomable.join("");
   const file = slug(heading.text);
   writeFileSync(
@@ -90,7 +105,7 @@ const flush = () => {
 for (const t of tokens) {
   if (t.type === "heading" && t.depth < 4) flush();
   if (t.type === "heading" && t.depth === 4) {
-    (group ??= []).push({ heading: t, images: [], rest: [] });
+    (group ??= []).push({ heading: t, images: [], tall: [], rest: [] });
   } else if (group) {
     const project = group.at(-1);
     // A paragraph of nothing but images — one per line, or several side by side.
@@ -99,6 +114,7 @@ for (const t of tokens) {
       pictures.length > 0 &&
       t.tokens.every((i) => i.type === "image" || (i.type === "text" && !i.text.trim()));
     if (onlyImages) project.images.push(...pictures.map((i) => marked.parseInline(i.raw)));
+    if (onlyImages) project.tall.push(...pictures.map((i) => isTall(i.href)));
     else project.rest.push(t);
   } else {
     out.push(render([t]));

@@ -246,23 +246,36 @@ html:has(.cv) {
   white-space: nowrap;
 }
 
-/* Several images for one project: a row of frames of one height in the
-   dialog, each as wide as its picture needs, so a tall phone screenshot and a
-   wide campaign image both show whole and the row still lines up. Clicking one
-   opens it full size in the photo dialog. */
+/* Several images for one project: a grid of equal thumbnails in the dialog,
+   each cropped to the card shape from the top, where a screenshot carries its
+   headline. Clicking one opens it whole in the photo dialog. */
 .project-gallery {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--cv-gallery-min), 1fr));
   gap: calc(var(--space) / 2);
 }
-.project-gallery .photo-zoom {
+.cv .project-gallery img {
+  max-width: none;
+  aspect-ratio: var(--cv-logo-ratio);
+  object-fit: cover;
+  object-position: top;
+}
+
+/* A gallery of mostly tall pictures (phone screenshots, flagged by the build):
+   a row of frames of one height, each as wide as its picture, so every screen
+   shows whole instead of as a strip of its status bar. */
+.project-gallery-tall {
+  display: flex;
+  flex-wrap: wrap;
+}
+.project-gallery-tall .photo-zoom {
   width: auto;
 }
-.cv .project-gallery img {
+.cv .project-gallery-tall img {
   width: auto;
   max-width: 100%;
   height: var(--cv-thumb-height);
-  object-fit: cover;
+  aspect-ratio: auto;
 }
 
 /* A photo in the project dialog opens full size on click. It sits in a frame

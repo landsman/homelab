@@ -280,6 +280,7 @@ Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 
 [dny.marianne.cz](https://dny.marianne.cz/)
 
+![Dny Marianne, all discounts in one app: the app's most popular coupons, up to 70 % off](/assets/cv/dny-marianne.jpg)
 ![The Dny Marianne app: a 20 % coupon for HP printers at Datart](/assets/cv/dny-marianne-coupon.webp)
 ![The Dny Marianne app: all coupons on a map of Prague](/assets/cv/dny-marianne-map.webp)
 ![The Dny Marianne app: a warning that the discount code is shown for 15 minutes](/assets/cv/dny-marianne-timer.webp)

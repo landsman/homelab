@@ -148,6 +148,7 @@ Terraform, AWS, GCP, GitHub Actions
 ![The Trisbee app on an iPhone, taking a 1337 Kč payment at a tea stall](/assets/cv/trisbee-app.jpg)
 ![The Trisbee app's transactions screen next to the slogan: punk might not be dead but cash is](/assets/cv/trisbee-transactions.jpg)
 ![Three Trisbee screens: entering 200 CZK with a tip, choosing Apple Pay, and the payment sent confirmation](/assets/cv/trisbee-payment-flow.jpg)
+![The Trisbee pricing page: Start, Plus and Premium plans for accepting card payments](/assets/cv/trisbee-pricing.png)
 
 When I met the founders, František and Matěj, they had just bought a small
 startup. A few days later they asked if I would fly with them to Riga, where

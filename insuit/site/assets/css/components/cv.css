@@ -42,6 +42,7 @@
   width: 100%;
   max-width: var(--cv-image-width);
   height: auto;
+  border: var(--border-width) solid var(--color-border);
   border-radius: var(--cv-image-radius);
 }
 

@@ -13,6 +13,8 @@
   --light-bg: #ffffff;
   --dark-fg: #d7dce1;
   --dark-bg: #1c2024;
+  --light-border: #e3e6e9;
+  --dark-border: #3a4046;
 
   /* Layout */
   --wrapper-width: 800px;
@@ -32,8 +34,9 @@
   --icon-size: 1.25em;
   --icon-gap: 10px;
   --underline-height: 2px;
-  --cv-image-width: 400px;
-  --cv-image-radius: 6px;
+  --cv-image-width: 320px;
+  --cv-image-radius: 12px;
+  --border-width: 1px;
 
   /* Motion */
   --speed: 200ms;
@@ -50,6 +53,7 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
+  --color-border: var(--light-border);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,6 +61,7 @@
     color-scheme: dark;
     --color-fg: var(--dark-fg);
     --color-bg: var(--dark-bg);
+    --color-border: var(--dark-border);
   }
 }
 
@@ -64,10 +69,12 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
+  --color-border: var(--light-border);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);
+  --color-border: var(--dark-border);
 }

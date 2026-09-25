@@ -71,6 +71,7 @@
   --underline-height: 2px;
   --cv-image-width: 320px;
   --cv-portrait-size: clamp(88px, 24vw, 144px);
+  --cv-portrait-filter: grayscale(1) contrast(1.1) brightness(1.03);
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
   --cv-print-image-width: 34mm;
@@ -91,6 +92,7 @@
 
   /* Motion */
   --speed: 200ms;
+  --speed-slow: 400ms;
   --lift: -2px;
 }
 

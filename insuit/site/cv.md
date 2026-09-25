@@ -149,7 +149,7 @@ Terraform, AWS, GCP, GitHub Actions
 ![Trisbee, together without payment terminals: a hand holding a phone with the payment screen](/assets/cv/trisbee-kickoff.jpg "Together without payment terminals: the campaign for the relaunched native apps")
 ![The Trisbee app on an iPhone, taking a 1337 Kč payment at a tea stall](/assets/cv/trisbee-app.jpg "The native iOS app during mystery shopping at a registered merchant's venue")
 ![The Trisbee app's transactions screen next to the slogan: punk might not be dead but cash is](/assets/cv/trisbee-transactions.jpg "The relaunched pivot to a web app, a PWA")
-![Three Trisbee screens: entering 200 CZK with a tip, choosing Apple Pay, and the payment sent confirmation](/assets/cv/trisbee-payment-flow.jpg)
+![Three Trisbee screens: entering 200 CZK with a tip, choosing Apple Pay, and the payment sent confirmation](/assets/cv/trisbee-payment-flow.jpg "The relaunched web app for customers paying merchants")
 ![The Trisbee pricing page: Start, Plus and Premium plans for accepting card payments](/assets/cv/trisbee-pricing.png)
 ![The Trisbee payment link page: all payment details wrapped in one link](/assets/cv/trisbee-payment-link.webp)
 

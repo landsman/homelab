@@ -73,7 +73,7 @@ const card = ({ heading, images, rest }) => {
     hx-get="/cv/${file}"
     hx-target="#project-dialog-content"
     hx-on::after-request="event.detail.successful && document.getElementById('project-dialog').showModal()"
-  ><span class="frame">${logo || tile(heading.text)}</span><span>${name}</span></button>
+  ><span class="frame">${logo || tile(heading.text)}</span><span class="project-name">${name}</span></button>
 </h4>`;
 };
 

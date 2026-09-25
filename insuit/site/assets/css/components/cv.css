@@ -124,7 +124,9 @@
   border: 0;
   cursor: pointer;
 }
-.project button span {
+/* The name lines up with the picture inside the frame, not the frame's edge. */
+.project-name {
+  padding-inline: calc(var(--thumb-padding) + var(--border-width));
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
 }
@@ -144,7 +146,6 @@
 /* Stand-in for a project with no logo: the same card as the logos around it —
    white in both themes, like the share images themselves — with the name set
    as a wordmark. */
-/* Two classes, so the card-title size on `.project button span` misses it. */
 .project .project-tile {
   display: grid;
   place-items: center;

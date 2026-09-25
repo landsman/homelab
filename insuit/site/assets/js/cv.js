@@ -71,6 +71,14 @@
     if (!closedBy && target instanceof HTMLDialogElement && target.open) target.close();
   });
 
+  // Closing a project empties it, so a playing video stops with it.
+  var project = /** @type {HTMLDialogElement} */ (document.getElementById("project-dialog"));
+  project.addEventListener("close", function () {
+    /** @type {HTMLElement} */ (
+      document.getElementById("project-dialog-content")
+    ).replaceChildren();
+  });
+
   // The arrow keys step through the photos while the full-size one is open.
   document.addEventListener("keydown", function (event) {
     if (!dialog.open || photos.length < 2) return;

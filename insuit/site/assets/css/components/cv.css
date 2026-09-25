@@ -413,3 +413,12 @@ html:has(.cv) {
 .photo-dialog:focus {
   outline: none;
 }
+
+/* A project's video, in place of its pictures in the dialog. */
+.project-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+}

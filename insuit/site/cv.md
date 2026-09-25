@@ -76,6 +76,15 @@ finalise the project reports.
 
 **Stack:** Kotlin, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure
 
+#### Masaryk University — SIMU
+
+[portfolio.med.muni.cz](https://portfolio.med.muni.cz/)
+
+The Masaryk University Faculty of Medicine portfolio platform, continued through
+refactoring and the development of new modules.
+
+**Stack:** PHP, Symfony, PostgreSQL, React, TypeScript, GitLab CI/CD, Docker
+
 ### GRAET
 
 Co-Founder · Jul 2023 – Mar 2024

@@ -238,3 +238,7 @@ it built its own CMS, e-commerce platform and marketing tools.
 - Mobile apps on early hybrid technologies
 - Graphics, from print to online
 - Marketing: PPC, A/B testing, SEO, copywriting
+
+**Technologies:** PHP, Vanilla JS, Nette, WordPress, PrestaShop, OpenCart,
+SunLight CMS, Drupal, Joomla, jQuery, LESS, Sass, Gulp, Grunt, Node.js, Adobe
+Photoshop, Adobe Illustrator, Linux

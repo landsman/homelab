@@ -276,6 +276,13 @@ relaunches of other magazine websites, including ELLE.cz.
 **Technologies:** PHP, JavaScript, Symfony, Twig, Drupal, Sass, Webpack, Redis,
 Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 
+#### Dny Marianne
+
+[dny.marianne.cz](https://dny.marianne.cz/)
+
+A four-day shopping event run by Marianne magazine, with discounts of up to 70 %
+at partner shops.
+
 #### Magazine online subscription
 
 ![BurdaMedia Extra store](/assets/cv/predplatsi-burda.png)

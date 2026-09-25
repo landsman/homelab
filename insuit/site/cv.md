@@ -219,6 +219,9 @@ maintenance, worked through a fair share of technical debt, and relaunched the
 native app wrappers for macOS, iPadOS, Windows, Android and Linux. The system
 kept working offline, caching data through an internet or power outage.
 
+Features: cash register, stocktaking, inventory management, shift tracking,
+daily reports and a supplier overview.
+
 **Technologies:** Docker, AWS
 
 ### Burda International CZ

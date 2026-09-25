@@ -125,6 +125,17 @@ currencies, languages and payment methods. The company grew from three people.
 **Stack:** Kotlin, Spring, Java, TypeScript, React, Next.js, AWS, GCP,
 Terraform, Docker
 
+#### Charity, events and tickets
+
+![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)
+
+At the time and in the market we were in, running a fintech marketplace was
+uncommon. We tried several payment methods and gateways and went through many
+challenges, and I learned many lessons. The solution is now modular and
+scalable, supporting multiple countries, currencies, languages, payment methods
+and more. The company is B2B oriented and provides cashless, hardware-less
+solutions for even the smallest businesses.
+
 ### Burda International CZ
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site

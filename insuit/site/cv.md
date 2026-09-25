@@ -293,6 +293,16 @@ native iOS and Android apps. On our side, we integrated the payment gateway on
 the backend and built the checkout as a web view inside the apps,
 indistinguishable from the native screens around it.
 
+#### Talk at DrupalCamp CS 2017 in Brno
+
+[youtube.com](https://www.youtube.com/watch?v=DnQjnqFo1z8)
+
+![The title slide: První projekt na Drupal 8 očima nedrupalisty, Michal Landsman, DrupalCamp CS, 27 May 2017, Brno](/assets/cv/drupalcamp-2017.jpg)
+
+"První projekt na Drupal 8 očima nedrupalisty": the first project on Drupal 8,
+seen through the eyes of someone who was not a Drupal developer. A talk in
+Czech at the Czech and Slovak Drupal community's yearly conference.
+
 #### Magazine online subscription
 
 ![BurdaMedia Extra store](/assets/cv/predplatsi-burda.png)

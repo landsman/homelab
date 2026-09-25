@@ -427,7 +427,7 @@ communities, small businesses and services. For example, a new website for
 [Sokol Nové Veselí](https://sokol.noveveseli.cz/), the sports and leisure club
 in a small town, running on our own PHP CMS.
 
-#### Házená Nové Veselí: Facebook presence for a handball club
+#### Házená Nové Veselí
 
 [hazena.noveveseli.cz](https://hazena.noveveseli.cz/) ·
 [YouTube channel](https://www.youtube.com/user/hazenanv)

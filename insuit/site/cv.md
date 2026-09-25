@@ -125,6 +125,18 @@ currencies, languages and payment methods. The company grew from three people.
 **Stack:** Kotlin, Spring, Java, TypeScript, React, Next.js, AWS, GCP,
 Terraform, Docker
 
+#### Payment app kickoff
+
+![The Trisbee app on an iPhone, taking a 1337 Kč payment at a tea stall](/assets/cv/trisbee-app.jpg)
+
+When I met the founders, František and Matěj, they had just bought a small
+startup. A few days later they asked if I would fly with them to Riga, where
+SWG's fintech-focused startup accelerator was taking place — so I did. After
+gaining experience, we rebranded. From then on we sold actively, testing and
+adapting the solution for customers. It was hard: every time we adjusted
+something, another piece fell apart. Under the requirements and the pressure to
+scale, we relaunched.
+
 #### Charity, events and tickets
 
 ![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)

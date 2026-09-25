@@ -27,8 +27,10 @@
   line-height: var(--line-height-h1);
   font-weight: normal;
 }
-/* A label, not a headline: it names the list below and steps aside for it. */
-.cv h2 {
+/* A label, not a headline: it names the list below and steps aside for it.
+   "Projects" above each row of cards is the same kind of label. */
+.cv h2,
+.cv .projects-label {
   margin-top: calc(var(--space-section) * 1.5);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -101,11 +103,17 @@
 
 /* Projects: a row of cards on a wide screen, one per line on a phone. Each
    card is a button; the details open in a modal dialog. */
+.cv .projects-label {
+  margin: calc(var(--space) * 2) 0 var(--space);
+}
 .projects {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--cv-card-min), 1fr));
   gap: var(--space);
   margin: calc(var(--space) * 2) 0;
+}
+.projects-label + .projects {
+  margin-top: 0;
 }
 
 .cv .project {

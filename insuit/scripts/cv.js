@@ -80,7 +80,11 @@ const card = ({ heading, images, rest }) => {
 const out = [];
 let group = null;
 const flush = () => {
-  if (group) out.push(`<div class="projects">\n${group.map(card).join("\n")}\n</div>`);
+  // A small label names the row of cards, the way "Experience" names the jobs.
+  if (group)
+    out.push(
+      `<p class="projects-label">Projects</p>\n<div class="projects">\n${group.map(card).join("\n")}\n</div>`,
+    );
   group = null;
 };
 for (const t of tokens) {

@@ -139,13 +139,6 @@
      cropped to it. */
   aspect-ratio: var(--cv-logo-ratio);
   object-fit: cover;
-  transition: border-color var(--speed);
-}
-.project button:hover img,
-.project button:focus-visible img,
-.project button:hover .project-tile,
-.project button:focus-visible .project-tile {
-  border-color: currentcolor;
 }
 
 /* Stand-in for a project with no logo: the same card as the logos around it —
@@ -161,9 +154,6 @@
   letter-spacing: var(--tracking-label);
   color: var(--color-tile-fg);
   background: var(--color-tile-bg);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--cv-image-radius);
-  transition: border-color var(--speed);
 }
 
 /* The dialog. */
@@ -265,9 +255,10 @@ html:has(.cv) {
 }
 
 /* A photo in the project dialog opens full size on click. It sits in a frame
-   of its own: a thin border with a little space around the picture, so the
+   of its own, like the project cards' images: a thin border with a little space around the picture, so the
    hover has something to act on without touching the image. */
-.photo-zoom {
+.photo-zoom,
+.project .frame {
   display: block;
   width: 100%;
   padding: var(--thumb-padding);
@@ -275,12 +266,16 @@ html:has(.cv) {
   background: var(--color-bg);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--cv-image-radius);
-  cursor: zoom-in;
   transition:
     border-color var(--speed),
     transform var(--speed);
 }
-.cv .photo-zoom img {
+.photo-zoom {
+  cursor: zoom-in;
+}
+.cv .photo-zoom img,
+.cv .frame img,
+.frame .project-tile {
   border: 0;
   border-radius: calc(var(--cv-image-radius) - var(--thumb-padding));
 }
@@ -330,16 +325,20 @@ html:has(.cv) {
   color: var(--color-photo-close);
 }
 
-/* Hover on a thumbnail: the frame darkens to the text colour and lifts a
-   little, so it reads as something to open. */
+/* Hover on a thumbnail or a project card: the frame darkens to the text
+   colour and lifts a little, so it reads as something to open. */
 .photo-zoom:hover,
-.photo-zoom:focus-visible {
+.photo-zoom:focus-visible,
+.project button:hover .frame,
+.project button:focus-visible .frame {
   border-color: currentcolor;
   transform: translateY(var(--lift));
 }
 @media (prefers-reduced-motion: reduce) {
   .photo-zoom:hover,
-  .photo-zoom:focus-visible {
+  .photo-zoom:focus-visible,
+  .project button:hover .frame,
+  .project button:focus-visible .frame {
     transform: none;
   }
 }

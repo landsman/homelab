@@ -15,9 +15,9 @@ content platforms and web-based SaaS applications. The whole lifecycle, from
 client meetings and requirements to design discussions, implementation and
 reporting — across frontend, backend, CI/CD and infrastructure.
 
-**Technologies:** React, TypeScript, .NET, Go, Bun, Kotlin, Java, Spring Boot, Vaadin,
-PHP, Symfony, PostgreSQL, Microsoft SQL Server, Docker Swarm, Kubernetes,
-Argo CD, Azure Cloud, GitHub, GitLab CI/CD
+**Technologies:** TypeScript, Go, Kotlin, Java, PHP, React, .NET, Bun, Spring
+Boot, Vaadin, Symfony, PostgreSQL, Microsoft SQL Server, Docker Swarm,
+Kubernetes, Argo CD, Azure Cloud, GitHub, GitLab CI/CD
 
 #### The Fire Rescue Service of the Czech Republic
 
@@ -32,8 +32,8 @@ microservices, and new infrastructure to run them. It started with the first
 client meetings — discussing the site's design and content, shaping the
 requirements, and translating them into design and code.
 
-**Technologies:** React, TypeScript, .NET, Go, Bun, PostgreSQL, Microsoft SQL Server,
-GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
+**Technologies:** TypeScript, Go, React, .NET, Bun, PostgreSQL, Microsoft SQL
+Server, GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
 
 #### The Ministry of the Interior of the Czech Republic
 
@@ -48,8 +48,8 @@ microservices with Docker, and new infrastructure to run them. Alongside it,
 meetings with the client to discuss the site's design and content, shape the
 requirements, and translate them into design and code.
 
-**Technologies:** React, TypeScript, .NET, Go, Bun, PostgreSQL, Microsoft SQL Server,
-GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
+**Technologies:** TypeScript, Go, React, .NET, Bun, PostgreSQL, Microsoft SQL
+Server, GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
 
 #### The Police of the Czech Republic
 
@@ -64,8 +64,8 @@ microservices, and new infrastructure to run them. Alongside it, meetings with
 the client to discuss the site's design and content, shape the requirements,
 and translate them into design and code.
 
-**Technologies:** React, TypeScript, .NET, Go, Bun, PostgreSQL, Microsoft SQL Server,
-GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
+**Technologies:** TypeScript, Go, React, .NET, Bun, PostgreSQL, Microsoft SQL
+Server, GitHub, GitLab, Docker Swarm, Kubernetes, Argo CD
 
 #### CASEC — chemicals finally under control
 
@@ -80,7 +80,8 @@ The work covered analysing the existing software, defining requirements with the
 client, and discussing implementation and UX in client meetings. I also helped
 finalise the project reports.
 
-**Technologies:** Kotlin, Java, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure Cloud
+**Technologies:** Kotlin, Java, TypeScript, Spring Boot, Vaadin, PostgreSQL,
+Azure Cloud
 
 #### Masaryk University — SIMU
 
@@ -91,7 +92,8 @@ finalise the project reports.
 The Masaryk University Faculty of Medicine portfolio platform, continued through
 refactoring and the development of new modules.
 
-**Technologies:** PHP, Symfony, PostgreSQL, React, TypeScript, GitLab CI/CD, Docker
+**Technologies:** PHP, TypeScript, Symfony, PostgreSQL, React, GitLab CI/CD,
+Docker
 
 ### GRAET
 
@@ -106,8 +108,8 @@ Co-Founder · Jul 2023 – Mar 2024
 - Supabase for the waiting list, authentication and frontend data
 - An MVP of a native app wrapper
 
-**Technologies:** Kotlin, Java, Spring Boot, PostgreSQL, TypeScript, Next.js, Storybook,
-Supabase, Stripe, AWS, Terraform, Docker, Figma
+**Technologies:** Kotlin, Java, TypeScript, Spring Boot, PostgreSQL, Next.js,
+Storybook, Supabase, Stripe, AWS, Terraform, Docker, Figma
 
 ### Trisbee
 
@@ -129,7 +131,7 @@ currencies, languages and payment methods. The company grew from three people.
 - Integrations for international partners, banks, clients and e-commerce plugins
 - Hiring, onboarding, Scrum, salaries, customer care, sales and meetups
 
-**Technologies:** Kotlin, Spring, Java, TypeScript, React, Next.js, AWS, GCP,
+**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, AWS, GCP,
 Terraform, Docker, GitHub Actions
 
 #### Payment app kickoff
@@ -188,9 +190,9 @@ Alongside the projects:
 - A few open-source plugins, still on the company's GitHub
 - Represented the company at Drupal conferences
 
-**Technologies:** PHP, Drupal, Symfony, OpenCart, Twig, Composer, JavaScript, Webpack,
-Sass, Gulp, Grunt, Redis, Varnish, Nginx, Debian, GitLab, Jenkins, Sentry,
-Redmine
+**Technologies:** PHP, JavaScript, Drupal, Symfony, OpenCart, Twig, Composer,
+Webpack, Sass, Gulp, Grunt, Redis, Varnish, Nginx, Debian, GitLab, Jenkins,
+Sentry, Redmine
 
 #### Marianne — magazine platform relaunch
 
@@ -209,8 +211,8 @@ GitLab instance. To support the project, I initiated an internal Redmine for
 managing feedback, tasks and bug reports. The new platform later carried the
 relaunches of other magazine websites, including ELLE.cz.
 
-**Technologies:** PHP, Drupal, Symfony, Twig, Composer, JavaScript, Webpack, Sass,
-Redis, Varnish, Nginx, GitLab, Jenkins, Sentry, Redmine
+**Technologies:** PHP, JavaScript, Drupal, Symfony, Twig, Composer, Webpack,
+Sass, Redis, Varnish, Nginx, GitLab, Jenkins, Sentry, Redmine
 
 #### Magazine online subscription
 

@@ -159,7 +159,8 @@ solutions for even the smallest businesses.
 
 #### Malá pokladna: EET, mobile POS
 
-[mintmarket.cz](https://www.mintmarket.cz/cs/blog/jak-na-EET)
+[mintmarket.cz](https://www.mintmarket.cz/cs/blog/jak-na-EET) ·
+[facebook.com/malapokladna](https://www.facebook.com/malapokladna)
 
 ![The Malá pokladna app on an Android phone, ringing up a sale at a florist's table](/assets/cv/mala-pokladna.jpg)
 

@@ -384,6 +384,18 @@ it built its own CMS, e-commerce platform and marketing tools.
 SunLight CMS, PrestaShop, OpenCart, jQuery, LESS, Sass, Gulp, Grunt, Linux,
 Jenkins, Adobe Photoshop, Adobe Illustrator
 
+#### Content Management System
+
+![The StudioArt CMS administration in 2014: visits from Google Analytics over 30 days, top searches and referrers](/assets/cv/studioart-cms.png)
+
+Our own content management system, with modules for our clients. It connected
+to Google Analytics and had SEO scoring, scheduled publishing, permissions, a
+tree-based content structure, localisation and more. I also wrote several
+plugins and themes for the open-source CMS it was built on, and released them
+to that CMS's community.
+
+**Technologies:** PHP, Latte, MySQL
+
 #### Sokol Nové Veselí
 
 [sokol.noveveseli.cz](https://sokol.noveveseli.cz/)

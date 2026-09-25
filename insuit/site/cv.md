@@ -387,6 +387,7 @@ Jenkins, Adobe Photoshop, Adobe Illustrator
 #### Company website identity
 
 ![The StudioArt logo with the tagline komplexní webová řešení, complete web solutions](/assets/cv/studioart-identity.png)
+![How the StudioArt symbol is built: the letters S, A and R combined into one mark](/assets/cv/studioart-symbol.jpg)
 
 The StudioArt visual identity: the logo and its tagline, "komplexní webová
 řešení", complete web solutions.

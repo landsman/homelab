@@ -409,9 +409,10 @@ to that CMS's community.
 
 ![The Ssport online shop in 2013: brand and category tiles, discounted products and partner brands](/assets/cv/ssport.jpg)
 ![The Spalding online shop in 2013: best sellers and new products under a basketball slider](/assets/cv/spalding.jpg)
+![The Uhlsport online shop: a goalkeeper shirt's product page with size choice and related products](/assets/cv/uhlsport.jpg)
 
 Several custom online shops for our clients, such as the Ssport sports shop and
-the Czech Spalding shop, both in 2013.
+the Czech Spalding and Uhlsport shops.
 
 #### Client websites
 

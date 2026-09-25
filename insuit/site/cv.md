@@ -366,6 +366,14 @@ changes to its custom configuration: checkout variants, pricing and more.
 
 **Technologies:** PHP, Joomla, jQuery, CSS, MySQL
 
+### LE CLAVERA s.r.o.
+
+Full Stack Engineer · freelance · Jan 2013 – Jan 2014 · remote
+
+Mostly building websites on the company's internal CMS or on Joomla.
+
+**Technologies:** PHP, Joomla
+
 ### Trinet, a.s.
 
 Frontend Developer · freelance · Jan 2012 – Jan 2013 · remote
@@ -391,6 +399,10 @@ it built its own CMS, e-commerce platform and marketing tools.
 **Technologies:** PHP, Vanilla JS, Nette, Node.js, Drupal, WordPress, Joomla,
 SunLight CMS, PrestaShop, OpenCart, jQuery, Less, Sass, Gulp, Grunt, Linux,
 Jenkins, Adobe Photoshop, Adobe Illustrator
+
+Before that, and alongside its first years: Graphic Designer · self-employed ·
+Jan 2009 – Feb 2012 · remote. Web design, and DTP for printed marketing
+materials, in Adobe Photoshop, Adobe Illustrator and CorelDRAW.
 
 #### Company website identity
 

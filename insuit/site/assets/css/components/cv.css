@@ -33,6 +33,11 @@
 .cv h1 + p {
   margin-top: var(--space);
 }
+/* "I work with: …" under the tagline is set like every "Technologies:" line
+   (a bold-led paragraph, below); it only sits closer to the tagline. */
+.cv h1 + p + p {
+  margin-top: var(--space-tight);
+}
 
 .cv h2,
 .cv h3,

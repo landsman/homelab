@@ -381,7 +381,7 @@ it built its own CMS, e-commerce platform and marketing tools.
 - Marketing: PPC, A/B testing, SEO, copywriting
 
 **Technologies:** PHP, Vanilla JS, Nette, Node.js, Drupal, WordPress, Joomla,
-SunLight CMS, PrestaShop, OpenCart, jQuery, LESS, Sass, Gulp, Grunt, Linux,
+SunLight CMS, PrestaShop, OpenCart, jQuery, Less, Sass, Gulp, Grunt, Linux,
 Jenkins, Adobe Photoshop, Adobe Illustrator
 
 #### Company website identity
@@ -413,6 +413,8 @@ to that CMS's community.
 
 Several custom online shops for sports brands: football, handball and
 basketball.
+
+**Technologies:** PHP, PrestaShop, OpenCart, Less, Grunt, MySQL
 
 #### Client websites
 

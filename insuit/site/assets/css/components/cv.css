@@ -112,6 +112,14 @@
   gap: var(--space);
   margin: calc(var(--space) * 2) 0;
 }
+/* On a phone one card per row makes five projects three screens long; two
+   per row keeps a job's projects to about one screen. */
+@media (max-width: 600px) {
+  .projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--space) / 2);
+  }
+}
 .projects-label + .projects {
   margin-top: 0;
 }
@@ -343,7 +351,11 @@ html:has(.cv) {
   background: var(--color-backdrop-strong);
 }
 .photo-dialog figure {
-  margin: 0;
+  /* A table shrinks to the photo's width and its caption row follows it, so a
+     long caption wraps under the photo instead of widening the dialog and
+     pushing the photo to one side on a narrow screen. */
+  display: table;
+  margin: 0 auto;
 }
 .cv .photo-dialog img {
   width: auto;
@@ -355,8 +367,9 @@ html:has(.cv) {
 /* The caption sits on the dark backdrop, so it takes the light close-button
    colour in both themes. */
 .photo-dialog figcaption {
-  max-width: var(--cv-dialog-width);
-  margin-top: calc(var(--space) / 2);
+  display: table-caption;
+  caption-side: bottom;
+  padding-top: calc(var(--space) / 2);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   color: var(--color-photo-close);
@@ -373,6 +386,22 @@ html:has(.cv) {
 .photo-dialog .project-dialog-close:hover,
 .photo-dialog .project-dialog-close:focus-visible {
   background: var(--color-close-hover-dark);
+}
+
+/* On a phone the × is a bigger target: in the project dialog it grows in its
+   corner, and over a full-size photo it moves to the corner of the screen,
+   where a thumb expects it, instead of floating just above the picture. */
+@media (max-width: 600px) {
+  .project-dialog-close {
+    --close-size: var(--close-size-touch);
+    font-size: var(--font-size-display);
+  }
+  .photo-dialog .project-dialog-close {
+    position: fixed;
+    top: calc(var(--space) / 2);
+    right: calc(var(--space) / 2);
+    background: var(--color-play-badge);
+  }
 }
 
 /* Hover on a thumbnail or a project card: the frame darkens to the text
@@ -407,21 +436,36 @@ html:has(.cv) {
 .photo-step {
   position: fixed;
   top: 50%;
-  padding: var(--space);
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0 0 0.1em;
   font: inherit;
-  font-size: var(--font-size-display);
+  font-size: var(--font-size-h1);
   line-height: 1;
   color: var(--color-photo-close);
-  background: none;
+  /* A dark round badge, like the video's play button: on a phone the arrows
+     sit over the photo itself and must read against any picture. */
+  background: var(--color-play-badge);
   border: 0;
+  border-radius: 50%;
   cursor: pointer;
   transform: translateY(-50%);
+  transition: background-color var(--speed);
+}
+.photo-step:focus {
+  outline: none;
+}
+.photo-step:hover,
+.photo-step:focus-visible {
+  background: var(--color-close-hover-dark);
 }
 #photo-previous {
-  left: 0;
+  left: calc(var(--space) / 2);
 }
 #photo-next {
-  right: 0;
+  right: calc(var(--space) / 2);
 }
 .photo-step[hidden] {
   display: none;

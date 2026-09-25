@@ -1,4 +1,6 @@
-/* Self-hosted so there's no third-party request; latin subset only, 16 KB.
+/* Self-hosted so there's no third-party request; latin subset only, 16 KB per
+   weight. 500 is only used on the CV, and a browser fetches a face only once
+   something on the page uses it — the other pages never download it.
    SIL OFL — see fonts/fira-mono-LICENSE.txt. */
 
 @font-face {
@@ -7,4 +9,12 @@
   font-weight: 400;
   font-display: swap;
   src: url("/assets/fonts/fira-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Fira Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/fira-mono-latin-500-normal.woff2") format("woff2");
 }

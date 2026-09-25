@@ -6,11 +6,12 @@
 }
 
 /* Hierarchy, top to bottom: name → tagline → section label → company →
-   role and dates → body → project cards → stack. Only the 400 weight is
-   self-hosted, so size, colour and tracking do the work bold used to — and a
-   synthesised bold would smear the mono. */
+   role and dates → body → project cards → technologies. Two real weights are
+   self-hosted, 400 and 500: the medium marks the name and the companies, size,
+   colour and tracking do the rest — a synthesised bold would smear the mono. */
 .cv h1 {
   font-size: var(--font-size-display);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-height-display);
   letter-spacing: var(--tracking-display);
 }
@@ -35,20 +36,17 @@
   text-transform: uppercase;
   color: var(--color-muted);
 }
-/* A company opens its own block: a hairline above it, and the same air on
-   both sides of the line, so each job reads as one unit. The first one sits
-   right under the section label and needs no line. */
+/* A company opens its own block by weight and air rather than a rule: the
+   real medium cut of the mono (self-hosted, not synthesised) and a wide gap
+   above, so each job reads as one unit. */
 .cv h3 {
-  margin-top: var(--space-section);
-  padding-top: var(--space-section);
+  margin-top: var(--space-job);
   font-size: var(--font-size-company);
+  font-weight: var(--font-weight-medium);
   letter-spacing: var(--tracking-company);
-  border-top: var(--border-width) solid var(--color-border);
 }
 .cv h2 + h3 {
   margin-top: var(--space);
-  padding-top: 0;
-  border-top: 0;
 }
 .cv h4 {
   margin-top: calc(var(--space) * 2);

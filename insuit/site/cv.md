@@ -359,6 +359,8 @@ draw.
 
 [ketodiet.cz](https://www.ketodiet.cz)
 
+![KetoDiet, the first Czech keto diet: 15 years of losing weight with KetoDiet](/assets/cv/ketodiet.jpg)
+
 The KetoDiet online shop, built on a customised Joomla. I worked on several
 changes to its custom configuration: checkout variants, pricing and more.
 

@@ -355,6 +355,14 @@ A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize
 draw.
 
+#### KetoDiet e-commerce
+
+[ketodiet.cz](https://www.ketodiet.cz)
+
+The online shop for KetoDiet, a ketogenic diet programme. I worked on several
+changes to the platform's custom configuration: checkout variants, pricing and
+more.
+
 ### StudioArt.cz
 
 Founder · Sep 2010 – Feb 2018 · remote

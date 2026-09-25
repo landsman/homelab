@@ -74,6 +74,7 @@
 
   /* Motion */
   --speed: 200ms;
+  --lift: -2px;
 }
 
 /* Theme resolution.

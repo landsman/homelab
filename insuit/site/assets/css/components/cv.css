@@ -320,3 +320,22 @@ html:has(.cv) {
   right: 0;
   color: var(--color-photo-close);
 }
+
+/* Hover on a thumbnail: the same darkened border as the cards on the page, and
+   a small lift, so it reads as something to open. */
+.photo-zoom img {
+  transition:
+    border-color var(--speed),
+    transform var(--speed);
+}
+.photo-zoom:hover img,
+.photo-zoom:focus-visible img {
+  border-color: currentcolor;
+  transform: translateY(var(--lift));
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-zoom:hover img,
+  .photo-zoom:focus-visible img {
+    transform: none;
+  }
+}

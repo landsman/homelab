@@ -422,15 +422,10 @@ basketball.
 ![Arsenalsite.cz in development in 2013: a match page for Arsenal against Real Madrid, with the browser's developer tools open below](/assets/cv/arsenalsite.jpg)
 ![The Angel for You website in 2013: a slider, news with dates, a new product teaser and a contact form](/assets/cv/angel-for-you.jpg)
 
-Websites for our clients:
-
-- [Sokol Nové Veselí](https://sokol.noveveseli.cz/): a new website for the
-  sports and leisure club in the small town of Nové Veselí, running on our own
-  PHP CMS
-- Arsenalsite.cz: a website for Czech Arsenal fans, with articles, match pages
-  (preview, report, line-ups and player ratings) and a prediction game
-- Angel for You: a Czech and English website for a cosmetics salon and day
-  spa, built from a design by S.S.Design
+Websites for our clients: local organisations, sports clubs and fan
+communities, small businesses and services. For example, a new website for
+[Sokol Nové Veselí](https://sokol.noveveseli.cz/), the sports and leisure club
+in a small town, running on our own PHP CMS.
 
 #### Házená Nové Veselí: Facebook presence for a handball club
 

@@ -76,7 +76,7 @@ The work covered analysing the existing software, defining requirements with the
 client, and discussing implementation and UX in client meetings. I also helped
 finalise the project reports.
 
-**Stack:** Kotlin, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure
+**Stack:** Kotlin, Java, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure
 
 #### Masaryk University — SIMU
 
@@ -96,7 +96,7 @@ Co-Founder · Jul 2023 – Mar 2024
 - Defined the MVP features and built them
 - UI design together with the team, Figma components
 - AWS infrastructure as code with Terraform and Docker
-- Backend API in Spring Boot, Kotlin and PostgreSQL
+- Backend API in Spring Boot, Kotlin, Java and PostgreSQL
 - Custom Stripe payment integrations
 - Frontend web app and admin in Next.js and TypeScript, with a custom UI kit and Storybook
 - Supabase for the waiting list, authentication and frontend data

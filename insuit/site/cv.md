@@ -148,6 +148,21 @@ scalable, supporting multiple countries, currencies, languages, payment methods
 and more. The company is B2B oriented and provides cashless, hardware-less
 solutions for even the smallest businesses.
 
+#### Malá pokladna — EET, mobile POS
+
+![The Malá pokladna app on an Android phone, ringing up a sale at a florist's table](/assets/cv/mala-pokladna.jpg)
+
+A cash payment and sales-recording service for merchants, used by thousands of
+them and offered at a single monthly price. My work covered ongoing maintenance,
+security updates, and the service's relaunch through its integration with
+Trisbee.
+
+Users loved it for its simplicity and for how it connected to the physical
+world: pre-printed paper receipt pads, each receipt carrying a unique code that
+opened it online in full detail — amount, items, VAT and company details. That
+made it fully compliant with the new Czech law on the electronic registration
+of sales (EET), or simply a quick way to write a receipt.
+
 ### Burda International CZ
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site

@@ -22,7 +22,7 @@
     --line-height-base: 1.45;
     --space: 7pt;
     --space-section: 16pt;
-    --space-job: 22pt;
+    --space-job: 28pt;
   }
 
   body {
@@ -44,5 +44,5 @@
 
 @page {
   size: A4;
-  margin: 15mm 18mm;
+  margin: 14mm 15mm 16mm;
 }

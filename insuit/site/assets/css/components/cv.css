@@ -552,8 +552,10 @@ html:has(.cv) {
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* Screen shows the cards; print shows every project in full instead. */
-.projects-print {
+/* Screen shows the cards; print shows every project in full instead, and a
+   contact line under the header, which the site's contact page does on screen. */
+.projects-print,
+.print-contact {
   display: none;
 }
 
@@ -561,16 +563,106 @@ html:has(.cv) {
   .cv {
     margin: 0;
   }
-  /* A job's heading, dates, text and technologies stay on one page, like a
-     project (the build wraps them in .job-intro). */
+
+  /* Paper has a grid of two columns: text on the left, and on the right a
+     narrower rail that carries every picture and every aside — the portrait,
+     a job's role and dates, a project's image and QR codes. Labels and
+     headings stay in the text column, so the left edge reads straight down. */
+  .cv > p:first-child:has(> img:only-child) {
+    width: var(--cv-print-rail);
+    margin: 0 0 0 var(--cv-print-gutter);
+  }
+  /* Smaller than the rail and set against its right edge, so it does not hang
+     far below the name, tagline and contacts beside it. */
+  .cv > p:first-child > img:only-child {
+    width: var(--cv-print-portrait-size);
+    height: var(--cv-print-portrait-size);
+    margin-left: auto;
+    border: 0;
+  }
+  .cv h1 + p {
+    margin-top: calc(var(--space) * 1.5);
+  }
+  .print-contact {
+    display: block;
+  }
+  .cv .print-contact {
+    margin-top: var(--space-tight);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-muted);
+  }
+  .cv h2 {
+    clear: both;
+    margin-top: var(--space-section);
+  }
+
+  /* A job: company, text and technologies on the left, role and dates beside
+     the company name in the rail. A rule in the text colour opens each one —
+     stronger than anything between its projects. The block stays on one page
+     (the build wraps it in .job-intro). Margins do not collapse in a grid, so
+     each child only keeps the one above it. */
   .job-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--cv-print-rail);
+    column-gap: var(--cv-print-gutter);
+    align-items: start;
+    margin-top: var(--space-job);
+    padding-top: calc(var(--space) * 1.5);
+    border-top: var(--border-width) solid var(--color-fg);
     break-inside: avoid;
   }
-  /* Technologies are what a reader scans a printed CV for, so on paper they
-     keep full size and full contrast instead of receding like on screen. */
+  .cv h2 + .job-intro {
+    margin-top: var(--space);
+    padding-top: 0;
+    border-top: 0;
+  }
+  .cv .job-intro > * {
+    grid-column: 1;
+    margin: var(--space) 0 0;
+  }
+  .cv .job-intro > h3 {
+    margin: 0;
+  }
+  /* The role leads, on a line of its own in the text colour; what kind of
+     work, when and where follow under it, quieter, the dates never split. */
+  .cv .job-intro > .job-meta {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+    margin: 0;
+    /* Its first line sits on the company name's baseline. */
+    padding-top: calc(
+      (var(--font-size-company) * var(--line-height-h1) - var(--font-size-base) *
+          var(--line-height-base)) /
+        2
+    );
+  }
+  .job-role {
+    display: block;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+  }
+  .job-sep {
+    display: none;
+  }
+  .job-details {
+    display: block;
+  }
+  .job-dates {
+    white-space: nowrap;
+  }
+
+  /* Technologies are what a reader scans a printed CV for, so on paper the
+     list keeps full size and full contrast instead of receding like on screen;
+     the label steps back instead. */
   .cv p:has(> strong:first-child) {
     font-size: var(--font-size-print-technologies);
     color: var(--color-fg);
+  }
+  .cv p > strong:first-child {
+    color: var(--color-muted);
   }
   .projects,
   .project-dialog,
@@ -580,51 +672,84 @@ html:has(.cv) {
   .projects-print {
     display: block;
   }
-  /* The "Projects" label names the printed projects too, and stays with them. */
+  /* The "Projects" label names the printed projects too, and stays with them:
+     air above it, little below. */
   .cv .projects-label {
-    margin-bottom: 0;
+    margin: calc(var(--space) * 2.5) 0 0;
     break-after: avoid;
   }
-  /* Each project: its name, a small picture floated beside the text, and the
-     text itself, kept on one page. */
+
+  /* A project: a step below its job — air over it rather than a rule, which
+     would be left hanging at the top of a page; its name between the body and
+     the company in size — with the same two columns. Kept on one page. */
   .project-print {
-    display: flow-root;
-    margin-top: calc(var(--space) * 2);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--cv-print-rail);
+    column-gap: var(--cv-print-gutter);
+    align-items: start;
+    margin-top: calc(var(--space) * 2.5);
     break-inside: avoid;
   }
+  .project-print:first-child {
+    margin-top: calc(var(--space) * 0.75);
+  }
   .cv .project-print h4 {
-    margin: 0 0 var(--space);
+    margin: 0;
+    font-size: var(--font-size-print-project);
+    line-height: var(--line-height-h1);
     font-weight: var(--font-weight-medium);
   }
-  .cv .project-print > img {
-    float: right;
-    width: var(--cv-print-image-width);
-    margin: 0 0 var(--space) calc(var(--space) * 2);
+  .cv .print-text p,
+  .cv .print-text ul {
+    margin: calc(var(--space) * 0.6) 0 0;
   }
-  .cv .project-print p {
-    margin: var(--space) 0;
+  /* Cropped flatter than on screen, from the top, where a screenshot carries
+     its headline, so a short project's rail stays short. */
+  .cv .print-aside img {
+    width: 100%;
+    max-width: none;
+    aspect-ratio: var(--cv-print-image-ratio);
+    object-fit: cover;
+    object-position: top;
+    border-radius: var(--cv-print-image-radius);
   }
-  /* A project's links print as QR codes with the site's name (the build
-     writes them); the line of links itself is left out of print. */
+
+  /* A project's links print as QR codes, two to a row under its picture, each
+     with the site's name (the build writes them); the line of links itself is
+     left out of print. */
   .print-qrs {
-    /* Under the whole project: below the text and below the floated picture. */
-    clear: both;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space) calc(var(--space) * 2);
-    margin: var(--space) 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space) var(--cv-print-qr-gap);
+    margin-top: var(--space);
   }
+  /* The pair spans the picture: the first code on its left edge, the second on
+     its right. A long name wraps after a dot, into even lines, and never
+     inside the domain itself. */
   .print-qr {
     margin: 0;
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-print-caption);
+    line-height: var(--line-height-small);
     color: var(--color-muted);
+    text-wrap: balance;
+    hyphens: none;
+  }
+  .print-qr:nth-child(even) {
+    justify-self: end;
+    text-align: right;
+  }
+  .print-domain {
+    white-space: nowrap;
   }
   .cv .print-qr img {
-    display: block;
     width: var(--cv-print-qr-size);
     height: var(--cv-print-qr-size);
+    margin-bottom: var(--space-tight);
     border: 0;
     border-radius: 0;
+  }
+  .cv .print-qr:nth-child(even) img {
+    margin-left: auto;
   }
 }
 

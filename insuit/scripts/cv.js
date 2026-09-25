@@ -147,14 +147,27 @@ const printed = ({ heading, images, rest }) => {
   const qrs = links
     .map((href, i) => {
       const short = shortLink(`${slug(heading.text)}-${i + 1}`, href);
-      return `<figure class="print-qr"><img src="${qr(short)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`;
+      // A long hostname may wrap under its code, but only after a dot, and the
+      // domain itself (its last two labels) stays whole when it fits the
+      // caption's width, about 16 characters (cv.css).
+      const labels = new URL(href).hostname.replace(/^www\./, "").split(".");
+      const tail = labels.slice(-2).join(".").length <= 16 ? labels.splice(-2).join(".") : "";
+      const host = [...labels, ...(tail ? [`<span class="print-domain">${tail}</span>`] : [])].join(
+        ".<wbr>",
+      );
+      return `<figure class="print-qr"><img src="${qr(short)}" alt="" fetchpriority="low" /><figcaption>${host}</figcaption></figure>`;
     })
     .join("");
+  // The text on the left; the picture and the codes in a column beside it.
   return `<section class="project-print">
+  <div class="print-text">
   <h4>${marked.parseInline(heading.text)}</h4>
-  ${images[0] ?? ""}
 ${render(rest.filter((t) => !isLinkLine(t)))}
+  </div>
+  <aside class="print-aside">
+  ${images[0] ?? ""}
   ${qrs ? `<div class="print-qrs">${qrs}</div>` : ""}
+  </aside>
 </section>`;
 };
 
@@ -164,8 +177,24 @@ let group = null;
 // together too, so print never strands a technologies line or half a paragraph
 // on the next page (cv.css). It ends where the job's projects begin.
 let intro = null;
+// The line under a company — role · details · dates — is split into spans on
+// its separators, which stay as text: the screen shows the same line, print
+// sets the role on a line of its own and keeps the dates in one piece (cv.css).
+const meta = (t) => {
+  const [role, ...details] = t.text.split(" · ").map((part) => marked.parseInline(part));
+  const parts = details.map((d) => (d.includes("–") ? `<span class="job-dates">${d}</span>` : d));
+  return `<p class="job-meta"><span class="job-role">${role}</span><span class="job-sep"> · </span><span class="job-details">${parts.join(" · ")}</span></p>\n`;
+};
 const closeIntro = () => {
-  if (intro) out.push(`<div class="job-intro">\n${render(intro)}</div>\n`);
+  if (intro) {
+    const [heading, ...rest] = intro;
+    const i = rest.findIndex((t) => t.type !== "space");
+    const html =
+      rest[i]?.type === "paragraph"
+        ? render(rest.slice(0, i)) + meta(rest[i]) + render(rest.slice(i + 1))
+        : render(rest);
+    out.push(`<div class="job-intro">\n${render([heading])}${html}</div>\n`);
+  }
   intro = null;
 };
 const flush = () => {
@@ -196,6 +225,12 @@ for (const t of tokens) {
     if (onlyImages) project.tall.push(...pictures.map((i) => isTall(i.href)));
     else project.rest.push(t);
   } else {
+    // The contact line closes the header on paper only; on screen the site's
+    // own contact page does that job.
+    if (t.type === "heading" && t.depth === 2 && !out.some((h) => h.includes("print-contact")))
+      out.push(
+        `<p class="print-contact"><a href="https://insuit.cz">insuit.cz</a> · <a href="https://www.linkedin.com/in/landsmanmichal">linkedin.com/in/landsmanmichal</a> · <a href="https://github.com/landsman">github.com/landsman</a></p>\n`,
+      );
     out.push(render([t]));
   }
 }

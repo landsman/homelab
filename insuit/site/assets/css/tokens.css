@@ -74,9 +74,19 @@
   --cv-portrait-filter: saturate(0.9) contrast(1.05) brightness(1.04);
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
-  --cv-print-image-width: 34mm;
-  --cv-print-qr-size: 16mm;
+  /* Paper: one text column and a narrower one to its right that carries every
+     picture — the portrait, a job's role and dates, a project's image and its
+     QR codes. */
+  --cv-print-rail: 46mm;
+  --cv-print-gutter: 7mm;
+  --cv-print-qr-gap: 4mm;
+  --cv-print-qr-size: 14mm;
+  --cv-print-portrait-size: 38mm;
+  --cv-print-image-ratio: 2 / 1;
+  --cv-print-image-radius: 1.5mm;
   --font-size-print-technologies: 9pt;
+  --font-size-print-project: 10pt;
+  --font-size-print-caption: 6pt;
   --cv-thumb-width: 200px;
   --gallery-inset: 6px;
   --cv-thumb-height: 160px;

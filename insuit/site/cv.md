@@ -405,6 +405,12 @@ to that CMS's community.
 
 **Technologies:** PHP, Latte, MySQL
 
+#### Custom e-commerce projects
+
+![The Ssport online shop in 2013: brand and category tiles, discounted products and partner brands](/assets/cv/ssport.jpg)
+
+Several custom online shops for our clients, such as the Ssport sports shop in 2013.
+
 #### Sokol Nové Veselí
 
 [sokol.noveveseli.cz](https://sokol.noveveseli.cz/)

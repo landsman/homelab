@@ -22,9 +22,6 @@
   --light-bg: #ffffff;
   --dark-fg: #d7dce1;
   --dark-bg: #1c2024;
-  /* Logo-less project tile — white in both themes, to match the logo cards. */
-  --tile-bg: var(--light-bg);
-  --tile-fg: var(--light-fg);
   --light-border: #e3e6e9;
   --dark-border: #3a4046;
   /* Secondary text — 5.40:1 on --light-bg, 5.89:1 on --dark-bg (AA). */

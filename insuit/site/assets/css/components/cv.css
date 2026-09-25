@@ -140,15 +140,16 @@
 /* Stand-in for a project with no logo: the same card as the logos around it —
    white in both themes, like the share images themselves — with the name set
    as a wordmark. */
-.project-tile {
+/* Two classes, so the card-title size on `.project button span` misses it. */
+.project .project-tile {
   display: grid;
   place-items: center;
   width: 100%;
-  aspect-ratio: 1200 / 630;
+  aspect-ratio: var(--cv-logo-ratio);
   font-size: var(--font-size-h1);
   letter-spacing: var(--tracking-label);
-  color: var(--tile-fg);
-  background: var(--tile-bg);
+  color: var(--color-tile-fg);
+  background: var(--color-tile-bg);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--cv-image-radius);
   transition: border-color var(--speed);

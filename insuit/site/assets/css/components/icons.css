@@ -7,7 +7,8 @@
    an element that happened to carry another class first. */
 
 .icon-theme,
-.icon-external {
+.icon-external,
+.icon-play {
   flex: none;
   width: var(--icon-size);
   height: var(--icon-size);
@@ -28,4 +29,9 @@
 .icon-external {
   -webkit-mask-image: url("/assets/icons/external.svg");
   mask-image: url("/assets/icons/external.svg");
+}
+
+.icon-play {
+  -webkit-mask-image: url("/assets/icons/play.svg");
+  mask-image: url("/assets/icons/play.svg");
 }

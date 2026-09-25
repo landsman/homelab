@@ -73,15 +73,15 @@ const card = ({ heading, images, tall, rest }) => {
   const [logo = ""] = images;
   // In the dialog every image is a button that opens it full size (assets/js/cv.js).
   const zoomable = images.map((i) => `<button type="button" class="photo-zoom">${i}</button>`);
-  // A project that links a YouTube video plays it in the dialog in place of its
-  // pictures; the first picture stays its card. youtube-nocookie keeps the
-  // player from setting cookies until someone presses play.
+  // A project that links a YouTube video shows its first picture with a play
+  // button in the dialog; nothing loads from YouTube until that is pressed, and
+  // then the player replaces it and starts (assets/js/cv.js).
   const video = rest
     .map((t) => t.raw)
     .join("")
     .match(/youtube\.com\/watch\?v=([\w-]+)/)?.[1];
   const pictures = video
-    ? `<iframe class="project-video" src="https://www.youtube-nocookie.com/embed/${video}" title="${heading.text}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+    ? `<button type="button" class="photo-zoom video-play" data-video="${video}" aria-label="Play the video: ${heading.text}">${logo}<span class="video-badge" aria-hidden="true"><span class="icon-play"></span></span></button>`
     : images.length > 1
       ? `<div class="project-gallery${tall.filter(Boolean).length > tall.length / 2 ? " project-gallery-tall" : ""}">${zoomable.join("")}</div>`
       : zoomable.join("");

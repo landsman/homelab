@@ -422,3 +422,39 @@ html:has(.cv) {
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--cv-image-radius);
 }
+
+/* A video waits as its picture with a play button over it, in the same frame
+   as the photos, at the full width of the player that replaces it. */
+#project-dialog-content > .video-play {
+  position: relative;
+  max-width: none;
+  cursor: pointer;
+}
+#project-dialog-content > .video-play img {
+  max-width: none;
+}
+/* A dark round badge carries the white triangle, so it reads over any picture,
+   title text included. */
+.video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--play-size);
+  height: var(--play-size);
+  border-radius: 50%;
+  background: var(--color-play-badge);
+  transform: translate(-50%, -50%);
+  transition: transform var(--speed);
+}
+.video-badge .icon-play {
+  width: 45%;
+  height: 45%;
+  margin-left: 8%;
+  background: var(--color-play);
+}
+.video-play:hover .video-badge,
+.video-play:focus-visible .video-badge {
+  transform: translate(-50%, -50%) scale(1.1);
+}

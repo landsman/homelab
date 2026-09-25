@@ -38,6 +38,9 @@
   --backdrop: rgb(0 0 0 / 0.5);
   --backdrop-strong: rgb(0 0 0 / 0.94);
   --photo-close: #ffffff;
+  /* The play button sits on a picture, not the page, so it stays white. */
+  --play: #ffffff;
+  --play-badge: rgb(0 0 0 / 0.7);
 
   /* Layout */
   --wrapper-width: 800px;
@@ -68,6 +71,7 @@
   --cv-thumb-width: 200px;
   --gallery-inset: 6px;
   --cv-thumb-height: 160px;
+  --play-size: 64px;
   --thumb-padding: 6px;
   --photo-caption-room: 4em;
   /* The logos are 1200×630 share cards; a logo-less tile takes the same shape. */
@@ -98,6 +102,8 @@
   --color-backdrop: var(--backdrop);
   --color-backdrop-strong: var(--backdrop-strong);
   --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -112,6 +118,8 @@
     --color-backdrop: var(--backdrop);
     --color-backdrop-strong: var(--backdrop-strong);
     --color-photo-close: var(--photo-close);
+    --color-play: var(--play);
+    --color-play-badge: var(--play-badge);
   }
 }
 
@@ -126,6 +134,8 @@
   --color-backdrop: var(--backdrop);
   --color-backdrop-strong: var(--backdrop-strong);
   --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
 }
 
 :root[data-theme="dark"] {
@@ -139,4 +149,6 @@
   --color-backdrop: var(--backdrop);
   --color-backdrop-strong: var(--backdrop-strong);
   --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
 }

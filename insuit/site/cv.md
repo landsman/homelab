@@ -297,7 +297,7 @@ indistinguishable from the native screens around it.
 
 [youtube.com](https://www.youtube.com/watch?v=DnQjnqFo1z8)
 
-![The title slide: První projekt na Drupal 8 očima nedrupalisty, Michal Landsman, DrupalCamp CS, 27 May 2017, Brno](/assets/cv/drupalcamp-2017.jpg)
+![Talk: A first Drupal 8 project through the eyes of a non-Drupalist, Michal Landsman, DrupalCamp CS, 27 May 2017, Brno](/assets/cv/drupalcamp-2017.jpg)
 
 "První projekt na Drupal 8 očima nedrupalisty": the first project on Drupal 8,
 seen through the eyes of someone who was not a Drupal developer. A talk in

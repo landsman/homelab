@@ -35,6 +35,21 @@
   document.addEventListener("click", function (event) {
     var target = /** @type {HTMLElement} */ (event.target);
 
+    // A video's picture turns into the player, started. Only now does anything
+    // load from YouTube; youtube-nocookie sets no cookies until playback.
+    var play = /** @type {HTMLElement | null} */ (target.closest(".video-play"));
+    if (play) {
+      var player = document.createElement("iframe");
+      player.className = "project-video";
+      player.src = "https://www.youtube-nocookie.com/embed/" + play.dataset.video + "?autoplay=1";
+      player.title = play.getAttribute("aria-label") || "Video";
+      player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      player.allowFullscreen = true;
+      player.referrerPolicy = "strict-origin-when-cross-origin";
+      play.replaceWith(player);
+      return;
+    }
+
     var zoom = target.closest(".photo-zoom");
     if (zoom) {
       var all = document.querySelectorAll("#project-dialog-content .photo-zoom img");

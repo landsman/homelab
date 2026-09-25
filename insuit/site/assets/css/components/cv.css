@@ -593,6 +593,8 @@ html:has(.cv) {
   /* A project's links print as QR codes with the site's name (the build
      writes them); the line of links itself is left out of print. */
   .print-qrs {
+    /* Under the whole project: below the text and below the floated picture. */
+    clear: both;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space) calc(var(--space) * 2);

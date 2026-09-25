@@ -125,22 +125,29 @@ const isLinkLine = (t) =>
   t.type === "paragraph" &&
   t.tokens.every((i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)));
 
+// A printed code never points at the project's site directly: it points at a
+// short address on insuit.cz, /go/<project>-<n>, which site/_redirects (written
+// below, from cv.md) sends on to the link. Change a link in cv.md and every
+// copy already printed follows it; the address only changes if the project is
+// renamed or its links reordered.
+const redirects = [];
 const printed = ({ heading, images, rest }) => {
   const links = [];
   marked.walkTokens(rest, (t) => {
     if (t.type === "link" && /^https?:\/\//.test(t.href)) links.push(t.href);
   });
   const qrs = links
-    .map(
-      (href) =>
-        `<figure class="print-qr"><img src="${qr(href)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`,
-    )
+    .map((href, i) => {
+      const go = `/go/${slug(heading.text)}-${i + 1}`;
+      redirects.push(`${go} ${href} 302`);
+      return `<figure class="print-qr"><img src="${qr(`https://www.insuit.cz${go}`)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`;
+    })
     .join("");
   return `<section class="project-print">
   <h4>${marked.parseInline(heading.text)}</h4>
   ${images[0] ?? ""}
-  ${qrs ? `<div class="print-qrs">${qrs}</div>` : ""}
 ${render(rest.filter((t) => !isLinkLine(t)))}
+  ${qrs ? `<div class="print-qrs">${qrs}</div>` : ""}
 </section>`;
 };
 
@@ -194,6 +201,12 @@ const expected = tokens.filter((t) => t.type === "heading" && t.depth === 4).len
 const rendered = body.match(/hx-get=/g)?.length ?? 0;
 if (rendered !== expected)
   throw new Error(`cv: ${expected} projects in cv.md, ${rendered} rendered`);
+
+// Cloudflare Pages reads this file as redirect rules; 302, since a target may change.
+writeFileSync(
+  new URL("_redirects", site),
+  `# Generated from cv.md by scripts/cv.js: the addresses the printed CV's QR codes point at.\n${redirects.join("\n")}\n`,
+);
 
 const title = "Curriculum Vitae - Michal Landsman";
 const description = "Michal Landsman, full-stack developer in Prague: experience and projects.";

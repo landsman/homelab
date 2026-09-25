@@ -438,7 +438,7 @@ basketball.
 
 #### Client websites
 
-![The Sokol Nové Veselí website in 2013: the club's sections, news and contact](/assets/cv/sokol-nove-veseli.png)
+![The Sokol Nové Veselí website in 2013: the club's sections, news and contact](/assets/cv/sokol-nove-veseli.webp)
 ![Arsenalsite.cz in development in 2013: a match page for Arsenal against Real Madrid, with the browser's developer tools open below](/assets/cv/arsenalsite.jpg)
 ![The Angel for You website in 2013: a slider, news with dates, a new product teaser and a contact form](/assets/cv/angel-for-you.jpg)
 

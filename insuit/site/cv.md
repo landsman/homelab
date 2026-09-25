@@ -408,8 +408,10 @@ to that CMS's community.
 #### Custom e-commerce projects
 
 ![The Ssport online shop in 2013: brand and category tiles, discounted products and partner brands](/assets/cv/ssport.jpg)
+![The Spalding online shop in 2013: best sellers and new products under a basketball slider](/assets/cv/spalding.jpg)
 
-Several custom online shops for our clients, such as the Ssport sports shop in 2013.
+Several custom online shops for our clients, such as the Ssport sports shop and
+the Czech Spalding shop, both in 2013.
 
 #### Client websites
 

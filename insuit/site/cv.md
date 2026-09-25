@@ -411,28 +411,21 @@ to that CMS's community.
 
 Several custom online shops for our clients, such as the Ssport sports shop in 2013.
 
-#### Arsenalsite.cz
-
-![Arsenalsite.cz in development in 2013: a match page for Arsenal against Real Madrid, with the browser's developer tools open below](/assets/cv/arsenalsite.jpg)
-
-A website for Czech Arsenal fans: articles, match pages with a preview, report,
-line-ups and player ratings, and a prediction game.
-
-#### Angel for You: cosmetics & day spa
-
-![The Angel for You website in 2013: a slider, news with dates, a new product teaser and a contact form](/assets/cv/angel-for-you.jpg)
-
-A Czech and English website for a cosmetics salon and day spa, built from a
-design by S.S.Design.
-
-#### Sokol Nové Veselí
-
-[sokol.noveveseli.cz](https://sokol.noveveseli.cz/)
+#### Client websites
 
 ![The Sokol Nové Veselí website in 2013: the club's sections, news and contact](/assets/cv/sokol-nove-veseli.png)
+![Arsenalsite.cz in development in 2013: a match page for Arsenal against Real Madrid, with the browser's developer tools open below](/assets/cv/arsenalsite.jpg)
+![The Angel for You website in 2013: a slider, news with dates, a new product teaser and a contact form](/assets/cv/angel-for-you.jpg)
 
-A new website for the sports and leisure club in the small town of Nové
-Veselí, running on our own PHP CMS.
+Websites for our clients:
+
+- [Sokol Nové Veselí](https://sokol.noveveseli.cz/): a new website for the
+  sports and leisure club in the small town of Nové Veselí, running on our own
+  PHP CMS
+- Arsenalsite.cz: a website for Czech Arsenal fans, with articles, match pages
+  (preview, report, line-ups and player ratings) and a prediction game
+- Angel for You: a Czech and English website for a cosmetics salon and day
+  spa, built from a design by S.S.Design
 
 #### Házená Nové Veselí: Facebook presence for a handball club
 

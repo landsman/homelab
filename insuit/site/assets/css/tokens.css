@@ -74,6 +74,7 @@
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
   --cv-print-image-width: 34mm;
+  --cv-print-qr-size: 16mm;
   --font-size-print-technologies: 9pt;
   --cv-thumb-width: 200px;
   --gallery-inset: 6px;

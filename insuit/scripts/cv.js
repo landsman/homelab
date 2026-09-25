@@ -3,6 +3,7 @@
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { imageSize } from "image-size";
 import { marked } from "marked";
+import QRCode from "qrcode";
 
 // Links out of the site — every project's website — open in a new tab, so the
 // CV stays open behind them. Links within the site keep the default.
@@ -35,7 +36,7 @@ const render = (list) => marked.parser(Object.assign(list, { links: tokens.links
 // fetches it into the dialog on click, then opens it.
 const fragments = new URL("cv/", site);
 rmSync(fragments, { recursive: true, force: true });
-mkdirSync(fragments);
+mkdirSync(new URL("qr/", fragments), { recursive: true });
 
 const slug = (text) =>
   text
@@ -101,11 +102,47 @@ const card = ({ heading, images, tall, rest }) => {
 // The dialogs only exist on screen, so a printed CV would show cards and no
 // details. Each project is also written out in full, hidden on screen and shown
 // in print instead of the cards (cv.css): name, first picture, text, links.
-const printed = ({ heading, images, rest }) => `<section class="project-print">
+//
+// Paper cannot be clicked, so a project's links print as QR codes, each with
+// the site's name under it, in place of the line of links. The codes are SVG
+// files next to the project fragments, drawn from qrcode's module grid. Not
+// lazy: a lazy image hidden on screen is never fetched, so it would miss print.
+let codes = 0;
+const qr = (href) => {
+  const { modules } = QRCode.create(href, { errorCorrectionLevel: "M" });
+  const size = modules.size;
+  let path = "";
+  for (let y = 0; y < size; y++)
+    for (let x = 0; x < size; x++) if (modules.get(y, x)) path += `M${x} ${y}h1v1h-1z`;
+  const file = `qr/${++codes}.svg`;
+  writeFileSync(
+    new URL(file, fragments),
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><path d="${path}"/></svg>`,
+  );
+  return `/cv/${file}`;
+};
+const isLinkLine = (t) =>
+  t.type === "paragraph" &&
+  t.tokens.every((i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)));
+
+const printed = ({ heading, images, rest }) => {
+  const links = [];
+  marked.walkTokens(rest, (t) => {
+    if (t.type === "link" && /^https?:\/\//.test(t.href)) links.push(t.href);
+  });
+  const qrs = links
+    .map(
+      (href) =>
+        `<figure class="print-qr"><img src="${qr(href)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`,
+    )
+    .join("");
+  return `<section class="project-print">
   <h4>${marked.parseInline(heading.text)}</h4>
   ${images[0] ?? ""}
-${render(rest)}
+  ${qrs ? `<div class="print-qrs">${qrs}</div>` : ""}
+${render(rest.filter((t) => !isLinkLine(t)))}
 </section>`;
+};
 
 const out = [];
 let group = null;
@@ -168,7 +205,7 @@ writeFileSync(
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Hidden: linked from nowhere, and kept out of search results. -->
+    <!-- Kept out of search results. -->
     <meta name="robots" content="noindex, nofollow" />
 
     <title>${title}</title>

@@ -582,7 +582,7 @@ html:has(.cv) {
     margin: 0 0 var(--space);
     font-weight: var(--font-weight-medium);
   }
-  .cv .project-print img {
+  .cv .project-print > img {
     float: right;
     width: var(--cv-print-image-width);
     margin: 0 0 var(--space) calc(var(--space) * 2);
@@ -590,10 +590,25 @@ html:has(.cv) {
   .cv .project-print p {
     margin: var(--space) 0;
   }
-  /* The link text is already the site's address (policie.gov.cz), which is
-     what paper needs; only the new-tab icon goes. */
-  .project-print .icon-external {
-    display: none;
+  /* A project's links print as QR codes with the site's name (the build
+     writes them); the line of links itself is left out of print. */
+  .print-qrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space) calc(var(--space) * 2);
+    margin: var(--space) 0;
+  }
+  .print-qr {
+    margin: 0;
+    font-size: var(--font-size-small);
+    color: var(--color-muted);
+  }
+  .cv .print-qr img {
+    display: block;
+    width: var(--cv-print-qr-size);
+    height: var(--cv-print-qr-size);
+    border: 0;
+    border-radius: 0;
   }
 }
 

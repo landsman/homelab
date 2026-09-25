@@ -2,7 +2,7 @@
 
 # Michal Landsman
 
-Full-stack developer in Prague. Kotlin, Java, PHP, TypeScript, PostgreSQL, React, Terraform, Linux
+Full-stack developer in Prague, Czech Republic. Kotlin, Java, PHP, TypeScript, PostgreSQL, React, Terraform, Linux
 
 ## Experience
 

@@ -167,12 +167,12 @@ scale, we relaunched.
 
 ![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)
 
-At the time and in the market we were in, running a fintech marketplace was
-uncommon. We tried several payment methods and gateways and went through many
-challenges, and I learned many lessons. The solution is now modular and
-scalable, supporting multiple countries, currencies, languages, payment methods
-and more. The company is B2B oriented and provides cashless, hardware-less
-solutions for even the smallest businesses.
+Beyond the Czech Republic, we tried selling in Spain, Italy, Slovakia, Romania,
+Peru and a few other markets. Running a fintech marketplace was uncommon at the
+time, and every market brought its own payment methods, gateways and
+challenges, so we learned a lot along the way. The platform grew modular for
+it: several countries, currencies, languages and payment methods, still B2B,
+cashless and without extra hardware, for even the smallest businesses.
 
 #### Malá pokladna: EET, mobile POS
 

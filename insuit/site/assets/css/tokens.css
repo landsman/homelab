@@ -65,7 +65,7 @@
   --cv-image-width: 320px;
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
-  --cv-gallery-min: 240px;
+  --cv-gallery-min: 160px;
   --photo-caption-room: 4em;
   /* The logos are 1200×630 share cards; a logo-less tile takes the same shape. */
   --cv-logo-ratio: 1200 / 630;

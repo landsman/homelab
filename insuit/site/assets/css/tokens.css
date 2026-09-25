@@ -70,8 +70,8 @@
   --icon-gap-small: 0.35em;
   --underline-height: 2px;
   --cv-image-width: 320px;
-  --cv-portrait-size: clamp(88px, 24vw, 144px);
-  --cv-portrait-filter: grayscale(1) contrast(1.1) brightness(1.03);
+  --cv-portrait-size: clamp(104px, 28vw, 180px);
+  --cv-portrait-filter: grayscale(0.55) sepia(0.12) contrast(0.95) brightness(1.08);
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
   --cv-print-image-width: 34mm;

@@ -20,9 +20,11 @@
   height: var(--cv-portrait-size);
   border-radius: 50%;
   object-fit: cover;
-  /* Black and white, to sit with the mono type and quiet palette; the colour
-     comes back on hover. */
+  /* Softened: most of the colour taken out, a touch of warmth, lifted a little,
+     to sit with the mono type and quiet palette; full colour on hover. */
   filter: var(--cv-portrait-filter);
+  /* Mirrored, so the face turns towards the name beside it. */
+  transform: scaleX(-1);
   transition: filter var(--speed-slow);
 }
 .cv > p:first-child > img:only-child:hover {

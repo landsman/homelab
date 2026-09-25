@@ -359,9 +359,8 @@ draw.
 
 [ketodiet.cz](https://www.ketodiet.cz)
 
-The online shop for KetoDiet, a ketogenic diet programme. I worked on several
-changes to the platform's custom configuration: checkout variants, pricing and
-more.
+The KetoDiet online shop. I worked on several changes to the platform's custom
+configuration: checkout variants, pricing and more.
 
 ### StudioArt.cz
 

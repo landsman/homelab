@@ -383,3 +383,12 @@ it built its own CMS, e-commerce platform and marketing tools.
 **Technologies:** PHP, Vanilla JS, Nette, Node.js, Drupal, WordPress, Joomla,
 SunLight CMS, PrestaShop, OpenCart, jQuery, LESS, Sass, Gulp, Grunt, Linux,
 Jenkins, Adobe Photoshop, Adobe Illustrator
+
+#### Sokol Nové Veselí
+
+[sokol.noveveseli.cz](https://sokol.noveveseli.cz/)
+
+![The Sokol Nové Veselí website in 2013: the club's sections, news and contact](/assets/cv/sokol-nove-veseli.png)
+
+A new website for the sports and leisure club in the small town of Nové
+Veselí, running on our own PHP CMS.

@@ -264,20 +264,29 @@ html:has(.cv) {
   object-position: top;
 }
 
-/* A photo in the project dialog opens full size on click. */
+/* A photo in the project dialog opens full size on click. It sits in a frame
+   of its own: a thin border with a little space around the picture, so the
+   hover has something to act on without touching the image. */
 .photo-zoom {
   display: block;
   width: 100%;
-  padding: 0;
+  padding: var(--thumb-padding);
   font: inherit;
-  background: none;
-  border: 0;
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
   cursor: zoom-in;
+  transition:
+    border-color var(--speed),
+    transform var(--speed);
+}
+.cv .photo-zoom img {
+  border: 0;
+  border-radius: calc(var(--cv-image-radius) - var(--thumb-padding));
 }
 .photo-zoom:focus-visible {
   outline: var(--border-width) solid currentcolor;
   outline-offset: 4px;
-  border-radius: var(--cv-image-radius);
 }
 
 /* The photo at its own size, shrunk only to fit the viewport. */
@@ -321,21 +330,16 @@ html:has(.cv) {
   color: var(--color-photo-close);
 }
 
-/* Hover on a thumbnail: the same darkened border as the cards on the page, and
-   a small lift, so it reads as something to open. */
-.photo-zoom img {
-  transition:
-    border-color var(--speed),
-    transform var(--speed);
-}
-.photo-zoom:hover img,
-.photo-zoom:focus-visible img {
+/* Hover on a thumbnail: the frame darkens to the text colour and lifts a
+   little, so it reads as something to open. */
+.photo-zoom:hover,
+.photo-zoom:focus-visible {
   border-color: currentcolor;
   transform: translateY(var(--lift));
 }
 @media (prefers-reduced-motion: reduce) {
-  .photo-zoom:hover img,
-  .photo-zoom:focus-visible img {
+  .photo-zoom:hover,
+  .photo-zoom:focus-visible {
     transform: none;
   }
 }

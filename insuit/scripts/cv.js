@@ -1,5 +1,6 @@
 // Renders site/cv.md into site/cv.html — the markdown is the source, the page is
 // a build output (gitignored), so the two can never drift. `make cv` runs it.
+import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { imageSize } from "image-size";
 import { marked } from "marked";
@@ -125,12 +126,19 @@ const isLinkLine = (t) =>
   t.type === "paragraph" &&
   t.tokens.every((i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)));
 
-// A printed code never points at the project's site directly: it points at a
-// short address on insuit.cz, /go/<project>-<n>, which site/_redirects (written
-// below, from cv.md) sends on to the link. Change a link in cv.md and every
-// copy already printed follows it; the address only changes if the project is
-// renamed or its links reordered.
-const redirects = [];
+// A printed code never points at the project's site directly: it points at
+// link.insuit.cz/<hash>, a separate Pages project (links/) whose _redirects,
+// written below from cv.md, sends it on. The hash comes from the project and
+// the link's place in it, not from the link: change a link in cv.md and every
+// copy already printed follows it. It only changes if the project is renamed
+// or its links reordered.
+const redirects = new Map();
+const shortLink = (key, href) => {
+  const hash = createHash("sha256").update(key).digest("hex").slice(0, 6);
+  if (redirects.has(hash)) throw new Error(`cv: short link ${hash} for ${key} is taken`);
+  redirects.set(hash, href);
+  return `https://link.insuit.cz/${hash}`;
+};
 const printed = ({ heading, images, rest }) => {
   const links = [];
   marked.walkTokens(rest, (t) => {
@@ -138,9 +146,8 @@ const printed = ({ heading, images, rest }) => {
   });
   const qrs = links
     .map((href, i) => {
-      const go = `/go/${slug(heading.text)}-${i + 1}`;
-      redirects.push(`${go} ${href} 302`);
-      return `<figure class="print-qr"><img src="${qr(`https://www.insuit.cz${go}`)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`;
+      const short = shortLink(`${slug(heading.text)}-${i + 1}`, href);
+      return `<figure class="print-qr"><img src="${qr(short)}" alt="" fetchpriority="low" /><figcaption>${new URL(href).hostname.replace(/^www\./, "")}</figcaption></figure>`;
     })
     .join("");
   return `<section class="project-print">
@@ -202,10 +209,25 @@ const rendered = body.match(/hx-get=/g)?.length ?? 0;
 if (rendered !== expected)
   throw new Error(`cv: ${expected} projects in cv.md, ${rendered} rendered`);
 
-// Cloudflare Pages reads this file as redirect rules; 302, since a target may change.
+// The link.insuit.cz site: nothing but redirect rules (302, since a target may
+// change) and a page for a hash it does not know. Deployed on its own, so its
+// rules never apply to www.insuit.cz.
+const links = new URL("../links/", import.meta.url);
+rmSync(links, { recursive: true, force: true });
+mkdirSync(links);
 writeFileSync(
-  new URL("_redirects", site),
-  `# Generated from cv.md by scripts/cv.js: the addresses the printed CV's QR codes point at.\n${redirects.join("\n")}\n`,
+  new URL("_redirects", links),
+  `# Generated from site/cv.md by scripts/cv.js: where the printed CV's QR codes lead.\n/ https://www.insuit.cz/cv 302\n${[...redirects].map(([hash, href]) => `/${hash} ${href} 302`).join("\n")}\n`,
+);
+writeFileSync(
+  new URL("404.html", links),
+  `<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Link not found</title>
+  <p>This link is not in use any more. <a href="https://www.insuit.cz/cv">Michal Landsman's CV</a></p>
+</html>
+`,
 );
 
 const title = "Curriculum Vitae - Michal Landsman";

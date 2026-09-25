@@ -15,10 +15,10 @@ site/assets/icons/og-image.png
 # `make dev` scratch state from wrangler's asset server.
 .wrangler/
 
-# CV page, its project fragments and the redirects its printed QR codes use —
+# CV page, its project fragments and the link.insuit.cz redirects (links/) —
 # rendered from site/cv.md by `make cv`, with htmx copied in from node_modules.
 # Never committed.
 site/cv.html
 site/cv/
-site/_redirects
+links/
 site/assets/js/htmx.min.js

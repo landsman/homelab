@@ -109,6 +109,26 @@ github.com/landsman` rule. Keep the apex→www rule; it's the direction this
 
 Verify with `curl -sI https://www.insuit.cz` before and after.
 
+## link.insuit.cz (the printed CV's QR codes)
+
+The printed CV shows each project link as a QR code. The code does not hold the
+link itself but `https://link.insuit.cz/<hash>`, which redirects to it — so a
+link can change after the CV is printed, and every copy still works.
+
+- `make cv` writes the redirects from `site/cv.md` into `links/` (gitignored):
+  a `_redirects` file and a 404 page. The hash comes from the project's name and
+  the link's position in it, not from the link, so editing a link in `cv.md`
+  keeps its code; renaming a project or reordering its links changes it.
+- `links/` is its own Pages project, `insuit-links` (Terraform), deployed by
+  the same workflow. Its own project because Pages redirect rules match the path
+  only: on `insuit-cz` they would fire on `www.insuit.cz/<hash>` as well.
+- Once, by hand, for the same reason as `www` above: **Workers & Pages →
+  insuit-links → Custom domains** → add `link.insuit.cz`. It gets its own
+  proxied CNAME, which takes precedence over the `*` wildcard.
+
+Check with `curl -sI https://link.insuit.cz/<hash>`; the hashes are in
+`links/_redirects` after `make cv`.
+
 ## Ports
 
 None — not self-hosted. If it ever moves onto the Pi, `site/` drops straight into

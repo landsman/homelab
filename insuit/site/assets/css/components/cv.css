@@ -260,6 +260,8 @@ html:has(.cv) {
   max-width: none;
   aspect-ratio: var(--cv-logo-ratio);
   object-fit: cover;
+  /* The top of a screenshot is where its headline and app bar are. */
+  object-position: top;
 }
 
 /* A photo in the project dialog opens full size on click. */

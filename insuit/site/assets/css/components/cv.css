@@ -54,7 +54,7 @@
   color: var(--color-muted);
 }
 
-/* "Stack:" lines — the label keeps the body colour, the list recedes. */
+/* "Technologies:" lines — the label keeps the body colour, the list recedes. */
 .cv strong {
   font-weight: normal;
 }

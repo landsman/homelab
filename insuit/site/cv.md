@@ -167,8 +167,7 @@ scale, we relaunched.
 #### Europe Expansion
 
 [businessinfo.cz](https://www.businessinfo.cz/clanky/trisbee-startuje-revoluci-v-placeni-novy-nazev-ukazuje-mezinarodni-ambice/) ·
-[cc.cz](https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/) ·
-[investujeme.cz](https://www.investujeme.cz/tiskove-zpravy/novinky-u-trisbee-platby-mezi-uzivateli-zdarma-link-pro-online-placeni-a-qr-platby/)
+[cc.cz](https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/)
 
 ![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)
 

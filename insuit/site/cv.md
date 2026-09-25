@@ -362,7 +362,7 @@ draw.
 The KetoDiet online shop, built on a customised Joomla. I worked on several
 changes to its custom configuration: checkout variants, pricing and more.
 
-**Technologies:** PHP, Joomla, MySQL
+**Technologies:** PHP, Joomla, jQuery, CSS, MySQL
 
 ### StudioArt.cz
 

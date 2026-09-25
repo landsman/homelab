@@ -289,11 +289,28 @@ html:has(.cv) {
 .photo-dialog::backdrop {
   background: var(--color-backdrop-strong);
 }
+.photo-dialog figure {
+  margin: 0;
+}
 .cv .photo-dialog img {
   width: auto;
   max-width: calc(100vw - var(--page-padding) * 2);
-  max-height: calc(100vh - var(--page-padding) * 2);
+  /* Leaves room for the caption below it. */
+  max-height: calc(100vh - var(--page-padding) * 2 - var(--photo-caption-room));
   cursor: zoom-out;
+}
+/* The caption sits on the dark backdrop, so it takes the light close-button
+   colour in both themes. */
+.photo-dialog figcaption {
+  max-width: var(--cv-dialog-width);
+  margin-top: calc(var(--space) / 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-photo-close);
+  text-wrap: pretty;
+}
+.photo-dialog figcaption:empty {
+  display: none;
 }
 .photo-dialog .project-dialog-close {
   top: calc(var(--space) * -2);

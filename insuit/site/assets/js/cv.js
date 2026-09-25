@@ -17,6 +17,9 @@
       var photo = /** @type {HTMLImageElement} */ (document.getElementById("photo-dialog-image"));
       photo.src = source.src;
       photo.alt = source.alt;
+      // A markdown title (`![alt](src "caption")`) wins; otherwise the alt text.
+      /** @type {HTMLElement} */ (document.getElementById("photo-dialog-caption")).textContent =
+        source.title || source.alt;
       /** @type {HTMLDialogElement} */ (document.getElementById("photo-dialog")).showModal();
       return;
     }

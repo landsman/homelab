@@ -174,7 +174,10 @@ ${body}
         >
           ×
         </button>
-        <img id="photo-dialog-image" src="data:," alt="" />
+        <figure>
+          <img id="photo-dialog-image" src="data:," alt="" />
+          <figcaption id="photo-dialog-caption"></figcaption>
+        </figure>
       </dialog>
     </main>
 

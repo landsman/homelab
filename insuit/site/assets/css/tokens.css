@@ -27,6 +27,8 @@
   --dark-fg: #d7dce1;
   --dark-bg: #1c2024;
   --light-border: #e3e6e9;
+  --light-close-hover: #eef0f2;
+  --dark-close-hover: #2b3137;
   --dark-border: #3a4046;
   /* Secondary text — 5.40:1 on --light-bg, 5.89:1 on --dark-bg (AA). */
   --light-muted: #646b72;
@@ -41,6 +43,8 @@
   /* The play button sits on a picture, not the page, so it stays white. */
   --play: #ffffff;
   --play-badge: rgb(0 0 0 / 0.7);
+  /* Close button over the dark photo backdrop, the same in both themes. */
+  --close-hover-dark: rgb(255 255 255 / 0.15);
 
   /* Layout */
   --wrapper-width: 800px;
@@ -72,6 +76,7 @@
   --gallery-inset: 6px;
   --cv-thumb-height: 160px;
   --play-size: 64px;
+  --close-size: 40px;
   --thumb-padding: 6px;
   --photo-caption-room: 4em;
   /* The logos are 1200×630 share cards; a logo-less tile takes the same shape. */
@@ -96,6 +101,7 @@
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
   --color-border: var(--light-border);
+  --color-close-hover: var(--light-close-hover);
   --color-muted: var(--light-muted);
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
@@ -104,6 +110,7 @@
   --color-photo-close: var(--photo-close);
   --color-play: var(--play);
   --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -112,6 +119,7 @@
     --color-fg: var(--dark-fg);
     --color-bg: var(--dark-bg);
     --color-border: var(--dark-border);
+    --color-close-hover: var(--dark-close-hover);
     --color-muted: var(--dark-muted);
     --color-tile-bg: var(--tile-bg);
     --color-tile-fg: var(--tile-fg);
@@ -120,6 +128,7 @@
     --color-photo-close: var(--photo-close);
     --color-play: var(--play);
     --color-play-badge: var(--play-badge);
+    --color-close-hover-dark: var(--close-hover-dark);
   }
 }
 
@@ -128,6 +137,7 @@
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
   --color-border: var(--light-border);
+  --color-close-hover: var(--light-close-hover);
   --color-muted: var(--light-muted);
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
@@ -136,6 +146,7 @@
   --color-photo-close: var(--photo-close);
   --color-play: var(--play);
   --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }
 
 :root[data-theme="dark"] {
@@ -143,6 +154,7 @@
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);
   --color-border: var(--dark-border);
+  --color-close-hover: var(--dark-close-hover);
   --color-muted: var(--dark-muted);
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
@@ -151,4 +163,5 @@
   --color-photo-close: var(--photo-close);
   --color-play: var(--play);
   --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }

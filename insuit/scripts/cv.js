@@ -95,7 +95,7 @@ const card = ({ heading, images, tall, rest }) => {
     type="button"
     hx-get="/cv/${file}"
     hx-target="#project-dialog-content"
-    hx-on::after-request="event.detail.successful && document.getElementById('project-dialog').showModal()"
+    hx-on::after-request="if (event.detail.successful) { const d = document.getElementById('project-dialog'); d.showModal(); d.focus(); }"
   ><span class="frame">${logo || tile(heading.text)}</span><span class="project-name">${name}</span></button>
 </h4>`;
 };
@@ -187,6 +187,7 @@ ${body}
           commandfor="project-dialog"
           command="close"
           aria-label="Close"
+          title="Close"
         >
           ×
         </button>
@@ -200,6 +201,7 @@ ${body}
           commandfor="photo-dialog"
           command="close"
           aria-label="Close"
+          title="Close"
         >
           ×
         </button>

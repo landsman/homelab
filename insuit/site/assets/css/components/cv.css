@@ -190,18 +190,33 @@ html:has(.cv) {
   scrollbar-gutter: stable;
 }
 
+/* The × sits in a circle that fills on hover and on keyboard focus — the fill
+   is the focus indicator, so the browser's square outline goes. */
 .project-dialog-close {
   position: absolute;
-  top: calc(var(--page-padding) - 0.2em);
-  right: calc(var(--page-padding) - 0.25em);
-  padding: 0 0.25em;
+  top: calc(var(--page-padding) - var(--close-size) / 4);
+  right: calc(var(--page-padding) - var(--close-size) / 4);
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0;
   font: inherit;
   font-size: var(--font-size-h1);
   line-height: 1;
   color: inherit;
-  background: none;
+  background: transparent;
   border: 0;
+  border-radius: 50%;
   cursor: pointer;
+  transition: background-color var(--speed);
+}
+.project-dialog-close:focus {
+  outline: none;
+}
+.project-dialog-close:hover,
+.project-dialog-close:focus-visible {
+  background: var(--color-close-hover);
 }
 .cv .project-dialog h4 {
   margin: 0 0 var(--space);
@@ -351,9 +366,13 @@ html:has(.cv) {
   display: none;
 }
 .photo-dialog .project-dialog-close {
-  top: calc(var(--space) * -2);
-  right: 0;
+  top: calc(var(--close-size) * -1.25);
+  right: calc(var(--close-size) / -4);
   color: var(--color-photo-close);
+}
+.photo-dialog .project-dialog-close:hover,
+.photo-dialog .project-dialog-close:focus-visible {
+  background: var(--color-close-hover-dark);
 }
 
 /* Hover on a thumbnail or a project card: the frame darkens to the text

@@ -427,13 +427,13 @@ communities, small businesses and services. For example, a new website for
 [Sokol Nové Veselí](https://sokol.noveveseli.cz/), the sports and leisure club
 in a small town, running on our own PHP CMS.
 
-#### Házená Nové Veselí
+#### Marketing and content creation
 
 [hazena.noveveseli.cz](https://hazena.noveveseli.cz/) ·
 [YouTube channel](https://www.youtube.com/user/hazenanv)
 
 ![A match-day poster for Házená Nové Veselí, 29 September 2013: three home games and the club's team photo](/assets/cv/hazena-nove-veseli.jpg)
 
-Set up the club's Facebook page and looked after it: promotion, marketing
-materials made in Photoshop, filming video spots and posting regularly, then
-handed it over to the club.
+For Házená Nové Veselí, a handball club: set up its Facebook page and looked
+after it, with promotion, marketing materials made in Photoshop, filmed video
+spots and regular posts, then handed it over to the club.

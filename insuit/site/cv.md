@@ -161,6 +161,8 @@ scale, we relaunched.
 
 #### Charity, events and tickets
 
+[cc.cz](https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/)
+
 ![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)
 
 At the time and in the market we were in, running a fintech marketplace was

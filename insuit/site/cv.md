@@ -123,7 +123,7 @@ currencies, languages and payment methods. The company grew from three people.
 - Hiring, onboarding, Scrum, salaries, customer care, sales and meetups
 
 **Stack:** Kotlin, Spring, Java, TypeScript, React, Next.js, AWS, GCP,
-Terraform, Docker
+Terraform, Docker, GitHub Actions
 
 #### Payment app kickoff
 

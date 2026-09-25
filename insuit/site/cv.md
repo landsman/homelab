@@ -320,6 +320,20 @@ support the publisher's needs.
 
 **Technologies:** PHP, OpenCart
 
+### Effectix.com
+
+Full Stack Engineer · contract · Sep 2014 – Sep 2015 · on-site
+
+- PHP development and running a Joomla-based web farm
+- E-commerce projects with custom modules
+- Marketing campaign websites for clients such as McDonald's, including custom
+  features for its events at the Ice Hockey World Championship in the O2 arena,
+  and for brands such as Oriflame
+- Work with the marketing teams on PPC, dynamic remarketing code, Google
+  Analytics events, RTB banners and more
+
+**Technologies:** PHP, Joomla, Google Analytics
+
 ### StudioArt.cz
 
 Founder · Sep 2010 – Feb 2018 · remote

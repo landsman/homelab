@@ -1,0 +1,7 @@
+# Cloudflare Pages response headers. The CV is hidden: /cv carries its own
+# noindex meta, but its markdown source and the htmx fragments cannot, so they
+# get the header instead.
+/cv.md
+  X-Robots-Tag: noindex, nofollow
+/cv/*
+  X-Robots-Tag: noindex, nofollow

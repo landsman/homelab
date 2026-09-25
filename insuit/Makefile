@@ -43,8 +43,9 @@ dev: cv ## Serve site/ on http://localhost:4321, the way Pages serves it
 
 # The CV page is a build output of site/cv.md, like the OG card — gitignored,
 # rendered here, in CI and before every deploy. Edit the markdown, not the HTML.
-cv: ## Render site/cv.md to site/cv.html
+cv: ## Render site/cv.md to site/cv.html and its project fragments
 	node scripts/cv.js
+	cp node_modules/htmx.org/dist/htmx.min.js site/assets/js/htmx.min.js
 	@echo "wrote site/cv.html"
 
 format: ## Format everything with oxfmt

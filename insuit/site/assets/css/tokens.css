@@ -15,6 +15,7 @@
   --dark-bg: #1c2024;
   --light-border: #e3e6e9;
   --dark-border: #3a4046;
+  --backdrop: rgb(0 0 0 / 0.5);
 
   /* Layout */
   --wrapper-width: 800px;
@@ -36,6 +37,8 @@
   --underline-height: 2px;
   --cv-image-width: 320px;
   --cv-image-radius: 12px;
+  --cv-card-min: 200px;
+  --cv-dialog-width: 640px;
   --border-width: 1px;
 
   /* Motion */
@@ -54,6 +57,7 @@
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
   --color-border: var(--light-border);
+  --color-backdrop: var(--backdrop);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -62,6 +66,7 @@
     --color-fg: var(--dark-fg);
     --color-bg: var(--dark-bg);
     --color-border: var(--dark-border);
+    --color-backdrop: var(--backdrop);
   }
 }
 
@@ -70,6 +75,7 @@
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
   --color-border: var(--light-border);
+  --color-backdrop: var(--backdrop);
 }
 
 :root[data-theme="dark"] {
@@ -77,4 +83,5 @@
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);
   --color-border: var(--dark-border);
+  --color-backdrop: var(--backdrop);
 }

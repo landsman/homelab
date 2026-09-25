@@ -51,3 +51,96 @@
   transform: scaleX(1);
   transform-origin: left top;
 }
+
+/* Projects: a row of cards on a wide screen, one per line on a phone. Each
+   card is a button; the details open in a modal dialog. */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--cv-card-min), 1fr));
+  gap: var(--space);
+  margin: calc(var(--space) * 2) 0;
+}
+
+.cv .project {
+  margin: 0;
+}
+.project button {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.project button:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+  border-radius: var(--cv-image-radius);
+}
+.cv .project img {
+  max-width: 100%;
+  transition: border-color var(--speed);
+}
+.project button:hover img,
+.project button:focus-visible img {
+  border-color: currentcolor;
+}
+
+/* The dialog. */
+.project-dialog {
+  width: min(var(--cv-dialog-width), 100% - var(--page-padding) * 2);
+  max-height: calc(100% - var(--page-padding) * 2);
+  padding: var(--page-padding);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+}
+.project-dialog::backdrop {
+  background: var(--color-backdrop);
+}
+/* The page behind a modal should not scroll along with it. */
+html:has(.project-dialog[open]) {
+  overflow: hidden;
+}
+
+.project-dialog-close {
+  position: absolute;
+  top: calc(var(--page-padding) - 0.2em);
+  right: calc(var(--page-padding) - 0.25em);
+  padding: 0 0.25em;
+  font: inherit;
+  font-size: var(--font-size-h1);
+  line-height: 1;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.cv .project-dialog h4 {
+  margin: 0 0 var(--space);
+  padding-right: calc(var(--space) * 2);
+  font-size: var(--font-size-h1);
+}
+#project-dialog-content > :last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-dialog[open] {
+    animation: dialog-in var(--speed) ease-out;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

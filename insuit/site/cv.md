@@ -280,8 +280,11 @@ Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 
 [dny.marianne.cz](https://dny.marianne.cz/)
 
-A four-day shopping event run by Marianne magazine, with discounts of up to 70 %
-at partner shops.
+A yearly four-day shopping event run by Marianne magazine, with discounts of up
+to 70 % at partner shops. I ran the selection of the agency that built its
+native iOS and Android apps. On our side, we integrated the payment gateway on
+the backend and built the checkout as a web view inside the apps,
+indistinguishable from the native screens around it.
 
 #### Magazine online subscription
 

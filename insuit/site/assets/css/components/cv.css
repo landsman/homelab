@@ -407,3 +407,9 @@ html:has(.cv) {
 .photo-step[hidden] {
   display: none;
 }
+
+/* The dialog takes focus when it opens (assets/js/cv.js), not the close
+   button; it needs no ring of its own around the photo. */
+.photo-dialog:focus {
+  outline: none;
+}

@@ -43,6 +43,9 @@
       previous.hidden = next.hidden = photos.length < 2;
       show(photos.indexOf(/** @type {HTMLImageElement} */ (zoom.querySelector("img"))));
       dialog.showModal();
+      // The dialog itself takes focus, not its close button: the arrow keys
+      // that step through the photos would otherwise show the button's ring.
+      dialog.focus();
       return;
     }
 

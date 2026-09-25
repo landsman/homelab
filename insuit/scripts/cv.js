@@ -184,7 +184,7 @@ ${body}
         <div id="project-dialog-content"></div>
       </dialog>
 
-      <dialog id="photo-dialog" class="photo-dialog" closedby="any" aria-label="Photo">
+      <dialog id="photo-dialog" class="photo-dialog" closedby="any" aria-label="Photo" tabindex="-1">
         <button
           class="project-dialog-close"
           type="button"

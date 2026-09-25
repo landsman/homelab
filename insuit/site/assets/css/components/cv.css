@@ -577,3 +577,31 @@ html:has(.cv) {
     display: none;
   }
 }
+
+/* The CV's own page footer in print: a name and a page count, set in the site's
+   type. A margin box with content — even an empty string — takes its area from
+   the browser's own header and footer (date, title, URL); `content: none`
+   would give it back. */
+@page {
+  @top-left {
+    content: "";
+  }
+  @top-center {
+    content: "";
+  }
+  @top-right {
+    content: "";
+  }
+  @bottom-left {
+    content: "Michal Landsman · Curriculum Vitae";
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: #646b72;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: #646b72;
+  }
+}

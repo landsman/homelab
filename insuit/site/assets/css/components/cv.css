@@ -246,13 +246,25 @@ html:has(.cv) {
   white-space: nowrap;
 }
 
-/* Several images for one project: a grid of equal thumbnails in the dialog,
-   each cropped to the card shape from the top, where a screenshot carries its
-   headline. Clicking one opens it whole in the photo dialog. */
+/* Several images for one project: one row that scrolls sideways, snapping to
+   each picture. Thumbnails are all one size, cropped to the card shape from
+   the top, where a screenshot carries its headline; clicking one opens it
+   whole in the photo dialog. The padding keeps the hover lift and the focus
+   ring from being clipped by the scroll box. */
 .project-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--cv-gallery-min), 1fr));
+  display: flex;
   gap: calc(var(--space) / 2);
+  padding: var(--gallery-inset);
+  margin-inline: calc(var(--gallery-inset) * -1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gallery-inset);
+}
+.project-gallery .photo-zoom {
+  flex: none;
+  width: var(--cv-thumb-width);
+  scroll-snap-align: start;
 }
 .cv .project-gallery img {
   max-width: none;
@@ -262,18 +274,13 @@ html:has(.cv) {
 }
 
 /* A gallery of mostly tall pictures (phone screenshots, flagged by the build):
-   a row of frames of one height, each as wide as its picture, so every screen
-   shows whole instead of as a strip of its status bar. */
-.project-gallery-tall {
-  display: flex;
-  flex-wrap: wrap;
-}
+   the frames share one height and each is as wide as its picture, so every
+   screen shows whole instead of as a strip of its status bar. */
 .project-gallery-tall .photo-zoom {
   width: auto;
 }
 .cv .project-gallery-tall img {
   width: auto;
-  max-width: 100%;
   height: var(--cv-thumb-height);
   aspect-ratio: auto;
 }
@@ -374,4 +381,29 @@ html:has(.cv) {
 }
 #project-dialog-content > .photo-zoom img {
   max-width: 100%;
+}
+
+/* Previous and next in the full-size photo: on the backdrop either side of the
+   picture, light like the close button. */
+.photo-step {
+  position: fixed;
+  top: 50%;
+  padding: var(--space);
+  font: inherit;
+  font-size: var(--font-size-display);
+  line-height: 1;
+  color: var(--color-photo-close);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+#photo-previous {
+  left: 0;
+}
+#photo-next {
+  right: 0;
+}
+.photo-step[hidden] {
+  display: none;
 }

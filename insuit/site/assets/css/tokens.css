@@ -65,7 +65,8 @@
   --cv-image-width: 320px;
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
-  --cv-gallery-min: 160px;
+  --cv-thumb-width: 200px;
+  --gallery-inset: 6px;
   --cv-thumb-height: 160px;
   --thumb-padding: 6px;
   --photo-caption-room: 4em;

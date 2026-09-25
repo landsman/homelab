@@ -194,6 +194,10 @@ ${body}
         >
           ×
         </button>
+        <button id="photo-previous" class="photo-step" type="button" aria-label="Previous photo">
+          ‹
+        </button>
+        <button id="photo-next" class="photo-step" type="button" aria-label="Next photo">›</button>
         <figure>
           <img id="photo-dialog-image" src="data:," alt="" />
           <figcaption id="photo-dialog-caption"></figcaption>

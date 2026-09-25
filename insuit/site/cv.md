@@ -191,7 +191,7 @@ service's relaunch.
 
 **Technologies:** Java, Play Framework, PostgreSQL, AWS
 
-#### Trisbee Events Ticketing
+#### Trisbee Event Ticketing
 
 [boomevents.org](https://boomevents.org/en/)
 

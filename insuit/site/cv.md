@@ -161,7 +161,7 @@ adapting the solution for customers. It was hard: every time we adjusted
 something, another piece fell apart. Under the requirements and the pressure to
 scale, we relaunched.
 
-#### Charity, events and tickets
+#### Europe Expansion
 
 [cc.cz](https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/)
 

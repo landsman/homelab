@@ -178,6 +178,11 @@
 html:has(.project-dialog[open]) {
   overflow: hidden;
 }
+/* Hiding the scrollbar would widen the page and shift it sideways on every
+   open and close — keep the scrollbar's space reserved either way. */
+html:has(.cv) {
+  scrollbar-gutter: stable;
+}
 
 .project-dialog-close {
   position: absolute;

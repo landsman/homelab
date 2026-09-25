@@ -159,6 +159,8 @@ solutions for even the smallest businesses.
 
 #### Malá pokladna: EET, mobile POS
 
+[mintmarket.cz](https://www.mintmarket.cz/cs/blog/jak-na-EET)
+
 ![The Malá pokladna app on an Android phone, ringing up a sale at a florist's table](/assets/cv/mala-pokladna.jpg)
 
 A simple cash payment and sales-recording service, loved by thousands of

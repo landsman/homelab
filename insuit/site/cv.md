@@ -366,6 +366,14 @@ changes to its custom configuration: checkout variants, pricing and more.
 
 **Technologies:** PHP, Joomla, jQuery, CSS, MySQL
 
+### Trinet, a.s.
+
+Frontend Developer · freelance · Jan 2012 – Jan 2013 · remote
+
+Mostly frontend development on the company's internal CMS, written in ASP.NET.
+
+**Technologies:** ASP.NET
+
 ### StudioArt.cz
 
 Founder · Sep 2010 – Feb 2018 · remote

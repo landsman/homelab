@@ -209,6 +209,8 @@ Trisbee.
 
 [ocellot.cz](https://www.ocellot.cz)
 
+![Trisbee POS on a tablet: the cash register screen with drink categories and a keypad](/assets/cv/trisbee-pos.jpg)
+
 A cash register system for hospitality. We acquired a local POS already used in
 several restaurants and bars, where bartenders rated its UX highly. We adapted
 its source code to run in Docker on AWS with autoscaling, so it could grow and

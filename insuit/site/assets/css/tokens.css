@@ -57,7 +57,7 @@
   --space-content-top: clamp(24px, 5vh, 35px);
   --space-content-bottom: clamp(28px, 6vh, 40px);
   --links-gap-row: var(--space);
-  --links-gap-column: 16px;
+  --links-gap-column: 32px;
   --space-section: 56px;
   /* Between jobs — the gap is the divider, so it is wider than a section. */
   --space-job: 88px;

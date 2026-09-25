@@ -11,12 +11,6 @@
   gap: var(--icon-gap);
 }
 
-/* A dot between footer links, the same separator the CV uses in its meta
-   lines. Decorative: screen readers get the links alone. */
-.links-separator {
-  color: var(--color-muted);
-}
-
 /* Contact page: the links are the content, not a footer row, so they stack —
    one per line, each its own tap target. */
 .links-stacked {

@@ -395,6 +395,7 @@ The StudioArt visual identity: the logo and its tagline, "komplexní webová
 #### Content Management System
 
 ![The StudioArt CMS administration in 2014: visits from Google Analytics over 30 days, top searches and referrers](/assets/cv/studioart-cms.png)
+![Editing an article in the StudioArt CMS: the publication date and a monthly chart of the article's reads](/assets/cv/studioart-cms-article.png)
 
 Our own content management system, with modules for our clients. It connected
 to Google Analytics and had SEO scoring, scheduled publishing, permissions, a

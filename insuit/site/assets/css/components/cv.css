@@ -20,8 +20,8 @@
   height: var(--cv-portrait-size);
   border-radius: 50%;
   object-fit: cover;
-  /* Softened: most of the colour taken out, a touch of warmth, lifted a little,
-     to sit with the mono type and quiet palette; full colour on hover. */
+  /* A light polish rather than an effect: a touch less saturation, a little
+     more contrast and light; the untouched photo on hover. */
   filter: var(--cv-portrait-filter);
   /* Mirrored, so the face turns towards the name beside it. */
   transform: scaleX(-1);

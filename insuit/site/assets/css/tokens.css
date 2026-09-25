@@ -71,7 +71,7 @@
   --underline-height: 2px;
   --cv-image-width: 320px;
   --cv-portrait-size: clamp(104px, 28vw, 180px);
-  --cv-portrait-filter: grayscale(0.55) sepia(0.12) contrast(0.95) brightness(1.08);
+  --cv-portrait-filter: saturate(0.9) contrast(1.05) brightness(1.04);
   --cv-image-radius: 12px;
   --cv-card-min: 200px;
   --cv-print-image-width: 34mm;

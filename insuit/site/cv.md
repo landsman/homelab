@@ -384,6 +384,13 @@ it built its own CMS, e-commerce platform and marketing tools.
 SunLight CMS, PrestaShop, OpenCart, jQuery, LESS, Sass, Gulp, Grunt, Linux,
 Jenkins, Adobe Photoshop, Adobe Illustrator
 
+#### Company website identity
+
+![The StudioArt logo with the tagline komplexní webová řešení, complete web solutions](/assets/cv/studioart-identity.png)
+
+The StudioArt visual identity: the logo and its tagline, "komplexní webová
+řešení", complete web solutions.
+
 #### Content Management System
 
 ![The StudioArt CMS administration in 2014: visits from Google Analytics over 30 days, top searches and referrers](/assets/cv/studioart-cms.png)

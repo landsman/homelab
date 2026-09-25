@@ -342,6 +342,14 @@ The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
 the messages were shown on screens inside Prague's O2 Arena during the games.
 
+#### Oriflame Cosmetics: 25 years in the Czech Republic
+
+[cz.oriflame.com](https://cz.oriflame.com/)
+
+A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
+competition for customers: visitors sent in their answers to enter a prize
+draw.
+
 ### StudioArt.cz
 
 Founder · Sep 2010 – Feb 2018 · remote

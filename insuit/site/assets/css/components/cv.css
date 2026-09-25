@@ -224,3 +224,25 @@ html:has(.cv) {
     transform: translateY(8px);
   }
 }
+
+/* External links in a project dialog get a small out-arrow after the text; the
+   rest of the page keeps them plain. */
+.icon-external {
+  display: none;
+}
+.project-dialog .icon-external {
+  display: inline-block;
+  width: var(--icon-size-small);
+  height: var(--icon-size-small);
+  margin-left: var(--icon-gap-small);
+  vertical-align: -0.05em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

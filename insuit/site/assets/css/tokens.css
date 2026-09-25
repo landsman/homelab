@@ -57,6 +57,8 @@
   /* Components */
   --icon-size: 1.25em;
   --icon-gap: 10px;
+  --icon-size-small: 0.8em;
+  --icon-gap-small: 0.35em;
   --underline-height: 2px;
   --cv-image-width: 320px;
   --cv-image-radius: 12px;

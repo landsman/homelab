@@ -11,7 +11,12 @@ marked.use({
       const external = /^https?:\/\//.test(href);
       const attrs = external ? ' target="_blank" rel="noopener"' : "";
       const tip = title ? ` title="${title}"` : "";
-      return `<a href="${href}"${tip}${attrs}>${this.parser.parseInline(text)}</a>`;
+      // The icon shows in the project dialog only (cv.css); the hidden text
+      // tells a screen reader the tab changes wherever the link sits.
+      const hint = external
+        ? '<span class="icon-external" aria-hidden="true"></span><span class="visually-hidden"> (opens in a new tab)</span>'
+        : "";
+      return `<a href="${href}"${tip}${attrs}>${this.parser.parseInline(text)}${hint}</a>`;
     },
   },
 });

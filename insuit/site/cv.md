@@ -168,7 +168,8 @@ scale, we relaunched.
 
 [businessinfo.cz](https://www.businessinfo.cz/clanky/trisbee-startuje-revoluci-v-placeni-novy-nazev-ukazuje-mezinarodni-ambice/) ·
 [cc.cz](https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/) ·
-[SWG Getaway 2019, Alicante (PDF)](https://distritodigitalcv.es/wp-content/uploads/2019/09/SWG-Getaway-2019-05.09.19.pdf)
+[SWG Getaway 2019, Alicante (PDF)](https://distritodigitalcv.es/wp-content/uploads/2019/09/SWG-Getaway-2019-05.09.19.pdf) ·
+[EU FinTech Map](https://digital-finance-platform.ec.europa.eu/observatory/eu-fintech-map/trisbee#overview)
 
 ![A Nový Prostor street vendor holding the magazine with a Trisbee QR code for paying](/assets/cv/trisbee-charity.jpg)
 

@@ -414,7 +414,7 @@ to that CMS's community.
 Several custom online shops for sports brands: football, handball and
 basketball.
 
-**Technologies:** PHP, PrestaShop, OpenCart, Less, Grunt, MySQL
+**Technologies:** PHP, PrestaShop, OpenCart, jQuery, Less, Grunt, MySQL
 
 #### Client websites
 

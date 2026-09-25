@@ -161,16 +161,13 @@ solutions for even the smallest businesses.
 
 ![The Malá pokladna app on an Android phone, ringing up a sale at a florist's table](/assets/cv/mala-pokladna.jpg)
 
-A cash payment and sales-recording service for merchants, used by thousands of
-them and offered at a single monthly price. My work covered ongoing maintenance,
-security updates, and the service's relaunch through its integration with
-Trisbee.
-
-Users loved it for its simplicity and for how it connected to the physical
-world: pre-printed paper receipt pads, each receipt carrying a unique code that
-opened it online in full detail: amount, items, VAT and company details. That
-made it fully compliant with the new Czech law on the electronic registration
-of sales (EET), or simply a quick way to write a receipt.
+A simple cash payment and sales-recording service, loved by thousands of
+merchants for its ease of use and for linking paper receipts to online records.
+Each pre-printed receipt carried a unique code that opened its full details
+online: amount, items, VAT and company details. It kept merchants compliant
+with the Czech EET law, or simply made writing a receipt quick. I handled
+ongoing maintenance, security updates and the Trisbee integration for the
+service's relaunch.
 
 **Technologies:** Java, Play Framework, PostgreSQL, AWS
 

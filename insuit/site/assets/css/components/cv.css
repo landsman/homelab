@@ -248,15 +248,15 @@ html:has(.cv) {
 }
 
 /* Several images for one project: a grid in the dialog, each at the column's
-   full width rather than the single image's cap, cropped to the card shape so
-   the row stays even. */
+   full width rather than the single image's cap. They keep their own shape —
+   the dialog is where a picture is seen whole, so a screenshot of three phones
+   is not cropped to a card — and align to the top of their row. */
 .project-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--cv-gallery-min), 1fr));
+  align-items: start;
   gap: calc(var(--space) / 2);
 }
 .cv .project-gallery img {
   max-width: none;
-  aspect-ratio: var(--cv-logo-ratio);
-  object-fit: cover;
 }

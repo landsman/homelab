@@ -80,6 +80,8 @@ finalise the project reports.
 
 [portfolio.med.muni.cz](https://portfolio.med.muni.cz/)
 
+![The SIMU portfolio app on a phone during an OSCE resuscitation exam](/assets/cv/simu.webp)
+
 The Masaryk University Faculty of Medicine portfolio platform, continued through
 refactoring and the development of new modules.
 

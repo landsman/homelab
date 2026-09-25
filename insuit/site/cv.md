@@ -175,6 +175,8 @@ service's relaunch.
 
 [boomevents.org](https://boomevents.org/en/)
 
+![A crowded festival hall under red and blue drapes, visitors queueing at coffee stands](/assets/cv/trisbee-events.jpg)
+
 A ticketing product for event organisers, launched as a pilot MVP. Around 150
 events ran on the platform, with QR-code tickets checked through a native mobile
 app for paperless entry. The pilot included well-known events such as Prague

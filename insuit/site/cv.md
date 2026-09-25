@@ -19,6 +19,23 @@ reporting, across frontend, backend, CI/CD and infrastructure.
 Symfony, Bun, React, PostgreSQL, Microsoft SQL Server, Docker Swarm, Kubernetes,
 Argo CD, Azure Cloud, GitHub, GitLab CI/CD
 
+#### The Police of the Czech Republic
+
+[policie.gov.cz](https://policie.gov.cz/) ·
+[the old site, archived](https://archiv.policie.gov.cz/)
+
+![Policie České republiky](/assets/cv/policie.png)
+
+New website for the Police of the Czech Republic.
+
+A full relaunch: a new CMS, content migration, containerising the existing
+microservices, and new infrastructure to run them. Alongside it, meetings with
+the client to discuss the site's design and content, shape the requirements,
+and translate them into design and code.
+
+**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
+Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
+
 #### The Fire Rescue Service of the Czech Republic
 
 [hzscr.gov.cz](https://hzscr.gov.cz/) ·
@@ -49,23 +66,6 @@ A full relaunch: a new CMS, content migration, containerising the existing
 microservices with Docker, and new infrastructure to run them. Alongside it,
 meetings with the client to discuss the site's design and content, shape the
 requirements, and translate them into design and code.
-
-**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
-Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
-
-#### The Police of the Czech Republic
-
-[policie.gov.cz](https://policie.gov.cz/) ·
-[the old site, archived](https://archiv.policie.gov.cz/)
-
-![Policie České republiky](/assets/cv/policie.png)
-
-New website for the Police of the Czech Republic.
-
-A full relaunch: a new CMS, content migration, containerising the existing
-microservices, and new infrastructure to run them. Alongside it, meetings with
-the client to discuss the site's design and content, shape the requirements,
-and translate them into design and code.
 
 **Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab

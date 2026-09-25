@@ -559,13 +559,17 @@ html:has(.cv) {
     color: var(--color-fg);
   }
   .projects,
-  .projects-label,
   .project-dialog,
   .photo-dialog {
     display: none;
   }
   .projects-print {
     display: block;
+  }
+  /* The "Projects" label names the printed projects too, and stays with them. */
+  .cv .projects-label {
+    margin-bottom: 0;
+    break-after: avoid;
   }
   /* Each project: its name, a small picture floated beside the text, and the
      text itself, kept on one page. */

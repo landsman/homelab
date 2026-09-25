@@ -170,9 +170,11 @@ scale, we relaunched.
 Beyond the Czech Republic, we tried selling in Spain, Italy, Slovakia, Romania,
 Peru and a few other markets. Running a fintech marketplace was uncommon at the
 time, and every market brought its own payment methods, gateways and
-challenges, so we learned a lot along the way. The platform grew modular for
-it: several countries, currencies, languages and payment methods, still B2B,
-cashless and without extra hardware, for even the smallest businesses.
+challenges, so we learned a lot along the way.
+
+The platform grew modular for it: several countries, currencies, languages and
+payment methods, still B2B, cashless and without extra hardware, for even the
+smallest businesses.
 
 #### Malá pokladna: EET, mobile POS
 

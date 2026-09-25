@@ -35,11 +35,20 @@
   text-transform: uppercase;
   color: var(--color-muted);
 }
+/* A company opens its own block: a hairline above it, and the same air on
+   both sides of the line, so each job reads as one unit. The first one sits
+   right under the section label and needs no line. */
 .cv h3 {
   margin-top: var(--space-section);
+  padding-top: var(--space-section);
+  font-size: var(--font-size-company);
+  letter-spacing: var(--tracking-company);
+  border-top: var(--border-width) solid var(--color-border);
 }
 .cv h2 + h3 {
   margin-top: var(--space);
+  padding-top: 0;
+  border-top: 0;
 }
 .cv h4 {
   margin-top: calc(var(--space) * 2);
@@ -48,7 +57,7 @@
 
 /* Role · dates · where — the line directly under a company, kept tight to it. */
 .cv h3 + p {
-  margin-top: var(--space-tight);
+  margin-top: calc(var(--space-tight) * 2);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   color: var(--color-muted);

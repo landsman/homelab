@@ -246,21 +246,23 @@ html:has(.cv) {
   white-space: nowrap;
 }
 
-/* Several images for one project: a grid of equal thumbnails in the dialog,
-   each cropped to the card shape so the grid stays even. Clicking one opens it
-   whole in the photo dialog, so nothing is lost to the crop. */
+/* Several images for one project: a row of frames of one height in the
+   dialog, each as wide as its picture needs, so a tall phone screenshot and a
+   wide campaign image both show whole and the row still lines up. Clicking one
+   opens it full size in the photo dialog. */
 .project-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--cv-gallery-min), 1fr));
-  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
   gap: calc(var(--space) / 2);
 }
+.project-gallery .photo-zoom {
+  width: auto;
+}
 .cv .project-gallery img {
-  max-width: none;
-  aspect-ratio: var(--cv-logo-ratio);
+  width: auto;
+  max-width: 100%;
+  height: var(--cv-thumb-height);
   object-fit: cover;
-  /* The top of a screenshot is where its headline and app bar are. */
-  object-position: top;
 }
 
 /* A photo in the project dialog opens full size on click. It sits in a frame

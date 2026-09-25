@@ -200,17 +200,27 @@ Trisbee.
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site
 
-Alongside the projects:
+The magazines ran on Drupal versions too old to upgrade, with no backward
+compatibility, so the new platform was built from scratch on a current Drupal.
+Much of it I learned along the way, from the Drupal community and from
+colleagues at the German parent company, whose distribution we built on.
+
+Alongside the projects, and together with the operations team and the hosting
+agency:
 
 - Payment gateway integrations
-- A migration plugin that moved thousands of articles and gigabytes of related data
+- A migration plugin that moved thousands of articles and gigabytes of related
+  data
+- Composer for PHP dependencies, and a newer frontend workflow
 - A CDN for assets, separate from the apps, with better backups
 - Error monitoring with Sentry instead of log files on the servers
-- New servers, deployment and rollback, and weekly work with the hosting agency on caching and performance
-- Led the tender for the mobile app supplier, and built the embedded purchase flow inside the apps
+- New servers, deployment and rollback, and weekly work with the hosting agency
+  on caching and performance
+- Led the tender for the mobile app supplier, and built the purchase flow
+  embedded in the apps
 - An ad rendering engine in JavaScript
 - A few open-source plugins, still on the company's GitHub
-- Represented the company at Drupal conferences
+- Took part in Drupal conferences
 
 **Technologies:** PHP, JavaScript, Symfony, Twig, Drupal, OpenCart, Sass,
 Webpack, Gulp, Grunt, Redis, Nginx, Varnish, Debian, Composer, GitLab, Jenkins,

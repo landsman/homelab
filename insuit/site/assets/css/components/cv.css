@@ -410,7 +410,8 @@ html:has(.cv) {
 
 /* The dialog takes focus when it opens (assets/js/cv.js), not the close
    button; it needs no ring of its own around the photo. */
-.photo-dialog:focus {
+.photo-dialog:focus,
+.project-dialog:focus {
   outline: none;
 }
 

@@ -179,6 +179,7 @@ ${body}
         class="project-dialog"
         closedby="any"
         aria-labelledby="project-dialog-title"
+        tabindex="-1"
       >
         <button
           class="project-dialog-close"

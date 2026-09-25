@@ -47,6 +47,7 @@
       player.allowFullscreen = true;
       player.referrerPolicy = "strict-origin-when-cross-origin";
       play.replaceWith(player);
+      project.focus();
       return;
     }
 
@@ -86,8 +87,20 @@
     if (!closedBy && target instanceof HTMLDialogElement && target.open) target.close();
   });
 
-  // Closing a project empties it, so a playing video stops with it.
   var project = /** @type {HTMLDialogElement} */ (document.getElementById("project-dialog"));
+
+  // A click into the YouTube player moves focus into its frame, and a key
+  // pressed there never reaches this page, so Esc stops closing the dialog.
+  // Focus comes straight back to the dialog: the player's own buttons still
+  // work with the mouse, only its keyboard shortcuts are given up.
+  window.addEventListener("blur", function () {
+    if (!project.open || !(document.activeElement instanceof HTMLIFrameElement)) return;
+    setTimeout(function () {
+      project.focus();
+    });
+  });
+
+  // Closing a project empties it, so a playing video stops with it.
   project.addEventListener("close", function () {
     /** @type {HTMLElement} */ (
       document.getElementById("project-dialog-content")

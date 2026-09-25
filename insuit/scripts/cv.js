@@ -109,6 +109,14 @@ ${render(rest)}
 
 const out = [];
 let group = null;
+// A job's own block — its heading, dates, text, list and technologies — stays
+// together too, so print never strands a technologies line or half a paragraph
+// on the next page (cv.css). It ends where the job's projects begin.
+let intro = null;
+const closeIntro = () => {
+  if (intro) out.push(`<div class="job-intro">\n${render(intro)}</div>\n`);
+  intro = null;
+};
 const flush = () => {
   // A small label names the row of cards, the way "Experience" names the jobs.
   if (group)
@@ -119,7 +127,12 @@ const flush = () => {
 };
 for (const t of tokens) {
   if (t.type === "heading" && t.depth < 4) flush();
-  if (t.type === "heading" && t.depth === 4) {
+  if (t.type === "heading" && t.depth <= 4) closeIntro();
+  if (t.type === "heading" && t.depth === 3) {
+    intro = [t];
+  } else if (intro) {
+    intro.push(t);
+  } else if (t.type === "heading" && t.depth === 4) {
     (group ??= []).push({ heading: t, images: [], tall: [], rest: [] });
   } else if (group) {
     const project = group.at(-1);
@@ -135,6 +148,7 @@ for (const t of tokens) {
     out.push(render([t]));
   }
 }
+closeIntro();
 flush();
 const body = out.join("");
 

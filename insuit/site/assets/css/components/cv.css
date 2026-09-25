@@ -47,7 +47,7 @@
   font-weight: var(--font-weight-medium);
   letter-spacing: var(--tracking-company);
 }
-.cv h2 + h3 {
+.cv h2 + .job-intro > h3:first-child {
   margin-top: var(--space);
 }
 .cv h4 {
@@ -532,14 +532,21 @@ html:has(.cv) {
   .cv {
     margin: 0;
   }
-  .cv h3 {
-    break-after: avoid;
+  /* A job's heading, dates, text and technologies stay on one page, like a
+     project (the build wraps them in .job-intro). */
+  .job-intro {
+    break-inside: avoid;
+  }
+  /* Technologies are what a reader scans a printed CV for, so on paper they
+     keep full size and full contrast instead of receding like on screen. */
+  .cv p:has(> strong:first-child) {
+    font-size: var(--font-size-print-technologies);
+    color: var(--color-fg);
   }
   .projects,
   .projects-label,
   .project-dialog,
-  .photo-dialog,
-  footer {
+  .photo-dialog {
     display: none;
   }
   .projects-print {

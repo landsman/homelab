@@ -36,6 +36,8 @@
   --tile-bg: #ffffff;
   --tile-fg: #2f3337;
   --backdrop: rgb(0 0 0 / 0.5);
+  --backdrop-strong: rgb(0 0 0 / 0.85);
+  --photo-close: #ffffff;
 
   /* Layout */
   --wrapper-width: 800px;
@@ -89,6 +91,8 @@
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
   --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -101,6 +105,8 @@
     --color-tile-bg: var(--tile-bg);
     --color-tile-fg: var(--tile-fg);
     --color-backdrop: var(--backdrop);
+    --color-backdrop-strong: var(--backdrop-strong);
+    --color-photo-close: var(--photo-close);
   }
 }
 
@@ -113,6 +119,8 @@
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
   --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
 }
 
 :root[data-theme="dark"] {
@@ -124,4 +132,6 @@
   --color-tile-bg: var(--tile-bg);
   --color-tile-fg: var(--tile-fg);
   --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
 }

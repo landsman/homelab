@@ -1,7 +1,8 @@
-/* CV project dialog — htmx loads a project into it and opens it; this only
-   closes it where the browser cannot on its own. Where invoker commands work,
-   the close button does it natively; `closedby="any"` has the same gap, so
-   without it a click on the backdrop is handled here. */
+/* CV dialogs. htmx loads a project into the project dialog and opens it; this
+   opens a project's photo full size in a second dialog stacked on top, and
+   closes either one where the browser cannot on its own. Where invoker
+   commands work, the close buttons do it natively; `closedby="any"` has the
+   same gap, so without it a click on the backdrop is handled here. */
 
 (function () {
   var invokers = "command" in HTMLButtonElement.prototype;
@@ -9,6 +10,22 @@
 
   document.addEventListener("click", function (event) {
     var target = /** @type {HTMLElement} */ (event.target);
+
+    var zoom = target.closest(".photo-zoom");
+    if (zoom) {
+      var source = /** @type {HTMLImageElement} */ (zoom.querySelector("img"));
+      var photo = /** @type {HTMLImageElement} */ (document.getElementById("photo-dialog-image"));
+      photo.src = source.src;
+      photo.alt = source.alt;
+      /** @type {HTMLDialogElement} */ (document.getElementById("photo-dialog")).showModal();
+      return;
+    }
+
+    // The full-size photo closes on a click anywhere on it, too.
+    if (target.id === "photo-dialog-image") {
+      /** @type {HTMLDialogElement} */ (target.closest("dialog")).close();
+      return;
+    }
 
     var button = target.closest("button[commandfor]");
     if (!invokers && button) {

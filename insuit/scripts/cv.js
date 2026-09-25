@@ -54,8 +54,12 @@ const tile = (text) => `<span class="project-tile" aria-hidden="true">${text.spl
 const card = ({ heading, images, rest }) => {
   const name = marked.parseInline(heading.text);
   const [logo = ""] = images;
+  // In the dialog every image is a button that opens it full size (assets/js/cv.js).
+  const zoomable = images.map((i) => `<button type="button" class="photo-zoom">${i}</button>`);
   const pictures =
-    images.length > 1 ? `<div class="project-gallery">${images.join("")}</div>` : logo;
+    images.length > 1
+      ? `<div class="project-gallery">${zoomable.join("")}</div>`
+      : zoomable.join("");
   const file = slug(heading.text);
   writeFileSync(
     new URL(`${file}.html`, fragments),
@@ -156,6 +160,19 @@ ${body}
           ×
         </button>
         <div id="project-dialog-content"></div>
+      </dialog>
+
+      <dialog id="photo-dialog" class="photo-dialog" closedby="any" aria-label="Photo">
+        <button
+          class="project-dialog-close"
+          type="button"
+          commandfor="photo-dialog"
+          command="close"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <img id="photo-dialog-image" src="data:," alt="" />
       </dialog>
     </main>
 

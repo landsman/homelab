@@ -195,7 +195,7 @@ service's relaunch.
 
 [boomevents.org](https://boomevents.org/en/)
 
-![Trisbee at a crowded festival, a phone showing the United Islands of Prague ticket screen](/assets/cv/trisbee-tickets.jpg)
+![Trisbee, ticket sales for your event: a crowded festival and a phone showing the United Islands of Prague ticket screen](/assets/cv/trisbee-tickets.jpg)
 
 A ticketing product for event organisers, launched as a pilot MVP. Around 150
 events ran on the platform, with QR-code tickets checked through a native mobile

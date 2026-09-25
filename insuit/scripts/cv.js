@@ -137,7 +137,7 @@ const rendered = body.match(/hx-get=/g)?.length ?? 0;
 if (rendered !== expected)
   throw new Error(`cv: ${expected} projects in cv.md, ${rendered} rendered`);
 
-const title = "Michal Landsman · CV";
+const title = "Curriculum Vitae - Michal Landsman";
 const description = "Michal Landsman, full-stack developer in Prague: experience and projects.";
 
 writeFileSync(

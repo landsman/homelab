@@ -359,8 +359,10 @@ draw.
 
 [ketodiet.cz](https://www.ketodiet.cz)
 
-The KetoDiet online shop. I worked on several changes to the platform's custom
-configuration: checkout variants, pricing and more.
+The KetoDiet online shop, built on a customised Joomla. I worked on several
+changes to its custom configuration: checkout variants, pricing and more.
+
+**Technologies:** PHP, Joomla, MySQL
 
 ### StudioArt.cz
 

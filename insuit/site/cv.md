@@ -339,6 +339,8 @@ Google Analytics, Google Tag Manager, PPC, RTB banners
 
 [mcdonaldscup.cz](https://www.mcdonaldscup.cz/)
 
+![The Srdcem spolu bus covered in fans' handwritten messages to the Czech hockey team, with the campaign address srdcemspolu.cz](/assets/cv/srdcem-spolu.jpg)
+
 The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
 the messages were shown on screens inside Prague's O2 Arena during the games.
@@ -346,6 +348,8 @@ the messages were shown on screens inside Prague's O2 Arena during the games.
 #### Oriflame Cosmetics: 25 years in the Czech Republic
 
 [cz.oriflame.com](https://cz.oriflame.com/)
+
+![The Oriflame 25 let v České republice logo: 25 years of Oriflame in the Czech Republic](/assets/cv/oriflame-25.png)
 
 A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize

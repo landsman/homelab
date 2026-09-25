@@ -278,7 +278,8 @@ Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
 
 #### Dny Marianne: shopping fever event
 
-[dny.marianne.cz](https://dny.marianne.cz/)
+[dny.marianne.cz](https://dny.marianne.cz/) ·
+[mediaguru.cz](https://www.mediaguru.cz/burda-opet-porada-nakupni-event-shopping-fever)
 
 ![Dny Marianne, all discounts in one app: the app's most popular coupons, up to 70 % off](/assets/cv/dny-marianne.jpg)
 ![The Dny Marianne app: a 20 % coupon for HP printers at Datart](/assets/cv/dny-marianne-coupon.webp)

@@ -332,7 +332,8 @@ Full Stack Engineer · contract · Sep 2014 – Sep 2015 · on-site
 - Work with the marketing teams on PPC, dynamic remarketing code, Google
   Analytics events, RTB banners and more
 
-**Technologies:** PHP, Joomla, Google Analytics
+**Technologies:** PHP, Joomla, SunLight CMS, Sass, MySQL, Git, SVN, Jenkins,
+Google Analytics, Google Tag Manager, PPC, RTB banners
 
 #### McDonald's: Srdcem spolu, Ice Hockey World Championship 2015
 

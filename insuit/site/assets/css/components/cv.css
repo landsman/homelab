@@ -351,3 +351,12 @@ html:has(.cv) {
     transform: none;
   }
 }
+
+/* A project's only photo is not in a gallery, so its frame takes the single
+   image's width rather than the whole dialog's. */
+#project-dialog-content > .photo-zoom {
+  max-width: calc(var(--cv-image-width) + (var(--thumb-padding) + var(--border-width)) * 2);
+}
+#project-dialog-content > .photo-zoom img {
+  max-width: 100%;
+}

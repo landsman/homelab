@@ -171,6 +171,18 @@ service's relaunch.
 
 **Technologies:** Java, Play Framework, PostgreSQL, AWS
 
+#### Trisbee Events Ticketing
+
+[boomevents.org](https://boomevents.org/en/)
+
+A ticketing product for event organisers, launched as a pilot MVP. Around 150
+events ran on the platform, with QR-code tickets checked through a native mobile
+app for paperless entry. The pilot included well-known events such as Prague
+Coffee Festival, United Islands of Prague and Povaleč, and several events at
+Burza #4 and Fuchs2. It paved the way for Boom Events, a new company with a
+dedicated team, built on the technology and cloud infrastructure developed at
+Trisbee.
+
 ### Burda International CZ
 
 Backend developer · contract · Sep 2016 – Sep 2018 · on-site

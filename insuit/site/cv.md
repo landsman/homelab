@@ -76,7 +76,7 @@ The work covered analysing the existing software, defining requirements with the
 client, and discussing implementation and UX in client meetings. I also helped
 finalise the project reports.
 
-**Stack:** Kotlin, Java, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure
+**Stack:** Kotlin, Java, Spring Boot, Vaadin, PostgreSQL, TypeScript, Azure Cloud
 
 #### Masaryk University — SIMU
 

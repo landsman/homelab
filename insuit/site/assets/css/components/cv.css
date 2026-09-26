@@ -597,8 +597,7 @@ html:has(.cv) {
     margin-top: var(--space-section);
   }
 
-  /* A job: company, text and technologies on the left, role and dates beside
-     the company name in the rail. A rule in the text colour opens each one —
+  /* A job: company, role, text and technologies in the text column. A rule in the text colour opens each one —
      stronger than anything between its projects. The block stays on one page
      (the build wraps it in .job-intro). Margins do not collapse in a grid, so
      each child only keeps the one above it. */
@@ -622,33 +621,29 @@ html:has(.cv) {
     margin: var(--space) 0 0;
   }
   .cv .job-intro > h3 {
+    grid-row: 1;
+    align-self: baseline;
     margin: 0;
   }
-  /* The role leads, on a line of its own in the text colour; what kind of
-     work, when and where follow under it, quieter, the dates never split. */
+  /* The role shares the company's line, set to the right edge of the page
+     (across the rail, which a job leaves empty): the role in the text colour
+     and medium weight, what kind of work, when and where quieter after it,
+     the dates never split. */
   .cv .job-intro > .job-meta {
-    grid-column: 2;
-    grid-row: 1 / span 12;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: end;
+    align-self: baseline;
     margin: 0;
-    /* Its first line sits on the company name's baseline. */
-    padding-top: calc(
-      (var(--font-size-company) * var(--line-height-h1) - var(--font-size-base) *
-          var(--line-height-base)) /
-        2
-    );
+    text-align: right;
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-muted);
   }
   .job-role {
-    display: block;
     font-size: var(--font-size-base);
-    line-height: var(--line-height-base);
     font-weight: var(--font-weight-medium);
     color: var(--color-fg);
-  }
-  .job-sep {
-    display: none;
-  }
-  .job-details {
-    display: block;
   }
   .job-dates {
     white-space: nowrap;

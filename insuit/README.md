@@ -52,18 +52,15 @@ make qa        # check formatting without writing — what CI runs
 
 3. Create an API token — My Profile → API Tokens — with:
 
-   | Scope                | Permission                  | For                    |
-   | -------------------- | --------------------------- | ---------------------- |
-   | Account              | Cloudflare Pages · Edit     | deploying the sites    |
-   | Account              | Account Settings · Edit     | the Web Analytics site |
-   | Zone: insuit.cz only | Zone Settings · Edit        | email obfuscation      |
+   | Scope                | Permission              | For                 |
+   | -------------------- | ----------------------- | ------------------- |
+   | Account              | Cloudflare Pages · Edit | deploying the sites |
+   | Zone: insuit.cz only | Zone Settings · Edit    | email obfuscation   |
 
-   Account Settings has to stay at Edit. It is the only permission the Web
-   Analytics API accepts, and although the API docs say Read is enough to read a
-   site back, every apply then fails with a 403. Zone Settings stays at Edit
-   too, for the same reason until proven otherwise; it is scoped to insuit.cz
-   and covers settings only — Terraform doesn't manage DNS here (see the
-   cutover section).
+   The zone scope covers settings only — Terraform doesn't manage DNS here (see
+   the cutover section). The Web Analytics site is not in Terraform: Cloudflare
+   answers every read of it with a 403, even at Account Settings Write, so its
+   token sits in the pages as a literal instead.
 
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
@@ -89,11 +86,9 @@ so neither project's credentials reach the other's state.
 Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
 1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
-   and the Web Analytics site, and keeps email obfuscation on. It manages
-   nothing else in the zone.
-2. The Web Analytics token from `terraform output` and the
-   `INSUIT_CONTACT_EMAIL` variable replace the `__CF_BEACON_TOKEN__` and
-   `__CONTACT_EMAIL__` placeholders in `site/*.html`.
+   and keeps email obfuscation on. It manages nothing else in the zone.
+2. The `INSUIT_CONTACT_EMAIL` variable replaces the `__CONTACT_EMAIL__`
+   placeholder in `site/*.html`.
 3. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.

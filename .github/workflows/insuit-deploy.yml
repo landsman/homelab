@@ -25,18 +25,11 @@ jobs:
       # State lives in insuit's own R2 bucket, with a token scoped to it.
       AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}
-    outputs:
-      analytics_token: ${{ steps.analytics.outputs.token }}
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
-        with:
-          # The wrapper decorates stdout, which would corrupt the captured token.
-          terraform_wrapper: false
       - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
       - run: terraform apply -auto-approve
-      - id: analytics
-        run: echo "token=$(terraform output -raw analytics_token)" >> "$GITHUB_OUTPUT"
 
   # Render the OG card and hand it to the deploy as an artifact — it isn't
   # committed. Regenerated each deploy (a static file that isn't in git can't be
@@ -77,14 +70,12 @@ jobs:
       - name: "Render the CV page"
         working-directory: insuit
         run: npm ci --no-audit --no-fund && make cv
-      # Values kept out of the repo; the pages carry placeholders until here.
-      # The Web Analytics token lives in Terraform state, the contact address
-      # in a repo variable so it isn't in a file scrapers can search.
-      - name: "Fill in deploy-time values"
+      # The contact address lives in a repo variable, not a file scrapers can
+      # search; the page carries a placeholder until here.
+      - name: "Fill in the contact address"
         env:
-          TOKEN: ${{ needs.infra.outputs.analytics_token }}
           EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
-        run: test -n "$TOKEN" && test -n "$EMAIL" && sed -i -e "s/__CF_BEACON_TOKEN__/$TOKEN/g" -e "s/__CONTACT_EMAIL__/$EMAIL/g" insuit/site/*.html
+        run: test -n "$EMAIL" && sed -i "s/__CONTACT_EMAIL__/$EMAIL/g" insuit/site/*.html
       - name: "Pull in the rendered OG card"
         uses: actions/download-artifact@v8
         with:

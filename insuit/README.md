@@ -76,7 +76,9 @@ Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
 1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
    and the Web Analytics site. It manages nothing in the zone.
-2. `wrangler pages deploy insuit/site`.
+2. The Web Analytics token from `terraform output` replaces the
+   `__CF_BEACON_TOKEN__` placeholder in `site/*.html`.
+3. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.
 

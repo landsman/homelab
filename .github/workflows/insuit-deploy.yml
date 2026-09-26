@@ -35,8 +35,9 @@ jobs:
           terraform_wrapper: false
       - run: terraform init -backend-config="endpoints={s3=\"https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com\"}"
       # -refresh=false: Cloudflare 403s every read of the Web Analytics site, even
-      # at Account Settings Write, so a refresh fails the run. Plans come from
-      # state; the flip side is that dashboard drift goes unnoticed.
+      # at Account Settings Write, so Terraform must not ask Cloudflare for the
+      # current values. It compares the code with what it last applied instead,
+      # so a setting changed by hand in the dashboard is not put back.
       - run: terraform apply -auto-approve -refresh=false
       - id: analytics
         run: echo "token=$(terraform output -raw analytics_token)" >> "$GITHUB_OUTPUT"

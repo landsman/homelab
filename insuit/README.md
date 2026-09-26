@@ -50,12 +50,20 @@ make qa        # check formatting without writing — what CI runs
    make bucket
    ```
 
-3. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit` and `Account · Account Settings · Edit`.
-   Account Settings is the only permission the Web Analytics API accepts; Edit
-   is needed only to create or change the site. Once the first deploy has
-   created it, drop it to `Read` — later applies only read it back. Terraform no longer manages DNS here
-   (see the cutover section), so no zone scope is needed.
+3. Create an API token — My Profile → API Tokens — with:
+
+   | Scope                | Permission                     | For                    |
+   | -------------------- | ------------------------------ | ---------------------- |
+   | Account              | Cloudflare Pages · Edit        | deploying the sites    |
+   | Account              | Account Settings · Edit → Read | the Web Analytics site |
+   | Zone: insuit.cz only | Zone Settings · Edit → Read    | email obfuscation      |
+
+   Edit is needed only for the apply that creates or changes the resource;
+   drop both to Read once the first deploy is green, since later applies only
+   read them back. Account Settings is the only permission the Web Analytics
+   API accepts. The zone scope covers settings only — Terraform doesn't manage
+   DNS here (see the cutover section).
+
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
 
@@ -68,6 +76,9 @@ GitHub repo **secrets**:
 GitHub repo **variables**:
 
 - `INSUIT_CZ_CF_ACCOUNT_ID` — Cloudflare account ID (same account as pollos)
+- `INSUIT_CZ_CF_ZONE_ID` — insuit.cz zone ID (the zone's Overview page)
+- `INSUIT_CONTACT_EMAIL` — the address on /contact, filled in at deploy so it
+  isn't in the repo
 
 State lives in its own bucket with its own token rather than sharing pollos's,
 so neither project's credentials reach the other's state.
@@ -77,9 +88,11 @@ so neither project's credentials reach the other's state.
 Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
 1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
-   and the Web Analytics site. It manages nothing in the zone.
-2. The Web Analytics token from `terraform output` replaces the
-   `__CF_BEACON_TOKEN__` placeholder in `site/*.html`.
+   and the Web Analytics site, and keeps email obfuscation on. It manages
+   nothing else in the zone.
+2. The Web Analytics token from `terraform output` and the
+   `INSUIT_CONTACT_EMAIL` variable replace the `__CF_BEACON_TOKEN__` and
+   `__CONTACT_EMAIL__` placeholders in `site/*.html`.
 3. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.

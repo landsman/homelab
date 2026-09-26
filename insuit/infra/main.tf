@@ -28,7 +28,8 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages projects and nothing else.
+# Deliberately narrow: this manages the Pages projects, their analytics, and
+# one zone setting (email obfuscation, at the bottom) — nothing else.
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages
@@ -83,4 +84,15 @@ resource "cloudflare_web_analytics_site" "site" {
 
 output "analytics_token" {
   value = cloudflare_web_analytics_site.site.site_token
+}
+
+# Scrape Shield: Cloudflare rewrites email addresses in HTML served through the
+# zone, so the address on /contact isn't readable to scrapers. A single zone
+# setting — no records, no rulesets — so it can't collide with the hand-kept
+# zone described above. It covers every hostname in the zone, and applies to the
+# site only once www is cut over to Pages; insuit-cz.pages.dev bypasses it.
+resource "cloudflare_zone_setting" "email_obfuscation" {
+  zone_id    = var.cloudflare_zone_id
+  setting_id = "email_obfuscation"
+  value      = "on"
 }

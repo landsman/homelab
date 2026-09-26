@@ -51,8 +51,10 @@ make qa        # check formatting without writing — what CI runs
    ```
 
 3. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit` and `Account · Account Settings · Edit`
-   (the latter for the Web Analytics site). Terraform no longer manages DNS here
+   `Account · Cloudflare Pages · Edit` and `Account · Account Settings · Edit`.
+   Account Settings is the only permission the Web Analytics API accepts; Edit
+   is needed only to create or change the site. Once the first deploy has
+   created it, drop it to `Read` — later applies only read it back. Terraform no longer manages DNS here
    (see the cutover section), so no zone scope is needed.
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.

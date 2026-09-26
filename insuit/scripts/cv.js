@@ -102,7 +102,7 @@ const card = ({ heading, images, tall, rest }) => {
 
 // The dialogs only exist on screen, so a printed CV would show cards and no
 // details. Each project is also written out in full, hidden on screen and shown
-// in print instead of the cards (cv.css): name, first picture, text, links.
+// in print instead of the cards (cv.css): name, text, links.
 //
 // Paper cannot be clicked, so a project's links print as QR codes, each with
 // the site's name under it, in place of the line of links. The codes are SVG
@@ -139,7 +139,7 @@ const shortLink = (key, href) => {
   redirects.set(hash, href);
   return `https://link.insuit.cz/${hash}`;
 };
-const printed = ({ heading, images, rest }) => {
+const printed = ({ heading, rest }) => {
   const links = [];
   marked.walkTokens(rest, (t) => {
     if (t.type === "link" && /^https?:\/\//.test(t.href)) links.push(t.href);
@@ -147,8 +147,8 @@ const printed = ({ heading, images, rest }) => {
   const qrs = links
     .map((href, i) => {
       const short = shortLink(`${slug(heading.text)}-${i + 1}`, href);
-      // A long hostname may wrap under its code, but only after a dot, and the
-      // domain itself (its last two labels) stays whole when it fits the
+      // A long hostname may wrap beside its code, but only after a dot, and
+      // the domain itself (its last two labels) stays whole when it fits the
       // caption's width, about 16 characters (cv.css).
       const labels = new URL(href).hostname.replace(/^www\./, "").split(".");
       const tail = labels.slice(-2).join(".").length <= 16 ? labels.splice(-2).join(".") : "";
@@ -158,16 +158,14 @@ const printed = ({ heading, images, rest }) => {
       return `<figure class="print-qr"><img src="${qr(short)}" alt="" fetchpriority="low" /><figcaption>${host}</figcaption></figure>`;
     })
     .join("");
-  // The text on the left; the picture and the codes in a column beside it.
+  // The text, and the codes in a column beside it. No picture: on paper it is
+  // decoration, and the text is what gets read.
   return `<section class="project-print">
   <div class="print-text">
   <h4>${marked.parseInline(heading.text)}</h4>
 ${render(rest.filter((t) => !isLinkLine(t)))}
   </div>
-  <aside class="print-aside">
-  ${images[0] ?? ""}
   ${qrs ? `<div class="print-qrs">${qrs}</div>` : ""}
-  </aside>
 </section>`;
 };
 

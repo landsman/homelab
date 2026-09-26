@@ -565,8 +565,8 @@ html:has(.cv) {
   }
 
   /* Paper has a grid of two columns: text on the left, and on the right a
-     narrower rail that carries every picture and every aside — the portrait,
-     a job's role and dates, a project's image and QR codes. Labels and
+     narrower rail that carries the asides — the portrait, a job's role and
+     dates, a project's QR codes. Labels and
      headings stay in the text column, so the left edge reads straight down. */
   .cv > p:first-child:has(> img:only-child) {
     width: var(--cv-print-rail);
@@ -687,7 +687,7 @@ html:has(.cv) {
     grid-template-columns: minmax(0, 1fr) var(--cv-print-rail);
     column-gap: var(--cv-print-gutter);
     align-items: start;
-    margin-top: calc(var(--space) * 2.5);
+    margin-top: calc(var(--space) * 2);
     break-inside: avoid;
   }
   .project-print:first-child {
@@ -703,53 +703,42 @@ html:has(.cv) {
   .cv .print-text ul {
     margin: calc(var(--space) * 0.6) 0 0;
   }
-  /* Cropped flatter than on screen, from the top, where a screenshot carries
-     its headline, so a short project's rail stays short. */
-  .cv .print-aside img {
-    width: 100%;
-    max-width: none;
-    aspect-ratio: var(--cv-print-image-ratio);
-    object-fit: cover;
-    object-position: top;
-    border-radius: var(--cv-print-image-radius);
+  /* Text first: a project's picture stays on screen (the build leaves it out
+     of print), and the rail beside the text carries the project's links. */
+  .print-text {
+    grid-column: 1;
+    grid-row: 1;
   }
 
-  /* A project's links print as QR codes, two to a row under its picture, each
-     with the site's name (the build writes them); the line of links itself is
-     left out of print. */
+  /* A project's links print as QR codes (the build writes them); the line of
+     links itself is left out of print. They stand in the rail one under the
+     other, level with the project's name, each with its site's name beside
+     it. A long name wraps after a dot, never inside the domain. */
   .print-qrs {
+    grid-column: 2;
+    grid-row: 1;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space) var(--cv-print-qr-gap);
-    margin-top: var(--space);
+    gap: calc(var(--space) * 1.75);
   }
-  /* The pair spans the picture: the first code on its left edge, the second on
-     its right. A long name wraps after a dot, into even lines, and never
-     inside the domain itself. */
   .print-qr {
+    display: flex;
+    align-items: center;
+    gap: var(--cv-print-qr-label-gap);
     margin: 0;
     font-size: var(--font-size-print-caption);
     line-height: var(--line-height-small);
     color: var(--color-muted);
-    text-wrap: balance;
     hyphens: none;
-  }
-  .print-qr:nth-child(even) {
-    justify-self: end;
-    text-align: right;
   }
   .print-domain {
     white-space: nowrap;
   }
   .cv .print-qr img {
+    flex: none;
     width: var(--cv-print-qr-size);
     height: var(--cv-print-qr-size);
-    margin-bottom: var(--space-tight);
     border: 0;
     border-radius: 0;
-  }
-  .cv .print-qr:nth-child(even) img {
-    margin-left: auto;
   }
 }
 

@@ -50,14 +50,20 @@ make qa        # check formatting without writing — what CI runs
    make bucket
    ```
 
-3. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit` and `Account · Account Settings · Edit`.
-   Account Settings is the only permission the Web Analytics API accepts; Edit
-   is needed only to create or change the site. Once the first deploy has
-   created it, drop it to `Read` — later applies only read it back.
-   Plus `Zone · Zone Settings · Edit` on **insuit.cz only**, for the email
-   obfuscation setting; `Read` is enough once the first apply has set it. Terraform no longer manages DNS here
-   (see the cutover section), so no zone scope is needed.
+3. Create an API token — My Profile → API Tokens — with:
+
+   | Scope                | Permission                     | For                    |
+   | -------------------- | ------------------------------ | ---------------------- |
+   | Account              | Cloudflare Pages · Edit        | deploying the sites    |
+   | Account              | Account Settings · Edit → Read | the Web Analytics site |
+   | Zone: insuit.cz only | Zone Settings · Edit → Read    | email obfuscation      |
+
+   Edit is needed only for the apply that creates or changes the resource;
+   drop both to Read once the first deploy is green, since later applies only
+   read them back. Account Settings is the only permission the Web Analytics
+   API accepts. The zone scope covers settings only — Terraform doesn't manage
+   DNS here (see the cutover section).
+
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
 

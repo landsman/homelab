@@ -84,7 +84,7 @@ jobs:
         env:
           TOKEN: ${{ needs.infra.outputs.analytics_token }}
           EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
-        run: test -n "$TOKEN" && test -n "$EMAIL" && sed -i -e "s/__CF_BEACON_TOKEN__/$TOKEN/" -e "s/__CONTACT_EMAIL__/$EMAIL/" insuit/site/*.html
+        run: test -n "$TOKEN" && test -n "$EMAIL" && sed -i -e "s/__CF_BEACON_TOKEN__/$TOKEN/g" -e "s/__CONTACT_EMAIL__/$EMAIL/g" insuit/site/*.html
       - name: "Pull in the rendered OG card"
         uses: actions/download-artifact@v8
         with:

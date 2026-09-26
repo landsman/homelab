@@ -69,3 +69,18 @@ resource "cloudflare_pages_project" "links" {
   name              = "insuit-links"
   production_branch = "main"
 }
+
+# Web Analytics for www.insuit.cz. Host-based with the snippet in the HTML,
+# not zone-based: auto_install on the zone would inject the beacon into every
+# proxied hostname on insuit.cz (git, read, eat, ...), and this config stays
+# out of the zone for the reasons above. The token is public — every visitor's
+# browser gets it — so the pages carry it as a literal.
+resource "cloudflare_web_analytics_site" "site" {
+  account_id   = var.cloudflare_account_id
+  host         = "www.insuit.cz"
+  auto_install = false
+}
+
+output "analytics_token" {
+  value = cloudflare_web_analytics_site.site.site_token
+}

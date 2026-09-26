@@ -295,6 +295,8 @@ writeFileSync(
 
     <script src="/assets/js/theme.js"></script>
     <script src="/assets/js/favicon.js" defer></script>
+    <script src="/assets/js/stats.js" defer></script>
+    <script src="https://stats.insuit.cz/matomo.js" defer></script>
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "__CF_BEACON_TOKEN__"}'></script>
     <script src="/assets/js/htmx.min.js" defer></script>
     <script src="/assets/js/cv.js" defer></script>

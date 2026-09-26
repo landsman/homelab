@@ -1,0 +1,766 @@
+/* CV page — rendered from cv.md, so it styles bare elements under .cv rather
+   than classes the markdown cannot carry. */
+
+.cv {
+  margin-block: var(--space-content-top) var(--space-content-bottom);
+}
+
+/* Hierarchy, top to bottom: name → tagline → section label → company →
+   role and dates → body → project cards → technologies. Two real weights are
+   self-hosted, 400 and 500: the medium marks the name and the companies, size,
+   colour and tracking do the rest — a synthesised bold would smear the mono. */
+/* The portrait sits to the right of the name and tagline. It comes first in
+   cv.md so both can wrap beside it. */
+.cv > p:first-child:has(> img:only-child) {
+  float: right;
+  margin: 0 0 var(--space) var(--space);
+}
+.cv > p:first-child > img:only-child {
+  width: var(--cv-portrait-size);
+  height: var(--cv-portrait-size);
+  border-radius: 50%;
+  object-fit: cover;
+  /* A light polish rather than an effect: a touch less saturation, a little
+     more contrast and light; the untouched photo on hover. */
+  filter: var(--cv-portrait-filter);
+  /* Mirrored, so the face turns towards the name beside it. */
+  transform: scaleX(-1);
+  transition: filter var(--speed-slow);
+}
+.cv > p:first-child > img:only-child:hover {
+  filter: none;
+}
+.cv > p:first-child:has(> img:only-child) + h1 {
+  margin-top: 0;
+}
+.cv h1 {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-display);
+}
+.cv h1 + p {
+  margin-top: var(--space);
+}
+/* "I work with: …" under the tagline is set like every "Technologies:" line
+   (a bold-led paragraph, below); it only sits closer to the tagline. */
+.cv h1 + p + p {
+  margin-top: var(--space-tight);
+}
+
+.cv h2,
+.cv h3,
+.cv h4 {
+  margin: 0;
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  font-weight: normal;
+}
+/* A label, not a headline: it names the list below and steps aside for it.
+   "Projects" above each row of cards is the same kind of label. */
+.cv h2,
+.cv .projects-label {
+  margin-top: calc(var(--space-section) * 1.5);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+/* A company opens its own block by weight and air rather than a rule: the
+   real medium cut of the mono (self-hosted, not synthesised) and a wide gap
+   above, so each job reads as one unit. */
+.cv h3 {
+  margin-top: var(--space-job);
+  font-size: var(--font-size-company);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--tracking-company);
+}
+.cv h2 + .job-intro > h3:first-child {
+  margin-top: var(--space);
+}
+.cv h4 {
+  margin-top: calc(var(--space) * 2);
+  font-size: var(--font-size-base);
+}
+
+/* Role · dates · where — the line directly under a company, kept tight to it. */
+.cv h3 + p {
+  margin-top: calc(var(--space-tight) * 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}
+
+/* "Technologies:" lines — the label keeps the body colour, the list recedes. */
+.cv strong {
+  font-weight: normal;
+}
+.cv p:has(> strong:first-child) {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}
+.cv p > strong:first-child {
+  color: var(--color-fg);
+}
+
+.cv p,
+.cv ul {
+  margin: var(--space) 0;
+  text-wrap: pretty;
+}
+.cv ul {
+  padding-left: 1.5em;
+}
+
+/* The logos are 1200×630 share cards — mostly white space around the mark. */
+.cv img {
+  display: block;
+  width: 100%;
+  max-width: var(--cv-image-width);
+  height: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+}
+
+/* Links in running text carry the underline; the wipe is for the link rows. */
+.cv a::after {
+  transform: scaleX(1);
+  transform-origin: left top;
+}
+
+/* Projects: a row of cards on a wide screen, one per line on a phone. Each
+   card is a button; the details open in a modal dialog. */
+.cv .projects-label {
+  margin: calc(var(--space) * 2) 0 var(--space);
+}
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--cv-card-min), 1fr));
+  gap: var(--space);
+  margin: calc(var(--space) * 2) 0;
+}
+/* On a phone one card per row makes five projects three screens long; two
+   per row keeps a job's projects to about one screen. */
+@media (max-width: 600px) {
+  .projects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--space) / 2);
+  }
+}
+.projects-label + .projects {
+  margin-top: 0;
+}
+
+.cv .project {
+  margin: 0;
+}
+.project button {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+/* The name lines up with the picture inside the frame, not the frame's edge. */
+.project-name {
+  padding-inline: calc(var(--thumb-padding) + var(--border-width));
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+.project button:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+  border-radius: var(--cv-image-radius);
+}
+.cv .project img {
+  max-width: 100%;
+  /* One shape for every card: the logos already are 1200×630, a photo gets
+     cropped to it. */
+  aspect-ratio: var(--cv-logo-ratio);
+  object-fit: cover;
+}
+
+/* Stand-in for a project with no logo: the same card as the logos around it —
+   white in both themes, like the share images themselves — with the name set
+   as a wordmark. */
+.project .project-tile {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: var(--cv-logo-ratio);
+  font-size: var(--font-size-h1);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-tile-fg);
+  background: var(--color-tile-bg);
+}
+
+/* The dialog. */
+.project-dialog {
+  width: min(var(--cv-dialog-width), 100% - var(--page-padding) * 2);
+  max-height: calc(100% - var(--page-padding) * 2);
+  padding: var(--page-padding);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+}
+.project-dialog::backdrop {
+  background: var(--color-backdrop);
+}
+/* The page behind a modal should not scroll along with it. */
+html:has(.project-dialog[open]) {
+  overflow: hidden;
+}
+/* Hiding the scrollbar would widen the page and shift it sideways on every
+   open and close — keep the scrollbar's space reserved either way. */
+html:has(.cv) {
+  scrollbar-gutter: stable;
+}
+
+/* The × sits in a circle that fills on hover and on keyboard focus — the fill
+   is the focus indicator, so the browser's square outline goes. */
+.project-dialog-close {
+  position: absolute;
+  top: calc(var(--page-padding) - var(--close-size) / 4);
+  right: calc(var(--page-padding) - var(--close-size) / 4);
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-h1);
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color var(--speed);
+}
+.project-dialog-close:focus {
+  outline: none;
+}
+.project-dialog-close:hover,
+.project-dialog-close:focus-visible {
+  background: var(--color-close-hover);
+}
+.cv .project-dialog h4 {
+  margin: 0 0 var(--space);
+  padding-right: calc(var(--space) * 2);
+  font-size: var(--font-size-h1);
+}
+#project-dialog-content > :last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-dialog[open] {
+    animation: dialog-in var(--speed) ease-out;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* External links in a project dialog get a small out-arrow after the text; the
+   rest of the page keeps them plain. */
+.icon-external {
+  display: none;
+}
+.project-dialog .icon-external {
+  display: inline-block;
+  width: var(--icon-size-small);
+  height: var(--icon-size-small);
+  margin-left: var(--icon-gap-small);
+  vertical-align: -0.05em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Several images for one project: one row that scrolls sideways, snapping to
+   each picture. Thumbnails are all one size, cropped to the card shape from
+   the top, where a screenshot carries its headline; clicking one opens it
+   whole in the photo dialog. The padding keeps the hover lift and the focus
+   ring from being clipped by the scroll box. */
+.project-gallery {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  padding: var(--gallery-inset);
+  margin-inline: calc(var(--gallery-inset) * -1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gallery-inset);
+}
+.project-gallery .photo-zoom {
+  flex: none;
+  width: var(--cv-thumb-width);
+  scroll-snap-align: start;
+}
+.cv .project-gallery img {
+  max-width: none;
+  aspect-ratio: var(--cv-logo-ratio);
+  object-fit: cover;
+  object-position: top;
+}
+
+/* A gallery of mostly tall pictures (phone screenshots, flagged by the build):
+   the frames share one height and each is as wide as its picture, so every
+   screen shows whole instead of as a strip of its status bar. */
+.project-gallery-tall .photo-zoom {
+  width: auto;
+}
+.cv .project-gallery-tall img {
+  width: auto;
+  height: var(--cv-thumb-height);
+  aspect-ratio: auto;
+}
+
+/* A photo in the project dialog opens full size on click. It sits in a frame
+   of its own, like the project cards' images: a thin border with a little space around the picture, so the
+   hover has something to act on without touching the image. */
+.photo-zoom,
+.project .frame {
+  display: block;
+  width: 100%;
+  padding: var(--thumb-padding);
+  font: inherit;
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+  transition:
+    border-color var(--speed),
+    transform var(--speed);
+}
+.photo-zoom {
+  cursor: zoom-in;
+}
+.cv .photo-zoom img,
+.cv .frame img,
+.frame .project-tile {
+  border: 0;
+  border-radius: calc(var(--cv-image-radius) - var(--thumb-padding));
+}
+.photo-zoom:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+}
+
+/* The photo at its own size, shrunk only to fit the viewport. */
+.photo-dialog {
+  max-width: 100vw;
+  max-height: 100vh;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: 0;
+}
+.photo-dialog::backdrop {
+  background: var(--color-backdrop-strong);
+}
+.photo-dialog figure {
+  /* A table shrinks to the photo's width and its caption row follows it, so a
+     long caption wraps under the photo instead of widening the dialog and
+     pushing the photo to one side on a narrow screen. */
+  display: table;
+  margin: 0 auto;
+}
+.cv .photo-dialog img {
+  width: auto;
+  max-width: calc(100vw - var(--page-padding) * 2);
+  /* Leaves room for the caption below it. */
+  max-height: calc(100vh - var(--page-padding) * 2 - var(--photo-caption-room));
+  cursor: zoom-out;
+}
+/* The caption sits on the dark backdrop, so it takes the light close-button
+   colour in both themes. */
+.photo-dialog figcaption {
+  display: table-caption;
+  caption-side: bottom;
+  padding-top: calc(var(--space) / 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-photo-close);
+  text-wrap: pretty;
+}
+.photo-dialog figcaption:empty {
+  display: none;
+}
+.photo-dialog .project-dialog-close {
+  top: calc(var(--close-size) * -1.25);
+  right: calc(var(--close-size) / -4);
+  color: var(--color-photo-close);
+}
+.photo-dialog .project-dialog-close:hover,
+.photo-dialog .project-dialog-close:focus-visible {
+  background: var(--color-close-hover-dark);
+}
+
+/* On a phone the × is a bigger target: in the project dialog it grows in its
+   corner, and over a full-size photo it moves to the corner of the screen,
+   where a thumb expects it, instead of floating just above the picture. */
+@media (max-width: 600px) {
+  .project-dialog-close {
+    --close-size: var(--close-size-touch);
+    font-size: var(--font-size-display);
+  }
+  .photo-dialog .project-dialog-close {
+    position: fixed;
+    top: calc(var(--space) / 2);
+    right: calc(var(--space) / 2);
+    background: var(--color-play-badge);
+  }
+}
+
+/* Hover on a thumbnail or a project card: the frame darkens to the text
+   colour and lifts a little, so it reads as something to open. */
+.photo-zoom:hover,
+.photo-zoom:focus-visible,
+.project button:hover .frame,
+.project button:focus-visible .frame {
+  border-color: currentcolor;
+  transform: translateY(var(--lift));
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-zoom:hover,
+  .photo-zoom:focus-visible,
+  .project button:hover .frame,
+  .project button:focus-visible .frame {
+    transform: none;
+  }
+}
+
+/* A project's only photo is not in a gallery, so its frame takes the single
+   image's width rather than the whole dialog's. */
+#project-dialog-content > .photo-zoom {
+  max-width: calc(var(--cv-image-width) + (var(--thumb-padding) + var(--border-width)) * 2);
+}
+#project-dialog-content > .photo-zoom img {
+  max-width: 100%;
+}
+
+/* Previous and next in the full-size photo: on the backdrop either side of the
+   picture, light like the close button. */
+.photo-step {
+  position: fixed;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0 0 0.1em;
+  font: inherit;
+  font-size: var(--font-size-h1);
+  line-height: 1;
+  color: var(--color-photo-close);
+  /* A dark round badge, like the video's play button: on a phone the arrows
+     sit over the photo itself and must read against any picture. */
+  background: var(--color-play-badge);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color var(--speed);
+}
+.photo-step:focus {
+  outline: none;
+}
+.photo-step:hover,
+.photo-step:focus-visible {
+  background: var(--color-close-hover-dark);
+}
+#photo-previous {
+  left: calc(var(--space) / 2);
+}
+#photo-next {
+  right: calc(var(--space) / 2);
+}
+.photo-step[hidden] {
+  display: none;
+}
+
+/* The dialog takes focus when it opens (assets/js/cv.js), not the close
+   button; it needs no ring of its own around the photo. */
+.photo-dialog:focus,
+.project-dialog:focus {
+  outline: none;
+}
+
+/* A project's video, in place of its pictures in the dialog. */
+.project-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--cv-image-radius);
+}
+
+/* A video waits as its picture with a play button over it, in the same frame
+   as the photos, at the full width of the player that replaces it. */
+#project-dialog-content > .video-play {
+  position: relative;
+  max-width: none;
+  cursor: pointer;
+}
+#project-dialog-content > .video-play img {
+  max-width: none;
+}
+/* A dark round badge carries the white triangle, so it reads over any picture,
+   title text included. */
+.video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--play-size);
+  height: var(--play-size);
+  border-radius: 50%;
+  background: var(--color-play-badge);
+  transform: translate(-50%, -50%);
+  transition: transform var(--speed);
+}
+.video-badge .icon-play {
+  width: 45%;
+  height: 45%;
+  margin-left: 8%;
+  background: var(--color-play);
+}
+.video-play:hover .video-badge,
+.video-play:focus-visible .video-badge {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Screen shows the cards; print shows every project in full instead, and a
+   contact line under the header, which the site's contact page does on screen. */
+.projects-print,
+.print-contact {
+  display: none;
+}
+
+@media print {
+  .cv {
+    margin: 0;
+  }
+
+  /* Paper has a grid of two columns: text on the left, and on the right a
+     narrower rail that carries the asides — the portrait, a job's role and
+     dates, a project's QR codes. Labels and
+     headings stay in the text column, so the left edge reads straight down. */
+  .cv > p:first-child:has(> img:only-child) {
+    width: var(--cv-print-rail);
+    margin: 0 0 0 var(--cv-print-gutter);
+  }
+  /* Smaller than the rail and set against its right edge, so it does not hang
+     far below the name, tagline and contacts beside it. */
+  .cv > p:first-child > img:only-child {
+    width: var(--cv-print-portrait-size);
+    height: var(--cv-print-portrait-size);
+    margin-left: auto;
+    border: 0;
+  }
+  .cv h1 + p {
+    margin-top: calc(var(--space) * 1.5);
+  }
+  .print-contact {
+    display: block;
+  }
+  .cv .print-contact {
+    margin-top: var(--space-tight);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-muted);
+  }
+  .cv h2 {
+    clear: both;
+    margin-top: var(--space-section);
+  }
+
+  /* A job: company, role, text and technologies in the text column. A rule in the text colour opens each one —
+     stronger than anything between its projects. The block stays on one page
+     (the build wraps it in .job-intro). Margins do not collapse in a grid, so
+     each child only keeps the one above it. */
+  .job-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--cv-print-rail);
+    column-gap: var(--cv-print-gutter);
+    align-items: start;
+    margin-top: var(--space-job);
+    padding-top: calc(var(--space) * 1.5);
+    border-top: var(--border-width) solid var(--color-fg);
+    break-inside: avoid;
+  }
+  .cv h2 + .job-intro {
+    margin-top: var(--space);
+    padding-top: 0;
+    border-top: 0;
+  }
+  .cv .job-intro > * {
+    grid-column: 1;
+    margin: var(--space) 0 0;
+  }
+  .cv .job-intro > h3 {
+    grid-row: 1;
+    align-self: baseline;
+    margin: 0;
+  }
+  /* The role shares the company's line, set to the right edge of the page
+     (across the rail, which a job leaves empty): the role in the text colour
+     and medium weight, what kind of work, when and where quieter after it,
+     the dates never split. */
+  .cv .job-intro > .job-meta {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: end;
+    align-self: baseline;
+    margin: 0;
+    text-align: right;
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-muted);
+  }
+  .job-role {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg);
+  }
+  .job-dates {
+    white-space: nowrap;
+  }
+
+  /* Technologies are what a reader scans a printed CV for, so on paper the
+     list keeps full size and full contrast instead of receding like on screen;
+     the label steps back instead. */
+  .cv p:has(> strong:first-child) {
+    font-size: var(--font-size-print-technologies);
+    color: var(--color-fg);
+  }
+  .cv p > strong:first-child {
+    color: var(--color-muted);
+  }
+  .projects,
+  .project-dialog,
+  .photo-dialog {
+    display: none;
+  }
+  .projects-print {
+    display: block;
+  }
+  /* The "Projects" label names the printed projects too, and stays with them:
+     air above it, little below. */
+  .cv .projects-label {
+    margin: calc(var(--space) * 2.5) 0 0;
+    break-after: avoid;
+  }
+
+  /* A project: a step below its job — air over it rather than a rule, which
+     would be left hanging at the top of a page; its name between the body and
+     the company in size — with the same two columns. Kept on one page. */
+  .project-print {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--cv-print-rail);
+    column-gap: var(--cv-print-gutter);
+    align-items: start;
+    margin-top: calc(var(--space) * 2);
+    break-inside: avoid;
+  }
+  .project-print:first-child {
+    margin-top: calc(var(--space) * 0.75);
+  }
+  .cv .project-print h4 {
+    margin: 0;
+    font-size: var(--font-size-print-project);
+    line-height: var(--line-height-h1);
+    font-weight: var(--font-weight-medium);
+  }
+  .cv .print-text p,
+  .cv .print-text ul {
+    margin: calc(var(--space) * 0.6) 0 0;
+  }
+  /* Text first: a project's picture stays on screen (the build leaves it out
+     of print), and the rail beside the text carries the project's links. */
+  .print-text {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* A project's links print as QR codes (the build writes them); the line of
+     links itself is left out of print. They stand in the rail one under the
+     other, level with the project's name, each with its site's name beside
+     it. A long name wraps after a dot, never inside the domain. */
+  .print-qrs {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    gap: calc(var(--space) * 1.75);
+  }
+  .print-qr {
+    display: flex;
+    align-items: center;
+    gap: var(--cv-print-qr-label-gap);
+    margin: 0;
+    font-size: var(--font-size-print-caption);
+    line-height: var(--line-height-small);
+    color: var(--color-muted);
+    hyphens: none;
+  }
+  .print-domain {
+    white-space: nowrap;
+  }
+  .cv .print-qr img {
+    flex: none;
+    width: var(--cv-print-qr-size);
+    height: var(--cv-print-qr-size);
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+/* The CV's own page footer in print: a name and a page count, set in the site's
+   type. A margin box with content — even an empty string — takes its area from
+   the browser's own header and footer (date, title, URL); `content: none`
+   would give it back. */
+@page {
+  @top-left {
+    content: "";
+  }
+  @top-center {
+    content: "";
+  }
+  @top-right {
+    content: "";
+  }
+  @bottom-left {
+    content: "Michal Landsman · Curriculum Vitae";
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: #646b72;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-family: var(--font-mono);
+    font-size: 7.5pt;
+    color: #646b72;
+  }
+}

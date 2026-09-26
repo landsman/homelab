@@ -6,12 +6,16 @@ on:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
+      # cv.md is the CV page's source, not docs — re-included after the skip.
+      - 'insuit/site/cv.md'
   push:
     branches: [main]
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
+      # cv.md is the CV page's source, not docs — re-included after the skip.
+      - 'insuit/site/cv.md'
   workflow_dispatch:
 
 jobs:
@@ -46,6 +50,9 @@ jobs:
 
       - name: "Quality checks (oxfmt + oxlint)"
         run: make qa
+
+      - name: "Render the CV page"
+        run: make cv
 
   infra:
     runs-on: ubuntu-latest

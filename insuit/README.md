@@ -109,6 +109,31 @@ github.com/landsman` rule. Keep the apex→www rule; it's the direction this
 
 Verify with `curl -sI https://www.insuit.cz` before and after.
 
+## link.insuit.cz (the printed CV's QR codes)
+
+The printed CV shows each project link as a QR code. The code does not hold the
+link itself but `https://link.insuit.cz/<code>`, which redirects to it — so a
+link can change after the CV is printed, and every copy still works.
+
+- **`links/_redirects` is kept by hand** — one `/<code> <target> 302` rule per
+  link. It is the whole link.insuit.cz site, together with `links/404.html`.
+  Two sections: readable profile links (`/github`, `/linkedin`, `/x`, …) to use
+  anywhere, and the CV's QR codes.
+- `make cv` gives each project link in `site/cv.md` the code whose target is
+  that link. A link with no rule stops the build and prints a rule to add, so a
+  QR code never leads nowhere.
+- To send a printed code elsewhere: change its target in `links/_redirects`
+  and the link in `cv.md` to match. Never delete or reuse a printed code.
+- `links/` is its own Pages project, `insuit-links` (Terraform), deployed by
+  the same workflow. Its own project because Pages redirect rules match the path
+  only: on `insuit-cz` they would fire on `www.insuit.cz/<code>` as well.
+- Once, by hand, for the same reason as `www` above: **Workers & Pages →
+  insuit-links → Custom domains** → add `link.insuit.cz`. It gets its own
+  proxied CNAME, which takes precedence over the `*` wildcard.
+
+Locally: `npx wrangler pages dev links --port 4322`, then
+`curl -sI http://localhost:4322/<code>`.
+
 ## Ports
 
 None — not self-hosted. If it ever moves onto the Pi, `site/` drops straight into

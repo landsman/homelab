@@ -112,22 +112,25 @@ Verify with `curl -sI https://www.insuit.cz` before and after.
 ## link.insuit.cz (the printed CV's QR codes)
 
 The printed CV shows each project link as a QR code. The code does not hold the
-link itself but `https://link.insuit.cz/<hash>`, which redirects to it — so a
+link itself but `https://link.insuit.cz/<code>`, which redirects to it — so a
 link can change after the CV is printed, and every copy still works.
 
-- `make cv` writes the redirects from `site/cv.md` into `links/` (gitignored):
-  a `_redirects` file and a 404 page. The hash comes from the project's name and
-  the link's position in it, not from the link, so editing a link in `cv.md`
-  keeps its code; renaming a project or reordering its links changes it.
+- **`links/_redirects` is kept by hand** — one `/<code> <target> 302` rule per
+  link. It is the whole link.insuit.cz site, together with `links/404.html`.
+- `make cv` gives each project link in `site/cv.md` the code whose target is
+  that link. A link with no rule stops the build and prints a rule to add, so a
+  QR code never leads nowhere.
+- To send a printed code elsewhere: change its target in `links/_redirects`
+  and the link in `cv.md` to match. Never delete or reuse a printed code.
 - `links/` is its own Pages project, `insuit-links` (Terraform), deployed by
   the same workflow. Its own project because Pages redirect rules match the path
-  only: on `insuit-cz` they would fire on `www.insuit.cz/<hash>` as well.
+  only: on `insuit-cz` they would fire on `www.insuit.cz/<code>` as well.
 - Once, by hand, for the same reason as `www` above: **Workers & Pages →
   insuit-links → Custom domains** → add `link.insuit.cz`. It gets its own
   proxied CNAME, which takes precedence over the `*` wildcard.
 
-Check with `curl -sI https://link.insuit.cz/<hash>`; the hashes are in
-`links/_redirects` after `make cv`.
+Locally: `npx wrangler pages dev links --port 4322`, then
+`curl -sI http://localhost:4322/<code>`.
 
 ## Ports
 

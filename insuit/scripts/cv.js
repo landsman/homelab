@@ -127,17 +127,26 @@ const isLinkLine = (t) =>
   t.tokens.every((i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)));
 
 // A printed code never points at the project's site directly: it points at
-// link.insuit.cz/<hash>, a separate Pages project (links/) whose _redirects,
-// written below from cv.md, sends it on. The hash comes from the project and
-// the link's place in it, not from the link: change a link in cv.md and every
-// copy already printed follows it. It only changes if the project is renamed
-// or its links reordered.
-const redirects = new Map();
+// link.insuit.cz/<code>, a separate Pages project whose links/_redirects is
+// kept by hand. The code for a link is the rule whose target is that link; a
+// link without one stops the build with a code to add, so nothing prints a QR
+// that leads nowhere.
+const shortCodes = new Map(
+  readFileSync(new URL("../links/_redirects", import.meta.url), "utf8")
+    .split("\n")
+    .map((line) => line.trim().split(/\s+/))
+    .filter(([from, to]) => from?.startsWith("/") && to?.startsWith("http"))
+    .map(([from, to]) => [to, from.slice(1)]),
+);
 const shortLink = (key, href) => {
-  const hash = createHash("sha256").update(key).digest("hex").slice(0, 6);
-  if (redirects.has(hash)) throw new Error(`cv: short link ${hash} for ${key} is taken`);
-  redirects.set(hash, href);
-  return `https://link.insuit.cz/${hash}`;
+  const code = shortCodes.get(href);
+  if (!code) {
+    const suggestion = createHash("sha256").update(key).digest("hex").slice(0, 6);
+    throw new Error(
+      `cv: no short link for ${href} — add to links/_redirects:\n/${suggestion} ${href} 302`,
+    );
+  }
+  return `https://link.insuit.cz/${code}`;
 };
 const printed = ({ heading, rest }) => {
   const links = [];
@@ -241,27 +250,6 @@ const expected = tokens.filter((t) => t.type === "heading" && t.depth === 4).len
 const rendered = body.match(/hx-get=/g)?.length ?? 0;
 if (rendered !== expected)
   throw new Error(`cv: ${expected} projects in cv.md, ${rendered} rendered`);
-
-// The link.insuit.cz site: nothing but redirect rules (302, since a target may
-// change) and a page for a hash it does not know. Deployed on its own, so its
-// rules never apply to www.insuit.cz.
-const links = new URL("../links/", import.meta.url);
-rmSync(links, { recursive: true, force: true });
-mkdirSync(links);
-writeFileSync(
-  new URL("_redirects", links),
-  `# Generated from site/cv.md by scripts/cv.js: where the printed CV's QR codes lead.\n/ https://www.insuit.cz/cv 302\n${[...redirects].map(([hash, href]) => `/${hash} ${href} 302`).join("\n")}\n`,
-);
-writeFileSync(
-  new URL("404.html", links),
-  `<!doctype html>
-<html lang="en">
-  <meta charset="utf-8" />
-  <title>Link not found</title>
-  <p>This link is not in use any more. <a href="https://www.insuit.cz/cv">Michal Landsman's CV</a></p>
-</html>
-`,
-);
 
 const title = "Curriculum Vitae - Michal Landsman";
 const description = "Michal Landsman, full-stack developer in Prague: experience and projects.";

@@ -28,7 +28,7 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages projects and
+# Deliberately narrow: this manages the Pages projects, their analytics, and
 # one zone setting (email obfuscation, at the bottom) — nothing else.
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
@@ -71,15 +71,19 @@ resource "cloudflare_pages_project" "links" {
   production_branch = "main"
 }
 
-# The Web Analytics site for www.insuit.cz was created here, but Cloudflare
-# answers every later read of it with a 403 — at Account Settings Write too — so
-# any plan that refreshes it fails. Forgotten, not destroyed: the site and its
-# token stay, and the pages carry the token as a literal (it is public anyway).
-removed {
-  from = cloudflare_web_analytics_site.site
-  lifecycle {
-    destroy = false
-  }
+# Web Analytics for www.insuit.cz. Host-based with the snippet in the HTML,
+# not zone-based: auto_install on the zone would inject the beacon into every
+# proxied hostname on insuit.cz (git, read, eat, ...), and this config stays
+# out of the zone for the reasons above. The token is public — every visitor's
+# browser gets it — so the pages carry it as a literal.
+resource "cloudflare_web_analytics_site" "site" {
+  account_id   = var.cloudflare_account_id
+  host         = "www.insuit.cz"
+  auto_install = false
+}
+
+output "analytics_token" {
+  value = cloudflare_web_analytics_site.site.site_token
 }
 
 # Scrape Shield: Cloudflare rewrites email addresses in HTML served through the

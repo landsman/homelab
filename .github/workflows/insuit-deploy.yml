@@ -76,12 +76,14 @@ jobs:
       - name: "Render the CV page"
         working-directory: insuit
         run: npm ci --no-audit --no-fund && make cv
-      # The Web Analytics token exists only in Terraform state; the pages carry
-      # a placeholder until here. Public by design — every visitor gets it.
-      - name: "Fill in the Web Analytics token"
+      # Values kept out of the repo; the pages carry placeholders until here.
+      # The Web Analytics token lives in Terraform state, the contact address
+      # in a repo variable so it isn't in a file scrapers can search.
+      - name: "Fill in deploy-time values"
         env:
           TOKEN: ${{ needs.infra.outputs.analytics_token }}
-        run: test -n "$TOKEN" && sed -i "s/__CF_BEACON_TOKEN__/$TOKEN/" insuit/site/*.html
+          EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
+        run: test -n "$TOKEN" && test -n "$EMAIL" && sed -i -e "s/__CF_BEACON_TOKEN__/$TOKEN/" -e "s/__CONTACT_EMAIL__/$EMAIL/" insuit/site/*.html
       - name: "Pull in the rendered OG card"
         uses: actions/download-artifact@v8
         with:

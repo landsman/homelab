@@ -68,6 +68,8 @@ GitHub repo **secrets**:
 GitHub repo **variables**:
 
 - `INSUIT_CZ_CF_ACCOUNT_ID` — Cloudflare account ID (same account as pollos)
+- `INSUIT_CONTACT_EMAIL` — the address on /contact, filled in at deploy so it
+  isn't in the repo
 
 State lives in its own bucket with its own token rather than sharing pollos's,
 so neither project's credentials reach the other's state.
@@ -78,8 +80,9 @@ Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
 1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
    and the Web Analytics site. It manages nothing in the zone.
-2. The Web Analytics token from `terraform output` replaces the
-   `__CF_BEACON_TOKEN__` placeholder in `site/*.html`.
+2. The Web Analytics token from `terraform output` and the
+   `INSUIT_CONTACT_EMAIL` variable replace the `__CF_BEACON_TOKEN__` and
+   `__CONTACT_EMAIL__` placeholders in `site/*.html`.
 3. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.

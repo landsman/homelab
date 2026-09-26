@@ -7,12 +7,44 @@
   --font-size-h1: clamp(1.25rem, 5.5vw, 1.5rem);
   --line-height-base: 1.7;
   --line-height-h1: 1.3;
+  /* CV scale — one weight (400) is self-hosted, so size, colour and tracking
+     carry the hierarchy, not bold. Name ≈ 2.9× base, company ≈ 1.33×, meta and
+     labels ≈ 0.8×. */
+  --font-size-display: clamp(2rem, 8.5vw, 3.25rem);
+  --font-size-small: clamp(0.8125rem, 3.4vw, 0.875rem);
+  --line-height-display: 1.1;
+  --line-height-small: 1.5;
+  --tracking-display: -0.03em;
+  --tracking-label: 0.14em;
+  --font-weight-medium: 500;
+  /* Company names: a step between the name and the body, so a job opens clearly. */
+  --font-size-company: clamp(1.375rem, 6vw, 1.75rem);
+  --tracking-company: -0.01em;
 
   /* Palettes — each colour written once; the blocks below only pick one. */
   --light-fg: #2f3337;
   --light-bg: #ffffff;
   --dark-fg: #d7dce1;
   --dark-bg: #1c2024;
+  --light-border: #e3e6e9;
+  --light-close-hover: #eef0f2;
+  --dark-close-hover: #2b3137;
+  --dark-border: #3a4046;
+  /* Secondary text — 5.40:1 on --light-bg, 5.89:1 on --dark-bg (AA). */
+  --light-muted: #646b72;
+  --dark-muted: #949ca4;
+  /* A logo-less project tile stands in for a white logo card, so it stays a
+     white card with dark ink in both themes — it sits in the same row. */
+  --tile-bg: #ffffff;
+  --tile-fg: #2f3337;
+  --backdrop: rgb(0 0 0 / 0.5);
+  --backdrop-strong: rgb(0 0 0 / 0.94);
+  --photo-close: #ffffff;
+  /* The play button sits on a picture, not the page, so it stays white. */
+  --play: #ffffff;
+  --play-badge: rgb(0 0 0 / 0.7);
+  /* Close button over the dark photo backdrop, the same in both themes. */
+  --close-hover-dark: rgb(255 255 255 / 0.15);
 
   /* Layout */
   --wrapper-width: 800px;
@@ -25,15 +57,50 @@
   --space-content-top: clamp(24px, 5vh, 35px);
   --space-content-bottom: clamp(28px, 6vh, 40px);
   --links-gap-row: var(--space);
-  --links-gap-column: 16px;
+  --links-gap-column: 32px;
+  --space-section: 56px;
+  /* Between jobs — the gap is the divider, so it is wider than a section. */
+  --space-job: 88px;
+  --space-tight: 4px;
 
   /* Components */
   --icon-size: 1.25em;
   --icon-gap: 10px;
+  --icon-size-small: 0.8em;
+  --icon-gap-small: 0.35em;
   --underline-height: 2px;
+  --cv-image-width: 320px;
+  --cv-portrait-size: clamp(104px, 28vw, 180px);
+  --cv-portrait-filter: saturate(0.9) contrast(1.05) brightness(1.04);
+  --cv-image-radius: 12px;
+  --cv-card-min: 200px;
+  /* Paper: one text column and a narrower one to its right that carries the
+     asides — the portrait, a job's role and dates, a project's QR codes. */
+  --cv-print-rail: 46mm;
+  --cv-print-gutter: 7mm;
+  --cv-print-qr-size: 12mm;
+  --cv-print-qr-label-gap: 3mm;
+  --cv-print-portrait-size: 38mm;
+  --font-size-print-technologies: 9pt;
+  --font-size-print-project: 10pt;
+  --font-size-print-caption: 6.5pt;
+  --cv-thumb-width: 200px;
+  --gallery-inset: 6px;
+  --cv-thumb-height: 160px;
+  --play-size: 64px;
+  --close-size: 40px;
+  --close-size-touch: 48px;
+  --thumb-padding: 6px;
+  --photo-caption-room: 4em;
+  /* The logos are 1200×630 share cards; a logo-less tile takes the same shape. */
+  --cv-logo-ratio: 1200 / 630;
+  --cv-dialog-width: 640px;
+  --border-width: 1px;
 
   /* Motion */
   --speed: 200ms;
+  --speed-slow: 400ms;
+  --lift: -2px;
 }
 
 /* Theme resolution.
@@ -47,6 +114,17 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
+  --color-border: var(--light-border);
+  --color-close-hover: var(--light-close-hover);
+  --color-muted: var(--light-muted);
+  --color-tile-bg: var(--tile-bg);
+  --color-tile-fg: var(--tile-fg);
+  --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,6 +132,17 @@
     color-scheme: dark;
     --color-fg: var(--dark-fg);
     --color-bg: var(--dark-bg);
+    --color-border: var(--dark-border);
+    --color-close-hover: var(--dark-close-hover);
+    --color-muted: var(--dark-muted);
+    --color-tile-bg: var(--tile-bg);
+    --color-tile-fg: var(--tile-fg);
+    --color-backdrop: var(--backdrop);
+    --color-backdrop-strong: var(--backdrop-strong);
+    --color-photo-close: var(--photo-close);
+    --color-play: var(--play);
+    --color-play-badge: var(--play-badge);
+    --color-close-hover-dark: var(--close-hover-dark);
   }
 }
 
@@ -61,10 +150,32 @@
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
+  --color-border: var(--light-border);
+  --color-close-hover: var(--light-close-hover);
+  --color-muted: var(--light-muted);
+  --color-tile-bg: var(--tile-bg);
+  --color-tile-fg: var(--tile-fg);
+  --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);
+  --color-border: var(--dark-border);
+  --color-close-hover: var(--dark-close-hover);
+  --color-muted: var(--dark-muted);
+  --color-tile-bg: var(--tile-bg);
+  --color-tile-fg: var(--tile-fg);
+  --color-backdrop: var(--backdrop);
+  --color-backdrop-strong: var(--backdrop-strong);
+  --color-photo-close: var(--photo-close);
+  --color-play: var(--play);
+  --color-play-badge: var(--play-badge);
+  --color-close-hover-dark: var(--close-hover-dark);
 }

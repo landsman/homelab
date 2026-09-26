@@ -28,7 +28,7 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages project and nothing else.
+# Deliberately narrow: this manages the Pages projects and nothing else.
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages
@@ -56,5 +56,16 @@ provider "cloudflare" {
 resource "cloudflare_pages_project" "site" {
   account_id        = var.cloudflare_account_id
   name              = "insuit-cz"
+  production_branch = "main"
+}
+
+# link.insuit.cz: short addresses the printed CV's QR codes point at, redirected
+# to each project's site. Its own project because Pages redirect rules match
+# the path only — on insuit-cz they would fire on www.insuit.cz/<code> too. The
+# content is insuit/links/, kept by hand. Attach the
+# link.insuit.cz custom domain in the dashboard, for the reason given above.
+resource "cloudflare_pages_project" "links" {
+  account_id        = var.cloudflare_account_id
+  name              = "insuit-links"
   production_branch = "main"
 }

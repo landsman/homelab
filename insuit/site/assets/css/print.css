@@ -1,0 +1,48 @@
+/* Print: the page on paper, always in the light palette, without the screen's
+   controls. Page-specific print rules sit with their page (components/cv.css). */
+
+@media print {
+  /* Paper is white whatever the screen theme is: the override attributes
+     would otherwise keep a dark page dark. */
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
+    --color-fg: var(--light-fg);
+    --color-bg: var(--light-bg);
+    --color-muted: var(--light-muted);
+    --color-border: var(--light-border);
+
+    /* Screen sizes are fluid (clamp on the viewport) and generous; paper gets
+       fixed point sizes and tighter rhythm, so a CV fits on few pages. */
+    --font-size-base: 8.5pt;
+    --font-size-small: 7.5pt;
+    --font-size-h1: 12pt;
+    --font-size-company: 13pt;
+    --font-size-display: 22pt;
+    --line-height-base: 1.45;
+    --space: 7pt;
+    --space-section: 16pt;
+    --space-job: 28pt;
+  }
+
+  body {
+    min-height: 0;
+    padding: 0;
+  }
+
+  /* The footer is navigation (Back, Let's talk) and the theme switch: none of
+     it does anything on paper. */
+  footer {
+    display: none;
+  }
+
+  /* Underlines are a hover effect; on paper they are just ink. */
+  a::after {
+    display: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 14mm 15mm 16mm;
+}

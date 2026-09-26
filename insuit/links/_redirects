@@ -1,0 +1,48 @@
+# link.insuit.cz — short links, kept by hand. One rule per line:
+#
+#   /<code> <target> 302
+#
+# 302, because a target may change. Never delete or reuse a code that has been
+# printed or shared: fix its target instead.
+
+/ https://www.insuit.cz/ 302
+
+# Profiles — readable codes, for anywhere a short link to me is handy.
+/github https://github.com/landsman 302
+/linkedin https://www.linkedin.com/in/landsmanmichal 302
+/x https://x.com/Landsman 302
+/bluesky https://bsky.app/profile/landsman.bsky.social 302
+/contact https://www.insuit.cz/contact 302
+/cv https://www.insuit.cz/cv 302
+
+# CV — the printed CV's QR codes. Each project link in site/cv.md prints as a
+# QR code for the code whose target is that link; `make cv` fails and suggests
+# a code when a link has none. To send a printed code elsewhere, change its
+# target here and the link in cv.md to match.
+/58b7a3 https://policie.gov.cz/ 302
+/249064 https://archiv.policie.gov.cz/ 302
+/73b3aa https://mv.gov.cz/ 302
+/9c1700 https://archiv.mv.gov.cz/ 302
+/e8800a https://hzscr.gov.cz/ 302
+/dc32fb https://archiv.hzscr.gov.cz/ 302
+/8e114b https://casecsoftware.cz/en/homepage/ 302
+/8c8712 https://portfolio.med.muni.cz/ 302
+/b52ece https://cc.cz/cesky-fintech-trisbee-nabral-prvnich-6-milionu-korun-obchodnikum-nahrazuje-terminal-mobilni-aplikaci/ 302
+/16e6a5 https://www.businessinfo.cz/clanky/trisbee-startuje-revoluci-v-placeni-novy-nazev-ukazuje-mezinarodni-ambice/ 302
+/24ed01 https://cc.cz/mobilem-nove-zaplatite-i-za-novy-prostor-ceske-trisbee-chce-malym-prodejcum-ukazat-ze-za-prijimani-plateb-se-neplati/ 302
+/4974b5 https://distritodigitalcv.es/wp-content/uploads/2019/09/SWG-Getaway-2019-05.09.19.pdf 302
+/4c2882 https://digital-finance-platform.ec.europa.eu/observatory/eu-fintech-map/trisbee#overview 302
+/e960c6 https://www.mintmarket.cz/cs/blog/jak-na-EET 302
+/b4ea3a https://www.facebook.com/malapokladna 302
+/750567 https://boomevents.org/en/ 302
+/6008d7 https://www.ocellot.cz 302
+/f2c45d https://www.marianne.cz/ 302
+/8a4461 https://dny.marianne.cz/ 302
+/a9d2ae https://www.mediaguru.cz/burda-opet-porada-nakupni-event-shopping-fever 302
+/31c55c https://www.youtube.com/watch?v=DnQjnqFo1z8 302
+/1d2c41 https://www.mcdonaldscup.cz/ 302
+/f1e127 https://cz.oriflame.com/ 302
+/e115ec https://www.ketodiet.cz 302
+/0079b6 https://sokol.noveveseli.cz/ 302
+/c1a260 https://hazena.noveveseli.cz/ 302
+/dcf95e https://www.youtube.com/user/hazenanv 302

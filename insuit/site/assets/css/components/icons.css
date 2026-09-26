@@ -6,7 +6,9 @@
    avoid. Explicit selector list rather than [class^="icon-"], which would miss
    an element that happened to carry another class first. */
 
-.icon-theme {
+.icon-theme,
+.icon-external,
+.icon-play {
   flex: none;
   width: var(--icon-size);
   height: var(--icon-size);
@@ -22,4 +24,14 @@
 .icon-theme {
   -webkit-mask-image: url("/assets/icons/theme.svg");
   mask-image: url("/assets/icons/theme.svg");
+}
+
+.icon-external {
+  -webkit-mask-image: url("/assets/icons/external.svg");
+  mask-image: url("/assets/icons/external.svg");
+}
+
+.icon-play {
+  -webkit-mask-image: url("/assets/icons/play.svg");
+  mask-image: url("/assets/icons/play.svg");
 }

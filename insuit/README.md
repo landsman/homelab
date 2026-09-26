@@ -51,7 +51,8 @@ make qa        # check formatting without writing — what CI runs
    ```
 
 3. Create an API token — My Profile → API Tokens — scopes:
-   `Account · Cloudflare Pages · Edit`. Terraform no longer manages DNS here
+   `Account · Cloudflare Pages · Edit` and `Account · Account Settings · Edit`
+   (the latter for the Web Analytics site). Terraform no longer manages DNS here
    (see the cutover section), so no zone scope is needed.
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
@@ -73,8 +74,8 @@ so neither project's credentials reach the other's state.
 
 Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
-1. `terraform apply` — creates the `insuit-cz` Pages project. It manages nothing
-   else in the zone.
+1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
+   and the Web Analytics site. It manages nothing in the zone.
 2. `wrangler pages deploy insuit/site`.
 
 PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.

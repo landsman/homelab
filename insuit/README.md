@@ -52,18 +52,17 @@ make qa        # check formatting without writing — what CI runs
 
 3. Create an API token — My Profile → API Tokens — with:
 
-   | Scope                | Permission              | For                 |
-   | -------------------- | ----------------------- | ------------------- |
-   | Account              | Cloudflare Pages · Edit | deploying the sites |
-   | Zone: insuit.cz only | Zone Settings · Edit    | email obfuscation   |
+   | Scope                | Permission                     | For                    |
+   | -------------------- | ------------------------------ | ---------------------- |
+   | Account              | Cloudflare Pages · Edit        | deploying the sites    |
+   | Account              | Account Settings · Read + Edit | the Web Analytics site |
+   | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation      |
 
-   Plus `Account · Account Settings · Edit`, but only for a deploy that creates
-   or changes the Web Analytics site; remove it again afterwards. Cloudflare
-   answers every read of that site with a 403, even at Write, so the deploy runs
-   `terraform apply -refresh=false`: plans come from state, nothing reads the
-   site back, and the token Terraform saved when it created the site is what
-   the pages get. The zone scope covers settings only — Terraform doesn't manage
-   DNS here (see the cutover section).
+   Tick **both** Read and Edit on Account Settings. Unlike most Cloudflare
+   permissions, Edit does not include Read here: Edit alone creates the site but
+   every later refresh of it fails with a 403, and Read alone can't create it
+   (cloudflare/terraform-provider-cloudflare#3234). The zone scope covers
+   settings only — Terraform doesn't manage DNS here (see the cutover section).
 
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.

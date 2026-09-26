@@ -1,14 +1,24 @@
-# link.insuit.cz — where the printed CV's QR codes lead. Kept by hand.
+# link.insuit.cz — short links, kept by hand. One rule per line:
 #
 #   /<code> <target> 302
 #
-# Each project link in site/cv.md prints as a QR code for the code whose target
-# is that link; `make cv` fails and suggests a code when a link has none. To
-# send a printed code somewhere else, change its target here and the link in
-# cv.md to match. Never reuse or delete a code that has been printed: 302,
-# because a target may change.
+# 302, because a target may change. Never delete or reuse a code that has been
+# printed or shared: fix its target instead.
 
-/ https://www.insuit.cz/cv 302
+/ https://www.insuit.cz/ 302
+
+# Profiles — readable codes, for anywhere a short link to me is handy.
+/github https://github.com/landsman 302
+/linkedin https://www.linkedin.com/in/landsmanmichal 302
+/x https://x.com/Landsman 302
+/bluesky https://bsky.app/profile/landsman.bsky.social 302
+/contact https://www.insuit.cz/contact 302
+/cv https://www.insuit.cz/cv 302
+
+# CV — the printed CV's QR codes. Each project link in site/cv.md prints as a
+# QR code for the code whose target is that link; `make cv` fails and suggests
+# a code when a link has none. To send a printed code elsewhere, change its
+# target here and the link in cv.md to match.
 /58b7a3 https://policie.gov.cz/ 302
 /249064 https://archiv.policie.gov.cz/ 302
 /73b3aa https://mv.gov.cz/ 302

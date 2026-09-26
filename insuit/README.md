@@ -117,6 +117,8 @@ link can change after the CV is printed, and every copy still works.
 
 - **`links/_redirects` is kept by hand** — one `/<code> <target> 302` rule per
   link. It is the whole link.insuit.cz site, together with `links/404.html`.
+  Two sections: readable profile links (`/github`, `/linkedin`, `/x`, …) to use
+  anywhere, and the CV's QR codes.
 - `make cv` gives each project link in `site/cv.md` the code whose target is
   that link. A link with no rule stops the build and prints a rule to add, so a
   QR code never leads nowhere.

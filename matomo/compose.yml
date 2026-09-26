@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mariadb:11.8.9
+    container_name: matomo-db
+    restart: unless-stopped
+    command: --max-allowed-packet=64MB
+    volumes:
+      - matomo-db:/var/lib/mysql
+    env_file:
+      - .env
+
+  app:
+    image: matomo:5.9.0-apache
+    container_name: matomo
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8005:80"
+    volumes:
+      - matomo-data:/var/www/html
+      - ./common.config.ini.php:/var/www/html/config/common.config.ini.php:ro
+    environment:
+      MATOMO_DATABASE_HOST: db
+    env_file:
+      - .env
+
+volumes:
+  matomo-db:
+  matomo-data:

@@ -200,6 +200,20 @@ updates:
       prefix: deps
 
   - package-ecosystem: docker-compose
+    directory: /matomo
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: docker-compose
     directory: /yt-archive
     schedule:
       interval: weekly

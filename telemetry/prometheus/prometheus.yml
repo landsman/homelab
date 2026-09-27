@@ -1,6 +1,11 @@
 global:
   scrape_interval: 15s
 
+# OTLP exporters batch, so their samples can arrive out of order
+storage:
+  tsdb:
+    out_of_order_time_window: 30m
+
 scrape_configs:
   - job_name: "prometheus"
     static_configs:

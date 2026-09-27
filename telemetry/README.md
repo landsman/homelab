@@ -15,9 +15,9 @@ Hardware metrics, container metrics and logs for the Raspberry Pi 5, in one Graf
 - `3210` — Prometheus, also takes OTLP metrics at `/api/v1/otlp/v1/metrics`
 - `3211` — Grafana
 - `3212` — Node Exporter (`/metrics`), on the host network
-- `3213` — Blackbox Exporter
-- `3214` — cAdvisor
 - `3215` — Loki, also takes OTLP logs at `/otlp/v1/logs`
+
+Prometheus and Loki have no authentication, so they are published only on the Docker bridge (`172.17.0.1`, the default `docker0` address): containers on the Pi reach them at `host.docker.internal`, the LAN does not. Grafana is the way in from elsewhere. Docker-published ports skip `ufw`, which is why the bind address does this rather than the firewall. cAdvisor and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
 
 ## First-time setup
 
@@ -37,6 +37,7 @@ If the container memory panels stay empty, the kernel has the memory cgroup off:
 
 - **Dashboards → Homelab → Node Exporter Full** — the Pi's hardware
 - **Dashboards → Homelab → cadvisor dashboard** — containers, filterable by compose project
+- **Dashboards → Homelab → Blackbox Exporter** — whether each service answers, and how fast
 - **Drilldown → Logs** — every container and the journal, by `service_name`, with no query to write
 - **Drilldown → Metrics** — everything Prometheus has, including whatever an app pushes
 
@@ -46,24 +47,12 @@ Dashboards come from grafana.com at a pinned revision (see `dashboards` in the `
 
 - **Logs** — nothing to do. Alloy picks up every container on the Pi, labelled `container` and `compose_project`.
 - **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml`. A container in another compose project is reached at `host.docker.internal:<host port>`.
-- **OpenTelemetry** — point the app's exporter at `http://<pi>:3210/api/v1/otlp` for metrics and `http://<pi>:3215/otlp` for logs.
+- **OpenTelemetry** — from a container on the Pi, point the app's exporter at `http://host.docker.internal:3210/api/v1/otlp` for metrics and `http://host.docker.internal:3215/otlp` for logs, with `host.docker.internal:host-gateway` in its `extra_hosts`. Other machines on the LAN cannot reach either; that needs authentication in front first.
 - **Uptime** — add its URL to the `blackbox` job.
 
-## Backup and restore
+## Backups
 
-```bash
-make backup   # stops the stack, writes backup/telemetry-<timestamp>.tar.gz, starts it again
-```
-
-To restore, from this directory:
-
-```bash
-make down
-sudo rm -rf data && sudo tar -xzf backup/telemetry-<timestamp>.tar.gz
-make up
-```
-
-The archive holds `data/` itself, so it extracts in place, and `sudo` keeps the owners the containers need.
+None, on purpose. Metrics keep 30 days and logs 14, and both fill up again on their own; losing them loses history, not anything to restore. The dashboards come from `make dashboards` and the config is in git.
 
 ## When something is missing
 

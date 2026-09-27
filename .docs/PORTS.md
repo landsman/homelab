@@ -8,12 +8,10 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3000 | [forgejo](../forgejo)                 | web UI                                     |
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 3031 | [gotenberg](../gotenberg)             | PDF conversion API                         |
-| 3210 | [telemetry](../telemetry) (prometheus) | OTLP metrics at /api/v1/otlp              |
+| 3210 | [telemetry](../telemetry) (prometheus) | Docker bridge only; OTLP at /api/v1/otlp  |
 | 3211 | [telemetry](../telemetry) (grafana)   | dashboards                                 |
 | 3212 | [telemetry](../telemetry) (node-exporter) |                                        |
-| 3213 | [telemetry](../telemetry) (blackbox-exporter) |                                    |
-| 3214 | [telemetry](../telemetry) (cadvisor)  |                                            |
-| 3215 | [telemetry](../telemetry) (loki)      | logs, OTLP logs at /otlp                   |
+| 3215 | [telemetry](../telemetry) (loki)      | Docker bridge only; OTLP logs at /otlp     |
 | 5432 | [database](../database) (postgres 17) |                                            |
 | 8000 | [database](../database) (adminer)     | DB admin UI                                |
 | 8001 | [readeck](../readeck)                 |                                            |

@@ -3,8 +3,11 @@ services:
     image: prom/prometheus:v3.15.0
     container_name: prometheus
     restart: unless-stopped
+    # no auth and an open OTLP receiver, so only on the Docker bridge: apps on
+    # the Pi reach it at host.docker.internal, the LAN does not. Published ports
+    # bypass ufw, so the host firewall cannot be what keeps it private
     ports:
-      - "3210:9090"
+      - "172.17.0.1:3210:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
@@ -34,8 +37,6 @@ services:
     image: ghcr.io/google/cadvisor:0.60.6
     container_name: cadvisor
     restart: unless-stopped
-    ports:
-      - "3214:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -48,13 +49,16 @@ services:
       - /dev/kmsg
     command:
       - "--docker_only=true"
+      # the default is 1s, fifteen times the scrape interval
+      - "--housekeeping_interval=15s"
+      # every container label is a metric label otherwise; the dashboard filters by project
+      - "--store_container_labels=false"
+      - "--whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.28.0
     container_name: blackbox-exporter
     restart: unless-stopped
-    ports:
-      - "3213:9115"
     volumes:
       - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
     extra_hosts:
@@ -64,8 +68,9 @@ services:
     image: grafana/loki:3.7.8
     container_name: loki
     restart: unless-stopped
+    # no auth, anyone who reaches it reads every log; Docker bridge only, as prometheus
     ports:
-      - "3215:3100"
+      - "172.17.0.1:3215:3100"
     volumes:
       - ./loki/loki.yml:/etc/loki/local-config.yaml:ro
       - ./data/loki:/loki

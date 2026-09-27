@@ -17,11 +17,12 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 9925 | [mealie](../mealie)                   |                                            |
 | 8001 | [readeck](../readeck)                 |                                            |
-| 3210 | [telemetry](../telemetry) (prometheus) |                                           |
+| 3210 | [telemetry](../telemetry) (prometheus) | OTLP metrics at /api/v1/otlp              |
 | 3211 | [telemetry](../telemetry) (grafana)   | dashboards                                 |
 | 3212 | [telemetry](../telemetry) (node-exporter) |                                        |
 | 3213 | [telemetry](../telemetry) (blackbox-exporter) |                                    |
 | 3214 | [telemetry](../telemetry) (cadvisor)  |                                            |
+| 3215 | [telemetry](../telemetry) (loki)      | logs, OTLP logs at /otlp                   |
 | 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
 | 8003 | [yt-archive](../yt-archive)           | MeTube web UI (also tailscale serve → 443) |
 

@@ -6,25 +6,62 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
+  # node-exporter runs on the host network, see compose.yml
   - job_name: "node"
     static_configs:
-      - targets: ["node-exporter:9100"]
+      - targets: ["host.docker.internal:3212"]
 
   - job_name: "cadvisor"
     static_configs:
       - targets: ["cadvisor:8080"]
 
+  - job_name: "loki"
+    static_configs:
+      - targets: ["loki:3100"]
+
+  - job_name: "alloy"
+    static_configs:
+      - targets: ["alloy:12345"]
+
+  - job_name: "grafana"
+    static_configs:
+      - targets: ["grafana:3000"]
+
+  # the other services on the Pi, by the host port in .docs/PORTS.md
   - job_name: "blackbox"
     metrics_path: /probe
     params:
       module: [http_2xx]
     static_configs:
-      - targets:
-          - https://example.com
-    relabel_configs:
+      - targets: ["http://host.docker.internal:3000"]
+        labels: { service: forgejo }
+      - targets: ["http://host.docker.internal:3001"]
+        labels: { service: ip-service }
+      - targets: ["http://host.docker.internal:3031/health"]
+        labels: { service: gotenberg }
+      - targets: ["http://host.docker.internal:8001"]
+        labels: { service: readeck }
+      - targets: ["http://host.docker.internal:8002"]
+        labels: { service: archivebox }
+      - targets: ["http://host.docker.internal:8003"]
+        labels: { service: yt-archive }
+      - targets: ["http://host.docker.internal:8080"]
+        labels: { service: dashboard }
+      - targets: ["http://host.docker.internal:9925"]
+        labels: { service: mealie }
+    relabel_configs: &blackbox_relabel
       - source_labels: [__address__]
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
         replacement: blackbox-exporter:9115
+
+  - job_name: "blackbox-tcp"
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: ["host.docker.internal:5432"]
+        labels: { service: postgres }
+    relabel_configs: *blackbox_relabel

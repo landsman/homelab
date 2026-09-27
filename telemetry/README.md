@@ -4,24 +4,30 @@ Self-hosted monitoring stack running on Raspberry Pi 5 via Docker Compose.
 
 ## Services
 
-| Service           | URL                           |
-|-------------------|-------------------------------|
-| Prometheus        | `http://<pi-ip>:3210`         |
-| Grafana           | `http://<pi-ip>:3211`         |
-| Node Exporter     | `http://<pi-ip>:3212/metrics` |
-| Blackbox Exporter | `http://<pi-ip>:3213`         |
-| cAdvisor          | `http://<pi-ip>:3214`         |
+- Prometheus — scrapes and stores metrics (15 days)
+- Grafana — dashboards; login set in `.env` (see First-time Setup)
+- Node Exporter — host CPU, memory, disk, temperature
+- cAdvisor — per-container usage
+- Blackbox Exporter — probes URLs listed in `prometheus/prometheus.yml`
 
-Grafana login is configured via `.env` (see First-time Setup).
+## Ports
+
+- `3210` — Prometheus
+- `3211` — Grafana
+- `3212` — Node Exporter (`/metrics`)
+- `3213` — Blackbox Exporter
+- `3214` — cAdvisor
 
 ---
 
 ## Directory Structure
 
 ```
-monitoring/
+telemetry/
 ├── Makefile
-├── docker-compose.yml
+├── compose.yml
+├── blackbox/
+│   └── blackbox.yml
 ├── prometheus/
 │   └── prometheus.yml
 └── data/                  ← persisted data (backup this folder)
@@ -69,7 +75,7 @@ make destroy  # full wipe — stops containers, removes images, deletes data/
 
 ```bash
 cp .env.example .env
-# edit .env and set a strong password
+# set GF_SECURITY_ADMIN_PASSWORD — compose refuses to start without it
 make setup
 make up
 ```

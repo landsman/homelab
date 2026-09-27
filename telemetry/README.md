@@ -68,4 +68,5 @@ The archive holds `data/` itself, so it extracts in place, and `sudo` keeps the 
 ## When something is missing
 
 - **No logs arrive** — Loki refuses writes once the disk under `data/loki` is over 90 % full. The disk panel on Node Exporter Full shows it.
+- **No journal logs** — Alloy reads `/var/log/journal` and `/run/log/journal`. Raspberry Pi OS may keep the journal in memory only; `systemd-analyze cat-config systemd/journald.conf | grep Storage` says which. Docker creates an empty `/var/log/journal` if it is missing, and with `Storage=auto` that turns on the on-disk journal from the next boot.
 - **A service shows down that is running** — the probes and the Node Exporter scrape reach the host through `host.docker.internal`. A host firewall such as `ufw` has to allow the Docker bridge in.

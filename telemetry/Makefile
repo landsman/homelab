@@ -9,7 +9,7 @@ help: ## show this help
 ##@ Setup
 .PHONY: setup dashboards
 setup: dashboards ## create data directories owned by the users the images run as
-	mkdir -p data/prometheus data/grafana data/loki
+	mkdir -p data/prometheus data/grafana data/loki data/alloy
 	sudo chown -R 65534:65534 data/prometheus  # nobody, in prom/prometheus
 	sudo chown -R 472:472 data/grafana
 	sudo chown -R 10001:10001 data/loki

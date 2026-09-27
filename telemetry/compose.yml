@@ -80,10 +80,13 @@ services:
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
+      # read positions; without them a recreated container re-ships every log file
+      - ./data/alloy:/var/lib/alloy/data
     command:
       - "run"
       - "--disable-reporting"
       - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy/data"
       - "/etc/alloy/config.alloy"
     depends_on:
       - loki

@@ -1,40 +1,50 @@
-.PHONY: setup up down destroy restart logs ps backup help
+.DEFAULT_GOAL := help
 
-setup:
-	mkdir -p data/prometheus data/grafana
-	# 472 is the grafana user inside the official image
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+##@ Setup
+.PHONY: setup dashboards
+setup: dashboards ## create data directories owned by the users the images run as
+	mkdir -p data/prometheus data/grafana data/loki
+	sudo chown -R 65534:65534 data/prometheus  # nobody, in prom/prometheus
 	sudo chown -R 472:472 data/grafana
+	sudo chown -R 10001:10001 data/loki
 
-up:
+# grafana.com /api/dashboards/<id>/revisions/<revision>; bump the revision to update one
+dashboards: ## download the pinned grafana dashboards
+	mkdir -p grafana/dashboards
+	curl -fsSL -o grafana/dashboards/node-exporter-full.json https://grafana.com/api/dashboards/1860/revisions/45/download
+	curl -fsSL -o grafana/dashboards/cadvisor.json https://grafana.com/api/dashboards/19792/revisions/6/download
+
+##@ Run
+.PHONY: up down restart logs ps
+up: ## start all services
 	docker compose up -d
 
-down:
+down: ## stop all services
 	docker compose down
 
-destroy:
-	docker compose down --rmi all --volumes --remove-orphans
-	sudo rm -rf data/
-
-restart:
+restart: ## restart all services
 	docker compose restart
 
-logs:
+logs: ## follow logs from all services
 	docker compose logs -f
 
-ps:
+ps: ## show running containers
 	docker compose ps
 
-backup:
+##@ Data
+.PHONY: backup destroy
+backup: ## stop the stack, archive data/ into backup/, start it again
 	mkdir -p backup
-	tar -czf backup/backup-$(shell date +%Y%m%d-%H%M%S).tar.gz data/
+	docker compose stop
+	sudo tar -czf backup/telemetry-$(shell date +%Y%m%d-%H%M%S).tar.gz data/ || (docker compose start && false)
+	docker compose start
 
-help:
-	@echo "Available commands:"
-	@echo "  make setup    - Create data directories with correct permissions"
-	@echo "  make up       - Start all services"
-	@echo "  make down     - Stop all services"
-	@echo "  make destroy  - Stop all services, remove images, and delete all data"
-	@echo "  make restart  - Restart all services"
-	@echo "  make logs     - Follow logs from all services"
-	@echo "  make ps       - Show running containers"
-	@echo "  make backup   - Archive data/ into a timestamped .tar.gz"
+destroy: ## stop all services, remove images, and delete all data
+	docker compose down --rmi all --volumes --remove-orphans
+	sudo rm -rf data/

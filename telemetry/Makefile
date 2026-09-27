@@ -19,6 +19,7 @@ dashboards: ## download the pinned grafana dashboards
 	mkdir -p grafana/dashboards
 	curl -fsSL -o grafana/dashboards/node-exporter-full.json https://grafana.com/api/dashboards/1860/revisions/45/download
 	curl -fsSL -o grafana/dashboards/cadvisor.json https://grafana.com/api/dashboards/19792/revisions/6/download
+	curl -fsSL -o grafana/dashboards/blackbox.json https://grafana.com/api/dashboards/16124/revisions/6/download
 
 ##@ Run
 .PHONY: up down restart logs ps
@@ -38,13 +39,8 @@ ps: ## show running containers
 	docker compose ps
 
 ##@ Data
-.PHONY: backup destroy
-backup: ## stop the stack, archive data/ into backup/, start it again
-	mkdir -p backup
-	docker compose stop
-	sudo tar -czf backup/telemetry-$(shell date +%Y%m%d-%H%M%S).tar.gz data/ || (docker compose start && false)
-	docker compose start
-
-destroy: ## stop all services, remove images, and delete all data
+.PHONY: destroy
+destroy: ## stop all services, remove images, and delete all data (needs CONFIRM=yes)
+	@test "$(CONFIRM)" = yes || { echo "deletes every metric and log; run make destroy CONFIRM=yes"; exit 1; }
 	docker compose down --rmi all --volumes --remove-orphans
 	sudo rm -rf data/

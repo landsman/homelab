@@ -2,6 +2,7 @@
 
 setup:
 	mkdir -p data/prometheus data/grafana
+	# 472 is the grafana user inside the official image
 	sudo chown -R 472:472 data/grafana
 
 up:

@@ -218,6 +218,20 @@ updates:
     commit-message:
       prefix: deps(yt-archive)
 
+  - package-ecosystem: docker-compose
+    directory: /telemetry
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
   ## dockerfile services
   - package-ecosystem: docker
     directory: /github-runner

@@ -1,3 +1,6 @@
 .env
 data/
 backup/
+# downloaded by make dashboards
+grafana/dashboards/node-exporter-full.json
+grafana/dashboards/cadvisor.json

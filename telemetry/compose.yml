@@ -1,35 +1,37 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.10.0
+    image: prom/prometheus:v3.15.0
     container_name: prometheus
     restart: unless-stopped
     ports:
       - "3210:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./data/prometheus:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=10GB"
+      - "--web.enable-otlp-receiver"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
+  # host network and pid, as upstream runs it: otherwise network and process
+  # metrics describe this container instead of the Pi
   node-exporter:
-    image: prom/node-exporter:v1.10.2
+    image: prom/node-exporter:v1.12.1
     container_name: node-exporter
     restart: unless-stopped
-    ports:
-      - "3212:9100"
+    network_mode: host
+    pid: host
     volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
+      - /:/host:ro,rslave
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--path.rootfs=/rootfs"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - "--path.rootfs=/host"
+      - "--web.listen-address=:3212"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.56.2
+    image: ghcr.io/google/cadvisor:0.60.6
     container_name: cadvisor
     restart: unless-stopped
     ports:
@@ -44,6 +46,8 @@ services:
     privileged: true
     devices:
       - /dev/kmsg
+    command:
+      - "--docker_only=true"
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.28.0
@@ -52,18 +56,53 @@ services:
     ports:
       - "3213:9115"
     volumes:
-      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  loki:
+    image: grafana/loki:3.7.8
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3215:3100"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - ./data/loki:/loki
+
+  alloy:
+    image: grafana/alloy:v1.20.0
+    container_name: alloy
+    restart: unless-stopped
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    command:
+      - "run"
+      - "--disable-reporting"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "/etc/alloy/config.alloy"
+    depends_on:
+      - loki
 
   grafana:
-    image: grafana/grafana:12.4.0
+    image: grafana/grafana:13.2.2
     container_name: grafana
     restart: unless-stopped
     ports:
       - "3211:3000"
     volumes:
       - ./data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:?set it in .env}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:?set it in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
-
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    depends_on:
+      - prometheus
+      - loki

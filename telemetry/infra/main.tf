@@ -7,10 +7,11 @@ terraform {
     }
   }
 
-  # Own R2 bucket and own R2 token, so this state and its credentials aren't
-  # entangled with any other stack's. See the README for the one-time create.
+  # insuit's R2 bucket under a key of its own: a separate state, no second
+  # bucket or R2 token to create. The R2 token is scoped to the bucket, not the
+  # key, so this deploy could technically write insuit's state too.
   backend "s3" {
-    bucket                      = "homelab-telemetry-tf-state"
+    bucket                      = "insuit-cz-tf-state"
     key                         = "telemetry.tfstate"
     region                      = "auto"
     use_lockfile                = true

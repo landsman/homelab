@@ -2,11 +2,15 @@
 set -eu
 
 #
-# PURPOSE: ship the Pi's systemd journal — kernel, systemd, disk and USB errors,
-# sudo and SSH — into the telemetry stack's Loki, from the host. Grafana Alloy
-# runs as a systemd service in the systemd-journal group and pushes to Loki on
-# 127.0.0.1:3215, so no container and not the Docker user ever reads the
-# journal: a compromised container gains nothing here.
+# PURPOSE: ship the Pi's systemd journal — kernel, systemd, disk and USB errors
+# — into the telemetry stack's Loki, from the host. Grafana Alloy runs as a
+# systemd service in the systemd-journal group and pushes to Loki on
+# 127.0.0.1:3215, so no container ever gets the journal files.
+#
+# Loki is on the rootless side like every container, so what reaches it is
+# what a compromised container could read. The auth and authpriv facilities
+# are therefore dropped here, on the host: sudo command lines (with any
+# VAR=secret typed on them), SSH logins, PAM sessions. They stay in journalctl.
 #
 # Run on the Pi that runs the stack, as root:
 #
@@ -57,6 +61,13 @@ loki.relabel "journal" {
   rule {
     source_labels = ["__journal_priority_keyword"]
     target_label  = "level"
+  }
+
+  // auth (4) and authpriv (10): sudo, sshd, PAM. Never leaves the host.
+  rule {
+    source_labels = ["__journal_syslog_facility"]
+    regex         = "4|10"
+    action        = "drop"
   }
 }
 

@@ -34,10 +34,6 @@ scrape_configs:
     static_configs:
       - targets: ["alloy:12345"]
 
-  - job_name: "grafana"
-    static_configs:
-      - targets: ["grafana:3000"]
-
   # the other services on the Pi, by the host port in .docs/PORTS.md, over the
   # tailnet: rootless has no host-gateway that reaches published ports
   - job_name: "blackbox"

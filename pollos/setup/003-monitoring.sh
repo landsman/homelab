@@ -13,7 +13,8 @@ set -eu
 # Cloudflare account. So all this script does is install cloudflared and run it.
 #
 # MANUAL STEP: run on every pollos box (gus, mike, walter, jesse), as root,
-# after 001-init.sh (needs curl). Grab this box's connector token from the
+# after 001-init.sh (needs curl). NOT on nas: it replaces cloudflared.service,
+# which there runs the main tunnel — use 006-health-sidecar.sh instead. Grab this box's connector token from the
 # Cloudflare dashboard → Zero Trust → Networks → Tunnels → health-<host>
 # (or, if you have Terraform: terraform output -json health_tunnel_tokens).
 #

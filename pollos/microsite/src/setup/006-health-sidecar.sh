@@ -1,0 +1,1 @@
+../../../setup/006-health-sidecar.sh

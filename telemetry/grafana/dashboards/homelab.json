@@ -109,7 +109,7 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "RAID failed disks",
+      "title": "RAID not active",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -122,7 +122,7 @@
       },
       "targets": [
         {
-          "expr": "sum(node_md_disks{state=\"failed\"}) or vector(0)",
+          "expr": "count(node_md_state{state!=\"active\"} == 1) or vector(0)",
           "legendFormat": "",
           "refId": "A",
           "datasource": {
@@ -150,12 +150,12 @@
         "overrides": []
       },
       "options": {},
-      "description": "mdadm arrays. RAID0: one failed disk loses the array."
+      "description": "mdadm arrays in any state but active. RAID0 marks no member as failed, so a dying disk shows first as I/O errors in the journal and in the NVMe wear from the collectors."
     },
     {
       "id": 4,
       "type": "stat",
-      "title": "Hottest sensor",
+      "title": "Hottest sensor per host",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -168,8 +168,8 @@
       },
       "targets": [
         {
-          "expr": "max(node_hwmon_temp_celsius)",
-          "legendFormat": "",
+          "expr": "max by (instance) (node_hwmon_temp_celsius)",
+          "legendFormat": "{{instance}}",
           "refId": "A",
           "datasource": {
             "type": "prometheus",
@@ -310,7 +310,7 @@
       },
       "targets": [
         {
-          "expr": "max(node_hwmon_fan_rpm)",
+          "expr": "max(node_hwmon_fan_rpm{instance=~\"nas:.*\"})",
           "legendFormat": "",
           "refId": "A",
           "datasource": {
@@ -538,7 +538,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (container) (count_over_time({job=\"docker\"} | detected_level=~\"error|critical|fatal\" [5m]))",
+          "expr": "sum by (container) (count_over_time({job=\"docker\"} | detected_level=~\"error|critical|fatal|crit|alert|emerg\" [5m]))",
           "legendFormat": "{{container}}",
           "refId": "A",
           "datasource": {
@@ -569,7 +569,7 @@
       },
       "targets": [
         {
-          "expr": "{job=~\"docker|journal\"} | detected_level=~\"error|critical|fatal\"",
+          "expr": "{job=~\"docker|journal\"} | detected_level=~\"error|critical|fatal|crit|alert|emerg\"",
           "refId": "A",
           "datasource": {
             "type": "loki",

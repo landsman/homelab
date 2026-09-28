@@ -104,6 +104,7 @@ Metrics, logs, Grafana's database and Alloy's read positions are named volumes (
 - **Container memory is zero** — `docker-host.sh` has not run on the Pi, or it has not been rebooted since.
 - **No journal logs** — the ACL from `docker-host.sh` is missing: `getfacl /var/log/journal`.
 - **No logs at all** — Loki refuses writes once its disk is over 90 % full. The Homelab dashboard's disk panel shows it.
+- **Every host and service down after a reboot** — the containers started before Tailscale took over DNS, so MagicDNS names do not resolve inside them. `docker compose up -d --force-recreate prometheus blackbox-exporter`, and check with `docker compose exec prometheus wget -qO- nas:9100/metrics | head`.
 - **A service shows down that is running** — the probes go to `nas:<port>` over the tailnet, so the service has to publish on all interfaces, not `127.0.0.1`.
 
 ## Public hostname

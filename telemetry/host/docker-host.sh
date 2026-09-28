@@ -27,6 +27,7 @@ DOCKER_USER="${DOCKER_USER:-containers}"
 # copy: a broken cmdline.txt is a Pi that does not boot.
 cmdline() {
   file="$1"
+  [ -f "$file" ] || { echo "$file not found, not touching anything"; exit 1; }
   [ "$(wc -l < "$file")" -le 1 ] || { echo "$file has more than one line, not touching it"; exit 1; }
   if ! grep -qw 'cgroup_enable=memory' "$file"; then
     sed -i '1 s/[[:space:]]*$/ cgroup_enable=memory/' "$file"
@@ -39,15 +40,24 @@ install() {
   id "$DOCKER_USER" >/dev/null
 
   reboot=
-  if [ "$(cmdline "$CMDLINE")" = changed ]; then
+  # captured first: inside the test below, a refusal and its exit would vanish
+  edited="$(cmdline "$CMDLINE")" || { echo "$edited"; exit 1; }
+  [ "$edited" != changed ] || reboot=1
+
+  # user@ services pick up a new delegation only when they restart, so a
+  # changed drop-in needs the reboot too
+  delegate=/etc/systemd/system/user@.service.d/delegate.conf
+  want='[Service]
+Delegate=cpu cpuset io memory pids'
+  if [ "$(cat "$delegate" 2>/dev/null)" != "$want" ]; then
+    mkdir -p "$(dirname "$delegate")"
+    printf '%s\n' "$want" > "$delegate"
+    systemctl daemon-reload
     reboot=1
   fi
 
-  mkdir -p /etc/systemd/system/user@.service.d
-  printf '[Service]\nDelegate=cpu cpuset io memory pids\n' > /etc/systemd/system/user@.service.d/delegate.conf
-  systemctl daemon-reload
-
   # default ACLs on the directories, so files journald creates later inherit it
+  mkdir -p /etc/tmpfiles.d
   cat > /etc/tmpfiles.d/journal-"$DOCKER_USER".conf <<EOF
 a+ /var/log/journal - - - - d:user:$DOCKER_USER:r-x,user:$DOCKER_USER:r-x
 a+ /var/log/journal/%m - - - - d:user:$DOCKER_USER:r-x,user:$DOCKER_USER:r-x

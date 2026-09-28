@@ -36,6 +36,6 @@ variable "grafana_hostname" {
 
   validation {
     condition     = length(var.grafana_hostname) > 0
-    error_message = "grafana_hostname is empty — set the TELEMETRY_GRAFANA_HOSTNAME variable."
+    error_message = "grafana_hostname is empty — set the GRAFANA_HOSTNAME variable."
   }
 }

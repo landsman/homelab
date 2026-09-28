@@ -17,10 +17,12 @@ locals {
   home_range_count = nonsensitive(length(var.home_ip_ranges))
 }
 
+# Named for who and where, not for Grafana: the same policies can guard any
+# other app on the account.
 resource "cloudflare_zero_trust_access_policy" "owner_from_home" {
   count      = local.home_range_count
   account_id = var.cloudflare_account_id
-  name       = "grafana: owner from home ${count.index + 1}"
+  name       = "owner from home ${count.index + 1}"
   decision   = "allow"
 
   include = [{

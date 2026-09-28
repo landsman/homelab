@@ -1,6 +1,7 @@
 {
-  "title": "Homelab",
   "uid": "homelab",
+  "title": "Homelab",
+  "description": "Anything wrong right now. Detail in Hardware and Applications.",
   "tags": [
     "homelab"
   ],
@@ -13,6 +14,62 @@
     "to": "now"
   },
   "editable": true,
+  "graphTooltip": 1,
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "iconColor": "orange",
+        "name": "Reboots",
+        "expr": "changes(node_boot_time_seconds[5m]) > 0",
+        "step": "60s",
+        "titleFormat": "{{instance}} rebooted",
+        "useValueForTime": false
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "iconColor": "purple",
+        "name": "Container restarts",
+        "expr": "resets(docker_container_status_uptime_ns[5m]) > 0",
+        "step": "60s",
+        "titleFormat": "{{container_name}} restarted",
+        "useValueForTime": false
+      }
+    ]
+  },
+  "links": [
+    {
+      "type": "dashboards",
+      "tags": [
+        "homelab"
+      ],
+      "asDropdown": false,
+      "title": "Homelab",
+      "includeVars": false,
+      "keepTime": true,
+      "icon": "external link"
+    }
+  ],
   "panels": [
     {
       "id": 1,
@@ -53,12 +110,33 @@
                 "value": 1
               }
             ]
+          },
+          "color": {
+            "mode": "thresholds"
           }
         },
         "overrides": []
       },
-      "options": {},
-      "description": "Blackbox probes of the Pi's services that fail right now."
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "description": "Blackbox probes of the Pi's services that fail right now.",
+      "links": [
+        {
+          "title": "Applications",
+          "url": "/d/applications/applications?${__url_time_range}"
+        }
+      ]
     },
     {
       "id": 2,
@@ -99,15 +177,170 @@
                 "value": 1
               }
             ]
+          },
+          "color": {
+            "mode": "thresholds"
           }
         },
         "overrides": []
       },
-      "options": {},
-      "description": "node-exporter targets Prometheus cannot scrape."
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "description": "node-exporter targets Prometheus cannot scrape.",
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
     },
     {
       "id": 3,
+      "type": "stat",
+      "title": "NVMe warnings",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "count(nvme_critical_warning_total > 0) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "description": "Drives whose SMART critical-warning bitmap is non-zero. Checked every 15 minutes.",
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Read-only filesystems",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "count(node_filesystem_readonly{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} == 1) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "description": "A filesystem remounted read-only after errors \u2014 the SD card's usual way of failing.",
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
+    },
+    {
+      "id": 5,
       "type": "stat",
       "title": "RAID not active",
       "datasource": {
@@ -115,7 +348,7 @@
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 8,
+        "x": 16,
         "y": 0,
         "w": 4,
         "h": 4
@@ -145,31 +378,118 @@
                 "value": 1
               }
             ]
+          },
+          "color": {
+            "mode": "thresholds"
           }
         },
         "overrides": []
       },
-      "options": {},
-      "description": "mdadm arrays in any state but active. RAID0 marks no member as failed, so a dying disk shows first as I/O errors in the journal and in the NVMe wear from the collectors."
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "description": "mdadm arrays in any state but active. RAID0 marks no member failed; watch NVMe warnings too.",
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
     },
     {
-      "id": 4,
+      "id": 6,
       "type": "stat",
-      "title": "Hottest sensor per host",
+      "title": "Reboot required",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 12,
+        "x": 20,
         "y": 0,
         "w": 4,
         "h": 4
       },
       "targets": [
         {
-          "expr": "max by (instance) (node_hwmon_temp_celsius)",
-          "legendFormat": "{{instance}}",
+          "expr": "count(node_reboot_required == 1) or vector(0)",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Hottest CPU",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "max(max by (instance) (node_hwmon_temp_celsius * on (instance, chip) group_left (chip_name) node_hwmon_chip_names{chip_name=~\"coretemp|k10temp|zenpower|cpu_thermal\"}))",
+          "legendFormat": "",
           "refId": "A",
           "datasource": {
             "type": "prometheus",
@@ -184,7 +504,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
               },
               {
@@ -196,30 +516,51 @@
                 "value": 80
               }
             ]
+          },
+          "color": {
+            "mode": "thresholds"
           }
         },
         "overrides": []
       },
-      "options": {}
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
     },
     {
-      "id": 5,
-      "type": "bargauge",
-      "title": "Disk used",
+      "id": 8,
+      "type": "stat",
+      "title": "Fullest disk",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 16,
-        "y": 0,
-        "w": 8,
-        "h": 8
+        "x": 6,
+        "y": 4,
+        "w": 6,
+        "h": 4
       },
       "targets": [
         {
-          "expr": "100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat\"})",
-          "legendFormat": "{{instance}} {{mountpoint}}",
+          "expr": "max(100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"}))",
+          "legendFormat": "",
           "refId": "A",
           "datasource": {
             "type": "prometheus",
@@ -247,24 +588,106 @@
               }
             ]
           },
-          "min": 0,
-          "max": 100
+          "color": {
+            "mode": "thresholds"
+          }
         },
         "overrides": []
       },
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "basic",
+        "colorMode": "background",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
-        }
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
       },
-      "description": "Loki stops accepting logs above 90 % on its disk."
+      "description": "Loki stops accepting logs above 90 % on the Pi's data disk.",
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
     },
     {
-      "id": 6,
+      "id": 9,
+      "type": "stat",
+      "title": "Highest memory use",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "expr": "max(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
+          "legendFormat": "",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
+      },
+      "links": [
+        {
+          "title": "Hardware",
+          "url": "/d/hardware/hardware?${__url_time_range}"
+        }
+      ]
+    },
+    {
+      "id": 10,
       "type": "stat",
       "title": "Containers running",
       "datasource": {
@@ -272,9 +695,9 @@
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 0,
+        "x": 18,
         "y": 4,
-        "w": 4,
+        "w": 6,
         "h": 4
       },
       "targets": [
@@ -289,224 +712,61 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "options": {}
-    },
-    {
-      "id": 7,
-      "type": "stat",
-      "title": "Pi fan",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 4,
-        "y": 4,
-        "w": 4,
-        "h": 4
-      },
-      "targets": [
-        {
-          "expr": "max(node_hwmon_fan_rpm{instance=~\"nas:.*\"})",
-          "legendFormat": "",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
         "defaults": {
-          "unit": "rotrpm"
-        },
-        "overrides": []
-      },
-      "options": {}
-    },
-    {
-      "id": 8,
-      "type": "stat",
-      "title": "Memory used",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 8,
-        "y": 4,
-        "w": 8,
-        "h": 4
-      },
-      "targets": [
-        {
-          "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "orange",
-                "value": 80
-              },
-              {
-                "color": "red",
-                "value": 90
               }
             ]
           },
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {}
-    },
-    {
-      "id": 9,
-      "type": "timeseries",
-      "title": "Temperatures",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 8,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "max by (instance, chip) (node_hwmon_temp_celsius)",
-          "legendFormat": "{{instance}} {{chip}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
+          "color": {
+            "mode": "thresholds"
           }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius"
-        },
-        "overrides": []
-      },
-      "options": {}
-    },
-    {
-      "id": 10,
-      "type": "timeseries",
-      "title": "CPU used",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 8,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
-          "legendFormat": "{{instance}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100
-        },
-        "overrides": []
-      },
-      "options": {}
-    },
-    {
-      "id": 11,
-      "type": "bargauge",
-      "title": "Container memory",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 16,
-        "w": 12,
-        "h": 9
-      },
-      "targets": [
-        {
-          "expr": "sort_desc(docker_container_mem_usage)",
-          "legendFormat": "{{container_name}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
         },
         "overrides": []
       },
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "basic",
+        "colorMode": "background",
+        "graphMode": "area",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
-        }
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "justifyMode": "center"
       },
-      "description": "From the Docker stats API. Zero everywhere means memory accounting is off, see telemetry/host/docker-host.sh."
+      "description": "Only running containers are counted; a crashed one drops out rather than showing as down.",
+      "links": [
+        {
+          "title": "Applications",
+          "url": "/d/applications/applications?${__url_time_range}"
+        }
+      ]
     },
     {
-      "id": 12,
-      "type": "timeseries",
-      "title": "Container CPU",
+      "id": 11,
+      "type": "state-timeline",
+      "title": "Services",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 12,
-        "y": 16,
-        "w": 12,
-        "h": 9
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 8
       },
       "targets": [
         {
-          "expr": "docker_container_cpu_usage_percent{cpu=\"cpu-total\"}",
-          "legendFormat": "{{container_name}}",
+          "expr": "max by (service) (probe_success)",
+          "legendFormat": "{{service}}",
           "refId": "A",
           "datasource": {
             "type": "prometheus",
@@ -516,45 +776,57 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "percent"
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "down",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "up",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "options": {}
-    },
-    {
-      "id": 13,
-      "type": "timeseries",
-      "title": "Error lines per container",
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 25,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "sum by (container) (count_over_time({job=\"docker\"} | detected_level=~\"error|critical|fatal|crit|alert|emerg\" [5m]))",
-          "legendFormat": "{{container}}",
-          "refId": "A",
-          "datasource": {
-            "type": "loki",
-            "uid": "loki"
-          }
+      "options": {
+        "showValue": "never",
+        "mergeValues": true,
+        "rowHeight": 0.8,
+        "legend": {
+          "showLegend": false
         }
-      ],
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
       },
-      "options": {}
+      "links": [
+        {
+          "title": "Applications",
+          "url": "/d/applications/applications?${__url_time_range}"
+        }
+      ]
     },
     {
-      "id": 14,
+      "id": 12,
       "type": "logs",
       "title": "Errors, containers and journal",
       "datasource": {
@@ -562,10 +834,10 @@
         "uid": "loki"
       },
       "gridPos": {
-        "x": 12,
-        "y": 25,
-        "w": 12,
-        "h": 8
+        "x": 0,
+        "y": 16,
+        "w": 24,
+        "h": 10
       },
       "targets": [
         {
@@ -584,56 +856,9 @@
       "options": {
         "showTime": true,
         "sortOrder": "Descending",
-        "wrapLogMessage": true
+        "wrapLogMessage": true,
+        "enableLogDetails": true
       }
-    },
-    {
-      "id": 15,
-      "type": "table",
-      "title": "Services",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 0,
-        "y": 33,
-        "w": 24,
-        "h": 7
-      },
-      "targets": [
-        {
-          "expr": "probe_success",
-          "legendFormat": "",
-          "instant": true,
-          "format": "table",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "options": {},
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "__name__": true,
-              "job": true
-            },
-            "renameByName": {
-              "Value": "up"
-            }
-          }
-        }
-      ]
     }
   ],
   "templating": {

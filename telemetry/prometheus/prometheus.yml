@@ -16,6 +16,11 @@ scrape_configs:
   - job_name: "node"
     static_configs:
       - targets: ["nas:9100", "gus:9100", "mike:9100", "walter:9100", "jesse:9100"]
+    # instance="nas", not "nas:9100": the dashboards group by device name
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: "([^:]+):\\d+"
+        target_label: instance
 
   - job_name: "telegraf"
     static_configs:

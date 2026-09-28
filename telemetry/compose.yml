@@ -139,6 +139,10 @@ services:
       # the plugins this image ships with, not whatever is newest at start: on a
       # read-only root the update fails halfway and unregisters the data source
       - GF_PLUGINS_PREINSTALL_AUTO_UPDATE=false
+      # both publish without a login: a snapshot to snapshots.raintank.io, log
+      # lines included, and a public dashboard to anyone who reaches the LAN
+      - GF_SNAPSHOTS_EXTERNAL_ENABLED=false
+      - GF_PUBLIC_DASHBOARDS_ENABLED=false
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/homelab.json
     depends_on:
       - prometheus

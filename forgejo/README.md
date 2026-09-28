@@ -3,7 +3,7 @@
 Self-hosted Git service running in Docker on Raspberry Pi.
 
 - Source: https://codeberg.org/forgejo/forgejo
-- MCP server: https://codeberg.org/goern/forgejo-mcp
+- MCP server: [../forgejo-mcp](../forgejo-mcp), on the tailnet
 - iOS app: https://codeberg.org/secana/Forji
 - Android app: https://codeberg.org/gitnex/GitNex
 

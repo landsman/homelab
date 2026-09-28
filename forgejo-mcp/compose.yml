@@ -1,0 +1,37 @@
+services:
+  forgejo-mcp:
+    # Built here rather than pulled: upstream's image is linux/amd64 only, and
+    # this runs on the Pi. The Containerfile's base images are multi-arch, so a
+    # build from the mirrored tag produces arm64 without touching it.
+    build:
+      context: https://git.insuit.cz/tools-mirror/forgejo-mcp.git#${FORGEJO_MCP_VERSION}
+      dockerfile: Containerfile
+      args:
+        VERSION: ${FORGEJO_MCP_VERSION}
+    image: forgejo-mcp:${FORGEJO_MCP_VERSION}
+    container_name: forgejo-mcp
+    restart: unless-stopped
+    # Straight to the forgejo container, not the public name: an agent's call
+    # should not take a round trip through Cloudflare to reach the next container.
+    command: --transport http --url http://forgejo:3000 --host 0.0.0.0 --http-port 8080
+    environment:
+      FORGEJO_ACCESS_TOKEN: ${FORGEJO_ACCESS_TOKEN:?copy .env.example to .env and set the token}
+      # The tailnet name clients use. tailscale serve passes it through as Host,
+      # and the server refuses any Host it was not told about.
+      FORGEJO_MCP_ALLOWED_HOSTS: ${FORGEJO_MCP_ALLOWED_HOSTS}
+      # Serve a request with no Authorization header using the token above.
+      # That is the point of this service: clients hold no credential. It also
+      # means anything that reaches the port acts as that token, which is why
+      # the port is on loopback and the tailnet ACL decides who reaches serve.
+      FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK: 'true'
+    ports:
+      # Loopback only. The pollos boxes share this LAN and jesse runs arbitrary
+      # CI jobs; published on 0.0.0.0 they would bypass the tailnet ACL entirely.
+      - '127.0.0.1:8005:8080'
+    networks:
+      - forgejo
+
+networks:
+  forgejo:
+    external: true
+    name: forgejo_forgejo

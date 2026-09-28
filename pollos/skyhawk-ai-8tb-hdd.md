@@ -134,8 +134,10 @@ It had been making a loud scraping sound on reads since the format; that sound
 is the drive retrying. New bad sectors on a disk with 1 340 hours, together
 with that noise, point to a surface or head problem, which tends to spread.
 
-The full `smartctl -x` and FARM output from that day is saved on gus as
-`~/skyhawk8tb-smart-2026-09-28.txt`.
+The full `smartctl` and FARM output from that day, serial and WWN removed, is
+in [skyhawk-ai-8tb-hdd-smart-2026-09-28.txt](skyhawk-ai-8tb-hdd-smart-2026-09-28.txt).
+The unredacted copy, for the claim, is on gus as
+`~/skyhawk8tb-smart-2026-09-28-full.txt`.
 
 ## What next
 

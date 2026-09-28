@@ -84,7 +84,7 @@ Prometheus, Loki and Node Exporter have no authentication, which is why none of 
 The Pi runs Docker rootless, so every container, whatever it runs as inside, is the `containers` user on the host. The stack keeps what is sensitive off that side, and what is on it from reaching further:
 
 - **Only the socket proxy holds the Docker socket.** Holding it is being the Docker user — `:ro` on a socket restricts nothing — so Alloy and Telegraf ask [socket-proxy](https://github.com/wollomatic/socket-proxy) instead, on an internal network of their own. It answers only reads: list, inspect, logs and stats of containers, and the version handshake. Creating or exec-ing into a container, and reading files out of one (`archive`, `export`), are refused. Inspect does return other containers' environment, so keep secrets out of env where an app allows a file.
-- **The host journal** is shipped from the host, without auth and authpriv (above). The host's `cloudflared` and other services never hand anything to a container.
+- **The host journal** is shipped from the host, without auth and authpriv (above).
 - **Every container** runs without capabilities, with `no-new-privileges` and a read-only root filesystem, and all but the proxy as an unprivileged user.
 - **Secrets**: `.env` is owner-only. Grafana's admin password is read only when its database is created; change it in the UI after the first login, and the value in `.env` — which inspect can show — is no longer the password.
 
@@ -141,7 +141,7 @@ Clone the repo onto the RAID, not the SD card. The data itself is in named volum
 
 `make` with no target lists the rest.
 
-The admin password is read only when Grafana creates its database. Changing it in `.env` later does nothing; use `docker exec grafana grafana cli admin reset-admin-password <new>`.
+The admin password is read only when Grafana creates its database. Changing it in `.env` later does nothing; change it in Grafana under your profile. (`grafana cli admin reset-admin-password` works too, but puts the password on a command line.)
 
 ## Host metrics
 
@@ -159,7 +159,7 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 
 [`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. Safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
 
-[`host/journal.sh`](host/journal.sh) ships the Pi's journal. Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group, so no container ever gets the journal files, and pushes to Loki on `127.0.0.1:3215`. Loki is on the rootless side like every container, so it drops the `auth` and `authpriv` facilities first — sudo command lines (with any `VAR=secret` typed on them), SSH logins, PAM sessions. Those stay in `journalctl` on the host; kernel, systemd, disk and USB errors go through. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds.
+[`host/journal.sh`](host/journal.sh) ships the Pi's journal. Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group (its package also adds `adm`, which reads `/var/log` on the host; nothing from there is shipped), so no container ever gets the journal files, and pushes to Loki on `127.0.0.1:3215`. Loki is on the rootless side like every container, so it drops the `auth` and `authpriv` facilities first — sudo command lines (with any `VAR=secret` typed on them), SSH logins, PAM sessions. Those stay in `journalctl` on the host; kernel, systemd, disk and USB errors go through. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds, pinned so that it can supply `alloy` and nothing else.
 
 ## What is where in Grafana
 
@@ -178,6 +178,12 @@ A few readings that mislead if taken at face value:
 - **RAID0** never marks a member as failed: a dying NVMe shows in its health and in the journal before the array goes.
 - **A crashed container** drops out of the container panels rather than showing as down; the probes are what catch it.
 
+### Plugins
+
+The data sources come in the image. The two Drilldown apps the dashboards lean on (Logs and Metrics) are not, so Grafana downloads them on first start — pinned in `compose.yml` (`GF_PLUGINS_PREINSTALL`) and never auto-updated, so a new plugin arrives only through a reviewed change. The three unused apps (traces, profiles, advisor) are disabled.
+
+[Renovate](https://docs.renovatebot.com/) (`renovate.json` at the repo root) bumps those two pins from grafana.com's plugin API, after the same 7-day wait as Dependabot; it touches nothing else, Dependabot keeps the images. It needs the Renovate GitHub app installed on the repository. Neither can see advisories for Grafana plugins — there is no feed for them — so a security release is picked up like any other, once it is 7 days old, or by bumping the pin by hand.
+
 ### Changing a dashboard
 
 Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; Node Exporter Full is downloaded by `make up`.
@@ -185,7 +191,7 @@ Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; 
 A change can be made and saved in the UI. It stays — across restarts too — until that dashboard's JSON file changes, which then overwrites it. The home page is the exception: it always renders `homelab.json` itself, cannot be saved, and shows a UI change only once it is back in the file; edit Homelab under Dashboards → Homelab instead. So to keep a change, put it back into the file. **Not through the UI's export**: Grafana 13 exports the new v2 format, which the file provisioning here refuses to load. The API still returns the classic JSON, including what was saved in the UI:
 
 ```bash
-curl -su "admin:<password>" http://localhost:3211/api/dashboards/uid/hardware \
+curl -su "<admin user>:<password>" http://localhost:3211/api/dashboards/uid/hardware \
   | python3 -c 'import json,sys; d=json.load(sys.stdin)["dashboard"]; d.pop("id", None); json.dump(d, sys.stdout, indent=2)' \
   > grafana/dashboards/hardware.json
 ```
@@ -267,7 +273,8 @@ So the hostname is never public without Access in front of it:
 1. Create the API token and set the four new values above.
 2. Merge. The deploy creates the Access application and its policies.
 3. Only then, on the Pi's tunnel (Zero Trust → Networks → Tunnels → **Published application routes**), route the hostname to `http://<pi-host>:3211`.
-4. Set `GF_SERVER_ROOT_URL` in `.env` to the hostname and `make up`, which recreates Grafana with it; `make restart` would keep the old environment.
+4. On that route, under **Additional application settings → Access**, turn on **Protect with Access** (the `originRequest.access` setting: `required`, the team name, and the application's AUD tag from Zero Trust → Access → Applications → grafana → Overview). cloudflared then drops any request without a valid Access token itself, so Grafana stays behind Access even if the Access application were removed or another hostname pointed at the route.
+5. Set `GF_SERVER_ROOT_URL` in `.env` to the hostname and `make up`, which recreates Grafana with it; `make restart` would keep the old environment.
 
 Login is whatever the Zero Trust organization offers; new organizations sign in with the Cloudflare account itself, so no identity provider is created here.
 

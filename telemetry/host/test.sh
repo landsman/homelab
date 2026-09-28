@@ -18,4 +18,6 @@ grep -q '^console=serial0,115200 root=PARTUUID=abc rootwait cgroup_enable=memory
 printf 'one\ntwo\n' > "$tmp"
 if sh "$dir/docker-host.sh" cmdline "$tmp" >/dev/null 2>&1; then echo "FAIL: edited a two-line file"; exit 1; fi
 
+if sh "$dir/docker-host.sh" cmdline "$tmp.missing" >/dev/null 2>&1; then echo "FAIL: passed on a missing file"; exit 1; fi
+
 echo "ok"

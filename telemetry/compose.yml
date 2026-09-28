@@ -37,7 +37,7 @@ services:
 
   prometheus:
     <<: *hardened
-    image: prom/prometheus:v3.15.0
+    image: prom/prometheus:v3.14.0
     container_name: prometheus
     restart: unless-stopped
     # no auth and an open OTLP receiver, so loopback only
@@ -92,7 +92,7 @@ services:
 
   alloy:
     <<: *hardened
-    image: grafana/alloy:v1.20.0
+    image: grafana/alloy:v1.19.2
     container_name: alloy
     restart: unless-stopped
     # the image's own alloy user, which owns /var/lib/alloy/data
@@ -139,6 +139,11 @@ services:
       # the plugins this image ships with, not whatever is newest at start: on a
       # read-only root the update fails halfway and unregisters the data source
       - GF_PLUGINS_PREINSTALL_AUTO_UPDATE=false
+      # the two Drilldown apps the stack uses, pinned: they are not in the image
+      # and would otherwise download whatever is newest on first start.
+      # Renovate bumps them (renovate.json); the three unused apps are off
+      - GF_PLUGINS_PREINSTALL=grafana-lokiexplore-app@2.5.2,grafana-metricsdrilldown-app@2.5.1
+      - GF_PLUGINS_DISABLE_PLUGINS=grafana-pyroscope-app,grafana-exploretraces-app,grafana-advisor-app
       # both publish without a login: a snapshot to snapshots.raintank.io, log
       # lines included, and a public dashboard to anyone who reaches the LAN
       - GF_SNAPSHOTS_EXTERNAL_ENABLED=false

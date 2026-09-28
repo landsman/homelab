@@ -26,7 +26,7 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 | walter | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 | jesse  | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 
-gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [gus-disk.md](gus-disk.md).
+gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [skyhawk-ai-8tb-hdd.md](skyhawk-ai-8tb-hdd.md).
 
 ![stack photo](microsite/src/assets/img/stack-photo.jpg)
 

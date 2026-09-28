@@ -117,6 +117,10 @@ services:
     image: grafana/grafana:13.2.2
     container_name: grafana
     restart: unless-stopped
+    # backend plugins, the Prometheus and Loki data sources included, unpack
+    # into /tmp; with a read-only root and no tmpfs every query fails
+    tmpfs:
+      - /tmp:noexec,nosuid,nodev
     ports:
       - "3211:3000"
     volumes:
@@ -132,6 +136,9 @@ services:
       - GF_ANALYTICS_REPORTING_ENABLED=false
       # /metrics is unauthenticated by default, and Grafana is on the LAN
       - GF_METRICS_ENABLED=false
+      # the plugins this image ships with, not whatever is newest at start: on a
+      # read-only root the update fails halfway and unregisters the data source
+      - GF_PLUGINS_PREINSTALL_AUTO_UPDATE=false
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/homelab.json
     depends_on:
       - prometheus

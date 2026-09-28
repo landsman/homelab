@@ -51,6 +51,8 @@ scrape_configs:
         labels: { service: ip-service }
       - targets: ["http://nas:3031/health"]
         labels: { service: gotenberg }
+      - targets: ["http://nas:8000"]
+        labels: { service: adminer }
       - targets: ["http://nas:8001"]
         labels: { service: readeck }
       - targets: ["http://nas:8002"]
@@ -74,6 +76,8 @@ scrape_configs:
     params:
       module: [tcp_connect]
     static_configs:
+      - targets: ["nas:222"]
+        labels: { service: forgejo-ssh }
       - targets: ["nas:5432"]
         labels: { service: postgres }
     relabel_configs: *blackbox_relabel

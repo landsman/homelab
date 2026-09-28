@@ -11,8 +11,8 @@ set -eu
 #    a later cgroup_enable=memory on the command line overrides it
 #    (raspberrypi/linux#6980). Without it no container reports memory.
 # 2. Delegation. Rootless containers live under user@<uid>.service, which by
-#    default gets only cpu and pids. The drop-in is the one Docker documents:
-#    https://docs.docker.com/engine/security/rootless/tips/
+#    default gets cpu, memory and pids; the drop-in Docker documents adds
+#    cpuset and io: https://docs.docker.com/engine/security/rootless/tips/
 # 3. The journal, readable by the Docker user. An ACL, not a group: runc drops
 #    supplementary groups, so systemd-journal would never reach the container.
 #

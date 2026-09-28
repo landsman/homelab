@@ -159,9 +159,9 @@ systemctl status cloudflared-health cloudflared   # both active
 curl -sI https://nas-health.pollos.cz              # HTTP/2 200
 ```
 
-The unit keeps running the binary it started with; after the Pi's own update
-timer replaces `cloudflared`, `systemctl restart cloudflared-health` picks up the
-new one. `sudo sh health-sidecar.sh uninstall` removes the unit and its token
+The unit keeps running the binary it started with. Whatever updates
+`cloudflared` on the Pi restarts only `cloudflared.service`, so afterwards
+`systemctl restart cloudflared-health` picks up the new one (a reboot does too). `sudo sh health-sidecar.sh uninstall` removes the unit and its token
 and nothing else.
 
 ## Adding a node

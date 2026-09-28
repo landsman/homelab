@@ -16,7 +16,7 @@ set -eu
 #     cloudflared through --token-file, never through the unit's command line
 #     (--token-file needs cloudflared 2025.4.0+; checked below)
 #   - the unit runs as a throwaway DynamicUser, and gets the token through
-#     systemd's LoadCredential (%d in ExecStart, systemd 250+), so the process
+#     systemd's LoadCredential (%d in ExecStart, systemd 251+), so the process
 #     cannot read anything else of root's
 #   - it points --config at its own file, so cloudflared never falls back to the
 #     main tunnel's /etc/cloudflared/config.yml
@@ -90,10 +90,10 @@ esac
 
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
 
-# the binary the host already runs; this script never installs one. The
-# package's /usr/bin/cloudflared first: it is the one cloudflared-update.timer
-# keeps current, while a copy elsewhere on PATH (/usr/local/bin, which sudo
-# searches first) silently ages.
+# the binary the host already runs; this script never installs one.
+# /usr/bin/cloudflared first: it is the one the main cloudflared.service runs,
+# so whatever keeps that tunnel current keeps this one current too. sudo's PATH
+# searches /usr/local/bin first, where a separate copy may sit and age.
 if [ -x /usr/bin/cloudflared ]; then
   BIN=/usr/bin/cloudflared
 else

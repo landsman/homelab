@@ -87,16 +87,16 @@ Reused, already there: `INSUIT_CZ_R2_ACCESS_KEY_ID`, `INSUIT_CZ_R2_SECRET_ACCESS
 
 | Name | Kind | Where to get it |
 |------|------|-----------------|
-| `TELEMETRY_CF_API_TOKEN` | secret | Cloudflare → My Profile → API Tokens. One scope: `Account · Access: Apps and Policies · Edit` |
-| `TELEMETRY_ACCESS_EMAIL` | secret | the email of the Cloudflare login allowed through |
-| `TELEMETRY_HOME_IP_RANGES` | secret | home public ranges as a list, IPv4 and IPv6: `["203.0.113.7/32", "2001:db8:1234::/56"]` |
-| `TELEMETRY_GRAFANA_HOSTNAME` | var | the hostname Grafana gets on the tunnel |
+| `CF_ACCESS_API_TOKEN` | secret | Cloudflare → My Profile → API Tokens. One scope: `Account · Access: Apps and Policies · Edit` |
+| `CF_ACCESS_EMAIL` | secret | the email of the Cloudflare login allowed through |
+| `HOME_IP_RANGES` | secret | home public ranges as a list, IPv4 and IPv6: `["203.0.113.7/32", "2001:db8:1234::/56"]` |
+| `GRAFANA_HOSTNAME` | var | the hostname Grafana gets on the tunnel |
 
 `gh` prompts for the value, so it never lands in shell history:
 
 ```bash
-gh secret set TELEMETRY_CF_API_TOKEN --repo landsman/homelab --env production
-gh variable set TELEMETRY_GRAFANA_HOSTNAME --repo landsman/homelab --env production
+gh secret set CF_ACCESS_API_TOKEN --repo landsman/homelab --env production
+gh variable set GRAFANA_HOSTNAME --repo landsman/homelab --env production
 ```
 
 ### Order
@@ -110,4 +110,4 @@ So the hostname is never public without Access in front of it:
 
 Login is whatever the Zero Trust organization offers; new organizations sign in with the Cloudflare account itself, so no identity provider is created here.
 
-When the home address changes, update `TELEMETRY_HOME_IP_RANGES` and re-run the deploy (`workflow_dispatch`); until then Access turns every request away.
+When the home address changes, update `HOME_IP_RANGES` and re-run the deploy (`workflow_dispatch`); until then Access turns every request away.

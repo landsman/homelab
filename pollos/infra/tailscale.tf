@@ -5,9 +5,11 @@
 # takes ownership of the whole tailnet policy file (overwrite_existing_content),
 # so keep every rule your tailnet needs in here.
 #
-# The acls block below is left permissive (allow-all among your own devices) to
-# preserve the working Mac <-> boxes <-> Apple TV exit node setup. Tighten it to
-# explicit src/dst later once everything is on the tailnet.
+# The acls block lets my own devices reach everything, and the tagged boxes
+# reach only each other. The boxes must not reach the Pi: forgejo-mcp serves
+# Forgejo there with my token to any caller, and jesse runs arbitrary CI jobs.
+# Audited 2026-09-28 before narrowing: no box held a tailnet connection to the
+# Pi, and the runner reaches git.insuit.cz by its public name.
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
 
@@ -23,9 +25,16 @@ resource "tailscale_acl" "this" {
 
     acls = [
       {
+        # Every device I own — Macs, phones, Apple TVs, the Pi. `*:*` also
+        # covers autogroup:internet, so the exit nodes keep working.
         action = "accept"
-        src    = ["*"]
+        src    = ["autogroup:member"]
         dst    = ["*:*"]
+      },
+      {
+        action = "accept"
+        src    = ["tag:pollos"]
+        dst    = ["tag:pollos:*"]
       },
     ]
 

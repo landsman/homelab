@@ -13,14 +13,12 @@ set -eu
 # 2. Delegation. Rootless containers live under user@<uid>.service, which by
 #    default gets cpu, memory and pids; the drop-in Docker documents adds
 #    cpuset and io: https://docs.docker.com/engine/security/rootless/tips/
-# 3. The journal, readable by the Docker user. An ACL, not a group: runc drops
-#    supplementary groups, so systemd-journal would never reach the container.
 #
-# Safe to re-run. DOCKER_USER defaults to containers (docker/README.md).
+# Safe to re-run. The journal is shipped from the host instead, by journal.sh,
+# so no container needs access to it.
 #
 
 CMDLINE=/boot/firmware/cmdline.txt
-DOCKER_USER="${DOCKER_USER:-containers}"
 
 # Appends cgroup_enable=memory to the single line of FILE unless it is there.
 # Prints "changed" when it wrote. Its own subcommand so a test can run it on a
@@ -37,8 +35,6 @@ cmdline() {
 
 install() {
   [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
-  id "$DOCKER_USER" >/dev/null
-
   reboot=
   # captured first: inside the test below, a refusal and its exit would vanish
   edited="$(cmdline "$CMDLINE")" || { echo "$edited"; exit 1; }
@@ -55,15 +51,6 @@ Delegate=cpu cpuset io memory pids'
     systemctl daemon-reload
     reboot=1
   fi
-
-  # default ACLs on the directories, so files journald creates later inherit it
-  mkdir -p /etc/tmpfiles.d
-  cat > /etc/tmpfiles.d/journal-"$DOCKER_USER".conf <<EOF
-a+ /var/log/journal - - - - d:user:$DOCKER_USER:r-x,user:$DOCKER_USER:r-x
-a+ /var/log/journal/%m - - - - d:user:$DOCKER_USER:r-x,user:$DOCKER_USER:r-x
-a+ /var/log/journal/%m/*.journal* - - - - user:$DOCKER_USER:r--
-EOF
-  systemd-tmpfiles --create /etc/tmpfiles.d/journal-"$DOCKER_USER".conf
 
   if [ -n "$reboot" ]; then
     echo "done — reboot for memory accounting: sudo reboot"

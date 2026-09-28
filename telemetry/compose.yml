@@ -59,10 +59,6 @@ services:
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
       - ${DOCKER_SOCKET:-${XDG_RUNTIME_DIR:?run from a login shell of the Docker user}/docker.sock}:/var/run/docker.sock:ro
-      # readable only with the ACL host/docker-host.sh sets
-      - /var/log/journal:/var/log/journal:ro
-      - /run/log/journal:/run/log/journal:ro
-      - /etc/machine-id:/etc/machine-id:ro
       # read positions; without them a recreated container re-ships every log file
       - alloy:/var/lib/alloy/data
     command:

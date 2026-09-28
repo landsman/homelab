@@ -26,27 +26,8 @@ loki.source.docker "containers" {
   forward_to    = [loki.write.local.receiver]
 }
 
-// Host logs from journald: kernel, systemd units, disk and USB errors
-loki.relabel "journal" {
-  forward_to = []
-
-  rule {
-    source_labels = ["__journal__systemd_unit"]
-    target_label  = "unit"
-  }
-
-  rule {
-    source_labels = ["__journal_priority_keyword"]
-    target_label  = "level"
-  }
-}
-
-loki.source.journal "host" {
-  max_age       = "12h"
-  labels        = {job = "journal"}
-  relabel_rules = loki.relabel.journal.rules
-  forward_to    = [loki.write.local.receiver]
-}
+// The host journal is not read here: telemetry/host/journal.sh ships it from
+// the host, so no container needs access to it.
 
 loki.write "local" {
   endpoint {

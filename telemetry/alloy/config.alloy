@@ -1,6 +1,6 @@
 // Container logs, labelled by container and compose project
 discovery.docker "containers" {
-  host = "unix:///var/run/docker.sock"
+  host = "tcp://socket-proxy:2375"
 }
 
 discovery.relabel "containers" {
@@ -19,7 +19,7 @@ discovery.relabel "containers" {
 }
 
 loki.source.docker "containers" {
-  host          = "unix:///var/run/docker.sock"
+  host          = "tcp://socket-proxy:2375"
   targets       = discovery.docker.containers.targets
   labels        = {job = "docker"}
   relabel_rules = discovery.relabel.containers.rules

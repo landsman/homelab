@@ -7,7 +7,7 @@ Hardware metrics, container metrics and logs for the homelab, in one Grafana. Th
 - **Blackbox Exporter** checks that the other services on the Pi answer, by the ports in [`.docs/PORTS.md`](../.docs/PORTS.md)
 - **Prometheus** stores metrics for 30 days, capped at 10 GB
 - **Loki** stores logs for 14 days
-- **Alloy** ships every container's logs into Loki; a second Alloy on the Pi itself ships the host journal (kernel, systemd, disk errors), so no container reads it
+- **Alloy** ships every container's logs into Loki; a second Alloy on the Pi itself ships the host journal (kernel, systemd, disk errors) without sudo and SSH lines
 - **Grafana** opens on a Homelab overview, with both data sources and the dashboards in place
 
 ## Ports
@@ -17,7 +17,16 @@ Hardware metrics, container metrics and logs for the homelab, in one Grafana. Th
 - `3215` — Loki, `127.0.0.1` only; OTLP logs at `/otlp/v1/logs`
 - `9100` — Node Exporter on every host, on its Tailscale address only
 
-Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN: the bind address keeps them off it, whatever the firewall says. Telegraf and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
+Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN: the bind address keeps them off it, whatever the firewall says. Telegraf, Blackbox Exporter and the socket proxy are not published at all; Prometheus scrapes them over the compose network.
+
+## Security
+
+The Pi runs Docker rootless, so every container, whatever it runs as inside, is the `containers` user on the host. The stack keeps what is sensitive off that side, and what is on it from reaching further:
+
+- **Only the socket proxy holds the Docker socket.** Holding it is being the Docker user — `:ro` on a socket restricts nothing — so Alloy and Telegraf ask [socket-proxy](https://github.com/wollomatic/socket-proxy) instead, on an internal network of their own. It answers only reads: list, inspect, logs and stats of containers, and the version handshake. Creating or exec-ing into a container, and reading files out of one (`archive`, `export`), are refused. Inspect does return other containers' environment, so keep secrets out of env where an app allows a file.
+- **The host journal** is shipped from the host, without auth and authpriv (above). The host's `cloudflared` and other services never hand anything to a container.
+- **Every container** runs without capabilities, with `no-new-privileges` and a read-only root filesystem, and all but the proxy as an unprivileged user.
+- **Secrets**: `.env` is owner-only. Grafana's admin password is read only when its database is created; change it in the UI after the first login, and the value in `.env` — which inspect can show — is no longer the password.
 
 ## Firewall
 
@@ -64,7 +73,7 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 Then on the Pi, as the Docker user (`containers`), from a login shell so `$XDG_RUNTIME_DIR` points at the rootless socket:
 
 ```bash
-cp .env.example .env   # set GF_SECURITY_ADMIN_PASSWORD, compose refuses to start without it
+install -m 600 .env.example .env   # set the admin user and password; owner-only, it holds the password
 make up
 ```
 
@@ -90,7 +99,7 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 
 [`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. Safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
 
-[`host/journal.sh`](host/journal.sh) ships the Pi's journal. The journal holds sudo commands, SSH logins and whatever host services log, so it stays out of the containers: Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group and pushes to Loki on `127.0.0.1:3215`. A compromised container, or the Docker user, gains no access to it. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds.
+[`host/journal.sh`](host/journal.sh) ships the Pi's journal. Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group, so no container ever gets the journal files, and pushes to Loki on `127.0.0.1:3215`. Loki is on the rootless side like every container, so it drops the `auth` and `authpriv` facilities first — sudo command lines (with any `VAR=secret` typed on them), SSH logins, PAM sessions. Those stay in `journalctl` on the host; kernel, systemd, disk and USB errors go through. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds.
 
 ## What is where in Grafana
 
@@ -133,17 +142,8 @@ Two things watch uptime, for different questions:
 ## Adding an application
 
 - **Logs** — nothing to do. Alloy picks up every container on the Pi, labelled `container` and `compose_project`.
-- **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml`, with the app's compose service joined to the `telemetry` network (below) or at `nas:<host port>` over the tailnet.
-- **OpenTelemetry** — join the app to the `telemetry` network and push to `http://prometheus:9090/api/v1/otlp` for metrics and `http://loki:3100/otlp` for logs:
-
-  ```yaml
-  services:
-    app:
-      networks: [default, telemetry]
-  networks:
-    telemetry:
-      external: true
-  ```
+- **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml` with the target at `nas:<host port>` over the tailnet.
+- **OpenTelemetry** — not yet. Do not join an app to the `telemetry` network to reach Prometheus and Loki: neither has authentication, so the app could read every log and forge metrics. Pushing needs a write-only path first, such as an OTLP receiver in Alloy on a network of its own.
 
 - **Uptime** — add its URL to the `blackbox` job.
 

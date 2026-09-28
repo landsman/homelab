@@ -10,6 +10,66 @@ Hardware metrics, container metrics and logs for the homelab, in one Grafana. Th
 - **Alloy** ships every container's logs into Loki; a second Alloy on the Pi itself ships the host journal (kernel, systemd, disk errors) without sudo and SSH lines
 - **Grafana** opens on a Homelab overview, with both data sources and the dashboards in place
 
+## How it fits together
+
+```mermaid
+flowchart TB
+  subgraph clients["Who looks"]
+    viewer(["You, away"]) --> access{{"Cloudflare Access<br/>your login AND home IP"}}
+    you(["You, at home<br/>or on Tailscale"])
+  end
+
+  subgraph host["nas — host, root side: touches what is sensitive"]
+    tunnel["cloudflared<br/>main tunnel"]
+    ufw[["ufw<br/>incoming dropped unless allowed"]]
+    journal[("systemd journal<br/>sudo · SSH · kernel")] --> hostalloy["Alloy on the host<br/>drops auth + authpriv"]
+    nodex["node-exporter :9100<br/>Tailscale address only"]
+    sock[/"Docker socket<br/>= being the containers user"/]
+  end
+
+  subgraph rootless["nas — rootless Docker, user containers: assumed breakable, holds nothing worth stealing"]
+    subgraph tnet["network telemetry"]
+      grafana["Grafana :3211<br/>login required"]
+      prom["Prometheus<br/>127.0.0.1 only"]
+      loki["Loki<br/>127.0.0.1 only"]
+      blackbox["Blackbox"]
+      alloy["Alloy<br/>container logs"]
+      telegraf["Telegraf<br/>container stats"]
+    end
+    subgraph dnet["network docker-api, internal"]
+      proxy["socket-proxy<br/>GET list · inspect · logs · stats<br/>no create · exec · archive"]
+    end
+  end
+
+  others["gus · mike · walter · jesse<br/>node-exporter :9100, Tailscale only"]
+
+  access --> tunnel --> grafana
+  you --> ufw --> grafana
+  grafana --> prom & loki
+  prom --> telegraf & blackbox
+  prom -- "tailnet" --> nodex & others
+  blackbox -- "probe nas:port" --> ufw
+  alloy --> loki
+  alloy & telegraf --> proxy --> sock
+  hostalloy -- "no sudo, SSH, PAM" --> loki
+
+  classDef guard fill:#fff4e0,stroke:#d98a00,color:#5a3a00
+  classDef secret fill:#fde8e8,stroke:#c62828,color:#5b0b0b
+  class access,ufw,proxy guard
+  class journal,sock secret
+  style host fill:#eaf2ff,stroke:#2f6fdb,color:#0b2a5b
+  style rootless fill:#f6f6f6,stroke:#777,stroke-dasharray:5 4,color:#333
+  style clients fill:#ffffff,stroke:#bbb,color:#333
+  style tnet fill:#ffffff,stroke:#999,color:#333
+  style dnet fill:#ffffff,stroke:#999,color:#333
+```
+
+- **Blue box** — the host, outside Docker: it touches what is sensitive and hands on only what is safe.
+- **Grey dashed box** — rootless Docker: assumed breakable, so nothing worth stealing is put in it.
+- **Orange** — a gate: Cloudflare Access, the firewall, the socket proxy.
+- **Red** — what a container must never get: the journal (only its non-auth lines reach Loki) and the Docker socket (only the proxy holds it, answering reads).
+- Everything in the rootless box is the `containers` user on the host, so the design assumes any of it can be compromised and keeps anything worth stealing out of it. Prometheus and Loki have no authentication, so they bind loopback only; the only way in from outside is Grafana, behind its login, and from the internet also behind Cloudflare Access.
+
 ## Ports
 
 - `3211` — Grafana

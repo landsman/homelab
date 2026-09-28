@@ -19,6 +19,14 @@ Hardware metrics, container metrics and logs for the Raspberry Pi 5, in one Graf
 
 Prometheus and Loki have no authentication, so they are published only on the Docker bridge (`172.17.0.1`, the default `docker0` address): containers on the Pi reach them at `host.docker.internal`, the LAN does not. Grafana is the way in from elsewhere. Docker-published ports skip `ufw`, which is why the bind address does this rather than the firewall. cAdvisor and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
 
+## Reaching Grafana
+
+- **At home** — `http://<pi>:3211`.
+- **Away, on Tailscale** — the same address, over the tailnet.
+- **Public hostname** — Grafana can be published on the Pi's Cloudflare Tunnel, behind Cloudflare Access that lets in only the owner's Cloudflare login coming from the home address, which away from home means through a Tailscale exit node. The Access rules are Terraform in [`pollos/infra/access.tf`](../pollos/infra/access.tf); its README has the order to set it up in, and the tunnel route is added only after Access exists. Set `GF_SERVER_ROOT_URL` in `.env` to that address.
+
+Prometheus and Loki are not reachable from outside the Pi; their data is in Grafana. For the raw API, `ssh -L 3210:172.17.0.1:3210 <pi>`.
+
 ## First-time setup
 
 ```bash

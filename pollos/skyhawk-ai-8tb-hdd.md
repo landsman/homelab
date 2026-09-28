@@ -62,6 +62,9 @@ label, not `sdX`.
 | `make selftest` | Start the 12 h surface read, plus a keep-alive (see below) |
 | `make selftest-status` | Progress of a running test, results of past ones |
 | `make selftest-abort` | Stop a running test and the keep-alive |
+| `make scan` | Unmount, then read every block with `badblocks` and list the bad ones, about 11 h |
+| `make scan-status` | Scan progress, error counts, bad blocks found so far |
+| `make scan-abort` | Stop the scan |
 | `make format-status`, `make format-progress` | The background ext4 initialisation |
 
 The underlying commands:
@@ -77,6 +80,26 @@ sudo smartctl -t long -d sat /dev/sdb  # full surface read, about 12 h, non-dest
 sent; most likely the ASMedia bridge put the disk to sleep. With a read a
 minute the next one ran until it hit a real error. `make selftest` therefore starts a transient systemd
 unit, `skyhawk-keepalive`, that reads one sector a minute for up to 13 hours.
+
+**Two surface tests, two questions.** Both read every sector and change nothing.
+
+| | SMART extended self-test (`make selftest`) | `badblocks -sv` (`make scan`) |
+|---|---|---|
+| Who reads | the drive's firmware | gus, block by block over USB |
+| At a bad sector | stops and logs that one LBA, by design of the ATA spec | logs it and carries on |
+| Answers | is the disk healthy? | how many bad blocks, and where? |
+| Counts for a warranty claim | yes, SeaTools runs the same test | as supporting evidence |
+
+Run the self-test first; if it fails, run the scan to see how far the damage
+goes. Neither can be made faster: both are bound by how fast the platters read,
+and the scan already runs at the disk's 268 MB/s. A quicker test only checks a
+sample (the SMART short test, SeaTools *Short*) and can miss a bad sector. Each
+bad block costs the scan about 20 seconds of audible retries.
+
+The scan writes to `~/skyhawk-badblocks.txt`, one 4 KiB block number per line.
+Multiply by 8 for the LBA the SMART log uses, since the disk reports 512-byte
+logical sectors on 4 KiB physical ones. That is also why 8 pending sectors are
+one physical sector.
 
 **Reading the numbers.** The huge raw values on attributes 1, 7 and 188 are
 Seagate packing several counters into one number, not errors. Watch 5, 197 and
@@ -127,8 +150,11 @@ after less than 10 % of the surface, at LBA 206 650 288, about 105 GB in.
 | FARM reallocation candidates | 0 | 8 |
 
 A direct read of that LBA from gus fails too (`critical target error`), after
-18 seconds of retries that are loud enough to hear. The test stops at the first
-failure, so 8 is a floor, not a count.
+18 seconds of retries that are loud enough to hear. The 8 logical sectors
+are one 4 KiB physical sector, and the LBA sits on its boundary (206 650 288 =
+25 831 286 × 8). The test stops at the first failure, so that is a floor, not a
+count: a full `badblocks` scan (`make scan`) was started on 2026-09-28 to map
+the rest.
 
 It had been making a loud scraping sound on reads since the format; that sound
 is the drive retrying. New bad sectors on a disk with 1 340 hours, together

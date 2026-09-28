@@ -3,7 +3,7 @@ set -eu
 
 #
 # PURPOSE: connect this box to its health tunnel so it serves a public 200
-# at  https://<host>.health.pollos.cz  over an outbound-only Cloudflare Tunnel
+# at  https://<host>-health.pollos.cz  over an outbound-only Cloudflare Tunnel
 # (no ports exposed). BetterStack polls that URL and alerts when it stops
 # returning 200 — i.e. when the box, its network, or the tunnel goes down.
 #

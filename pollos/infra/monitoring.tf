@@ -11,7 +11,7 @@
 # connector as a separate unit via setup/006-health-sidecar.sh.
 #
 # Flow:  box --(outbound tunnel)--> Cloudflare --(serves 200)--> BetterStack poll
-# Endpoint per node:  https://<node>.health.pollos.cz
+# Endpoint per node:  https://<node>-health.pollos.cz
 
 locals {
   monitor_nodes = toset(["gus", "mike", "walter", "jesse", "nas"])

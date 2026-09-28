@@ -16,6 +16,7 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
 | 8080 | [dashboard](../dashboard)             | nginx (also tailscale serve → 443 at /dashboard)    |
 | 9925 | [mealie](../mealie)                   |                                            |
+| 20299 | cloudflared-health ([pollos/setup/006-health-sidecar.sh](../pollos/setup/006-health-sidecar.sh)) | health connector metrics, 127.0.0.1 only; not a container |
 
 ## Adding a service
 

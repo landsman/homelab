@@ -90,8 +90,15 @@ esac
 
 [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
 
-# the binary the host already runs; this script never installs one
-BIN="$(command -v cloudflared || true)"
+# the binary the host already runs; this script never installs one. The
+# package's /usr/bin/cloudflared first: it is the one cloudflared-update.timer
+# keeps current, while a copy elsewhere on PATH (/usr/local/bin, which sudo
+# searches first) silently ages.
+if [ -x /usr/bin/cloudflared ]; then
+  BIN=/usr/bin/cloudflared
+else
+  BIN="$(command -v cloudflared || true)"
+fi
 [ -n "$BIN" ] || { echo "cloudflared not found — install it first; on a pollos box use 003-monitoring.sh instead"; exit 1; }
 VERSION="$("$BIN" --version | awk '{print $3}')"
 version_ok "$VERSION" || { echo "cloudflared ${VERSION} at ${BIN} is older than ${MIN_VERSION} (no --token-file) — update it first"; exit 1; }
@@ -115,6 +122,9 @@ cat > "${CONF_DIR}/config.yml" <<'EOF'
 # Terraform (pollos/infra/monitoring.tf). This file exists so cloudflared does
 # not fall back to the main tunnel's /etc/cloudflared/config.yml.
 no-autoupdate: true
+# a fixed port outside 20241-20245: without one, whichever connector starts
+# first takes 20241 and the main tunnel's metrics move to another port
+metrics: 127.0.0.1:20299
 EOF
 chmod 0644 "${CONF_DIR}/config.yml"
 
@@ -122,7 +132,7 @@ cat > "$UNIT_FILE" <<EOF
 # Written by pollos/setup/006-health-sidecar.sh — re-run it rather than editing.
 [Unit]
 Description=cloudflared health tunnel connector (separate from cloudflared.service)
-After=network-online.target
+After=network-online.target cloudflared.service
 Wants=network-online.target
 
 [Service]

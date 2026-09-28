@@ -150,7 +150,8 @@ touching the main unit, its config or its update timer. Script:
 ```sh
 make tunnel-tokens    # take the "nas" entry
 
-# on nas, as root (HEALTH_NODE names the tunnel whatever the hostname is):
+# on nas, as root. The token decides which tunnel it connects; HEALTH_NODE only
+# names it in the prompt and the printed check URL, when the hostname differs:
 wget https://pollos.cz/health-sidecar.sh
 sudo TUNNEL_TOKEN=eyJhIjoi... HEALTH_NODE=nas sh health-sidecar.sh
 

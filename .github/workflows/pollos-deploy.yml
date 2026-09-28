@@ -52,6 +52,9 @@ jobs:
       TF_VAR_betteruptime_api_token: ${{ secrets.POLLOS_BETTERUPTIME_API_TOKEN }}
       TF_VAR_tailscale_oauth_client_id: ${{ secrets.POLLOS_TAILSCALE_OAUTH_CLIENT_ID }}
       TF_VAR_tailscale_oauth_client_secret: ${{ secrets.POLLOS_TAILSCALE_OAUTH_CLIENT_SECRET }}
+      TF_VAR_access_email: ${{ secrets.POLLOS_ACCESS_EMAIL }}
+      TF_VAR_home_ip_ranges: ${{ secrets.POLLOS_HOME_IP_RANGES }}
+      TF_VAR_grafana_hostname: ${{ vars.POLLOS_GRAFANA_HOSTNAME }}
       AWS_ACCESS_KEY_ID: ${{ secrets.POLLOS_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.POLLOS_CZ_R2_SECRET_ACCESS_KEY }}
     steps:

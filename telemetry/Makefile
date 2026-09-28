@@ -6,30 +6,18 @@ help: ## show this help
 		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
 		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-##@ Setup
-.PHONY: setup dashboards
-setup: dashboards ## create data directories owned by the users the images run as
-	mkdir -p data/prometheus data/grafana data/loki data/alloy
-	sudo chown -R 65534:65534 data/prometheus  # nobody, in prom/prometheus
-	sudo chown -R 472:472 data/grafana
-	sudo chown -R 10001:10001 data/loki
-
-# grafana.com /api/dashboards/<id>/revisions/<revision>; bump the revision to update one
-dashboards: ## download the pinned grafana dashboards
-	mkdir -p grafana/dashboards
-	curl -fsSL -o grafana/dashboards/node-exporter-full.json https://grafana.com/api/dashboards/1860/revisions/45/download
-	curl -fsSL -o grafana/dashboards/cadvisor.json https://grafana.com/api/dashboards/19792/revisions/6/download
-	curl -fsSL -o grafana/dashboards/blackbox.json https://grafana.com/api/dashboards/16124/revisions/6/download
+# grafana.com /api/dashboards/<id>/revisions/<revision>; bump the revision to update it
+NODE_EXPORTER_FULL := grafana/dashboards/node-exporter-full.json
 
 ##@ Run
 .PHONY: up down restart logs ps
-up: ## start all services
+up: $(NODE_EXPORTER_FULL) ## start all services
 	docker compose up -d
 
 down: ## stop all services
 	docker compose down
 
-restart: ## restart all services
+restart: ## restart all services, keeping their environment
 	docker compose restart
 
 logs: ## follow logs from all services
@@ -38,9 +26,19 @@ logs: ## follow logs from all services
 ps: ## show running containers
 	docker compose ps
 
+$(NODE_EXPORTER_FULL):
+	curl -fsSL -o $@ https://grafana.com/api/dashboards/1860/revisions/45/download
+
+##@ Checks
+.PHONY: lint test
+lint: ## shellcheck the host scripts
+	shellcheck host/*.sh
+
+test: ## run the host scripts' test (on Linux: it uses GNU sed)
+	sh host/test.sh
+
 ##@ Data
 .PHONY: destroy
-destroy: ## stop all services, remove images, and delete all data (needs CONFIRM=yes)
+destroy: ## stop all services, remove images, and delete all metrics and logs (needs CONFIRM=yes)
 	@test "$(CONFIRM)" = yes || { echo "deletes every metric and log; run make destroy CONFIRM=yes"; exit 1; }
 	docker compose down --rmi all --volumes --remove-orphans
-	sudo rm -rf data/

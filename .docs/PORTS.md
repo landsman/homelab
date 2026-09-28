@@ -17,10 +17,9 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 9925 | [mealie](../mealie)                   |                                            |
 | 8001 | [readeck](../readeck)                 |                                            |
-| 3210 | [telemetry](../telemetry) (prometheus) | Docker bridge only; OTLP at /api/v1/otlp  |
+| 3210 | [telemetry](../telemetry) (prometheus) | 127.0.0.1 only; OTLP at /api/v1/otlp      |
 | 3211 | [telemetry](../telemetry) (grafana)   | dashboards                                 |
-| 3212 | [telemetry](../telemetry) (node-exporter) |                                        |
-| 3215 | [telemetry](../telemetry) (loki)      | Docker bridge only; OTLP logs at /otlp     |
+| 3215 | [telemetry](../telemetry) (loki)      | 127.0.0.1 only; OTLP logs at /otlp         |
 | 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
 | 8003 | [yt-archive](../yt-archive)           | MeTube web UI (also tailscale serve → 443) |
 

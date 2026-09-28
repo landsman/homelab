@@ -30,6 +30,7 @@ set -eu
 
 KEY=/etc/apt/keyrings/grafana.asc
 LIST=/etc/apt/sources.list.d/grafana.list
+PIN=/etc/apt/preferences.d/grafana
 CONF=/etc/alloy/journal.alloy
 ENVF=/etc/alloy/journal.env
 DROPIN=/etc/systemd/system/alloy.service.d/telemetry.conf
@@ -41,12 +42,24 @@ install() {
   curl -fsSL -o "$KEY" https://apt.grafana.com/gpg-full.key
   chmod 644 "$KEY"
   echo "deb [signed-by=$KEY] https://apt.grafana.com stable main" > "$LIST"
+  # the repository may supply alloy and nothing else, whatever it publishes
+  cat > "$PIN" <<'EOF'
+Package: *
+Pin: origin apt.grafana.com
+Pin-Priority: -1
+
+Package: alloy
+Pin: origin apt.grafana.com
+Pin-Priority: 500
+EOF
   apt-get update
   apt-get install -y alloy
 
-  # both groups, or loki.source.journal starts without error and reads nothing
-  # (the loki.source.journal reference says so)
-  usermod -aG adm,systemd-journal alloy
+  # without it loki.source.journal starts without error and reads nothing.
+  # The package's postinst adds alloy to adm as well, on every install and
+  # upgrade, so removing it would not last. adm reads /var/log, which stays on
+  # the host: this config ships the journal and nothing else.
+  usermod -aG systemd-journal alloy
 
   cat > "$CONF" <<'EOF'
 // Written by telemetry/host/journal.sh — re-run it rather than editing.
@@ -117,7 +130,7 @@ status() {
 uninstall() {
   systemctl disable --now alloy 2>/dev/null || true
   apt-get purge -y alloy
-  rm -f "$DROPIN" "$ENVF" "$CONF" "$LIST" "$KEY"
+  rm -f "$DROPIN" "$ENVF" "$CONF" "$LIST" "$PIN" "$KEY"
   systemctl daemon-reload
   echo "removed"
 }

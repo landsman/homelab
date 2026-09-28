@@ -85,7 +85,7 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 - **SMART and NVMe wear** come from the collectors package's own timers, every 15 minutes, into `/var/lib/prometheus/node-exporter/`.
 - **More flags** go in `ARGS` in `/etc/default/prometheus-node-exporter`, which the drop-in still passes on.
 
-[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, and rootless Docker gets only CPU and pids delegated, so without it no container reports memory. It also gives the Docker user a read ACL on the journal: a group would not reach the container, because runc drops supplementary groups. Both are safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
+[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. And it gives the Docker user a read ACL on the journal: a group would not reach the container, because runc drops supplementary groups. Both are safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
 
 ## What is where in Grafana
 

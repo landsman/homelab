@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. And authelia, so that one bot bumps both Tailscale sidecars in one PR and they never drift apart. ignoreDeps keeps the docker-compose manager from looking up the locally built forgejo-mcp image on a registry.",
+  "description": "forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. And authelia, so that one bot bumps both Tailscale sidecars in one PR and they never drift apart. ignoreDeps keeps the docker-compose manager from looking up the locally built forgejo-mcp image on a registry. And the Grafana plugins pinned in telemetry/compose.yml; Dependabot keeps that file's images.",
   "commitMessageAction": "bump",
   "extends": [
     ":disableDependencyDashboard"
@@ -22,6 +22,17 @@
       "datasourceTemplate": "forgejo-tags",
       "registryUrlTemplate": "https://git.b4mad.industries",
       "depNameTemplate": "agentic-forges/forgejo-mcp"
+    },
+    {
+      "customType": "regex",
+      "description": "grafana-*-app@x.y.z in GF_PLUGINS_PREINSTALL",
+      "managerFilePatterns": [
+        "/^telemetry/compose\\.yml$/"
+      ],
+      "matchStrings": [
+        "(?<depName>grafana-[a-z0-9-]+-app)@(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "custom.grafana-plugins"
     }
   ],
   "packageRules": [
@@ -38,13 +49,43 @@
       ],
       "minimumReleaseAge": "7 days",
       "commitMessagePrefix": "deps(authelia):"
+    },
+    {
+      "matchFileNames": [
+        "telemetry/**"
+      ],
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "enabled": false
+    },
+    {
+      "matchFileNames": [
+        "telemetry/**"
+      ],
+      "minimumReleaseAge": "7 days",
+      "commitMessagePrefix": "deps(telemetry):"
     }
   ],
   "includePaths": [
     "forgejo-mcp/**",
-    "authelia/**"
+    "authelia/**",
+    "telemetry/compose.yml"
   ],
   "ignoreDeps": [
     "forgejo-mcp"
-  ]
+  ],
+  "customDatasources": {
+    "grafana-plugins": {
+      "defaultRegistryUrlTemplate": "https://grafana.com/api/plugins/{{packageName}}/versions",
+      "transformTemplates": [
+        "{\"releases\": items.{\"version\": version, \"releaseTimestamp\": createdAt}, \"sourceUrl\": \"https://grafana.com/grafana/plugins/\"}"
+      ]
+    }
+  },
+  "internalChecksFilter": "strict",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": null
+  }
 }

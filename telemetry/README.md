@@ -1,23 +1,23 @@
 # Telemetry — Prometheus, Loki, Grafana
 
-Hardware metrics, container metrics and logs for the Raspberry Pi 5, in one Grafana.
+Hardware metrics, container metrics and logs for the homelab, in one Grafana. The stack runs on the Pi (`nas`) under rootless Docker, as [docker/](../docker/README.md) sets it up; every host reports its own hardware.
 
-- **Prometheus** stores metrics for 30 days, capped at 10 GB
-- **Node Exporter** reads the Pi itself: CPU, RAM, disk space, temperatures, network
-- **cAdvisor** reads per-container CPU, memory and network
+- **Node Exporter**, on each host rather than in Docker: CPU, RAM, disks, temperatures, fan, network, SMART and NVMe wear. [host/](host/) installs it.
+- **Telegraf** reads per-container CPU, memory and network from the Docker API
 - **Blackbox Exporter** checks that the other services on the Pi answer, by the ports in [`.docs/PORTS.md`](../.docs/PORTS.md)
+- **Prometheus** stores metrics for 30 days, capped at 10 GB
 - **Loki** stores logs for 14 days
 - **Alloy** ships every container's logs and the host journal (kernel, systemd, disk errors) into Loki
-- **Grafana** comes up with both data sources and the dashboards already in place
+- **Grafana** opens on a Homelab overview, with both data sources and the dashboards in place
 
 ## Ports
 
-- `3210` — Prometheus, also takes OTLP metrics at `/api/v1/otlp/v1/metrics`
 - `3211` — Grafana
-- `3212` — Node Exporter (`/metrics`), on the host network
-- `3215` — Loki, also takes OTLP logs at `/otlp/v1/logs`
+- `3210` — Prometheus, `127.0.0.1` only; OTLP metrics at `/api/v1/otlp/v1/metrics`
+- `3215` — Loki, `127.0.0.1` only; OTLP logs at `/otlp/v1/logs`
+- `9100` — Node Exporter on every host, on its Tailscale address only
 
-Prometheus and Loki have no authentication, so they are published only on the Docker bridge (`172.17.0.1`, the default `docker0` address): containers on the Pi reach them at `host.docker.internal`, the LAN does not. Grafana is the way in from elsewhere. Docker-published ports skip `ufw`, which is why the bind address does this rather than the firewall. cAdvisor and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
+Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN. Docker-published ports skip `ufw`, so the bind address does that rather than the firewall. Telegraf and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
 
 ## Reaching Grafana
 
@@ -25,48 +25,86 @@ Prometheus and Loki have no authentication, so they are published only on the Do
 - **Away, on Tailscale** — the same address, over the tailnet.
 - **Public hostname** — on the Pi's Cloudflare Tunnel, behind Cloudflare Access. See [Public hostname](#public-hostname).
 
-Prometheus and Loki are not reachable from outside the Pi; their data is in Grafana. For the raw API, `ssh -L 3210:172.17.0.1:3210 <pi>`.
+Prometheus and Loki are not reachable from outside the Pi; their data is in Grafana. For the raw API, `ssh -L 3210:127.0.0.1:3210 containers@<pi>`.
 
 ## First-time setup
 
+Once per host, as an admin with sudo — the Docker user has none:
+
+```bash
+# on the Pi only: memory accounting and the journal for rootless containers, then reboot
+sudo sh telemetry/host/docker-host.sh && sudo reboot
+
+# on every host, the Pi and each pollos box
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh
+```
+
+Then on the Pi, as the Docker user (`containers`), from a login shell so `$XDG_RUNTIME_DIR` points at the rootless socket:
+
 ```bash
 cp .env.example .env   # set GF_SECURITY_ADMIN_PASSWORD, compose refuses to start without it
-make setup             # data dirs owned by the users the images run as, plus the dashboards
 make up
 ```
+
+Clone the repo onto the RAID, not the SD card. The data itself is in named volumes, which live under Docker's data-root on the RAID wherever the checkout is.
 
 `make` with no target lists the rest.
 
 The admin password is read only when Grafana creates its database. Changing it in `.env` later does nothing; use `docker exec grafana grafana cli admin reset-admin-password <new>`.
 
-If the container memory panels stay empty, the kernel has the memory cgroup off: append `cgroup_enable=memory` to the single line in `/boot/firmware/cmdline.txt` and reboot.
+## Host metrics
+
+[`host/node-exporter.sh`](host/node-exporter.sh) installs Debian's `prometheus-node-exporter` and its collectors, bound to the host's Tailscale address on port 9100. Prometheus scrapes every host by MagicDNS name (`job="node"` in `prometheus/prometheus.yml`); a host is added there and nowhere else.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh -s status     # units, and whether metrics are served
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh -s uninstall
+```
+
+- **Updates** come with `apt upgrade`. Package files are never edited: the listen address is a socket unit, the flags a drop-in, so an upgrade does not stop to ask about them.
+- **Tailscale address changed** — re-run the install; it rebinds.
+- **SMART and NVMe wear** come from the collectors package's own timers, every 15 minutes, into `/var/lib/prometheus/node-exporter/`.
+- **More flags** go in `ARGS` in `/etc/default/prometheus-node-exporter`, which the drop-in still passes on.
+
+[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, and rootless Docker gets only CPU and pids delegated, so without it no container reports memory. It also gives the Docker user a read ACL on the journal: a group would not reach the container, because runc drops supplementary groups. Both are safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
 
 ## What is where in Grafana
 
-- **Dashboards → Homelab → Node Exporter Full** — the Pi's hardware
-- **Dashboards → Homelab → cadvisor dashboard** — containers, filterable by compose project
-- **Dashboards → Homelab → Blackbox Exporter** — whether each service answers, and how fast
+- **Home → Homelab** — anything wrong right now, temperatures, disks, memory, containers, error logs
+- **Dashboards → Homelab → Node Exporter Full** — every metric of one host
 - **Drilldown → Logs** — every container and the journal, by `service_name`, with no query to write
 - **Drilldown → Metrics** — everything Prometheus has, including whatever an app pushes
 
-Dashboards come from grafana.com at a pinned revision (see `dashboards` in the `Makefile`) and are not committed. Edits made in the UI are lost on restart; export the JSON into `grafana/dashboards/` and commit it to keep one.
+The Homelab dashboard is committed in `grafana/dashboards/`. Node Exporter Full comes from grafana.com at a pinned revision, downloaded by `make up` the first time. Edits made in the UI are lost on restart; export the JSON over the file and commit it to keep them.
 
 ## Adding an application
 
 - **Logs** — nothing to do. Alloy picks up every container on the Pi, labelled `container` and `compose_project`.
-- **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml`. A container in another compose project is reached at `host.docker.internal:<host port>`.
-- **OpenTelemetry** — from a container on the Pi, point the app's exporter at `http://host.docker.internal:3210/api/v1/otlp` for metrics and `http://host.docker.internal:3215/otlp` for logs, with `host.docker.internal:host-gateway` in its `extra_hosts`. Other machines on the LAN cannot reach either; that needs authentication in front first.
+- **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml`, with the app's compose service joined to the `telemetry` network (below) or at `nas:<host port>` over the tailnet.
+- **OpenTelemetry** — join the app to the `telemetry` network and push to `http://prometheus:9090/api/v1/otlp` for metrics and `http://loki:3100/otlp` for logs:
+
+  ```yaml
+  services:
+    app:
+      networks: [default, telemetry]
+  networks:
+    telemetry:
+      external: true
+  ```
+
 - **Uptime** — add its URL to the `blackbox` job.
 
-## Backups
+## Data
 
-None, on purpose. Metrics keep 30 days and logs 14, and both fill up again on their own; losing them loses history, not anything to restore. The dashboards come from `make dashboards` and the config is in git.
+Metrics, logs, Grafana's database and Alloy's read positions are named volumes (`telemetry_prometheus`, `telemetry_loki`, `telemetry_grafana`, `telemetry_alloy`). No backups, on purpose: metrics keep 30 days and logs 14, and both fill up again on their own. `make destroy CONFIRM=yes` deletes all of it.
 
 ## When something is missing
 
-- **No logs arrive** — Loki refuses writes once the disk under `data/loki` is over 90 % full. The disk panel on Node Exporter Full shows it.
-- **No journal logs** — Alloy reads `/var/log/journal` and `/run/log/journal`. Raspberry Pi OS may keep the journal in memory only; `systemd-analyze cat-config systemd/journald.conf | grep Storage` says which. Docker creates an empty `/var/log/journal` if it is missing, and with `Storage=auto` that turns on the on-disk journal from the next boot.
-- **A service shows down that is running** — the probes and the Node Exporter scrape reach the host through `host.docker.internal`. A host firewall such as `ufw` has to allow the Docker bridge in.
+- **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name.
+- **Container memory is zero** — `docker-host.sh` has not run on the Pi, or it has not been rebooted since.
+- **No journal logs** — the ACL from `docker-host.sh` is missing: `getfacl /var/log/journal`.
+- **No logs at all** — Loki refuses writes once its disk is over 90 % full. The Homelab dashboard's disk panel shows it.
+- **A service shows down that is running** — the probes go to `nas:<port>` over the tailnet, so the service has to publish on all interfaces, not `127.0.0.1`.
 
 ## Public hostname
 

@@ -37,7 +37,7 @@
         "enable": true,
         "iconColor": "orange",
         "name": "Reboots",
-        "expr": "changes(node_boot_time_seconds[5m]) > 0",
+        "expr": "(node_boot_time_seconds - node_boot_time_seconds offset 5m) > 60",
         "step": "60s",
         "titleFormat": "{{instance}} rebooted",
         "useValueForTime": false
@@ -288,7 +288,7 @@
       },
       "targets": [
         {
-          "expr": "count(node_filesystem_readonly{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} == 1) or vector(0)",
+          "expr": "count(node_filesystem_readonly{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"} == 1) or vector(0)",
           "legendFormat": "",
           "refId": "A",
           "datasource": {
@@ -559,7 +559,7 @@
       },
       "targets": [
         {
-          "expr": "max(100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"}))",
+          "expr": "max(100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"}))",
           "legendFormat": "",
           "refId": "A",
           "datasource": {

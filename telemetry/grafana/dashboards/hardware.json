@@ -37,7 +37,7 @@
         "enable": true,
         "iconColor": "orange",
         "name": "Reboots",
-        "expr": "changes(node_boot_time_seconds[5m]) > 0",
+        "expr": "(node_boot_time_seconds - node_boot_time_seconds offset 5m) > 60",
         "step": "60s",
         "titleFormat": "{{instance}} rebooted",
         "useValueForTime": false
@@ -147,7 +147,7 @@
           }
         },
         {
-          "expr": "max by (instance) (100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"}))",
+          "expr": "max by (instance) (100 * (1 - node_filesystem_avail_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"}))",
           "legendFormat": "",
           "instant": true,
           "range": false,
@@ -159,7 +159,7 @@
           }
         },
         {
-          "expr": "sum by (instance) (node_filesystem_readonly{fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"})",
+          "expr": "sum by (instance) (node_filesystem_readonly{fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"})",
           "legendFormat": "",
           "instant": true,
           "range": false,
@@ -237,7 +237,7 @@
                 "id": "links",
                 "value": [
                   {
-                    "title": "Show ${__value.raw}",
+                    "title": "Only ${__value.raw}",
                     "url": "/d/hardware/hardware?var-host=${__value.raw}&${__url_time_range}"
                   }
                 ]
@@ -676,7 +676,7 @@
         "showHeader": true,
         "cellHeight": "sm"
       },
-      "description": "One row per host. Click a host for its row below. NVMe, updates and reboot come from timers that run every 15 minutes.",
+      "description": "One row per host. Click a host to show only its row below, then expand it. NVMe, updates and reboot come from timers that run every 15 minutes.",
       "transformations": [
         {
           "id": "merge",
@@ -910,7 +910,7 @@
           },
           "targets": [
             {
-              "expr": "100 * (1 - node_memory_SwapFree_bytes{instance=\"$host\"} / node_memory_SwapTotal_bytes{instance=\"$host\"})",
+              "expr": "max(100 * (1 - node_memory_SwapFree_bytes{instance=\"$host\"} / (node_memory_SwapTotal_bytes{instance=\"$host\"} > 0))) or vector(0)",
               "legendFormat": "",
               "refId": "A",
               "datasource": {
@@ -1036,7 +1036,7 @@
           },
           "targets": [
             {
-              "expr": "time() - max(node_textfile_mtime_seconds{instance=\"$host\"})",
+              "expr": "time() - min(node_textfile_mtime_seconds{instance=\"$host\"})",
               "legendFormat": "",
               "refId": "A",
               "datasource": {
@@ -1084,7 +1084,7 @@
             "textMode": "auto",
             "justifyMode": "center"
           },
-          "description": "Age of the NVMe, SMART and apt data. The timers run every 15 minutes."
+          "description": "Age of the stalest of the NVMe, SMART and apt files: one dead timer turns it orange. They run every 15 minutes."
         },
         {
           "id": 9,
@@ -1205,7 +1205,7 @@
           },
           "targets": [
             {
-              "expr": "100 * (1 - node_filesystem_avail_bytes{instance=\"$host\", fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"} / node_filesystem_size_bytes{instance=\"$host\", fstype!~\"tmpfs|ramfs|overlay|squashfs|vfat|fuse.*|nsfs\"})",
+              "expr": "100 * (1 - node_filesystem_avail_bytes{instance=\"$host\", fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"} / node_filesystem_size_bytes{instance=\"$host\", fstype!~\"tmpfs|ramfs|overlay|squashfs|fuse.*|nsfs\"})",
               "legendFormat": "{{mountpoint}}",
               "refId": "A",
               "datasource": {
@@ -1271,7 +1271,7 @@
           },
           "targets": [
             {
-              "expr": "rate(node_disk_read_bytes_total{instance=\"$host\", device!~\"loop.*|ram.*|zram.*\"}[5m])",
+              "expr": "rate(node_disk_read_bytes_total{instance=\"$host\", device!~\"loop.*|ram.*|zram.*|md.*|dm-.*|mmcblk[0-9]+p[0-9]+|nvme[0-9]+n[0-9]+p[0-9]+|sd[a-z]+[0-9]+\"}[5m])",
               "legendFormat": "{{device}} read",
               "refId": "A",
               "datasource": {
@@ -1280,7 +1280,7 @@
               }
             },
             {
-              "expr": "-rate(node_disk_written_bytes_total{instance=\"$host\", device!~\"loop.*|ram.*|zram.*\"}[5m])",
+              "expr": "-rate(node_disk_written_bytes_total{instance=\"$host\", device!~\"loop.*|ram.*|zram.*|md.*|dm-.*|mmcblk[0-9]+p[0-9]+|nvme[0-9]+n[0-9]+p[0-9]+|sd[a-z]+[0-9]+\"}[5m])",
               "legendFormat": "{{device}} write",
               "refId": "B",
               "datasource": {
@@ -1296,7 +1296,7 @@
             "overrides": []
           },
           "options": {},
-          "description": "Reads above the line, writes below. Steady writes to mmcblk0 wear the SD card."
+          "description": "Whole disks: reads above the line, writes below. Steady writes to mmcblk0 wear the SD card."
         },
         {
           "id": 13,
@@ -1390,7 +1390,7 @@
           },
           "targets": [
             {
-              "expr": "nvme_percentage_used_ratio{instance=\"$host\"} * 100",
+              "expr": "max by (device) (nvme_percentage_used_ratio{instance=\"$host\"}) * 100",
               "legendFormat": "",
               "instant": true,
               "range": false,
@@ -1402,7 +1402,7 @@
               }
             },
             {
-              "expr": "nvme_critical_warning_total{instance=\"$host\"}",
+              "expr": "max by (device) (nvme_critical_warning_total{instance=\"$host\"})",
               "legendFormat": "",
               "instant": true,
               "range": false,
@@ -1414,7 +1414,7 @@
               }
             },
             {
-              "expr": "nvme_media_errors_total{instance=\"$host\"}",
+              "expr": "max by (device) (nvme_media_errors_total{instance=\"$host\"})",
               "legendFormat": "",
               "instant": true,
               "range": false,
@@ -1426,7 +1426,7 @@
               }
             },
             {
-              "expr": "nvme_available_spare_ratio{instance=\"$host\"} * 100",
+              "expr": "max by (device) (nvme_available_spare_ratio{instance=\"$host\"}) * 100",
               "legendFormat": "",
               "instant": true,
               "range": false,
@@ -1438,7 +1438,7 @@
               }
             },
             {
-              "expr": "nvme_available_spare_threshold_ratio{instance=\"$host\"} * 100",
+              "expr": "max by (device) (nvme_available_spare_threshold_ratio{instance=\"$host\"}) * 100",
               "legendFormat": "",
               "instant": true,
               "range": false,

@@ -7,7 +7,7 @@ Hardware metrics, container metrics and logs for the homelab, in one Grafana. Th
 - **Blackbox Exporter** checks that the other services on the Pi answer, by the ports in [`.docs/PORTS.md`](../.docs/PORTS.md)
 - **Prometheus** stores metrics for 30 days, capped at 10 GB
 - **Loki** stores logs for 14 days
-- **Alloy** ships every container's logs and the host journal (kernel, systemd, disk errors) into Loki
+- **Alloy** ships every container's logs into Loki; a second Alloy on the Pi itself ships the host journal (kernel, systemd, disk errors), so no container reads it
 - **Grafana** opens on a Homelab overview, with both data sources and the dashboards in place
 
 ## Ports
@@ -51,8 +51,11 @@ Prometheus and Loki are not reachable from outside the Pi; their data is in Graf
 Once per host, as an admin with sudo — the Docker user has none:
 
 ```bash
-# on the Pi only: memory accounting and the journal for rootless containers, then reboot
+# on the Pi only: memory accounting for rootless containers, then reboot
 sudo sh telemetry/host/docker-host.sh && sudo reboot
+
+# on the Pi only: its journal into Loki, from the host
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/journal.sh | sudo sh
 
 # on every host, the Pi and each pollos box
 curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh
@@ -85,7 +88,9 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 - **SMART and NVMe wear** come from the collectors package's own timers, every 15 minutes, into `/var/lib/prometheus/node-exporter/`.
 - **More flags** go in `ARGS` in `/etc/default/prometheus-node-exporter`, which the drop-in still passes on.
 
-[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. And it gives the Docker user a read ACL on the journal: a group would not reach the container, because runc drops supplementary groups. All of it is safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
+[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. Safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
+
+[`host/journal.sh`](host/journal.sh) ships the Pi's journal. The journal holds sudo commands, SSH logins and whatever host services log, so it stays out of the containers: Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group and pushes to Loki on `127.0.0.1:3215`. A compromised container, or the Docker user, gains no access to it. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds.
 
 ## What is where in Grafana
 
@@ -153,13 +158,13 @@ What this does not do yet, so nobody assumes it does:
 - **No alerts.** A full disk, a hot NVMe or the stack itself going down shows on the Homelab dashboard and nowhere else; someone has to look. Grafana alerting can send them once there is somewhere to send them to.
 - **No memory limits** on Prometheus or Loki, and Loki has a time limit (14 days) but no size cap. A noisy app can grow either until the Pi runs short.
 - **No Supabase metrics.** The hosted projects are not scraped; [Supabase's guide](https://supabase.com/docs/guides/telemetry/metrics/grafana-self-hosted) is the way in.
-- **Checked only on the Pi itself**, not before merging: MagicDNS names resolving from a rootless container, the journal ACL, container memory after the reboot, and the Pi 5's temperature and fan sensors. [When something is missing](#when-something-is-missing) covers each.
+- **Checked only on the Pi itself**, not before merging: MagicDNS names resolving from a rootless container, the host Alloy reading the journal, container memory after the reboot, and the Pi 5's temperature and fan sensors. [When something is missing](#when-something-is-missing) covers each.
 
 ## When something is missing
 
 - **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name, and its firewall has to let 9100 in on `tailscale0` (see [Firewall](#firewall)).
 - **Container memory is zero** — `docker-host.sh` has not run on the Pi, or it has not been rebooted since.
-- **No journal logs** — the ACL from `docker-host.sh` is missing: `getfacl /var/log/journal`.
+- **No journal logs** — `journal.sh status` on the Pi. It needs the stack up, since it pushes to Loki on `127.0.0.1:3215`, and the `alloy` user in `systemd-journal` (`id alloy`).
 - **No logs at all** — Loki refuses writes once its disk is over 90 % full. The Homelab dashboard's disk panel shows it.
 - **Every host and service down after a reboot** — the containers started before Tailscale took over DNS, so MagicDNS names do not resolve inside them. `docker compose up -d --force-recreate prometheus blackbox-exporter`, and check with `docker compose exec prometheus wget -qO- nas:9100/metrics | head`.
 - **A service shows down that is running** — the probes go to `nas:<port>` over the tailnet, so the service has to publish on all interfaces, not `127.0.0.1`.

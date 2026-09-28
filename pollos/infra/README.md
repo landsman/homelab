@@ -136,9 +136,13 @@ Gives a box the connector token for its own tunnel and nothing else. Script:
 ```sh
 make tunnel-tokens    # one token per node
 
-# on the box, as root:
-sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
+# on the box, as root; it prompts for the token:
+sudo sh monitoring.sh
 ```
+
+Paste the token at the prompt, never as `sudo TUNNEL_TOKEN=...`: sudo writes the
+variables on its command line into the journal, where the token outlives the
+session.
 
 **Not on nas.** 003 uninstalls and replaces `cloudflared.service`, and on the
 Pi that unit is the main tunnel publishing every homelab app. The Pi runs its
@@ -153,7 +157,7 @@ make tunnel-tokens    # take the "nas" entry
 # on nas, as root. The token decides which tunnel it connects; HEALTH_NODE only
 # names it in the prompt and the printed check URL, when the hostname differs:
 wget https://pollos.cz/health-sidecar.sh
-sudo TUNNEL_TOKEN=eyJhIjoi... HEALTH_NODE=nas sh health-sidecar.sh
+sudo HEALTH_NODE=nas sh health-sidecar.sh   # prompts for the token
 
 systemctl status cloudflared-health cloudflared   # both active
 curl -sI https://nas-health.pollos.cz              # HTTP/2 200

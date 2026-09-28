@@ -23,9 +23,9 @@ set -eu
 #   wget https://pollos.cz/monitoring.sh
 #   sudo sh monitoring.sh
 #
-# or non-interactively (CI, automation):
-#
-#   sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
+# Never pass the token as sudo TUNNEL_TOKEN=... on the command line: sudo
+# writes the variables it was given into the journal, where it outlives the
+# session. The prompt reads it without echo and without logging.
 #
 # Safe to re-run: reinstalls the service with the given token, upgrades cloudflared.
 #
@@ -41,7 +41,7 @@ if [ -z "${TUNNEL_TOKEN:-}" ] && [ -t 0 ]; then
   stty echo 2>/dev/null || true
   printf '\n'
 fi
-[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or pass TUNNEL_TOKEN=... (see header)"; exit 1; }
+[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or see the header"; exit 1; }
 
 # install cloudflared (latest .deb, independent of Debian release)
 ARCH="$(dpkg --print-architecture)"             # amd64 on the prodesks

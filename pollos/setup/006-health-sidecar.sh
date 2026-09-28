@@ -37,9 +37,9 @@ set -eu
 #   wget https://pollos.cz/health-sidecar.sh
 #   sudo sh health-sidecar.sh
 #
-# or non-interactively (CI, automation):
-#
-#   sudo TUNNEL_TOKEN=eyJhIjoi... sh health-sidecar.sh
+# Never pass the token as sudo TUNNEL_TOKEN=... on the command line: sudo
+# writes the variables it was given into the journal, where it outlives the
+# session. The prompt reads it without echo and without logging.
 #
 # The node name defaults to the short hostname; if the host is called something
 # other than its tunnel (health-<node>), pass HEALTH_NODE=nas.
@@ -112,7 +112,7 @@ if [ -z "${TUNNEL_TOKEN:-}" ] && [ -t 0 ]; then
   stty echo 2>/dev/null || true
   printf '\n'
 fi
-[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or pass TUNNEL_TOKEN=... (see header)"; exit 1; }
+[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or see the header"; exit 1; }
 
 # token + a config of its own, readable by root only / by the unit
 install -d -m 0755 "$CONF_DIR"
@@ -140,6 +140,12 @@ Type=notify
 DynamicUser=yes
 LoadCredential=token:${CONF_DIR}/token
 ExecStart=${BIN} tunnel --config ${CONF_DIR}/config.yml run --token-file %d/token
+# DynamicUser already makes the system read-only; these also hide other
+# users' processes and the data under /mnt (the RAID, the apps' env files)
+ProtectHome=yes
+ProtectProc=invisible
+ProcSubset=pid
+InaccessiblePaths=-/mnt
 Restart=on-failure
 RestartSec=5s
 TimeoutStartSec=30

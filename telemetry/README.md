@@ -17,7 +17,26 @@ Hardware metrics, container metrics and logs for the homelab, in one Grafana. Th
 - `3215` — Loki, `127.0.0.1` only; OTLP logs at `/otlp/v1/logs`
 - `9100` — Node Exporter on every host, on its Tailscale address only
 
-Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN. Docker-published ports skip `ufw`, so the bind address does that rather than the firewall. Telegraf and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
+Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN: the bind address keeps them off it, whatever the firewall says. Telegraf and Blackbox Exporter are not published at all; Prometheus scrapes them over the compose network.
+
+## Firewall
+
+The Pi runs `ufw` with incoming traffic dropped by default. Under rootless Docker a published port is an ordinary listener of rootlesskit on the host, so `ufw` applies to it like to any other process — unlike rootful Docker, whose published ports go around it.
+
+Only Grafana needs a rule, on the Pi, for the LAN and the tailnet. Follow however the other services are opened (`sudo ufw status numbered`), for example:
+
+```bash
+sudo ufw allow in on tailscale0 to any port 3211 proto tcp
+sudo ufw allow from <LAN>/24 to any port 3211 proto tcp
+```
+
+Nothing else on the Pi needs one. Prometheus and Loki bind `127.0.0.1`; Prometheus scraping the Pi's own node-exporter and the probes to `nas:<port>` stay on the host and arrive over `lo`, which `ufw` accepts; the Cloudflare Tunnel only dials out.
+
+On every other host running node-exporter, the Pi's Prometheus arrives over Tailscale, so if that host runs `ufw`:
+
+```bash
+sudo ufw allow in on tailscale0 to any port 9100 proto tcp
+```
 
 ## Reaching Grafana
 
@@ -109,7 +128,7 @@ What this does not do yet, so nobody assumes it does:
 
 ## When something is missing
 
-- **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name.
+- **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name, and its firewall has to let 9100 in on `tailscale0` (see [Firewall](#firewall)).
 - **Container memory is zero** — `docker-host.sh` has not run on the Pi, or it has not been rebooted since.
 - **No journal logs** — the ACL from `docker-host.sh` is missing: `getfacl /var/log/journal`.
 - **No logs at all** — Loki refuses writes once its disk is over 90 % full. The Homelab dashboard's disk panel shows it.

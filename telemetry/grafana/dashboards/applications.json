@@ -37,7 +37,7 @@
         "enable": true,
         "iconColor": "orange",
         "name": "Reboots",
-        "expr": "changes(node_boot_time_seconds[5m]) > 0",
+        "expr": "(node_boot_time_seconds - node_boot_time_seconds offset 5m) > 60",
         "step": "60s",
         "titleFormat": "{{instance}} rebooted",
         "useValueForTime": false

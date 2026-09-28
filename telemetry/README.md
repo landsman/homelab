@@ -92,8 +92,8 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 Three dashboards in the Homelab folder, linked to each other in their headers. Reboots and container restarts are marked on every graph.
 
 - **Homelab** (home) — is anything wrong right now: services down, hosts not reporting, NVMe warnings, read-only filesystems, RAID, pending reboots, the hottest CPU, the fullest disk, memory, and the latest error lines. Each tile links to the dashboard with the detail.
-- **Hardware** — one table row per host (up, uptime, CPU temperature, CPU, memory, fullest disk, NVMe wear and warnings, updates, reboot), coloured only where something needs attention; click a host to open its own row. Below, a collapsed row per host: load, memory, swap, every temperature sensor, CPU and I/O wait, disks, disk and network throughput, fan, NVMe health, and how old the 15-minute collector data is. At the bottom, the Pi's kernel and systemd errors.
-- **Applications** — the service probes (up/down over time, response time), then a collapsed row per compose project: memory, CPU as a share of the Pi, network and uptime of each container, error lines and the logs. There are no request metrics yet; an app that pushes OTLP shows up under **Drilldown → Metrics**.
+- **Hardware** — one table row per host (up, uptime, CPU temperature, CPU, memory, fullest disk, NVMe wear and warnings, updates, reboot), coloured only where something needs attention; click a host to show only its row, then expand it. Below, a collapsed row per host: load, memory, swap, every temperature sensor, CPU and I/O wait, disks, disk and network throughput, fan, NVMe health, and how old the 15-minute collector data is. At the bottom, the Pi's kernel and systemd errors.
+- **Applications** — the service probes (up/down over time, response time), then a collapsed row per compose project: memory, CPU as a share of the Pi, network and uptime of each container, error lines and the logs. There are no request metrics yet; an app that pushes OTLP shows up under **Drilldown → Metrics**. Containers started outside compose have no project and do not appear here, and the CPU panel is empty while the Pi's node-exporter is down, since it divides by the Pi's core count.
 - **Node Exporter Full** — every metric of one host, from grafana.com.
 - **Drilldown → Logs / Metrics** — everything, with no query to write.
 
@@ -106,9 +106,9 @@ A few readings that mislead if taken at face value:
 
 ### Changing a dashboard
 
-Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; Node Exporter Full is downloaded by `make up`. Grafana reloads them from the files, so a change made in the UI is gone after a restart unless it goes back into the file.
+Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; Node Exporter Full is downloaded by `make up`.
 
-**Do not save the UI's export.** Grafana 13 exports the new v2 format, which the file provisioning here refuses to load. Take the classic JSON from the API instead, on the Pi:
+A change can be made and saved in the UI. It stays — across restarts too — until that dashboard's JSON file changes, which then overwrites it. So to keep a change, put it back into the file. **Not through the UI's export**: Grafana 13 exports the new v2 format, which the file provisioning here refuses to load. The API still returns the classic JSON, including what was saved in the UI:
 
 ```bash
 curl -su "admin:<password>" http://localhost:3211/api/dashboards/uid/hardware \
@@ -116,7 +116,7 @@ curl -su "admin:<password>" http://localhost:3211/api/dashboards/uid/hardware \
   > grafana/dashboards/hardware.json
 ```
 
-Library panels do not work with file provisioning either; repeat the panel instead.
+Library panels do not work with file provisioning; repeat the panel instead.
 
 ## Uptime
 

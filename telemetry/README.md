@@ -89,12 +89,41 @@ curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/hos
 
 ## What is where in Grafana
 
-- **Home → Homelab** — anything wrong right now, temperatures, disks, memory, containers, error logs
-- **Dashboards → Homelab → Node Exporter Full** — every metric of one host
-- **Drilldown → Logs** — every container and the journal, by `service_name`, with no query to write
-- **Drilldown → Metrics** — everything Prometheus has, including whatever an app pushes
+Three dashboards in the Homelab folder, linked to each other in their headers. Reboots and container restarts are marked on every graph.
 
-The Homelab dashboard is committed in `grafana/dashboards/`. Node Exporter Full comes from grafana.com at a pinned revision, downloaded by `make up` the first time. Edits made in the UI are lost on restart; export the JSON over the file and commit it to keep them.
+- **Homelab** (home) — is anything wrong right now: services down, hosts not reporting, NVMe warnings, read-only filesystems, RAID, pending reboots, the hottest CPU, the fullest disk, memory, and the latest error lines. Each tile links to the dashboard with the detail.
+- **Hardware** — one table row per host (up, uptime, CPU temperature, CPU, memory, fullest disk, NVMe wear and warnings, updates, reboot), coloured only where something needs attention; click a host to open its own row. Below, a collapsed row per host: load, memory, swap, every temperature sensor, CPU and I/O wait, disks, disk and network throughput, fan, NVMe health, and how old the 15-minute collector data is. At the bottom, the Pi's kernel and systemd errors.
+- **Applications** — the service probes (up/down over time, response time), then a collapsed row per compose project: memory, CPU as a share of the Pi, network and uptime of each container, error lines and the logs. There are no request metrics yet; an app that pushes OTLP shows up under **Drilldown → Metrics**.
+- **Node Exporter Full** — every metric of one host, from grafana.com.
+- **Drilldown → Logs / Metrics** — everything, with no query to write.
+
+A few readings that mislead if taken at face value:
+
+- **NVMe critical warning** is a bitmap from the drive, not a counter: anything but 0 is a problem.
+- **NVMe wear, SMART and updates** come from timers every 15 minutes; the Collector age tile says how fresh they are. Temperatures come from the kernel instead and are live.
+- **RAID0** never marks a member as failed: a dying NVMe shows in its health and in the journal before the array goes.
+- **A crashed container** drops out of the container panels rather than showing as down; the probes are what catch it.
+
+### Changing a dashboard
+
+Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; Node Exporter Full is downloaded by `make up`. Grafana reloads them from the files, so a change made in the UI is gone after a restart unless it goes back into the file.
+
+**Do not save the UI's export.** Grafana 13 exports the new v2 format, which the file provisioning here refuses to load. Take the classic JSON from the API instead, on the Pi:
+
+```bash
+curl -su "admin:<password>" http://localhost:3211/api/dashboards/uid/hardware \
+  | python3 -c 'import json,sys; d=json.load(sys.stdin)["dashboard"]; d.pop("id", None); json.dump(d, sys.stdout, indent=2)' \
+  > grafana/dashboards/hardware.json
+```
+
+Library panels do not work with file provisioning either; repeat the panel instead.
+
+## Uptime
+
+Two things watch uptime, for different questions:
+
+- **BetterStack** (`pollos/infra`, status page on status.pollos.cz) polls from outside the home network and sends alerts: each pollos box's health tunnel and the public apps. It keeps working when the whole home is down, which nothing running at home can.
+- **This stack** probes every service on the Pi every 15 seconds, including those with no public address, and keeps the history. It has no alerts yet (see [Limits](#limits)), and it cannot report the Pi being down.
 
 ## Adding an application
 

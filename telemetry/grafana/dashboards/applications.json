@@ -347,7 +347,7 @@
         "overrides": []
       },
       "options": {},
-      "description": "Blackbox probe duration: connect, TLS and the first response."
+      "description": "How long the whole probe took: DNS, connect, TLS and the full response."
     },
     {
       "id": 6,

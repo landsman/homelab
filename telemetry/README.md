@@ -98,6 +98,15 @@ The Homelab dashboard is committed in `grafana/dashboards/`. Node Exporter Full 
 
 Metrics, logs, Grafana's database and Alloy's read positions are named volumes (`telemetry_prometheus`, `telemetry_loki`, `telemetry_grafana`, `telemetry_alloy`). No backups, on purpose: metrics keep 30 days and logs 14, and both fill up again on their own. `make destroy CONFIRM=yes` deletes all of it.
 
+## Limits
+
+What this does not do yet, so nobody assumes it does:
+
+- **No alerts.** A full disk, a hot NVMe or the stack itself going down shows on the Homelab dashboard and nowhere else; someone has to look. Grafana alerting can send them once there is somewhere to send them to.
+- **No memory limits** on Prometheus or Loki, and Loki has a time limit (14 days) but no size cap. A noisy app can grow either until the Pi runs short.
+- **No Supabase metrics.** The hosted projects are not scraped; [Supabase's guide](https://supabase.com/docs/guides/telemetry/metrics/grafana-self-hosted) is the way in.
+- **Checked only on the Pi itself**, not before merging: MagicDNS names resolving from a rootless container, the journal ACL, container memory after the reboot, and the Pi 5's temperature and fan sensors. [When something is missing](#when-something-is-missing) covers each.
+
 ## When something is missing
 
 - **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name.

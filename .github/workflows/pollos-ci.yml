@@ -76,7 +76,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
           URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
-        run: gh pr comment "$PR" --edit-last --create-if-none --body "pollos.cz preview: $URL"
+        run: 'gh pr comment "$PR" --edit-last --create-if-none --body "pollos.cz preview: $URL"'
 
   infra:
     runs-on: ubuntu-latest

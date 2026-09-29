@@ -45,6 +45,39 @@ jobs:
       - name: "List build artifacts"
         run: find public -type f | sort
 
+  # Cloudflare builds no previews on its own — the Pages project is fed by
+  # direct upload, not connected to git. So every PR uploads its build under
+  # its branch name and links the alias back on the PR. Fork and Dependabot
+  # PRs get no secrets, so they are skipped rather than failed.
+  preview:
+    needs: ci
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    environment: pollos
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Build static site"
+        run: make build
+        working-directory: pollos/microsite
+      - uses: cloudflare/wrangler-action@v4
+        id: deploy
+        with:
+          apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy pollos/microsite/public --project-name=pollos-cz --branch=${{ github.head_ref }}
+      - name: "Link the preview on the PR"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        run: 'gh pr comment "$PR" --edit-last --create-if-none --body "pollos.cz preview: $URL"'
+
   infra:
     runs-on: ubuntu-latest
     defaults:

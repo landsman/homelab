@@ -1,0 +1,51 @@
+/* "Cluster status" card on the home page — top-right, the one free corner
+   (mini-player owns bottom-left, or top-left on mobile; /setup bottom-right). */
+
+.cluster-status {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  padding: 0.75rem 1rem;
+  font:
+    13px/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  background: var(--pollos-red);
+  color: var(--pollos-yellow);
+  border-radius: 16px;
+  z-index: 2;
+}
+.cluster-status h2 {
+  margin: 0 0 0.5rem;
+  font: inherit;
+  font-weight: bold;
+}
+.cluster-status li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.cluster-status ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cluster-status img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
+.cluster-status small {
+  opacity: 0.75;
+}
+/* Mobile: the player takes the top-left, so sit just above the /setup pill. */
+@media (max-width: 768px) {
+  .cluster-status {
+    top: auto;
+    bottom: 64px;
+    left: 18px;
+  }
+}

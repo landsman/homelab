@@ -18,7 +18,7 @@ main.spinner {
     min-height: 100vh;
   }
 }
-main.spinner img {
+main.spinner > img {
   width: 300px;
   max-width: 60vw;
   height: auto;

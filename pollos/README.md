@@ -26,59 +26,7 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 | walter | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 | jesse  | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 
-### gus: 8 TB USB disk
-
-Seagate SkyHawk `ST8000VE001-3CC101` (7200 rpm, 3.5"), in a Ugreen USB 3 to SATA
-adapter (ASMedia ASM1153, UAS) with its own power. It shows up as `/dev/sdb`.
-It came second-hand with a BitLocker volume on it, wiped on 2026-09-27.
-
-One GPT partition, ext4, label `SkyHawk8tb`, no reserved blocks (`-m 0`),
-mounted at `/mnt/SkyHawk8tb`. The `/etc/fstab` line goes by UUID and carries
-`nofail` so gus still boots with the disk unplugged:
-
-```
-UUID=<uuid> /mnt/SkyHawk8tb ext4 defaults,noatime,nofail,x-systemd.device-timeout=10s 0 2
-```
-
-`~/SkyHawk8tb` on the `ansible` user is a symlink to the mount point.
-
-Unplugging it:
-
-- **At boot** it is harmless: `nofail` makes the disk optional, so gus boots
-  without it and the mount is simply missing. Without `nofail` a missing disk
-  drops the box into emergency mode.
-- **While running**, unmount first, `sudo umount /mnt/SkyHawk8tb`, or whatever
-  is mid-write can be lost and the filesystem may need a repair. Plugged back in,
-  `sudo mount /mnt/SkyHawk8tb` or a reboot brings it back; the UUID finds it
-  whatever `sd*` name it gets this time.
-- **While it is not mounted**, `/mnt/SkyHawk8tb` and the symlink are an empty
-  folder on the 240 GB system SSD. Anything written there, a backup job say,
-  quietly fills the system disk instead of failing. `sudo chattr +i` on the empty
-  mount point, done while unmounted, makes those writes fail loudly and does not
-  affect the mounted disk.
-
-Baseline on 2026-09-27, to compare later readings against:
-
-| What | Value |
-|------|-------|
-| SMART overall | PASSED |
-| Power-on hours | 1 324 (about 55 days), same in the Seagate FARM log, so not reset |
-| Power cycles | 100 |
-| Written / read | 6.8 TB / 110 GB |
-| Reallocated, pending, uncorrectable sectors | 0 / 0 / 0 |
-| Interface CRC errors | 0 |
-| Temperature | 27 °C now, 55 °C lifetime max, 51 °C long-term average from its previous life |
-| Self-tests | none run yet |
-
-```sh
-sudo smartctl -x -d sat /dev/sdb       # everything, what CrystalDiskInfo shows and more
-sudo smartctl -l farm -d sat /dev/sdb  # Seagate's own log; catches reset SMART hours
-sudo smartctl -t long /dev/sdb         # full surface read, about 12 h, non-destructive
-```
-
-The huge raw values on attributes 1, 7 and 188 are Seagate packing several
-counters into one number, not errors. Watch attributes 5, 197 and 198: anything
-above 0 there means the disk is starting to go.
+gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [skyhawk-ai-8tb-hdd.md](skyhawk-ai-8tb-hdd.md).
 
 ![stack photo](microsite/src/assets/img/stack-photo.jpg)
 

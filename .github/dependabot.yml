@@ -286,6 +286,11 @@ updates:
     directory: /pollos/infra
     schedule:
       interval: weekly
+    ignore:
+      # breaks every DNS record apply; drop once a fixed release is out
+      # (https://github.com/cloudflare/terraform-provider-cloudflare/issues/7387)
+      - dependency-name: cloudflare/cloudflare
+        versions: ["5.26.0"]
     open-pull-requests-limit: 5
     groups:
       all:

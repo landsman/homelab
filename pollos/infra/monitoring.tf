@@ -6,9 +6,8 @@
 # the resulting URL. The box itself only runs a connector with the per-tunnel
 # token exported below (zero account privilege on the box).
 #
-# The pollos boxes run it via setup/003-monitoring.sh. nas already runs its main
-# tunnel as cloudflared.service, which 003 would replace, so it runs the health
-# connector as a separate unit via setup/006-health-sidecar.sh.
+# Every host runs it via setup/003-monitoring.sh, as cloudflared-health.service,
+# next to whatever else runs cloudflared there (nas: its main tunnel).
 #
 # Flow:  box --(outbound tunnel)--> Cloudflare --(serves 200)--> BetterStack poll
 # Endpoint per node:  https://<node>-health.pollos.cz

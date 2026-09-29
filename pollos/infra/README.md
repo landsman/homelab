@@ -128,45 +128,44 @@ TS_AUTHKEY="$TS_AUTHKEY" wget -qO- https://pollos.cz/tailscale.sh | sh
 The key is reusable and pre-authorized, so one key enrolls every box. It expires
 after 90 days (Tailscale's maximum) and the next apply mints a replacement.
 
-### Connect a box to its health tunnel
+### Connect a host to its health tunnel
 
-Gives a box the connector token for its own tunnel and nothing else. Script:
-[`../setup/003-monitoring.sh`](../setup/003-monitoring.sh).
+Gives a host the connector token for its own tunnel and nothing else — the
+pollos boxes and nas alike. Script: [`../setup/003-monitoring.sh`](../setup/003-monitoring.sh).
 
 ```sh
 make tunnel-tokens    # one token per node
 
-# on the box, as root; it prompts for the token:
+# on the host, as root; it prompts for the token:
+wget https://pollos.cz/monitoring.sh
 sudo sh monitoring.sh
+
+systemctl status cloudflared-health                # active
+ps -eo args | grep [c]loudflared                   # --token-file, never a token
+curl -sI https://<node>-health.pollos.cz           # HTTP/2 200
 ```
 
 Paste the token at the prompt, never as `sudo TUNNEL_TOKEN=...`: sudo writes the
 variables on its command line into the journal, where the token outlives the
-session.
+session. `make tunnel-tokens` prints what the last apply stored; after a
+**Refresh token** in the dashboard, copy the new one from there, or run the
+deploy first.
 
-**Not on nas.** 003 uninstalls and replaces `cloudflared.service`, and on the
-Pi that unit is the main tunnel publishing every homelab app. The Pi runs its
-health connector as a separate `cloudflared-health.service` instead, using the
-`cloudflared` binary it already has (2025.4.0+, for `--token-file`) and never
-touching the main unit, its config or its update timer. Script:
-[`../setup/006-health-sidecar.sh`](../setup/006-health-sidecar.sh).
+The connector always runs as its own `cloudflared-health.service`: the token in
+a root-only file handed over as a systemd credential, a throwaway
+`DynamicUser`, and no access to `/mnt`, `/home`, other processes or localhost.
+An existing `cloudflared.service` is removed only if it connects the same
+tunnel — an older health connector — which the script decides by the tunnel id
+in the tokens; a main tunnel, as on nas, is a different tunnel and is left
+alone. `sh monitoring.sh same-tunnel <unit file> <token>` shows that decision,
+and `pollos/microsite/tests/monitoring.test.sh` pins it down.
 
-```sh
-make tunnel-tokens    # take the "nas" entry
-
-# on nas, as root. The token decides which tunnel it connects; HEALTH_NODE only
-# names it in the prompt and the printed check URL, when the hostname differs:
-wget https://pollos.cz/health-sidecar.sh
-sudo HEALTH_NODE=nas sh health-sidecar.sh   # prompts for the token
-
-systemctl status cloudflared-health cloudflared   # both active
-curl -sI https://nas-health.pollos.cz              # HTTP/2 200
-```
-
-The unit keeps running the binary it started with. Whatever updates
-`cloudflared` on the Pi restarts only `cloudflared.service`, so afterwards
-`systemctl restart cloudflared-health` picks up the new one (a reboot does too). `sudo sh health-sidecar.sh uninstall` removes the unit and its token
-and nothing else.
+cloudflared comes from the latest GitHub `.deb` wherever Cloudflare's apt
+repository is not set up (the pollos boxes; a re-run updates it); on nas, apt
+owns it. Either way the unit keeps the binary it started with until it restarts:
+after `apt upgrade`, run `systemctl restart cloudflared-health` (a reboot does
+too). `sudo sh monitoring.sh uninstall` removes the unit and its token and
+nothing else.
 
 ## Adding a node
 
@@ -177,8 +176,7 @@ and nothing else.
    possibly be running.
 2. Merge to `main` and let the workflow apply.
 3. Run both runbooks above on the new box, plus the rest of
-   [`../setup`](../setup). A host that already runs `cloudflared` for something
-   else gets `006-health-sidecar.sh`, not 003.
+   [`../setup`](../setup).
 4. Once `https://<node>-health.pollos.cz` answers 200, remove the node from
    `local.paused_nodes` and merge. Unpause in Terraform, not in the BetterStack
    UI: the next apply would pause it again.

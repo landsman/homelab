@@ -180,17 +180,35 @@ The unredacted copy, for the claim, is on gus as
 
 ## What next
 
-The warranty belongs to the disk, not the buyer, so a second-hand disk can be
-claimed.
+The warranty follows the serial number, so a second-hand disk can be claimed.
+Seagate has no service point or partner in the Czech Republic, and Czech shops
+only handle claims for disks they sold themselves; the claim goes to Seagate
+directly.
 
-1. **SeaTools on Windows**, through the same adapter: the *Long Generic* test
-   reaches the failure within minutes. Keep the screenshot with the test code;
-   Seagate support usually asks for it. Cancel if Windows offers to initialise
-   the disk.
-2. **Claim it** at Seagate, *Warranty and Replacements*. Pack it in an
-   anti-static bag with about 5 cm of padding on every side.
-3. When the replacement arrives, change the serial in the Makefile's `DISK`
-   and redo the setup above.
+1. **SeaTools on Windows**, *Long Generic*, and answer **No** (*Repair None*)
+   when it offers to fix the bad sectors: a repair can make the disk pass, and
+   then there is no test code. The failure is 105 GB in, so the test reaches it
+   within minutes; stop it once the code is on screen. Keep a screenshot.
+   Cancel if Windows offers to initialise the disk.
+2. **Open the claim** at
+   [Start Claim](https://www.seagate.com/support/warranty-and-replacements/start-claim/),
+   *Start End User Claim*, with a Seagate account: serial, model, the test
+   code.
+3. **Pick the return location** in the claim. Seagate's European drop points
+   are run by UPS
+   ([service centers](https://www.seagate.com/support/service-centers/)); the
+   nearest to Czechia are Oberding near Munich and Warsaw. The claim returns an
+   RMA number and the exact address; a parcel without the RMA number is
+   refused. The EMEA head office in Schiphol-Rijk is not a return address.
+4. **Pack and ship**: anti-static bag, bubble wrap, a rigid box, every seam
+   taped, no packing peanuts or air cushions
+   ([packing guide](https://www.seagate.com/support/warranty-and-replacements/packing-and-shipping-instructions/)).
+   Shipping there is on us, the way back on Seagate; use a tracked parcel.
+5. **Wait** about 2 weeks officially, 3–5 by older Czech reports. Expect a
+   recertified replacement, under warranty to 2028-06-24. Check its FARM hours
+   and run a full surface scan before trusting it.
+6. When it arrives, change the serial in the Makefile's `DISK` and redo the
+   setup above.
 
 Repairing it is possible and would make it pass: writing the whole disk once
 (about 11 hours) makes the drive swap every bad sector for a spare, then the

@@ -2,8 +2,10 @@ terraform {
   required_version = ">= 1.15"
   required_providers {
     cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5.0"
+      source = "cloudflare/cloudflare"
+      # 5.26.0 breaks DNS record applies (pollos/infra/main.tf); kept out here
+      # too so the stacks move together. The exact version is in the lock file.
+      version = "~> 5.25, != 5.26.0"
     }
   }
 

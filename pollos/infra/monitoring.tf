@@ -25,7 +25,7 @@ locals {
   # running yet and would alert on the first poll. Take a node out of this set
   # once its connector is up. Unpause here, not in the BetterStack UI: the next
   # apply would pause it again.
-  paused_nodes = toset(["nas"])
+  paused_nodes = toset([])
   # single label under the zone (gus-health.pollos.cz) so Universal SSL's
   # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
   zone_domain = "pollos.cz"

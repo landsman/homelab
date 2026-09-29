@@ -50,13 +50,52 @@ curl -fsSL -o "$TMP_DEB" \
 apt-get install -y "$TMP_DEB"   # local .deb: apt resolves deps in one step
 rm -f "$TMP_DEB"
 
-# (re)install the systemd service bound to this tunnel's token
-if [ -f /etc/systemd/system/cloudflared.service ]; then
+# The token goes in a root-only file that systemd hands to the unit as a
+# credential, never on its command line: `cloudflared service install <token>`
+# puts it in ExecStart, readable by any local user in the unit file (0644) and
+# in the process list. Same shape as 006-health-sidecar.sh on nas.
+CONF_DIR=/etc/cloudflared-health
+UNIT_FILE=/etc/systemd/system/cloudflared.service
+
+# a unit from `cloudflared service install` carries the old token in ExecStart
+if [ -f "$UNIT_FILE" ] && grep -q -- '--token ' "$UNIT_FILE"; then
   cloudflared service uninstall >/dev/null 2>&1 || true
 fi
-cloudflared service install "$TUNNEL_TOKEN"
+
+install -d -m 0700 "$CONF_DIR"
+( umask 077 && printf '%s\n' "$TUNNEL_TOKEN" > "${CONF_DIR}/token" )
+
+cat > "$UNIT_FILE" <<'EOF'
+# Written by pollos/setup/003-monitoring.sh — re-run it rather than editing.
+[Unit]
+Description=cloudflared health tunnel connector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+DynamicUser=yes
+LoadCredential=token:/etc/cloudflared-health/token
+ExecStart=/usr/bin/cloudflared --no-autoupdate tunnel run --token-file %d/token
+# DynamicUser already makes the system read-only; these also hide other
+# users' processes and whatever is mounted under /mnt
+ProtectHome=yes
+ProtectProc=invisible
+ProcSubset=pid
+InaccessiblePaths=-/mnt
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
 systemctl enable cloudflared >/dev/null 2>&1 || true
+systemctl restart cloudflared
 
 echo
 echo "done. cloudflared connected — Cloudflare now serves this box's 200."
 echo "verify (after ~10s):  systemctl status cloudflared"
+echo "                      ps -eo args | grep [c]loudflared   # no token on the command line"

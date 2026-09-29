@@ -147,3 +147,20 @@ sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
 2. Merge to `main` and let the workflow apply.
 3. Run both runbooks above on the new box, plus the rest of
    [`../setup`](../setup).
+
+### Rotate a health tunnel token
+
+`003-monitoring.sh` keeps each box's token in `/etc/cloudflared-health/token`
+(root, 0600) and hands it to `cloudflared.service` as a systemd credential, so
+it is in neither the unit file nor the process list. Boxes set up before that
+had it on the command line, readable by any local user — re-run the script
+there, then rotate:
+
+1. Cloudflare dashboard → Networking → Tunnels → `health-<node>` → Overview →
+   **Refresh token**. The old token can no longer open connections; the running
+   connector stays up until it restarts.
+2. `make tunnel-tokens` — it reads the token through a data source, so it
+   already returns the new one; Terraform state is unaffected.
+3. On the box: `sudo sh monitoring.sh`, paste the new token.
+4. The tunnel's **Connectors** tab should list only that box.
+

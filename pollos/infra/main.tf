@@ -2,8 +2,11 @@ terraform {
   required_version = ">= 1.15"
   required_providers {
     cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 5.0"
+      source = "cloudflare/cloudflare"
+      # 5.26.0 adds include_shadow_metadata to every DNS record and then fails
+      # the apply on modified_on: https://github.com/cloudflare/terraform-provider-cloudflare/issues/7387
+      # No lock file is committed, so this constraint is what holds the version.
+      version = "~> 5.25.0"
     }
     betteruptime = {
       source  = "BetterStackHQ/better-uptime"

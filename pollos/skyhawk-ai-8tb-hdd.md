@@ -1,6 +1,7 @@
 # gus: 8 TB USB disk
 
-**Status: failed its extended self-test on 2026-09-28. Do not put data on it.**
+**Status: failed its extended self-test on 2026-09-28; a full surface scan
+found one damaged 60 KiB patch. Do not put data on it.**
 It is under Seagate warranty until 2028-06-24; see [Failure](#failure).
 
 ## Hardware
@@ -153,12 +154,24 @@ A direct read of that LBA from gus fails too (`critical target error`), after
 18 seconds of retries that are loud enough to hear. The 8 logical sectors
 are one 4 KiB physical sector, and the LBA sits on its boundary (206 650 288 =
 25 831 286 × 8). The test stops at the first failure, so that is a floor, not a
-count: a full `badblocks` scan (`make scan`) was started on 2026-09-28 to map
-the rest.
+count, so a full read-only `badblocks` scan (`make scan`) mapped the rest.
+
+**The scan found one damaged patch and nothing else.** 15 contiguous bad 4 KiB
+blocks, 25 831 286 to 25 831 300 (60 KiB at about 105 GB); the other 7.9 TB
+read clean. The first pass ran with the drive's default 7-second error
+recovery and ground on each bad block for 20–45 s, so it was stopped at the
+patch; the second ran from block 25 831 295 to the end with recovery cut to
+1 s (`smartctl -l scterc,10,10`), about 4 s per bad block, and finished on
+2026-09-29 after 10 h 26 min. Pending and offline-uncorrectable rose from 8 to
+80 as the scan touched the patch (80 logical = 10 physical sectors);
+reallocated stayed 0. The disk held 47–48 °C throughout.
 
 It had been making a loud scraping sound on reads since the format; that sound
-is the drive retrying. New bad sectors on a disk with 1 340 hours, together
-with that noise, point to a surface or head problem, which tends to spread.
+is the drive retrying on the patch. One contiguous patch on a disk with 1 340
+hours, a failed self-test and that noise point to a local surface defect. The
+field studies say such errors usually arrive in one burst and then stop; the
+data-recovery trade says a scraping disk spreads the damage when read. Neither
+settles it for one disk, and with warranty left it is not worth finding out.
 
 The full `smartctl` and FARM output from that day, serial and WWN removed, is
 in [skyhawk-ai-8tb-hdd-smart-2026-09-28.txt](skyhawk-ai-8tb-hdd-smart-2026-09-28.txt).

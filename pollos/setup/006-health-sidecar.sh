@@ -16,8 +16,9 @@ set -eu
 #     cloudflared through --token-file, never through the unit's command line
 #     (--token-file needs cloudflared 2025.4.0+; checked below)
 #   - the unit runs as a throwaway DynamicUser, and gets the token through
-#     systemd's LoadCredential (%d in ExecStart, systemd 251+), so the process
-#     cannot read anything else of root's
+#     systemd's LoadCredential (%d in ExecStart, systemd 251+), so it runs as
+#     no real user at all. It can still read what any user can; the sandbox
+#     below takes /mnt, /home, other processes and localhost away from it
 #   - it points --config at its own file, so cloudflared never falls back to the
 #     main tunnel's /etc/cloudflared/config.yml
 #   - it does NOT install or update cloudflared. The host's own update mechanism
@@ -146,6 +147,16 @@ ProtectHome=yes
 ProtectProc=invisible
 ProcSubset=pid
 InaccessiblePaths=-/mnt
+# nothing on localhost is its business: Loki and Prometheus listen there with
+# no auth, and a leaked pollos token could otherwise point this tunnel at them.
+# DNS on the Pi is Tailscale's 100.100.100.100, not a loopback resolver
+IPAddressDeny=localhost
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+CapabilityBoundingSet=
+PrivateDevices=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+MemoryDenyWriteExecute=yes
 Restart=on-failure
 RestartSec=5s
 TimeoutStartSec=30

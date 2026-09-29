@@ -44,7 +44,7 @@ resource "betteruptime_status_page_resource" "node" {
   status_page_section_id = tonumber(betteruptime_status_page_section.nodes.id)
   resource_id            = tonumber(betteruptime_monitor.health[each.key].id)
   resource_type          = "Monitor"
-  public_name            = "pollos ${each.key}"
+  public_name            = local.monitor_node_names[each.key]
   widget_type            = "history"
 }
 

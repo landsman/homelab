@@ -8,7 +8,9 @@ You can easily install them from microsite: https://www.pollos.cz
 
 Everything around the boxes — DNS, the microsite, health tunnels, uptime
 monitors and the Tailscale tailnet — is Terraform in [infra](infra/README.md),
-applied by CI on merge. That README also holds the credential list and the
+applied by CI on merge. The same health tunnel and monitor cover the Raspberry
+Pi [nas](../nas/README.md), which runs its connector alongside its main tunnel
+via [setup/006-health-sidecar.sh](setup/006-health-sidecar.sh). That README also holds the credential list and the
 runbooks for enrolling a box.
 
 The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).

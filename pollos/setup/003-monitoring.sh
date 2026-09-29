@@ -3,7 +3,7 @@ set -eu
 
 #
 # PURPOSE: connect this box to its health tunnel so it serves a public 200
-# at  https://<host>.health.pollos.cz  over an outbound-only Cloudflare Tunnel
+# at  https://<host>-health.pollos.cz  over an outbound-only Cloudflare Tunnel
 # (no ports exposed). BetterStack polls that URL and alerts when it stops
 # returning 200 — i.e. when the box, its network, or the tunnel goes down.
 #
@@ -13,7 +13,8 @@ set -eu
 # Cloudflare account. So all this script does is install cloudflared and run it.
 #
 # MANUAL STEP: run on every pollos box (gus, mike, walter, jesse), as root,
-# after 001-init.sh (needs curl). Grab this box's connector token from the
+# after 001-init.sh (needs curl). NOT on nas: it replaces cloudflared.service,
+# which there runs the main tunnel — use 006-health-sidecar.sh instead. Grab this box's connector token from the
 # Cloudflare dashboard → Zero Trust → Networks → Tunnels → health-<host>
 # (or, if you have Terraform: terraform output -json health_tunnel_tokens).
 #
@@ -22,9 +23,9 @@ set -eu
 #   wget https://pollos.cz/monitoring.sh
 #   sudo sh monitoring.sh
 #
-# or non-interactively (CI, automation):
-#
-#   sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
+# Never pass the token as sudo TUNNEL_TOKEN=... on the command line: sudo
+# writes the variables it was given into the journal, where it outlives the
+# session. The prompt reads it without echo and without logging.
 #
 # Safe to re-run: reinstalls the service with the given token, upgrades cloudflared.
 #
@@ -40,7 +41,7 @@ if [ -z "${TUNNEL_TOKEN:-}" ] && [ -t 0 ]; then
   stty echo 2>/dev/null || true
   printf '\n'
 fi
-[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or pass TUNNEL_TOKEN=... (see header)"; exit 1; }
+[ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or see the header"; exit 1; }
 
 # install cloudflared (latest .deb, independent of Debian release)
 ARCH="$(dpkg --print-architecture)"             # amd64 on the prodesks

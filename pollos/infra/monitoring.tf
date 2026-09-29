@@ -1,21 +1,37 @@
 # Per-node uptime monitoring.
 #
-# For each pollos box: a remotely-managed Cloudflare Tunnel whose ingress is
-# this config (http_status:200), a proxied DNS record, and a BetterStack
-# monitor that polls the resulting URL. The box itself only runs a connector
-# with the per-tunnel token exported below (zero account privilege on the box).
+# For each pollos box, and the Raspberry Pi "nas" that runs the homelab apps: a
+# remotely-managed Cloudflare Tunnel whose ingress is this config
+# (http_status:200), a proxied DNS record, and a BetterStack monitor that polls
+# the resulting URL. The box itself only runs a connector with the per-tunnel
+# token exported below (zero account privilege on the box).
+#
+# The pollos boxes run it via setup/003-monitoring.sh. nas already runs its main
+# tunnel as cloudflared.service, which 003 would replace, so it runs the health
+# connector as a separate unit via setup/006-health-sidecar.sh.
 #
 # Flow:  box --(outbound tunnel)--> Cloudflare --(serves 200)--> BetterStack poll
-# Endpoint per node:  https://<node>.health.pollos.cz
+# Endpoint per node:  https://<node>-health.pollos.cz
 
 locals {
-  monitor_nodes = toset(["gus", "mike", "walter", "jesse"])
+  monitor_nodes = toset(["gus", "mike", "walter", "jesse", "nas"])
+
+  # Name on the BetterStack dashboard and the public status page. nas is not a
+  # pollos box, so it goes by its own name.
+  monitor_node_names = { for n in local.monitor_nodes : n => n == "nas" ? n : "pollos ${n}" }
+
+  # Nodes whose monitor is created paused: the tunnel token only exists after
+  # the apply that creates the tunnel, so a new node cannot have its connector
+  # running yet and would alert on the first poll. Take a node out of this set
+  # once its connector is up. Unpause here, not in the BetterStack UI: the next
+  # apply would pause it again.
+  paused_nodes = toset(["nas"])
   # single label under the zone (gus-health.pollos.cz) so Universal SSL's
   # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
   zone_domain = "pollos.cz"
 
   # Daily maintenance window — the homelab network/router reboots in this hour,
-  # taking every monitored target (nodes AND apps) offline. Shared so the node
+  # taking every monitored target (nodes, nas AND apps) offline. Shared so the node
   # and service monitors can't drift; applied to both (see status_page.tf).
   daily_maintenance = {
     maintenance_from = "04:55:00"
@@ -89,10 +105,11 @@ resource "betteruptime_monitor" "health" {
   for_each           = local.monitor_nodes
   url                = "https://${each.key}-health.${local.zone_domain}"
   monitor_type       = "status"
-  pronounceable_name = "pollos ${each.key}"
+  pronounceable_name = local.monitor_node_names[each.key]
   monitor_group_id   = tonumber(betteruptime_monitor_group.pollos.id)
   check_frequency    = 180 # seconds (3 min)
   regions            = ["eu"]
+  paused             = contains(local.paused_nodes, each.key)
 
   # Daily maintenance window — router reboot/update in this hour
   maintenance_from     = local.daily_maintenance.maintenance_from

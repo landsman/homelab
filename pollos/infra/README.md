@@ -8,7 +8,7 @@ policy.
 | File                      | Manages                                                                |
 | ------------------------- | ---------------------------------------------------------------------- |
 | `main.tf`                 | providers, R2 state backend, Pages project + apex/www DNS and redirect  |
-| `monitoring.tf`           | health tunnels per node, BetterStack monitors, `health_tunnel_tokens`   |
+| `monitoring.tf`           | health tunnels per node (pollos boxes + nas), BetterStack monitors, `health_tunnel_tokens` |
 | `status_page.tf`          | status.pollos.cz page, sections, resources                              |
 | `maintenance-schedule.tf` | status-page maintenance windows (via the generic REST provider)         |
 | `microsite-ws.tf`         | custom domain for the realtime [Worker](../microsite-ws/README.md)      |
@@ -136,14 +136,49 @@ Gives a box the connector token for its own tunnel and nothing else. Script:
 ```sh
 make tunnel-tokens    # one token per node
 
-# on the box, as root:
-sudo TUNNEL_TOKEN=eyJhIjoi... sh monitoring.sh
+# on the box, as root; it prompts for the token:
+sudo sh monitoring.sh
 ```
+
+Paste the token at the prompt, never as `sudo TUNNEL_TOKEN=...`: sudo writes the
+variables on its command line into the journal, where the token outlives the
+session.
+
+**Not on nas.** 003 uninstalls and replaces `cloudflared.service`, and on the
+Pi that unit is the main tunnel publishing every homelab app. The Pi runs its
+health connector as a separate `cloudflared-health.service` instead, using the
+`cloudflared` binary it already has (2025.4.0+, for `--token-file`) and never
+touching the main unit, its config or its update timer. Script:
+[`../setup/006-health-sidecar.sh`](../setup/006-health-sidecar.sh).
+
+```sh
+make tunnel-tokens    # take the "nas" entry
+
+# on nas, as root. The token decides which tunnel it connects; HEALTH_NODE only
+# names it in the prompt and the printed check URL, when the hostname differs:
+wget https://pollos.cz/health-sidecar.sh
+sudo HEALTH_NODE=nas sh health-sidecar.sh   # prompts for the token
+
+systemctl status cloudflared-health cloudflared   # both active
+curl -sI https://nas-health.pollos.cz              # HTTP/2 200
+```
+
+The unit keeps running the binary it started with. Whatever updates
+`cloudflared` on the Pi restarts only `cloudflared.service`, so afterwards
+`systemctl restart cloudflared-health` picks up the new one (a reboot does too). `sudo sh health-sidecar.sh uninstall` removes the unit and its token
+and nothing else.
 
 ## Adding a node
 
 1. Add the hostname to `local.monitor_nodes` in `monitoring.tf` — one list drives
-   the health tunnel, DNS record, BetterStack monitor and status-page entry.
+   the health tunnel, DNS record, BetterStack monitor and status-page entry —
+   and to `local.paused_nodes`, so the monitor starts paused. Its token only
+   exists after the apply, so without that it alerts before the connector can
+   possibly be running.
 2. Merge to `main` and let the workflow apply.
 3. Run both runbooks above on the new box, plus the rest of
-   [`../setup`](../setup).
+   [`../setup`](../setup). A host that already runs `cloudflared` for something
+   else gets `006-health-sidecar.sh`, not 003.
+4. Once `https://<node>-health.pollos.cz` answers 200, remove the node from
+   `local.paused_nodes` and merge. Unpause in Terraform, not in the BetterStack
+   UI: the next apply would pause it again.

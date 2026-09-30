@@ -51,6 +51,29 @@ remember this page.
 `https://<host>.<tailnet>.ts.net/v2/` then answers `401`, the same as `http://<host>:3000/v2/` does
 on the LAN. Like yt-archive, this needs the one-time `sudo tailscale set --operator=containers`.
 
+### Why not a `tailscale` container in the compose file
+
+It would be the tidier shape on paper: the serve config as a file the container applies at start,
+no dependency on the host's tailscaled or on the operator grant, and a name of its own without
+tagging the box. The reason it is not here is that the container joins the tailnet as **its own
+node**, and that brings:
+
+- an auth key to keep in `.env`, valid 90 days at most — lose the state volume after it expires and
+  the container cannot rejoin, which is a trap that springs a quarter of a year later;
+- a state volume, or it re-registers on every recreate;
+- a second name and a second certificate, so every client that names this box changes, and the new
+  name lands in the public certificate transparency logs;
+- two mechanisms on one machine, since the dashboard and yt-archive stay on the host's serve.
+
+Against that, what it would buy is already true here: tailscaled runs on this box with the operator
+grant, the mapping survives a restart of the daemon, and `make up` re-applies it.
+
+**Revisit it when any of these changes:** Forgejo moves to a host whose tailscaled we do not
+control — a rented VPS, somebody else's Docker host — or the service needs an identity independent
+of the machine it runs on, or this box starts serving so many things that one name per service is
+worth the bookkeeping. The address is a variable on both sides, so the switch is a day's work, not
+a redesign.
+
 **Only these paths are reachable on that name.** `/`, `/user/login` and `/api/v1/…` answer `404`:
 `tailscale serve` routes by path prefix, so Forgejo's web UI and API are not on it. It is `serve`
 and not `funnel`, so nothing is reachable from the internet, and the name does not resolve in

@@ -95,6 +95,12 @@ test("print gets a project's links as QR codes of their short links, not as text
   expect(second.qrs).toEqual([]);
   expect([...qrs.keys()]).toEqual(["1.svg", "2.svg"]);
   expect(qrs.get("1.svg")).toMatch(/^<svg .*<path d="M/);
+
+  // The code holds the short link, not the project's address: the same address
+  // behind another short code draws another picture.
+  const renamed = buildCv(md, redirects.replace("/ex ", "/another "), wide);
+  expect(renamed.qrs.get("1.svg")).not.toEqual(qrs.get("1.svg"));
+  expect(renamed.qrs.get("2.svg")).toEqual(qrs.get("2.svg"));
 });
 
 test("a link with no short link stops the build and names the rule to add", () => {

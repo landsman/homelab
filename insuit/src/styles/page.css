@@ -31,6 +31,13 @@ body {
   margin: auto;
 }
 
+/* <main> takes focus after a client-side navigation (routes/__root.tsx), only
+   so that reading and tabbing start at the new page; it is not a control and
+   shows no ring. */
+main:focus {
+  outline: none;
+}
+
 footer {
   display: flex;
   align-items: center;

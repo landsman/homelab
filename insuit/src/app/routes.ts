@@ -6,5 +6,3 @@ export const ROUTES = {
   // 404.html Pages answers every unknown address with (src/server.ts).
   notFound: "/404",
 } as const;
-
-export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

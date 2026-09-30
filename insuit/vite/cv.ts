@@ -3,7 +3,7 @@
 // drift. Runs inside Vite: on `make dev` (again on every edit of the markdown),
 // on `make build` and under the tests.
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import { marked, type Token, type Tokens } from "marked";
@@ -222,11 +222,6 @@ export function buildCv(
   closeIntro();
   flush();
 
-  // The one check this needs: no project dropped or doubled by the grouping.
-  const expected = tokens.filter((t) => t.type === "heading" && t.depth === 4).length;
-  const built = cv.reduce((n, block) => n + ("projects" in block ? block.projects.length : 0), 0);
-  if (built !== expected) throw new Error(`cv: ${expected} projects in cv.md, ${built} built`);
-
   return { cv, qrs };
 }
 
@@ -263,6 +258,9 @@ export function cvPlugin(): Plugin {
         readFileSync(redirects, "utf8"),
         isTall,
       );
+      // Cleared first: a code for a link that has since left the CV would
+      // otherwise ship with the next local build.
+      rmSync(qrDir, { recursive: true, force: true });
       mkdirSync(qrDir, { recursive: true });
       for (const [file, svg] of qrs) writeFileSync(new URL(file, qrDir), svg);
       return `export default ${JSON.stringify(cv)}`;

@@ -38,4 +38,12 @@ test("an address that is no page answers 404, says so and leads home", async ({ 
   await page.getByRole("link", { name: "Go to the homepage" }).click();
   await expect(page).toHaveURL(ROUTES.home);
   await expect(page.getByRole("heading", { name: "Hello there!" })).toBeVisible();
+  await expect(page).toHaveTitle("Michal Landsman");
+});
+
+test("following a link moves focus to the new page", async ({ page }) => {
+  await page.goto(ROUTES.home);
+  await page.getByRole("link", { name: "Let's talk" }).click();
+  await expect(page).toHaveURL(ROUTES.contact);
+  await expect(page.locator("main")).toBeFocused();
 });

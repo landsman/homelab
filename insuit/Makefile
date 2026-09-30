@@ -39,8 +39,8 @@ build: ## Build the site into dist/client — what gets deployed
 preview: build ## Build, then serve it the way Pages does, http://localhost:8788
 	npm run preview
 
-clean: ## Remove dist/ and node_modules/
-	rm -rf dist node_modules
+clean: ## Remove everything a build or an install wrote
+	rm -rf dist node_modules src/paraglide public/assets/cv-qr .tanstack
 
 ##@ Quality assurance
 

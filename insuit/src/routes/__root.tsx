@@ -1,5 +1,11 @@
-import { useEffect, type ReactNode } from "react";
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { useEffect, useRef, type ReactNode } from "react";
+import {
+  createRootRoute,
+  HeadContent,
+  Outlet,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
 import { loadAnalytics } from "@/app/analytics";
 import { animateFavicon } from "@/app/animated-favicon";
 import { Footer } from "@/app/components/footer";
@@ -10,12 +16,20 @@ import styles from "@/index.css?url";
 import { m } from "@/paraglide/messages.js";
 
 export const Route = createRootRoute({
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      // The home page's tags; a route's own `head` replaces them by name.
-      ...pageMeta({ title: m.home_title(), description: m.home_description(), path: ROUTES.home }),
+      // Only the root matched: the address is no page, and the router shows the
+      // "nothing here" page, which has no route whose `head` could say so.
+      ...(matches.length === 1
+        ? [{ title: m.not_found_title() }, { name: "robots", content: "noindex, nofollow" }]
+        : // The home page's tags; a route's own `head` replaces them by name.
+          pageMeta({
+            title: m.home_title(),
+            description: m.home_description(),
+            path: ROUTES.home,
+          })),
     ],
     links: [
       // app/animated-favicon.ts swaps this href to animate; it stays the static
@@ -63,6 +77,21 @@ function RootLayout() {
     animateFavicon();
     loadAnalytics();
   }, []);
+
+  // A link swaps the page without loading a document, so nothing tells a
+  // keyboard or a screen reader that it changed: focus would stay on the link
+  // that was followed. Move it to the new page's <main>, as a page load would
+  // start there. Not on the first render, which is a page load.
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const arrived = useRef(pathname);
+  useEffect(() => {
+    if (arrived.current === pathname) return;
+    arrived.current = pathname;
+    const main = document.querySelector("main");
+    if (!main) return;
+    main.tabIndex = -1;
+    main.focus({ preventScroll: true });
+  }, [pathname]);
 
   return (
     <>

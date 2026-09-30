@@ -28,6 +28,7 @@
     "@cucumber/cucumber": "^13.2.1",
     "@fontsource/fira-mono": "^5.2.6",
     "@inlang/paraglide-js": "^2.25.4",
+    "@inlang/plugin-message-format": "^4.4.4",
     "@playwright/test": "^1.63.0",
     "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.5",

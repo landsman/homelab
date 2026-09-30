@@ -4,6 +4,10 @@ import { ROUTES } from "@/app/routes";
 // Every page is an HTML file written at build time. These pin that down: the
 // text is there with no JavaScript at all, and React takes the page over
 // without complaining that what it rendered differs from the file.
+//
+// That complaint covers elements and text only. An attribute that differs
+// (title, href, hidden) is left as the file had it and reported nowhere in a
+// production build — `make dev` is where React says so, in the console.
 
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });

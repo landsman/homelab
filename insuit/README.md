@@ -54,7 +54,8 @@ A page is rendered twice: at build time, where there is no `window`, and in the
 browser. Anything that needs the browser — `document`, `localStorage`,
 `matchMedia` — goes in an effect or an event handler, and the first render has
 to come out the same in both places. `tests/e2e/common/prerender.spec.ts` fails
-on a page where it does not.
+on a page whose elements or text differ; a differing attribute only shows as a
+console error under `make dev`.
 
 ## Localisation
 
@@ -168,7 +169,8 @@ PRs run `.github/workflows/insuit-ci.yml` — `make qa`, the e2e and Cucumber
 suites against the built site, and `terraform fmt`/`validate`. Each PR from a branch of this
 repo is also uploaded to Pages under its branch name, and the preview's address
 is posted on the PR: the project is fed by direct upload, so Cloudflare builds
-no previews of its own. A preview carries no analytics token and no OG card.
+no previews of its own. A preview is the build the tests ran against: no
+analytics token, no OG card, and the placeholder contact address.
 
 ## DNS cutover (manual, deliberate)
 

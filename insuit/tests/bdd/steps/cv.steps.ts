@@ -10,6 +10,8 @@ Given("I am on the CV", async function (this: AppWorld) {
 
 When("I open the project {string}", async function (this: AppWorld, name: string) {
   await this.page.getByRole("button", { name }).click();
+  // Open for certain, so a later "no project is open" means it was closed.
+  await expect(this.page.getByRole("dialog", { name })).toBeVisible();
 });
 
 Then("I read {string}", async function (this: AppWorld, text: string) {

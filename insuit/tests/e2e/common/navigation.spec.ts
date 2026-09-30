@@ -42,8 +42,18 @@ test("an address that is no page answers 404, says so and leads home", async ({ 
 });
 
 test("following a link moves focus to the new page", async ({ page }) => {
+  // The next page's code arrives late, as on a slow connection: focus has to
+  // wait for the page, not move when the address changes.
+  await page.route(/contact-.*\.js/, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    await route.continue();
+  });
   await page.goto(ROUTES.home);
+  // Once the app runs. Before that a link is a plain page load, which starts
+  // at the top of the document on its own.
+  await expect(page.getByRole("button", { name: /Switch to (dark|light) theme/ })).toBeVisible();
+
   await page.getByRole("link", { name: "Let's talk" }).click();
-  await expect(page).toHaveURL(ROUTES.contact);
+  await expect(page.getByRole("heading", { name: "Let's talk" })).toBeVisible();
   await expect(page.locator("main")).toBeFocused();
 });

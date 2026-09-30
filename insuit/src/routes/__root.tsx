@@ -81,12 +81,15 @@ function RootLayout() {
   // A link swaps the page without loading a document, so nothing tells a
   // keyboard or a screen reader that it changed: focus would stay on the link
   // that was followed. Move it to the new page's <main>, as a page load would
-  // start there. Not on the first render, which is a page load.
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // start there. Not on the first render, which is a page load. The resolved
+  // location, not the current one: that changes on the click, while the next
+  // page's code may still be on its way and the old <main> is still up.
+  const pathname = useRouterState({ select: (s) => s.resolvedLocation?.pathname });
   const arrived = useRef(pathname);
   useEffect(() => {
-    if (arrived.current === pathname) return;
+    const from = arrived.current;
     arrived.current = pathname;
+    if (from === undefined || from === pathname) return;
     const main = document.querySelector("main");
     if (!main) return;
     main.tabIndex = -1;

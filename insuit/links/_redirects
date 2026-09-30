@@ -15,8 +15,8 @@
 /contact https://www.insuit.cz/contact 302
 /cv https://www.insuit.cz/cv 302
 
-# CV — the printed CV's QR codes. Each project link in site/cv.md prints as a
-# QR code for the code whose target is that link; `make cv` fails and suggests
+# CV — the printed CV's QR codes. Each project link in the CV's cv.md prints as
+# a QR code for the code whose target is that link; the build fails and suggests
 # a code when a link has none. To send a printed code elsewhere, change its
 # target here and the link in cv.md to match.
 /58b7a3 https://policie.gov.cz/ 302

@@ -1,0 +1,6 @@
+# Bun is the one runtime here, not only the launcher. Most tools in
+# node_modules/.bin start with `#!/usr/bin/env node`, and `bun run` would hand
+# those to Node when it is installed; this makes it run them itself, so the
+# build behaves the same on a machine with Node and on one without.
+[run]
+bun = true

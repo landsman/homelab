@@ -1,0 +1,8 @@
+# Cloudflare Pages response headers.
+#
+# A file under /_build/ is named by a hash of its content (vite.config.ts), so
+# the name changes whenever the file does: a browser may keep it for good and
+# never ask again. Everything else keeps Pages' default, which is to ask every
+# time — the pages themselves, and public/assets, whose names do not change.
+/_build/*
+  Cache-Control: public, max-age=31536000, immutable

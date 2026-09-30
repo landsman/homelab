@@ -1,19 +1,25 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "jsPlugins": [{ "name": "jsdoc-js", "specifier": "eslint-plugin-jsdoc" }],
   "rules": {
-    "jsdoc-js/require-jsdoc": [
-      "error",
-      {
-        "require": {
-          "FunctionDeclaration": true,
-          "MethodDefinition": true,
-          "ClassDeclaration": false,
-          "ArrowFunctionExpression": false,
-          "FunctionExpression": false
-        }
-      }
-    ]
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }]
   },
-  "ignorePatterns": ["node_modules/"]
+  "overrides": [
+    {
+      "files": ["src/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["./*", "../*"],
+                "message": "Import through the @/ alias, which is the src root."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/", "node_modules/", "src/paraglide/", "src/routeTree.gen.ts"]
 }

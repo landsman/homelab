@@ -10,6 +10,9 @@ interface ImportMetaEnv {
 /** The commit the site was built from (vite.config.ts). */
 declare const __COMMIT__: string;
 
+/** The year the site was built in (vite.config.ts). */
+declare const __BUILD_YEAR__: number;
+
 /** The contact address, base64-encoded by vite.config.ts. */
 declare const __CONTACT_EMAIL__: string;
 

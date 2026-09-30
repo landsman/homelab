@@ -11,19 +11,32 @@
   gap: var(--icon-gap);
 }
 
-/* Contact page: the links are the content, not a footer row, so they stack —
-   one per line, each its own tap target. */
-.links-stacked {
-  flex-direction: column;
-  align-items: start;
-  gap: var(--space);
-}
-
-/* These four are the page, not chrome around it — they carry the underline
-   without waiting for a hover that says "this is a link". */
-.links-stacked a::after {
+/* Contact page: the profiles are the page, not chrome around it — they carry
+   the underline without waiting for a hover that says "this is a link". So
+   does a link inside a sentence, which nothing else tells apart from the words
+   around it. */
+.links-shown a::after,
+.content p a::after {
   transform: scaleX(1);
   transform-origin: left top;
+}
+/* The underline is one box under the link, so the link stays on one line. */
+.content p a {
+  white-space: nowrap;
+}
+
+/* Contact page: the address, at the heading's size. The line keeps its height
+   while the address is not there yet — it is filled in once the page runs —
+   so the profiles below do not jump. An address too long for a narrow screen
+   breaks rather than pushing the page sideways. */
+.content .contact-email {
+  min-height: calc(var(--font-size-h1) * var(--line-height-h1));
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+}
+.content .contact-email a {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 a {

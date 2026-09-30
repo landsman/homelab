@@ -738,36 +738,16 @@ html:has(.cv) {
   }
 }
 
-/* The CV's own page footer in print: a name and a page count, set in the site's
-   type. A margin box with content — even an empty string — takes its area from
-   the browser's own header and footer (date, title, URL); `content: none`
-   would give it back. A named page, so only the CV prints it: the other pages
-   keep the browser's. */
+/* The CV's page footer in print names the document rather than the address
+   every other page prints (print.css). A named page, so only the CV says it;
+   the rest of the header and footer comes from the plain @page. */
 @media print {
   .cv {
     page: cv;
   }
 }
 @page cv {
-  @top-left {
-    content: "";
-  }
-  @top-center {
-    content: "";
-  }
-  @top-right {
-    content: "";
-  }
   @bottom-left {
     content: "Michal Landsman · Curriculum Vitae";
-    font-family: var(--font-mono);
-    font-size: 7.5pt;
-    color: #646b72;
-  }
-  @bottom-right {
-    content: counter(page) " / " counter(pages);
-    font-family: var(--font-mono);
-    font-size: 7.5pt;
-    color: #646b72;
   }
 }

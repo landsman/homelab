@@ -16,6 +16,6 @@ export const ICONS = {
 // The same two files styles/fonts.css declares; named here to preload them.
 export const FONTS = {
   regular: "/assets/fonts/fira-mono-latin-400-normal.woff2",
-  /** Only the CV uses it. */
+  /** The CV, and the headings inside a page's text (/hire-me). */
   medium: "/assets/fonts/fira-mono-latin-500-normal.woff2",
 } as const;

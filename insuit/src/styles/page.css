@@ -48,6 +48,24 @@ main:focus {
   outline: none;
 }
 
+/* The footer's mirror at the top of a page (app/components/header.tsx): the
+   name, over a faint rule, with a section's worth of air before the page
+   starts. A page without it keeps the same room, empty. */
+header,
+.header-space {
+  width: var(--wrapper-width);
+  max-width: 100%;
+  margin: 0 auto var(--space-section);
+  padding-bottom: var(--space);
+}
+header {
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.header-space {
+  height: calc(var(--font-size-base) * var(--line-height-base));
+  box-sizing: content-box;
+}
+
 footer {
   display: flex;
   align-items: center;
@@ -56,4 +74,10 @@ footer {
   width: var(--wrapper-width);
   max-width: 100%;
   margin-inline: auto;
+  /* A faint rule sets the navigation apart from the page above it. The margin
+     is the least air between the two: a page shorter than the viewport has
+     more, from .wrapper's auto margins; a longer one has only this. */
+  margin-top: var(--space-section);
+  padding-top: var(--space);
+  border-top: var(--border-width) solid var(--color-border);
 }

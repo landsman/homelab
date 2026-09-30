@@ -16,6 +16,8 @@
   --line-height-small: 1.5;
   --tracking-display: -0.03em;
   --tracking-label: 0.14em;
+  /* Running text in the mono: a touch tighter than the face's own spacing. */
+  --tracking-text: -0.02em;
   --font-weight-medium: 500;
   /* Company names: a step between the name and the body, so a job opens clearly. */
   --font-size-company: clamp(1.375rem, 6vw, 1.75rem);

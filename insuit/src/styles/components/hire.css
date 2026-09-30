@@ -1,0 +1,69 @@
+/* /hire-me: a page meant to be skimmed. */
+
+/* The title at the CV name's scale, so the page starts clearly above the
+   headings under it. */
+.hire h1 {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-display);
+}
+
+/* A monospace face sets every letter in the same wide box, so running text
+   reads loose; a touch tighter holds the words together. */
+.hire .content {
+  letter-spacing: var(--tracking-text);
+}
+
+/* Each offer is a row: its heading and its paragraph, a faint rule between
+   rows. The heading is the text's size in the medium cut — the weight sets it
+   apart, not a size that competes with the title. */
+.hire section {
+  margin-top: calc(var(--space) * 1.5);
+  padding-top: calc(var(--space) * 1.5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+.hire ul + section {
+  margin-top: var(--space-section);
+}
+.hire section h2 {
+  margin: 0;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  letter-spacing: inherit;
+}
+.hire section h2 + p {
+  margin: var(--space-tight) 0 0;
+}
+
+/* The close, under the same rule that separates the offers: where the details
+   are, then the question the page asks. */
+.hire .closing {
+  margin-top: calc(var(--space) * 1.5);
+  padding-top: calc(var(--space) * 1.5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+/* Wide enough for two columns: the heading on the left, its paragraph beside
+   it, so the headings read down one edge. */
+@media (min-width: 720px) {
+  .hire section {
+    display: grid;
+    grid-template-columns: minmax(0, 14em) minmax(0, 1fr);
+    column-gap: var(--links-gap-column);
+  }
+  .hire section h2 + p {
+    margin-top: 0;
+  }
+
+  /* More air above the close, and the question at the heading's size. */
+  .hire .closing {
+    margin-top: var(--space-section);
+    padding-top: var(--space-section);
+  }
+  .hire .ask {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+    text-wrap: balance;
+  }
+}

@@ -13,7 +13,7 @@ export function CvPage() {
   return (
     <main className="wrapper cv">
       {cv.map((block, index) =>
-        "html" in block ? (
+        block.kind === "prose" ? (
           <Prose key={index} html={block.html} />
         ) : (
           <Projects key={index} projects={block.projects} onOpen={setProject} />
@@ -60,7 +60,17 @@ function Projects({
               <button type="button" onClick={() => onOpen(project)}>
                 <span className="frame">
                   {logo ? (
-                    <img src={logo.src} alt={logo.alt} title={logo.title} />
+                    // Below the first screen for all but a few: fetched as the
+                    // reader gets near, not all 23 with the page.
+                    <img
+                      src={logo.src}
+                      alt={logo.alt}
+                      title={logo.title}
+                      width={logo.width}
+                      height={logo.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     // A project without a logo still gets a tile the size of
                     // one, so the row stays even: the name before the colon,

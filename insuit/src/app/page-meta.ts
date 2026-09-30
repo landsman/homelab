@@ -1,8 +1,6 @@
+import { ICONS } from "@/app/assets";
 import { SITE_URL } from "@/app/site";
 import { m } from "@/paraglide/messages.js";
-
-// 1200×630, rendered from og/og.html by `make og` — keep the two in sync.
-const SHARE_IMAGE = `${SITE_URL}/assets/icons/og-image.png`;
 
 type Page = {
   title: string;
@@ -16,20 +14,21 @@ type Page = {
 
 /**
  * A page's <title> and the tags a search engine or a link preview reads, for a
- * route's `head`. A route's tags replace the root's of the same name, so a page
- * that sets none gets the home page's.
+ * route's `head`. A route's tags replace the root's of the same name — and the
+ * root's say "page not found" (routes/__root.tsx), so every page needs these.
  */
 export function pageMeta({ title, description, path, type = "website", hidden }: Page) {
   return [
     { title },
     { name: "description", content: description },
-    ...(hidden ? [{ name: "robots", content: "noindex, nofollow" }] : []),
+    { name: "robots", content: hidden ? "noindex, nofollow" : "index, follow" },
 
     { property: "og:type", content: type },
     { property: "og:url", content: SITE_URL + path },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
-    { property: "og:image", content: SHARE_IMAGE },
+    { property: "og:image", content: SITE_URL + ICONS.share },
+    // The card's size, og/og.html's canvas — keep the two in sync.
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: m.common_share_image_alt() },
@@ -37,6 +36,6 @@ export function pageMeta({ title, description, path, type = "website", hidden }:
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { name: "twitter:image", content: SHARE_IMAGE },
+    { name: "twitter:image", content: SITE_URL + ICONS.share },
   ];
 }

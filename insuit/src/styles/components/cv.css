@@ -285,24 +285,15 @@ html:has(.cv) {
 
 /* External links in a project dialog get a small out-arrow after the text; the
    rest of the page keeps them plain. */
-.icon-external {
+.cv .icon-external {
   display: none;
 }
-.project-dialog .icon-external {
+.cv .project-dialog .icon-external {
   display: inline-block;
   width: var(--icon-size-small);
   height: var(--icon-size-small);
   margin-left: var(--icon-gap-small);
   vertical-align: -0.05em;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 /* Several images for one project: one row that scrolls sideways, snapping to
@@ -747,8 +738,14 @@ html:has(.cv) {
 /* The CV's own page footer in print: a name and a page count, set in the site's
    type. A margin box with content — even an empty string — takes its area from
    the browser's own header and footer (date, title, URL); `content: none`
-   would give it back. */
-@page {
+   would give it back. A named page, so only the CV prints it: the other pages
+   keep the browser's. */
+@media print {
+  .cv {
+    page: cv;
+  }
+}
+@page cv {
   @top-left {
     content: "";
   }

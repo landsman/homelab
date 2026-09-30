@@ -68,6 +68,16 @@ jobs:
       - name: "Install Playwright browser"
         run: make e2e-deps
 
+      # A PR's build is uploaded as its preview, so the addresses its pages give
+      # for themselves (og:url, the link-preview picture) point there, not at
+      # the live site. Pages names the alias after the branch: lowercased,
+      # anything but a letter or a digit turned into a dash, 28 characters.
+      - name: "Aim the build at its preview address"
+        if: github.event_name == 'pull_request'
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: echo "VITE_SITE_URL=https://$(printf %s "$BRANCH" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | cut -c1-28).insuit-cz.pages.dev" >> "$GITHUB_ENV"
+
       # Builds the site first and tests what was built: the prerendered pages,
       # served the way Pages serves them. The build fails if a CV link has no
       # short link in links/_redirects.

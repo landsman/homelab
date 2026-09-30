@@ -1,4 +1,5 @@
 import { test, expect } from "../fixture";
+import { waitForApp } from "../takeover";
 import { ROUTES } from "@/app/routes";
 
 test("the footer leads to the contact page and back", async ({ page }) => {
@@ -49,9 +50,9 @@ test("following a link moves focus to the new page", async ({ page }) => {
     await route.continue();
   });
   await page.goto(ROUTES.home);
-  // Once the app runs. Before that a link is a plain page load, which starts
-  // at the top of the document on its own.
-  await expect(page.getByRole("button", { name: /Switch to (dark|light) theme/ })).toBeVisible();
+  // Before the app runs a link is a plain page load, which starts at the top
+  // of the document on its own.
+  await waitForApp(page);
 
   await page.getByRole("link", { name: "Let's talk" }).click();
   await expect(page.getByRole("heading", { name: "Let's talk" })).toBeVisible();

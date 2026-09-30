@@ -2,7 +2,14 @@
 // HTML, rendered from the markdown at build time; everything the page acts on
 // (a card, a gallery, a video, a QR code) is data.
 
-export type CvImage = { src: string; alt: string; title?: string };
+export type CvImage = {
+  src: string;
+  alt: string;
+  title?: string;
+  /** In pixels, when the build could read them. */
+  width?: number;
+  height?: number;
+};
 
 /** A printed link: its QR code, and the host it leads to, split for wrapping. */
 export type CvQr = { src: string; labels: string[]; domain?: string };
@@ -22,6 +29,6 @@ export type CvProject = {
   qrs: CvQr[];
 };
 
-export type CvBlock = { html: string } | { projects: CvProject[] };
+export type CvBlock = { kind: "prose"; html: string } | { kind: "projects"; projects: CvProject[] };
 
 export type Cv = CvBlock[];

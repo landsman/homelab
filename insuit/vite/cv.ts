@@ -6,14 +6,15 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
-import { marked, type Token, type Tokens } from "marked";
+import { Marked, type Token, type Tokens } from "marked";
 import QRCode from "qrcode";
 import type { Plugin } from "vite";
 import type { Cv, CvImage, CvProject, CvQr } from "../src/features/cv/cv.types.ts";
 
 // Links out of the site — every project's website — open in a new tab, so the
-// CV stays open behind them. Links within the site keep the default.
-marked.use({
+// CV stays open behind them. Links within the site keep the default. Its own
+// instance, so the next thing to render markdown does not inherit this.
+const marked = new Marked({
   renderer: {
     link({ href, title, tokens: text }) {
       const external = /^https?:\/\//.test(href);
@@ -32,7 +33,7 @@ marked.use({
 const slug = (text: string) =>
   text
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -43,17 +44,20 @@ const isLinkLine = (t: Token) =>
     (i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)),
   );
 
-type Draft = { heading: Tokens.Heading; images: CvImage[]; tall: boolean[]; rest: Token[] };
+type Draft = { heading: Tokens.Heading; images: CvImage[]; rest: Token[] };
+
+/** A picture's size in pixels, or nothing when it cannot be read. */
+export type SizeOf = (href: string) => { width: number; height: number } | undefined;
 
 /**
  * cv.md and links/_redirects in, the page's data and its QR codes out.
- * `isTall` says whether a picture is taller than wide; it is the one thing
- * that needs the files on disk, so a test can stand in for it.
+ * `sizeOf` reads a picture's size; it is the one thing that needs the files on
+ * disk, so a test can stand in for it.
  */
 export function buildCv(
   md: string,
   redirects: string,
-  isTall: (href: string) => boolean,
+  sizeOf: SizeOf,
 ): { cv: Cv; qrs: Map<string, string> } {
   // ponytail: the markdown is ours, so marked's output goes in unsanitised.
   const tokens = marked.lexer(md);
@@ -106,7 +110,7 @@ export function buildCv(
   // view, open in the page's one modal <dialog>. The dialogs only exist on
   // screen, so each project also carries its text for print: no picture, and
   // its links as QR codes beside it.
-  const project = ({ heading, images, tall, rest }: Draft): CvProject => {
+  const project = ({ heading, images, rest }: Draft): CvProject => {
     const key = slug(heading.text);
     const links: string[] = [];
     marked.walkTokens(rest, (t) => {
@@ -118,8 +122,10 @@ export function buildCv(
       images,
       // A gallery of mostly tall pictures — phone screenshots — gets a row of
       // equal-height frames instead of the equal-size grid, which would crop
-      // each one to a strip of its status bar.
-      tallGallery: tall.filter(Boolean).length > tall.length / 2,
+      // each one to a strip of its status bar. A picture of unknown size
+      // counts as wide.
+      tallGallery:
+        images.filter((i) => (i.height ?? 0) > (i.width ?? 0)).length > images.length / 2,
       // A project that links a YouTube video shows its first picture with a
       // play button in the dialog; nothing loads from YouTube until that is
       // pressed.
@@ -146,8 +152,8 @@ export function buildCv(
   // (`h1 + p`, `h2 + .job-intro`) see the same neighbours the markdown has.
   const html = (text: string) => {
     const last = cv.at(-1);
-    if (last && "html" in last) last.html += text;
-    else cv.push({ html: text });
+    if (last?.kind === "prose") last.html += text;
+    else cv.push({ kind: "prose", html: text });
   };
 
   let group: Draft[] | null = null;
@@ -180,7 +186,7 @@ export function buildCv(
     intro = null;
   };
   const flush = () => {
-    if (group) cv.push({ projects: group.map(project) });
+    if (group) cv.push({ kind: "projects", projects: group.map(project) });
     group = null;
   };
 
@@ -192,7 +198,7 @@ export function buildCv(
     } else if (intro) {
       intro.push(t);
     } else if (t.type === "heading" && t.depth === 4) {
-      (group ??= []).push({ heading: t as Tokens.Heading, images: [], tall: [], rest: [] });
+      (group ??= []).push({ heading: t as Tokens.Heading, images: [], rest: [] });
     } else if (group) {
       const draft = group.at(-1)!;
       // A paragraph of nothing but images — one per line, or several side by side.
@@ -202,10 +208,14 @@ export function buildCv(
         pictures.length > 0 &&
         inline.every((i) => i.type === "image" || (i.type === "text" && !i.text.trim()));
       if (onlyImages) {
-        for (const i of pictures) {
-          draft.images.push({ src: i.href, alt: i.text, title: i.title ?? undefined });
-          draft.tall.push(isTall(i.href));
-        }
+        for (const i of pictures)
+          // The size lets the browser keep the picture's place before it loads.
+          draft.images.push({
+            src: i.href,
+            alt: i.text,
+            title: i.title ?? undefined,
+            ...sizeOf(i.href),
+          });
       } else draft.rest.push(t);
     } else {
       // The contact line closes the header on paper only; on screen the site's
@@ -231,17 +241,15 @@ const redirects = fileURLToPath(new URL("links/_redirects", root));
 const publicDir = new URL("public/", root);
 const qrDir = new URL("assets/cv-qr/", publicDir);
 
-// A picture whose size cannot be read (a few JPEGs trip the reader, browsers
-// render them fine) counts as wide.
-const isTall = (href: string) => {
+// A few JPEGs trip the reader, though browsers render them fine; such a
+// picture goes out without a size.
+const sizeOf: SizeOf = (href) => {
   try {
     const { width, height } = imageSize(readFileSync(new URL(`.${href}`, publicDir)));
-    return height > width;
+    return { width, height };
   } catch (error) {
-    console.warn(
-      `cv: cannot read the size of ${href} (${(error as Error).message}), treating it as wide`,
-    );
-    return false;
+    console.warn(`cv: cannot read the size of ${href} (${(error as Error).message})`);
+    return undefined;
   }
 };
 
@@ -256,7 +264,7 @@ export function cvPlugin(): Plugin {
       const { cv, qrs } = buildCv(
         readFileSync(source, "utf8"),
         readFileSync(redirects, "utf8"),
-        isTall,
+        sizeOf,
       );
       // Cleared first: a code for a link that has since left the CV would
       // otherwise ship with the next local build.

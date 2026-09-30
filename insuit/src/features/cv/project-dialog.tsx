@@ -73,7 +73,13 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
   // In the dialog every image is a button that opens it full size.
   const photos = images.map((image, index) => (
     <button key={image.src} type="button" className="photo-zoom" onClick={() => onZoom(index)}>
-      <img src={image.src} alt={image.alt} title={image.title} />
+      <img
+        src={image.src}
+        alt={image.alt}
+        title={image.title}
+        width={image.width}
+        height={image.height}
+      />
     </button>
   ));
 

@@ -10,8 +10,8 @@
   border: 0;
   background: none;
   /* Buttons don't inherit the page font — without this the icon's em-based
-     size resolves against the UA default and comes out smaller than the
-     GitHub glyph next to it. */
+     size resolves against the UA default and comes out smaller than the text
+     of the links beside it. */
   font-size: inherit;
   color: inherit;
   cursor: pointer;

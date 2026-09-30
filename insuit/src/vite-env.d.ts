@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   /** Cloudflare Web Analytics token; unset outside a deploy, so no beacon loads. */
   readonly VITE_CF_BEACON_TOKEN?: string;
+  /** Where the build will live, if not the real site (app/site.ts). */
+  readonly VITE_SITE_URL?: string;
 }
 
 /** The contact address, base64-encoded by vite.config.ts. */

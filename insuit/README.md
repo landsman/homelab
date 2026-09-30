@@ -12,7 +12,8 @@ src/
   routes/__root.tsx   the document around every page: <head>, footer
   routeTree.gen.ts    generated from routes/ by the Vite plugin, never edited
   router.tsx          the router; server.ts is the build-time renderer's entry
-  app/                what every page shares: footer, theme toggle, ROUTES, page-meta
+  app/                what every page shares: footer, theme toggle, ROUTES, page-meta,
+                      the site's address (site.ts), icon and font paths (assets.ts)
   features/<page>/    a page's own components and data
   features/cv/cv.md   the CV's source — edit this, not the components
   index.css           stylesheet entry point, @imports only
@@ -25,6 +26,7 @@ public/               copied to the site as is
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
   assets/cv/          the CV's pictures
+  _headers            Pages response headers: hashed files are cached for good
 tests/                vitest (cv/, i18n/), Playwright (e2e/), Cucumber (bdd/)
 links/                link.insuit.cz — see below
 og/                   the Open Graph card's source
@@ -37,9 +39,10 @@ other files only reference custom properties.
 ## Adding a page
 
 1. `src/routes/<name>.tsx` with `createFileRoute("/<name>")` — the route tree
-   regenerates while `make dev` runs. Its `head` takes `pageMeta({ title,
-description, path })` for the title and the link-preview tags. Parameters and
-   loaders for a dynamic page go in the same file.
+   regenerates while `make dev` runs. Its `head` takes `pageMeta(…)` for the
+   title and the link-preview tags — every page needs it: without one a page is
+   titled "Page not found", which is what the root route says until a page says
+   otherwise.
 2. The page itself in `src/features/<name>/`, rendering its own
    `<main className="wrapper">`.
 3. Its path in `ROUTES` (`src/app/routes.ts`); link to it with `<Link>`. The
@@ -49,6 +52,21 @@ description, path })` for the title and the link-preview tags. Parameters and
 
 Inside `src/`, import through the `@/` alias (`@/app/routes`), never a relative
 path — oxlint rejects `./` and `../` there.
+
+A path to an icon or a font under `public/` goes in `src/app/assets.ts`, not
+into the component as a literal.
+
+### A page with data
+
+A `loader` runs at build time **and again in the browser** on every in-app
+navigation, where there is no file system and no server. So data a page needs
+has to be in the bundle: imported, or turned into a module at build time the
+way `vite/cv.ts` does for the CV (`virtual:cv`). For a page per file —
+`/blog/$slug` from a folder of markdown — that is `import.meta.glob` in the
+loader, one chunk per post; the build finds each post by the link to it from
+an index page.
+
+### Rendered twice
 
 A page is rendered twice: at build time, where there is no `window`, and in the
 browser. Anything that needs the browser — `document`, `localStorage`,
@@ -68,7 +86,9 @@ type error. Keys are `<area>_<thing>` — `common_`, `home_`, `contact_`, `cv_`,
 English is the only locale. A second one is one entry in
 `project.inlang/settings.json` plus `messages/<locale>.json`; `make test` fails
 until it has every key. How a visitor gets that language — a URL prefix, a
-cookie — is the `strategy` in `vite.config.ts`, `baseLocale` until then.
+cookie — is the `strategy` in `vite.config.ts`, `baseLocale` until then. The
+same strategy is written once more in `package.json`'s `messages` script, which
+compiles the catalogue for the type checker; change both.
 
 Not in the catalogue: the CV itself, which is content and lives in `cv.md`, and
 the names of the services on the contact page.
@@ -80,6 +100,10 @@ Flat files decide them: `contact.html` is served at `/contact`, and both
 `.html`. An unknown address gets `404.html` with a 404.
 
 `/cv` is kept out of search engines by its own `<meta name="robots">`.
+
+Files Vite names by a hash of their content are written to `/_build/` and
+cached for good (`public/_headers`); the pages and `public/assets`, whose names
+never change, are asked for again on every visit.
 
 That is also why `make preview` — and the tests — run Cloudflare's own asset
 server instead of a plain static one: a dumb file server 404s on every URL the
@@ -106,10 +130,15 @@ make bdd       # Cucumber, likewise
 make build     # dist/client — what gets deployed
 ```
 
-`make dev` and `make build` take two values from the environment, both optional
-locally: `CONTACT_EMAIL` (the address on /contact; a placeholder without it) and
-`VITE_CF_BEACON_TOKEN` (Web Analytics; no beacon without it, so a local visit is
-never counted).
+`make dev` and `make build` take three values from the environment, all
+optional locally:
+
+- `CONTACT_EMAIL` — the address on /contact; a placeholder without it.
+- `VITE_CF_BEACON_TOKEN` — Web Analytics; no beacon without it, so a local visit
+  is never counted.
+- `VITE_SITE_URL` — where the build will live, for the addresses its pages give
+  for themselves (`og:url`, the link-preview picture). `https://www.insuit.cz`
+  without it; CI sets it to the preview's address for a PR.
 
 ## Bootstrap (once)
 
@@ -170,8 +199,9 @@ PRs run `.github/workflows/insuit-ci.yml` — `make qa`, the e2e and Cucumber
 suites against the built site, and `terraform fmt`/`validate`. Each PR from a branch of this
 repo is also uploaded to Pages under its branch name, and the preview's address
 is posted on the PR: the project is fed by direct upload, so Cloudflare builds
-no previews of its own. A preview is the build the tests ran against: no
-analytics token, no OG card, and the placeholder contact address.
+no previews of its own. A preview is the build the tests ran against: its
+pages name the preview's own address, and it has no analytics token, no OG card
+and the placeholder contact address.
 
 ## DNS cutover (manual, deliberate)
 

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
-import type { CvProject } from "@/features/cv/cv.types";
-import { buildCv } from "../../vite/cv.ts";
+import type { Cv, CvProject } from "@/features/cv/cv.types";
+import { buildCv, type SizeOf } from "../../vite/cv.ts";
 
 const md = `![Me](/assets/cv/me.webp)
 
@@ -43,14 +43,22 @@ const redirects = `# comment
 /talk https://www.youtube.com/watch?v=abc-123 302
 `;
 
-const wide = () => false;
-const projectsOf = (block: unknown) => (block as { projects: CvProject[] }).projects;
+const wide: SizeOf = () => ({ width: 1200, height: 630 });
+const projectsOf = (block: Cv[number]): CvProject[] => {
+  if (block.kind !== "projects") throw new Error(`a ${block.kind} block, not projects`);
+  return block.projects;
+};
+const proseOf = (block: Cv[number]): string => {
+  if (block.kind !== "prose") throw new Error(`a ${block.kind} block, not prose`);
+  return block.html;
+};
 
 test("a job's projects become one block between the prose around them", () => {
   const { cv } = buildCv(md, redirects, wide);
 
-  expect(cv.map((block) => Object.keys(block)[0])).toEqual(["html", "projects", "html"]);
-  const [intro, , rest] = cv as { html: string }[];
+  expect(cv.map((block) => block.kind)).toEqual(["prose", "projects", "prose"]);
+  const intro = { html: proseOf(cv[0]) };
+  const rest = { html: proseOf(cv[2]) };
   expect(projectsOf(cv[1])).toHaveLength(2);
   // The job's own block is wrapped, with its dates kept in one piece for print.
   expect(intro.html).toContain('<div class="job-intro">');
@@ -61,21 +69,30 @@ test("a job's projects become one block between the prose around them", () => {
 });
 
 test("a project carries its pictures, its video and its text for the dialog", () => {
-  const { cv } = buildCv(md, redirects, (href) => href !== "/one.png");
+  // A phone screenshot, a picture whose size cannot be read, and a wide one.
+  const { cv } = buildCv(md, redirects, (href) =>
+    href === "/one.png"
+      ? { width: 1200, height: 630 }
+      : href === "/logo.png"
+        ? undefined
+        : { width: 390, height: 844 },
+  );
   const [first, second] = projectsOf(cv[1]);
 
   expect(first).toMatchObject({
     slug: "first-a-project",
     title: "First: a project",
+    // No size could be read, so none is claimed.
     images: [{ src: "/logo.png", alt: "Logo" }],
     video: "abc-123",
   });
+  expect(first.images[0]).not.toHaveProperty("width");
   expect(first.html).toContain('href="https://example.com/" target="_blank" rel="noopener"');
 
   expect(second.images).toEqual([
-    { src: "/one.png", alt: "One", title: "A caption" },
-    { src: "/two.png", alt: "Two" },
-    { src: "/three.png", alt: "Three" },
+    { src: "/one.png", alt: "One", title: "A caption", width: 1200, height: 630 },
+    { src: "/two.png", alt: "Two", width: 390, height: 844 },
+    { src: "/three.png", alt: "Three", width: 390, height: 844 },
   ]);
   // Two of the three pictures are tall.
   expect(second.tallGallery).toBe(true);

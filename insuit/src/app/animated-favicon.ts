@@ -48,10 +48,10 @@ function frame(angle: number): string {
   return canvas.toDataURL("image/png");
 }
 
-export function animateFavicon() {
+/** Starts the animation; the function it returns stops it. */
+export function animateFavicon(): () => void {
   const link = document.querySelector<HTMLLinkElement>('link[rel="icon"][type="image/svg+xml"]');
-  if (!link) return;
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!link || matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
 
   const frames = Array.from({ length: FRAMES }, (_, i) => frame((i / FRAMES) * Math.PI * 2));
   let index = 0;
@@ -73,4 +73,9 @@ export function animateFavicon() {
 
   document.addEventListener("visibilitychange", sync);
   sync();
+
+  return () => {
+    document.removeEventListener("visibilitychange", sync);
+    clearInterval(timer);
+  };
 }

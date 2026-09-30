@@ -1,8 +1,6 @@
 import { test, expect } from "../fixture";
-import { SITE_URL } from "@/app/site";
+import { PAGES, waitForApp } from "../takeover";
 import { ROUTES } from "@/app/routes";
-
-const PAGES = [ROUTES.home, ROUTES.contact, ROUTES.cv];
 
 test.describe("in the file, without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
@@ -27,7 +25,12 @@ test.describe("in the file, without JavaScript", () => {
       expect(description, path).toBeTruthy();
       expect(await content('meta[property="og:description"]'), path).toBe(description);
 
-      expect(await content('meta[property="og:url"]'), path).toBe(SITE_URL + path);
+      // Its own address, on whatever site this build is for (VITE_SITE_URL) —
+      // and the link-preview picture on that same site.
+      const address = new URL((await content('meta[property="og:url"]')) ?? "");
+      expect(address.pathname, path).toBe(path);
+      const picture = new URL((await content('meta[property="og:image"]')) ?? "");
+      expect(picture.origin, path).toBe(address.origin);
 
       titles.push(title);
       descriptions.push(description ?? "");
@@ -50,8 +53,8 @@ test("the tab's title follows every navigation", async ({ page }) => {
   };
 
   await page.goto(ROUTES.home);
-  // Once the app runs, so the links below are navigations, not page loads.
-  await expect(page.getByRole("button", { name: /Switch to (dark|light) theme/ })).toBeVisible();
+  // So the links below are navigations, not page loads.
+  await waitForApp(page);
   await expect(page).toHaveTitle(titles.home);
 
   await page.getByRole("link", { name: "Let's talk" }).click();
@@ -72,7 +75,7 @@ test("the tab's title follows every navigation", async ({ page }) => {
 
   // Out through an address that is no page, and back in by its link.
   await page.goto("/no-such-page");
-  await expect(page.getByRole("button", { name: /Switch to (dark|light) theme/ })).toBeVisible();
+  await waitForApp(page);
   await expect(page).toHaveTitle(titles.notFound);
   await page.getByRole("link", { name: "Go to the homepage" }).click();
   await expect(page.getByRole("heading", { name: "Hello there!" })).toBeVisible();

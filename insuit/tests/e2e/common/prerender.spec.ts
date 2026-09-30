@@ -1,12 +1,10 @@
 import { test, expect } from "../fixture";
-import { expectCleanTakeover, TAKEOVER_PATHS } from "../takeover";
+import { expectCleanTakeover, PAGES, TAKEOVER_PATHS } from "../takeover";
 import { ROUTES } from "@/app/routes";
 
 // Every page is an HTML file written at build time. These pin that down: the
 // text is there with no JavaScript at all, and React takes the page over
 // without complaining that what it rendered differs from the file.
-
-const PAGES = [ROUTES.home, ROUTES.contact, ROUTES.cv];
 
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });

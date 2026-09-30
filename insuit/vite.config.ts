@@ -39,6 +39,11 @@ export default defineConfig({
     react(),
     cvPlugin(),
   ],
+  build: {
+    // Everything Vite names by a hash of its content goes in a folder of its
+    // own, apart from public/assets, so public/_headers can tell the two apart.
+    assetsDir: "_build",
+  },
   resolve: {
     // `@` is the src root — tests reach into the app without counting ../
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },

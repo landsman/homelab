@@ -70,6 +70,9 @@ export function HirePage() {
             </li>
           ))}
         </ul>
+        <p className="long">
+          {linked(m.hire_long({ cv: "\n" }), <Link to={ROUTES.cv}>{m.hire_long_cv()}</Link>)}
+        </p>
 
         {OFFERS.map(([heading, body]) => (
           <section key={heading()}>
@@ -79,9 +82,6 @@ export function HirePage() {
         ))}
 
         <p className="closing">
-          {linked(m.hire_closing({ cv: "\n" }), <Link to={ROUTES.cv}>{m.hire_closing_cv()}</Link>)}
-        </p>
-        <p className="ask">
           {linked(
             m.hire_ask({ talk: "\n" }),
             <Link to={ROUTES.contact}>{m.contact_heading()}</Link>,

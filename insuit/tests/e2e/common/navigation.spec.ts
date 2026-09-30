@@ -24,7 +24,7 @@ test("the footer leads to the contact page and back", async ({ page }) => {
   await expect(page).toHaveTitle("Michal Landsman");
 });
 
-test("/hire-me opens with the name, leading home", async ({ page }) => {
+test("/work-with-me opens with the name, leading home", async ({ page }) => {
   // The home page is the name; the CV and the contact page keep only the room.
   for (const path of [ROUTES.home, ROUTES.cv, ROUTES.contact]) {
     await page.goto(path);

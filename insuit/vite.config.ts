@@ -67,7 +67,7 @@ export default defineConfig({
     // it is not in the deployed files as text a scraper can grep either.
     __CONTACT_EMAIL__: JSON.stringify(btoa(process.env.CONTACT_EMAIL || "hello@example.com")),
     __COMMIT__: JSON.stringify(commit()),
-    // The year of the build, for what a page counts from it (/hire-me); the
+    // The year of the build, for what a page counts from it (/work-with-me); the
     // browser recounts once the page runs.
     __BUILD_YEAR__: new Date().getFullYear(),
   },

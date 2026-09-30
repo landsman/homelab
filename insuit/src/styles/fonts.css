@@ -1,6 +1,6 @@
 /* Self-hosted so there's no third-party request; latin subset only, 16 KB per
    weight. 500 is only used on the CV and for the headings inside a page's text
-   (/hire-me), and a browser fetches a face only once something on the page
+   (/work-with-me), and a browser fetches a face only once something on the page
    uses it — the other pages never download it.
    SIL OFL — see fonts/fira-mono-LICENSE.txt. */
 

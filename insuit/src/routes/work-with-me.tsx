@@ -4,7 +4,7 @@ import { ROUTES } from "@/app/routes";
 import { HirePage } from "@/features/hire/hire-page";
 import { m } from "@/paraglide/messages.js";
 
-export const Route = createFileRoute("/hire-me")({
+export const Route = createFileRoute("/work-with-me")({
   head: () => ({
     meta: pageMeta({
       title: m.hire_title(),

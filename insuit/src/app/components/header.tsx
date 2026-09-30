@@ -3,7 +3,7 @@ import { ROUTES } from "@/app/routes";
 import { m } from "@/paraglide/messages.js";
 
 // The home page is the name and sits in the middle of the screen, so it has no
-// header. /hire-me opens with the name, leading home. The rest get the same room
+// header. /work-with-me opens with the name, leading home. The rest get the same room
 // at the top without it: the CV starts with the name in large type already, and
 // "Let's talk" is a few lines in the middle, where a header only adds noise.
 export function Header() {

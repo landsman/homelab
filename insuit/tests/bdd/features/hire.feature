@@ -5,6 +5,6 @@ Feature: Finding out what I can be hired for
 
   Scenario: From the home page to the offer
     Given I am on the home page
-    When I follow "Hire me"
+    When I follow "Work with me"
     Then I see the heading "Rebuild what no longer keeps up"
     And I am offered a link to "Let's talk"

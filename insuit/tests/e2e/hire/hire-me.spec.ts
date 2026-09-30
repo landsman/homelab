@@ -3,10 +3,10 @@ import { ROUTES } from "@/app/routes";
 
 test("the home page leads to what I offer, and that to the CV behind it", async ({ page }) => {
   await page.goto(ROUTES.home);
-  await page.getByRole("link", { name: "Hire me" }).click();
+  await page.getByRole("link", { name: "Work with me" }).click();
   await expect(page).toHaveURL(ROUTES.hire);
-  await expect(page).toHaveTitle("Hire me — Michal Landsman");
-  await expect(page.getByRole("heading", { name: "Hire me", level: 1 })).toBeVisible();
+  await expect(page).toHaveTitle("Work with me — Michal Landsman");
+  await expect(page.getByRole("heading", { name: "Work with me", level: 1 })).toBeVisible();
 
   // Counted from the year I started, not written down: it is right next year too.
   await expect(

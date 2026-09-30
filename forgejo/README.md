@@ -27,21 +27,35 @@ make cron-install                                 # register daily backup cron j
 make serve                                        # publish the registry on the tailnet, see below
 ```
 
-## The container registry over the tailnet
+## What this box publishes on the tailnet
 
-`git.insuit.cz` resolves to Cloudflare, which refuses a request body over 100 MiB, and a registry
-push sends each layer as one request — measured on 2026-09-16: 100 MiB reached Forgejo (`401`),
-101 MiB was refused (`413`). So a client that pushes images talks to this Pi's tailnet name instead,
-and only the token request still goes through Cloudflare.
+`git.insuit.cz` resolves to Cloudflare, and two of Forgejo's clients are better off not going
+through it. Both are published on this box's own tailnet name:
+
+| Path | For | Why not through Cloudflare |
+|---|---|---|
+| `/v2` | the container registry | Cloudflare refuses a request body over 100 MiB and a registry push sends each layer as one request. Measured 2026-09-16: 100 MiB reached Forgejo (`401`), 101 MiB was refused (`413`), and a JVM app's dependency layer is 106 MiB — so a push cannot go through it at all |
+| `/tools-mirror` | the mirrored actions the CI runner fetches | possible, but it is a trip to a Prague edge and back for a box two hops away, about ten times per run, and it has timed out twice. See [../forgejo-runner](../forgejo-runner) |
 
 ```bash
-make serve         # publish /v2 on https://<host>.<tailnet>.ts.net
+make serve         # publish both paths
 make serve-status  # show the current serve config
-make unserve       # stop publishing it
+make unserve       # stop publishing them
 ```
 
 `https://<host>.<tailnet>.ts.net/v2/` then answers `401`, the same as `http://<host>:3000/v2/` does
 on the LAN. Like yt-archive, this needs the one-time `sudo tailscale set --operator=containers`.
+
+**Only these paths are reachable on that name.** `/`, `/user/login` and `/api/v1/…` answer `404`:
+`tailscale serve` routes by path prefix, so Forgejo's web UI and API are not on it. It is `serve`
+and not `funnel`, so nothing is reachable from the internet, and the name does not resolve in
+public DNS. The certificate is a real Let's Encrypt one that Tailscale provisions for the `ts.net`
+name, which is why no client needs `insecure-registries` or a private CA.
+
+**Renaming the box** changes that name, and with it the URL every client uses. Nothing in this
+directory has to change — `tailscale serve` publishes on whatever the node is called — but
+`../forgejo-runner/.env` and the deploy's `REGISTRY` variable both name it, and the certificate is
+reissued for the new name.
 
 Who may push is a bot account, not a person: [registry-bot.sh](registry-bot.sh).
 

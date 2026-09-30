@@ -3,10 +3,21 @@ BACKUP_DIR := /home/containers/backup/forgejo
 
 .PHONY: up down logs serve unserve serve-status backup restore cron-install
 
-# The container registry over the tailnet. git.insuit.cz goes through Cloudflare, which refuses a
-# request body over 100 MiB, and an image layer is one request — so a push goes to the tailnet name
-# instead. Requires the one-time `sudo tailscale set --operator=containers`, same as yt-archive.
-SERVE_PATH ?= /v2
+# Two paths published on this box's tailnet name, both to skip Cloudflare in front of git.insuit.cz:
+#
+#   /v2           the container registry. Cloudflare refuses a request body over 100 MiB and an
+#                 image layer is one request, so a push cannot go through it at all.
+#   /tools-mirror the mirrored actions the CI runner fetches, ten times per run. Not impossible
+#                 through Cloudflare, just a trip to Prague and back for a box two hops away —
+#                 which has timed out twice. ../forgejo-runner sends its fetches here.
+#
+# Nothing but these paths is reachable on that name: the web UI, the API and /user/login answer 404.
+# Requires the one-time `sudo tailscale set --operator=containers`, same as yt-archive.
+#
+# No hostname appears here on purpose — `tailscale serve` publishes on the node's own name, so
+# renaming the box needs no change in this file. What does need changing then is every client that
+# names it; ../forgejo-runner/.env and the deploy's REGISTRY variable are the two today.
+SERVE_PATHS ?= /v2 /tools-mirror
 
 up:
 	docker compose up -d
@@ -18,10 +29,14 @@ logs:
 	docker compose logs -f
 
 serve:
-	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://127.0.0.1:3000$(SERVE_PATH)
+	@for p in $(SERVE_PATHS); do \
+		tailscale serve --bg --https=443 --set-path=$$p http://127.0.0.1:3000$$p; \
+	done
 
 unserve:
-	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
+	@for p in $(SERVE_PATHS); do \
+		tailscale serve --https=443 --set-path=$$p off; \
+	done
 
 serve-status:
 	tailscale serve status

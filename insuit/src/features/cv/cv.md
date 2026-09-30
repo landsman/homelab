@@ -27,7 +27,7 @@ Argo CD, Azure Cloud, GitHub, GitLab CI/CD
 [policie.gov.cz](https://policie.gov.cz/) ·
 [the old site, archived](https://archiv.policie.gov.cz/)
 
-![Policie České republiky](/assets/cv/policie.png)
+![The logo of the Police of the Czech Republic](/assets/cv/policie.png)
 
 New website for the Police of the Czech Republic.
 
@@ -44,7 +44,7 @@ Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 [mv.gov.cz](https://mv.gov.cz/) ·
 [the old site, archived](https://archiv.mv.gov.cz/)
 
-![Ministerstvo vnitra](/assets/cv/mv.png)
+![The logo of the Ministry of the Interior of the Czech Republic](/assets/cv/mv.png)
 
 New website for the Ministry of the Interior of the Czech Republic.
 
@@ -61,7 +61,7 @@ Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 [hzscr.gov.cz](https://hzscr.gov.cz/) ·
 [the old site, archived](https://archiv.hzscr.gov.cz/)
 
-![Hasičský záchranný sbor České republiky](/assets/cv/hzscr.png)
+![The badge of the Fire Rescue Service of the Czech Republic](/assets/cv/hzscr.png)
 
 New website for the Fire Rescue Service of the Czech Republic.
 
@@ -77,7 +77,7 @@ Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 [casecsoftware.cz](https://casecsoftware.cz/en/homepage/)
 
-![CASEC, Chemical Abstracts Service Evidence Center](/assets/cv/casec.png)
+![The CASEC logo: Chemical Abstracts Service Evidence Center](/assets/cv/casec.png)
 
 The company's legacy desktop application, reverse-engineered and reimagined as
 a modern web-based SaaS product.
@@ -269,7 +269,7 @@ Sentry, Redmine
 
 [marianne.cz](https://www.marianne.cz/)
 
-![Marianne](/assets/cv/marianne.png)
+![The logo of the Marianne magazine](/assets/cv/marianne.png)
 
 The Marianne magazine website, relaunched on a new platform built on a Drupal
 distribution developed by the company's German branch. The work covered new
@@ -314,7 +314,7 @@ Czech at the Czech and Slovak Drupal community's yearly conference.
 
 #### Magazine online subscription
 
-![BurdaMedia Extra store](/assets/cv/predplatsi-burda.png)
+![The BurdaMedia Extra store logo](/assets/cv/predplatsi-burda.png)
 
 A custom e-commerce platform for the publisher, where customers could buy magazine
 subscriptions, often bundled with gifts, as well as single issues, cookbooks
@@ -342,7 +342,7 @@ Jenkins, Google Analytics, Google Tag Manager, PPC, RTB banners
 
 [mcdonaldscup.cz](https://www.mcdonaldscup.cz/)
 
-![The Srdcem spolu bus covered in fans' handwritten messages to the Czech hockey team, with the campaign address srdcemspolu.cz](/assets/cv/srdcem-spolu.jpg)
+![A woman and a man christening the Srdcem spolu bus with sparkling wine; it is covered in fans' handwritten messages to the Czech hockey team and carries the campaign address srdcemspolu.cz](/assets/cv/srdcem-spolu.jpg)
 
 The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
@@ -352,7 +352,7 @@ the messages were shown on screens inside Prague's O2 Arena during the games.
 
 [cz.oriflame.com](https://cz.oriflame.com/)
 
-![The Oriflame 25 let v České republice logo: 25 years of Oriflame in the Czech Republic](/assets/cv/oriflame-25.png)
+![The anniversary logo on a green leaf: 25 years of Oriflame in the Czech Republic](/assets/cv/oriflame-25.png)
 
 A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize
@@ -362,7 +362,7 @@ draw.
 
 [ketodiet.cz](https://www.ketodiet.cz)
 
-![KetoDiet, the first Czech keto diet: 15 years of losing weight with KetoDiet](/assets/cv/ketodiet.jpg)
+![KetoDiet, the first Czech keto diet: 15 years of losing weight with KetoDiet, beside a plate of green noodles with spinach and parmesan](/assets/cv/ketodiet.jpg)
 
 The KetoDiet online shop, built on a customised Joomla. I worked on several
 changes to its custom configuration: checkout variants, pricing and more.
@@ -409,7 +409,7 @@ materials, in Adobe Photoshop, Adobe Illustrator and CorelDRAW.
 
 #### Company website identity
 
-![The StudioArt logo with the tagline komplexní webová řešení, complete web solutions](/assets/cv/studioart-identity.png)
+![The StudioArt logo with its tagline, complete web solutions](/assets/cv/studioart-identity.png)
 ![How the StudioArt symbol is built: the letters S, A and R combined into one mark](/assets/cv/studioart-symbol.jpg)
 
 The StudioArt visual identity: the logo and its tagline, "komplexní webová

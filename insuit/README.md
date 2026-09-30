@@ -1,45 +1,189 @@
 # insuit.cz
 
-Personal site — a home page and a contact page. Plain HTML + `style.css`, no
-build step. Hosted on Cloudflare Pages.
+Personal site — a home page, a contact page and the CV. React + TypeScript on
+TanStack Start with file-based routes, the testing and tooling of
+[`dashboard/`](../dashboard), and plain CSS, no Tailwind. **Every page is
+rendered to an HTML file at build time**, so its text is in the page source;
+React then takes the page over in the browser. Hosted on Cloudflare Pages.
+
+**[Bun](https://bun.com/) is the one tool**: it installs the dependencies, runs
+every script and is the runtime they run on (`bunfig.toml`) — the build, the
+unit tests, Playwright, Cucumber. Nothing in `make` needs Node. None of it
+reaches the site: what is deployed is static files.
 
 ```
-site/                 the pages — this directory IS the deploy artifact
-  index.html          home; everything else is under assets/
-  contact.html        where to find me — served at `/contact`, see URLs below
-  assets/style.css    stylesheet entry point, @imports only
-  assets/css/         tokens, fonts, reset, page, typography
-  assets/css/components/  links, icons, theme toggle
-  assets/js/          theme override, animated favicon (plain JS + JSDoc)
+src/
+  routes/             one file per page — TanStack Router, file-based
+  routes/__root.tsx   the document around every page: <head>, footer
+  routeTree.gen.ts    generated from routes/ by the Vite plugin, never edited
+  router.tsx          the router; server.ts is the build-time renderer's entry
+  app/                what every page shares: footer, theme toggle, ROUTES, page-meta,
+                      the site's address (site.ts), icon and font paths (assets.ts)
+  features/<page>/    a page's own components and data
+  features/cv/cv.md   the CV's source — edit this, not the components
+  index.css           stylesheet entry point, @imports only
+  styles/             tokens, fonts, reset, page, typography, components/
+  paraglide/          the compiled messages — generated, not committed
+scripts/              the local preview server, and the check that Pages agrees with it
+bunfig.toml           makes Bun the runtime of every script, not only the launcher
+messages/en.json      every word of the interface, by key
+project.inlang/       the locales, for Paraglide
+vite/cv.ts            builds the CV page's data and QR codes from cv.md
+public/               copied to the site as is
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
-infra/                Terraform: the Pages project only — see DNS cutover below
+  assets/cv/          the CV's pictures
+  _headers            Pages response headers: hashed files are cached for good
+tests/                vitest (cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
+links/                link.insuit.cz — see below
+og/                   the Open Graph card's source
+infra/                Terraform: the Pages projects only — see DNS cutover below
 ```
 
-Every colour, size, spacing and duration lives in `assets/css/tokens.css` — the
+Every colour, size, spacing and duration lives in `src/styles/tokens.css` — the
 other files only reference custom properties.
+
+## Adding a page
+
+1. `src/routes/<name>.tsx` with `createFileRoute("/<name>")` — the route tree
+   regenerates while `make dev` runs. Its `head` takes `pageMeta(…)` for the
+   title and the link-preview tags — every page needs it: without one a page is
+   titled "Page not found", which is what the root route says until a page says
+   otherwise.
+2. The page itself in `src/features/<name>/`, rendering its own
+   `<main className="wrapper">`.
+3. Its path in `ROUTES` (`src/app/routes.ts`); link to it with `<Link>`. The
+   build finds a page by following links from `/`; one that nothing links to is
+   added to `pages` in `vite.config.ts`.
+4. Its words in `messages/en.json` (below), an e2e spec and a Cucumber scenario.
+
+Inside `src/`, import through the `@/` alias (`@/app/routes`), never a relative
+path — oxlint rejects `./` and `../` there.
+
+A path to an icon or a font under `public/` goes in `src/app/assets.ts`, not
+into the component as a literal.
+
+### A page with data
+
+A `loader` runs at build time **and again in the browser** on every in-app
+navigation, where there is no file system and no server. So data a page needs
+has to be in the bundle: imported, or turned into a module at build time the
+way `vite/cv.ts` does for the CV (`virtual:cv`). For a page per file —
+`/blog/$slug` from a folder of markdown — that is `import.meta.glob` in the
+loader, one chunk per post; the build finds each post by the link to it from
+an index page.
+
+### Rendered twice
+
+A page is rendered twice: at build time, where there is no `window`, and in the
+browser. Anything that needs the browser — `document`, `localStorage`,
+`matchMedia` — goes in an effect or an event handler, and the first render has
+to come out the same in both places. `make e2e` fails on a page where it does
+not: on the built site for elements and text, and on the dev server
+(`tests/e2e/dev/`) for attributes, which only React's development build
+reports.
+
+## Localisation
+
+Every word of the interface is a key in `messages/en.json`, used through
+Paraglide: `m.home_heading()`, `m.cv_video_play({ title })`. A missing key is a
+type error. Keys are `<area>_<thing>` — `common_`, `home_`, `contact_`, `cv_`,
+`not_found_` — and name the thing, not where it sits.
+
+English is the only locale. A second one is one entry in
+`project.inlang/settings.json` plus `messages/<locale>.json`; `make test` fails
+until it has every key. How a visitor gets that language — a URL prefix, a
+cookie — is the `strategy` in `vite.config.ts`, `baseLocale` until then. The
+same strategy is written once more in `package.json`'s `messages` script, which
+compiles the catalogue for the type checker; change both.
+
+Not in the catalogue: the CV itself, which is content and lives in `cv.md`, and
+the names of the services on the contact page.
+
+## Accessibility
+
+The target is WCAG 2.2 AA. `tests/e2e/common/a11y.spec.ts` runs axe on every
+page and with each dialog open, in both themes, and fails on a violation — so a
+new page is scanned without being listed. What axe cannot judge is worth a look
+by hand when a page changes:
+
+- **Names.** A picture beside the text that names the same thing takes
+  `alt=""`, or its description is read out as part of the name (the CV's cards).
+  A link that opens a new tab says so in a `.visually-hidden` span.
+- **Focus.** Every control shows keyboard focus with more than a faint fill. A
+  client-side navigation moves focus to the new page's `<main>`.
+- **Landmarks.** Two `<nav>`s on one page each get an `aria-label`.
+- **Language.** A passage in another language is wrapped in `<span lang="…">`,
+  in `cv.md` too; names of institutions are left as they are.
 
 ## URLs
 
-There is no trailing slash and no `.html`, and that isn't configuration — on
-Pages the file layout decides it. A flat `contact.html` is canonical at
-`/contact`; both `/contact/` and `/contact.html` 308 to it. Naming the file
-`contact/index.html` inverts the whole thing: `/contact/` becomes canonical and
-the bare `/contact` redirects to it. So link to `/contact`, and keep new pages
-flat.
+Flat files decide them: `contact.html` is served at `/contact`, and both
+`/contact/` and `/contact.html` 308 to it. There is no trailing slash and no
+`.html`. An unknown address gets `404.html` with a 404.
 
-That is also why `make dev` runs Cloudflare's own asset server instead of a
-plain static one — a dumb file server 404s on every URL the site links to.
+`/cv` is kept out of search engines by its own `<meta name="robots">`.
+
+Files Vite names by a hash of their content are written to `/_build/` and
+cached for good (`public/_headers`); the pages and `public/assets`, whose names
+never change, are asked for again on every visit.
+
+That is also why `make preview` — and the tests — do not use a plain static
+server, which 404s on every URL the site links to. `scripts/preview.ts` serves
+`dist/client` by Pages' rules: the ones above, and `_headers`. It is this
+repo's own reading of them, because Cloudflare's local server
+(`wrangler pages dev`) needs Node — under Bun it never answers. So that the two
+cannot drift apart unnoticed, CI asks each PR's real preview on Pages the same
+questions (`scripts/check-pages.ts`).
+
+## Which version is live
+
+Every page carries `<meta name="commit" content="…">`: the commit it was built
+from. View the source, or ask:
+
+```bash
+bun scripts/check-pages.ts https://www.insuit.cz            # says the commit
+bun scripts/check-pages.ts https://www.insuit.cz <commit>   # fails unless it is that one
+```
+
+CI does the second after every deploy — a PR's preview and production alike —
+and the PR comment names the commit its preview was built from.
+
+## The CV
+
+`src/features/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
+data — served to the app as `virtual:cv` — on `make dev` (again on every edit)
+and on `make build`: prose is rendered to HTML, every `####` is a project with
+its pictures, video and links as data, and each link gets a QR code for print.
+The pictures live in `public/assets/cv/`, each under 150 KB (`make images`).
+
+A card or a gallery shows a picture about 240 px wide, so the build also writes
+a 480 px WebP of every wider picture to `public/assets/cv-thumbs/` (not
+committed), with Bun's own image reader — `Bun.Image`, no image library. The
+full picture is fetched only when it is opened.
 
 ## Local
 
 ```bash
 make           # list the targets
-make install   # oxfmt
-make dev       # http://localhost:4321
-make format    # oxfmt (the Vite+ formatter — handles HTML and CSS)
-make qa        # check formatting without writing — what CI runs
+make install   # the dependencies (bun install)
+make dev       # http://localhost:4321, hot reload
+make preview   # the built site, served by Pages' rules, http://localhost:8788
+make qa        # images, typecheck, oxfmt, oxlint, unit tests
+make e2e       # Playwright against the built site; make e2e-head to watch it
+make bdd       # Cucumber, likewise
+make build     # dist/client — what gets deployed
 ```
+
+`make dev` and `make build` take three values from the environment, all
+optional locally:
+
+- `CONTACT_EMAIL` — the address on /contact; a placeholder without it.
+- `VITE_CF_BEACON_TOKEN` — Web Analytics; no beacon without it, so a local visit
+  is never counted.
+- `VITE_SITE_URL` — where the build will live, for the addresses its pages give
+  for themselves (`og:url`, the link-preview picture). `https://www.insuit.cz`
+  without it; CI sets it to the preview's address for a PR.
 
 ## Bootstrap (once)
 
@@ -90,12 +234,19 @@ Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
    and the Web Analytics site, and keeps email obfuscation on. It manages
    nothing else in the zone.
-2. The Web Analytics token from `terraform output` and the
-   `INSUIT_CONTACT_EMAIL` variable replace the `__CF_BEACON_TOKEN__` and
-   `__CONTACT_EMAIL__` placeholders in `site/*.html`.
-3. `wrangler pages deploy insuit/site`.
+2. `make build`, with the Web Analytics token from `terraform output` and the
+   `INSUIT_CONTACT_EMAIL` variable in its environment. The address is the one
+   thing left out of the prerendered HTML: it is in the bundle base64-encoded
+   and shown once the page runs, so no deployed file has it as text.
+3. `wrangler pages deploy insuit/dist/client`.
 
-PRs run `.github/workflows/insuit-ci.yml` — oxfmt check + `terraform fmt`/`validate`.
+PRs run `.github/workflows/insuit-ci.yml` — `make qa`, the e2e and Cucumber
+suites against the built site, and `terraform fmt`/`validate`. Each PR from a branch of this
+repo is also uploaded to Pages under its branch name, and the preview's address
+is posted on the PR: the project is fed by direct upload, so Cloudflare builds
+no previews of its own. A preview is the build the tests ran against: its
+pages name the preview's own address, link-preview card included, and it has no
+analytics token and the placeholder contact address.
 
 ## DNS cutover (manual, deliberate)
 
@@ -137,8 +288,8 @@ link can change after the CV is printed, and every copy still works.
   link. It is the whole link.insuit.cz site, together with `links/404.html`.
   Two sections: readable profile links (`/github`, `/linkedin`, `/x`, …) to use
   anywhere, and the CV's QR codes.
-- `make cv` gives each project link in `site/cv.md` the code whose target is
-  that link. A link with no rule stops the build and prints a rule to add, so a
+- The build gives each project link in `cv.md` the code whose target is that
+  link. A link with no rule stops the build and prints a rule to add, so a
   QR code never leads nowhere.
 - To send a printed code elsewhere: change its target in `links/_redirects`
   and the link in `cv.md` to match. Never delete or reuse a printed code.
@@ -150,9 +301,11 @@ link can change after the CV is printed, and every copy still works.
   proxied CNAME, which takes precedence over the `*` wildcard.
 
 Locally: `npx wrangler pages dev links --port 4322`, then
-`curl -sI http://localhost:4322/<code>`.
+`curl -sI http://localhost:4322/<code>`. This is the one command here that
+needs Node: Cloudflare's local server does not answer under Bun.
 
 ## Ports
 
-None — not self-hosted. If it ever moves onto the Pi, `site/` drops straight into
-`nginx:alpine` with no source changes; claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.
+None — not self-hosted. If it ever moves onto the Pi, `dist/client` goes into
+`nginx:alpine` with `try_files $uri $uri.html` and `404.html` as the error page;
+claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.

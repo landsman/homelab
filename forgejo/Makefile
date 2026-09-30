@@ -1,7 +1,7 @@
 VOLUME := forgejo_forgejo
 BACKUP_DIR := /home/containers/backup/forgejo
 
-.PHONY: up down logs serve unserve serve-status backup restore cron-install
+.PHONY: up down logs serve unserve serve-status test backup restore cron-install
 
 # Two paths published on this box's tailnet name, both to skip Cloudflare in front of git.insuit.cz:
 #
@@ -40,6 +40,11 @@ unserve:
 
 serve-status:
 	tailscale serve status
+
+# Stubs docker and curl, so it runs anywhere — no Forgejo, no network.
+test:
+	@shellcheck registry-bot.sh registry-bot.test.sh
+	@bash registry-bot.test.sh
 
 backup:
 	docker run --rm \

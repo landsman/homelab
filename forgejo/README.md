@@ -57,7 +57,8 @@ directory has to change — `tailscale serve` publishes on whatever the node is 
 `../forgejo-runner/.env` and the deploy's `REGISTRY` variable both name it, and the certificate is
 reissued for the new name.
 
-Who may push is a bot account, not a person: [registry-bot.sh](registry-bot.sh).
+Who may push is a bot account, not a person: [registry-bot.sh](registry-bot.sh), whose decisions
+are covered by `make test` — it stubs docker and curl, so it needs neither Forgejo nor a network.
 
 ## Accounts that are not people
 

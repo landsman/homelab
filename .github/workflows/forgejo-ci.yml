@@ -1,0 +1,23 @@
+name: "forgejo ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'forgejo/**'
+      - '!**/*.md'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: forgejo
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # registry-bot.sh talks to Forgejo's CLI and API; the test stubs docker and
+      # curl on PATH, so this needs neither and runs on a cloud runner.
+      - name: "shellcheck + registry-bot tests"
+        run: make test

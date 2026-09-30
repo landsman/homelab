@@ -31,15 +31,16 @@ Worth being precise about what this buys, because the obvious phrasing is wrong:
 the dependency was never on github.com or codeberg.org directly. Actions resolve
 against `DEFAULT_ACTIONS_URL`, which is `data.forgejo.org` — Forgejo's own host —
 and Codeberg carries Forgejo's *source*, not its actions. What the mirrors remove
-is a build depending on any host outside the LAN at all, including that one.
+is the dependency on that host. `git.insuit.cz` is still reached through
+Cloudflare unless the next section is set up.
 
 Two rules for adding another:
 
 - **It has to be public on the instance.** The automatic token reads the
-  repositories associated with the workflow, not an unrelated private one, and the
-  runner fetches an action with a plain `git fetch` carrying no credentials. A
-  private mirror fails with an authentication error, not a helpful one. There is
-  nothing to protect in a copy of a public action.
+  repositories associated with the workflow, not an unrelated private one, and
+  over the tailnet the runner fetches without any token (next section). A private
+  mirror fails with an authentication error, not a helpful one. There is nothing
+  to protect in a copy of a public action.
 - **Check the tag resolves to the same commit as upstream** before pointing a
   workflow at the copy. `git ls-remote <mirror> <tag>` against the same on the
   origin; a mirror is a copy, and a copy can be wrong or stale.
@@ -48,6 +49,82 @@ Nothing else is mirrored, so a workflow reaching for an action not in that table
 still goes out to the WAN. `actions/setup-java` and `jdx/mise-action` are not
 mirrored *anywhere* — not even by Forgejo — which is why a JVM job installs its
 toolchain with a script instead of an action.
+
+## Fetching actions over the tailnet
+
+`git.insuit.cz` is proxied by Cloudflare, so fetching the mirrors above leaves the
+network, reaches an edge in Prague and comes back — for a Forgejo instance two
+hops away, about ten times per eight-job run. A tag is fetched again every time,
+even with the clone cached. It has already failed at the connect stage twice,
+against two different hosts, which ruled the remote out and pointed at the path.
+
+Set `FORGEJO_INTERNAL_URL` in `.env` to the box's **tailnet** name, with no
+trailing slash:
+
+    FORGEJO_INTERNAL_URL=https://nas.dog-macaroni.ts.net
+
+`runner/git` is mounted over `git` in the runner container and rewrites
+`https://git.insuit.cz/tools-mirror/` to that address for the runner's own
+fetches. Leave the variable unset and it passes everything through.
+
+The tailnet name rather than the LAN address and port, for three reasons:
+
+- **The certificate is real.** Tailscale provisions a Let's Encrypt one for the
+  `ts.net` name, so verification stays on and nothing needs a private CA or
+  `insecure-registries`. The LAN side has no TLS listener at all — Forgejo
+  publishes plain HTTP on 3000 and nothing on 443 — so that route meant sending
+  fetches in the clear.
+- **No address is hard-coded.** A box that moves, or a runner on another
+  network, keeps working as long as both are on the tailnet.
+- **It is the same door the deploy already uses.** The registry is published on
+  that name for a harder reason — Cloudflare refuses a request body over 100 MiB
+  and an image layer is one request — and the actions ride along on a second
+  path. Both are in [`../forgejo/Makefile`](../forgejo/Makefile) as
+  `SERVE_PATHS`, and nothing else on Forgejo is reachable there: `/`,
+  `/user/login` and the API all answer `404`.
+
+Only the mirrors are rewritten, not the whole instance. An action from another
+owner on this Forgejo still goes through Cloudflare — slower, but it works,
+where a rewrite of everything would turn it into a `404`.
+
+**When the Pi is renamed, this line is the change.** `tailscale serve` publishes
+on whatever the node is called, so the serving side needs nothing; the
+certificate is reissued for the new name.
+
+Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
+
+- **The action cache.** The runner keeps a bare clone of each action under
+  `data/.cache/act` and reuses it only while `git remote get-url origin` equals
+  the `uses:` URL. `get-url` applies `insteadOf`, so a rewrite in the environment
+  makes every `uses:` clone from scratch, and overlapping jobs leave worktrees on
+  disk that nothing removes. The wrapper skips that one command.
+- **Host jobs.** A `self-hosted:host` job runs in this container and inherits its
+  environment. Its checkout would be rewritten too, and `actions/checkout` scopes
+  its token to `https://git.insuit.cz/`, so a private repository would fail on
+  auth. The wrapper only touches calls that start with `--no-replace-objects`,
+  which is how the runner invokes git and a checkout does not.
+
+The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
+to the tailnet name either — which is why a mirror has to be public. If a runner
+upgrade changes how it calls git, the fetches go back through Cloudflare without
+an error; the check below shows it.
+
+Check it on the box once the runner is up:
+
+```sh
+docker compose exec runner git --no-replace-objects ls-remote --get-url https://git.insuit.cz/tools-mirror/checkout
+docker compose exec runner git --no-replace-objects ls-remote https://git.insuit.cz/tools-mirror/checkout v7
+```
+
+The first should print the tailnet address, which proves the wrapper is in
+place. The second makes the fetch the runner makes: a sha means it works; a hang
+means the origin is not reachable from this box, and the problem is not
+Cloudflare.
+
+Checked from both runners on 2026-09-30:
+`git ls-remote https://nas.dog-macaroni.ts.net/tools-mirror/checkout v7.0.1`
+resolves to `3d3c42e5aac5`, the commit the workflows pin.
+
 ## Job caches
 
 A job container is fresh every run, so without help every JVM job downloads the

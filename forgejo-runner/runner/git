@@ -1,0 +1,27 @@
+#!/bin/sh
+# Mounted over `git` in the runner container, in front of /usr/bin/git.
+#
+# Sends the runner's own action fetches for https://git.insuit.cz/tools-mirror/
+# to FORGEJO_INTERNAL_URL instead of out through Cloudflare. Those are the calls
+# that start with --no-replace-objects. A `self-hosted:host` job runs its steps
+# in this container too, and its checkout is left alone.
+#
+# Only the mirrors: that is the one path published on the tailnet name next to
+# the registry (../forgejo/Makefile, SERVE_PATHS). Rewriting the whole instance
+# would turn every other repository into a 404 instead of a slower fetch.
+#
+# Not for `remote get-url`: the runner reuses its cached clone of an action only
+# while that equals the `uses:` URL, and get-url applies insteadOf.
+#
+# The runner scopes the job token to https://git.insuit.cz/, so it is not sent
+# to the tailnet name either. An action fetched this way has to be public.
+#
+# ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
+# sending --no-replace-objects first, fetches quietly go back through Cloudflare.
+if [ -n "$FORGEJO_INTERNAL_URL" ] && [ "$1" = --no-replace-objects ]; then
+  case " $* " in
+    *" remote get-url "*) ;;
+    *) set -- -c "url.$FORGEJO_INTERNAL_URL/tools-mirror/.insteadOf=https://git.insuit.cz/tools-mirror/" "$@" ;;
+  esac
+fi
+exec /usr/bin/git "$@"

@@ -31,7 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # The version the image runs (docker/Dockerfile), read from packageManager
+      # — not whatever is latest on the day.
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ip-service/package.json
 
       - name: "Install dependencies"
         run: make install

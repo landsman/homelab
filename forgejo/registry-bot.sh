@@ -2,9 +2,14 @@
 #
 # The account that pushes and pulls container images, and the team that lets it.
 #
-#     ./registry-bot.sh account                 create the account if it is missing
-#     FORGEJO_TOKEN=… ./registry-bot.sh team    create the team and put the account in it
-#     ./registry-bot.sh token read|write        print a token — pipe it, never paste it
+#     ORG=… BOT_USER=… ./registry-bot.sh account   create the account if it is missing
+#     ORG=… BOT_USER=… FORGEJO_TOKEN=… \
+#         ./registry-bot.sh team                   create the team and put the account in it
+#     BOT_USER=… ./registry-bot.sh token read|write print a token — pipe it, never paste it
+#
+# ORG and BOT_USER have no defaults **on purpose**: this repository is public, and the
+# organisations on the instance are clients' or employers'. The values belong in the private
+# runbook of the project that uses them, not in a default here.
 #
 # Run it on the Pi: the account and the tokens go through Forgejo's own CLI inside the container,
 # which is the only way to make them without a password. The team needs the API, and a token with
@@ -12,15 +17,15 @@
 #
 # Why an account rather than a person's token: Forgejo has no token scoped to one package or one
 # repository, so what limits a leaked token is the reach of the account behind it. This one is in
-# no organisation but `$ORG`, and its password is random and known to nobody — it exists to hold
-# tokens. Images belong to the organisation, not to it: package visibility follows the owner, and a
-# user account is public, which would publish every image it owns.
+# no organisation but the one named in ORG, and its password is random and known to nobody — it
+# exists to hold tokens. Images belong to the organisation, not to the bot: package visibility
+# follows the owner, and a user account is public, which would publish every image it owns.
 #
 # Everything here is idempotent, so it is also the answer to "what was set up on this box".
 set -eu
 
-org=${ORG:-trisbee}
-bot=${BOT_USER:-trisbee-bot}
+org=${ORG:?set ORG to the organisation whose packages the bot may write}
+bot=${BOT_USER:?set BOT_USER to the bot account name}
 team=${TEAM:-packages}
 api=${FORGEJO_URL:-https://git.insuit.cz}/api/v1
 container=${FORGEJO_CONTAINER:-forgejo}

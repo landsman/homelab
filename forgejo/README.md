@@ -61,13 +61,20 @@ Who may push is a bot account, not a person: [registry-bot.sh](registry-bot.sh).
 
 ## Accounts that are not people
 
-| Account | What it is for | Made by | Notes |
-|---|---|---|---|
-| `trisbee-bot` | pushes and pulls the container images of the `trisbee` organisation | [registry-bot.sh](registry-bot.sh), 2026-09-30 | member of the `packages` team in that organisation and nothing else; its password is random and known to nobody, because it exists to hold tokens. Two tokens: `registry-write` for the pipeline, `registry-read` for the host that pulls |
+One bot account per organisation that publishes images, made by
+[registry-bot.sh](registry-bot.sh) and shaped the same way every time:
 
-A machine account is worth a row here for the same reason the stacks are in this repo: otherwise the
-answer to "what is this and who made it" is somebody's memory. Removing one is
-`forgejo admin user delete --username <name>` inside the container.
+- named `<org>-bot`, and a member of that organisation's `packages` team and nothing else — Forgejo
+  has no token scoped to one package, so the reach of the account is what limits a leaked token;
+- its password is random and known to nobody, because the account exists to hold tokens;
+- two tokens, `registry-write` for a pipeline and `registry-read` for the host that pulls.
+
+**Which organisations those are is not written down here.** This repository is public and the
+organisations on the instance are clients' and employers'; the concrete names live in the private
+runbook of the project that uses them. `forgejo admin user list` inside the container is the
+answer on the box itself.
+
+Removing one: `forgejo admin user delete --username <name>`, also inside the container.
 
 ## Ports
 

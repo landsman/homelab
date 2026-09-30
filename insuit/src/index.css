@@ -12,6 +12,7 @@
 @import url("./styles/components/icons.css");
 @import url("./styles/components/theme-toggle.css");
 @import url("./styles/components/cv.css");
+@import url("./styles/components/hire.css");
 
 /* Print last, so it overrides the screen styles above. */
 @import url("./styles/print.css");

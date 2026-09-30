@@ -11,8 +11,9 @@ export function Footer() {
       <nav className="links" aria-label={m.common_nav_label()}>
         {pathname === ROUTES.home ? (
           <>
-            <Link to={ROUTES.contact}>{m.contact_heading()}</Link>
+            <Link to={ROUTES.hire}>{m.hire_heading()}</Link>
             <Link to={ROUTES.cv}>{m.common_nav_cv()}</Link>
+            <Link to={ROUTES.contact}>{m.contact_heading()}</Link>
           </>
         ) : (
           // The arrow is for the eye; a screen reader is told "Back", not

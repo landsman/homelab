@@ -7,7 +7,7 @@ on:
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
       # cv.md is the CV page's source, not docs — re-included after the skip.
-      - 'insuit/site/cv.md'
+      - 'insuit/src/features/cv/cv.md'
   push:
     branches: [main]
     paths:
@@ -15,7 +15,7 @@ on:
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
       # cv.md is the CV page's source, not docs — re-included after the skip.
-      - 'insuit/site/cv.md'
+      - 'insuit/src/features/cv/cv.md'
   workflow_dispatch:
 
 jobs:
@@ -43,16 +43,41 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          # 26, not 25: Cucumber runs on 22 || 24 || >=26 and refuses the rest
+          node-version: 26
+          cache: npm
+          cache-dependency-path: insuit/package-lock.json
 
-      - name: "Install JS deps"
+      - name: "Install dependencies"
         run: make install
 
-      - name: "Quality checks (oxfmt + oxlint)"
+      - name: "Quality checks (images, typecheck, oxfmt, oxlint, unit tests)"
         run: make qa
 
-      - name: "Render the CV page"
-        run: make cv
+      # Builds the CV from cv.md too, and fails if one of its links has no
+      # short link in links/_redirects.
+      - name: "Build"
+        run: make build
+
+      # Keyed on the lockfile: only a dependency bump (which may move the
+      # Playwright version) has to re-download the ~90 MB browser.
+      - name: "Cache Playwright browser"
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('insuit/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-playwright-
+
+      # Still runs on a cache hit — the browser is skipped, the apt system deps
+      # are not cached and have to be installed either way.
+      - name: "Install Playwright browser"
+        run: make e2e-deps
+
+      - name: "End-to-end tests"
+        run: make e2e
+
+      - name: "Feature tests"
+        run: make bdd
 
   infra:
     runs-on: ubuntu-latest
@@ -83,14 +108,14 @@ jobs:
       - name: "Install (deps, font symlinks)"
         run: make install
       - name: "Chromium + system deps"
-        run: npx playwright install --with-deps chromium
+        run: make e2e-deps
       - name: "Render OG card"
         run: make og
       - name: "Upload preview"
         uses: actions/upload-artifact@v7
         with:
           name: og-preview
-          path: insuit/site/assets/icons/og-image.png
+          path: insuit/public/assets/icons/og-image.png
           retention-days: 7
 
   # The scan lives in landsman/config and is called, not copied — one place to
@@ -99,5 +124,5 @@ jobs:
   security:
     uses: landsman/config/.github/workflows/semgrep.yml@main
     with:
-      packs: p/secrets p/javascript p/terraform
+      packs: p/secrets p/typescript p/terraform
       path: insuit

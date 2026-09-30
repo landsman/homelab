@@ -20,7 +20,7 @@ From `insuit/`:
 
 ```bash
 make install   # deps, font symlinks, chromium
-make og        # renders og/og.html → site/assets/icons/og-image.png (gitignored)
+make og        # renders og/og.html → public/assets/icons/og-image.png (gitignored)
 ```
 
 `make og` uses **Playwright's headless Chromium** — maintained (Microsoft),
@@ -34,4 +34,4 @@ screenshot.
 - Fira Mono (SIL OFL) comes from the `@fontsource/fira-mono` dev dependency; the
   site ships its own committed 400 weight, so nothing is duplicated in git.
 - Card size is 1200×630 (1.91:1), the size `og:image:width/height` declare in
-  `site/index.html`. Keep them in sync if you change the canvas.
+  `index.html`. Keep them in sync if you change the canvas.

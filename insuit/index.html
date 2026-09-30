@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- The one document every route is served from: a crawler that runs no
+         JavaScript sees this head on every page. The title follows the route
+         once the app is up (src/app/hooks/use-page-title.ts). -->
+    <title>Michal Landsman</title>
+    <meta
+      name="description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.insuit.cz/" />
+    <meta property="og:title" content="Michal Landsman" />
+    <meta
+      property="og:description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+    <meta property="og:image" content="https://www.insuit.cz/assets/icons/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Michal Landsman — developer in Prague." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Michal Landsman" />
+    <meta
+      name="twitter:description"
+      content="Developer in Prague. Infrastructure, backends and the client apps on top of them; some of it as CTO, all of it hands-on."
+    />
+    <meta name="twitter:image" content="https://www.insuit.cz/assets/icons/og-image.png" />
+
+    <!-- src/app/animated-favicon.ts swaps this href to animate; it stays the
+         static disc until then. -->
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
+
+    <link
+      rel="preload"
+      href="/assets/fonts/fira-mono-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <!-- Inline and blocking, not part of the app: a stored override has to land
+         on <html> before first paint, or the page flashes the OS theme first.
+         The toggle that writes it is src/app/components/theme-toggle.tsx. -->
+    <script>
+      try {
+        var theme = localStorage.getItem("theme");
+        if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+      } catch {
+        /* Storage unavailable: Safari in private mode throws on access. */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

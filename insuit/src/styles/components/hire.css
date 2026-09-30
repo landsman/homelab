@@ -1,0 +1,74 @@
+/* /work-with-me: a page meant to be skimmed. */
+
+/* The title at the CV name's scale, so the page starts clearly above the
+   headings under it. */
+.hire h1 {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--tracking-display);
+}
+
+/* A monospace face sets every letter in the same wide box, so running text
+   reads loose; a touch tighter holds the words together. */
+.hire .content {
+  letter-spacing: var(--tracking-text);
+}
+
+/* Each offer is read top to bottom like the rest of the page: its heading,
+   its paragraph right under it, a faint rule before the next. The heading
+   sits a step above the text and well below the title. */
+.hire section {
+  margin-top: calc(var(--space) * 1.5);
+  padding-top: calc(var(--space) * 1.5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+.hire .long + section {
+  margin-top: var(--space-section);
+}
+.hire section h2 {
+  margin: 0;
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-h1);
+  letter-spacing: var(--tracking-company);
+  text-wrap: balance;
+}
+.hire section h2 + p {
+  margin: calc(var(--space-tight) * 2) 0 0;
+}
+
+/* Under the short list, where the long one is. */
+.hire .long {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}
+.hire ul + .long {
+  margin-top: var(--space);
+  /* In line with the bullets' text: the list's 1.5em indent, measured in the
+     text's size rather than this line's smaller one. */
+  padding-left: calc(var(--font-size-base) * 1.5);
+}
+
+/* The close, under the same rule that separates the offers: the question the
+   page asks. */
+.hire .closing {
+  margin-top: calc(var(--space) * 1.5);
+  padding-top: calc(var(--space) * 1.5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+/* On a wide screen: more air between offers and above the close, and the
+   question at the heading's size. */
+@media (min-width: 720px) {
+  .hire section,
+  .hire .closing {
+    margin-top: calc(var(--space) * 2);
+    padding-top: calc(var(--space) * 2);
+  }
+  .hire .closing {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+    text-wrap: balance;
+  }
+}

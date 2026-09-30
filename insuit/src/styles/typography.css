@@ -14,6 +14,37 @@ h1 {
   margin: var(--space) 0;
   text-wrap: pretty;
 }
+/* A label, not a headline: small, spaced capitals that name what is under
+   them and step aside for it — the CV's section labels, on any page. */
+.content .label {
+  margin: calc(var(--space) * 2) 0 calc(var(--space-tight) * 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+/* The short version at the top: one line each, a quiet square in front. */
+.content ul {
+  margin: var(--space) 0;
+  padding-left: 1.5em;
+  list-style: square;
+}
+.content li {
+  margin: calc(var(--space-tight) * 2) 0;
+  text-wrap: pretty;
+}
+/* Bold is the medium cut: the one heavier weight that is self-hosted, so the
+   browser never fakes a bolder one. */
+.content strong {
+  font-weight: var(--font-weight-medium);
+}
+.content li::marker {
+  color: var(--color-muted);
+}
+.content section + p {
+  margin-top: var(--space-section);
+}
 .content > :first-child {
   margin-top: 0;
 }

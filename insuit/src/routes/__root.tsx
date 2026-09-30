@@ -10,6 +10,7 @@ import { loadAnalytics } from "@/app/analytics";
 import { animateFavicon } from "@/app/animated-favicon";
 import { FONTS, ICONS } from "@/app/assets";
 import { Footer } from "@/app/components/footer";
+import { Header } from "@/app/components/header";
 import { THEME_BOOT } from "@/app/theme-boot";
 import styles from "@/index.css?url";
 import { m } from "@/paraglide/messages.js";
@@ -67,8 +68,8 @@ function Shell({ children }: { children: ReactNode }) {
   );
 }
 
-// Each page renders its own <main>; the footer under it is shared. Both are
-// laid out by <body> (styles/page.css).
+// Each page renders its own <main>; the header over it and the footer under it
+// are shared. All three are laid out by <body> (styles/page.css).
 function RootLayout() {
   useEffect(() => {
     loadAnalytics();
@@ -95,6 +96,7 @@ function RootLayout() {
 
   return (
     <>
+      <Header />
       <Outlet />
       <Footer />
     </>

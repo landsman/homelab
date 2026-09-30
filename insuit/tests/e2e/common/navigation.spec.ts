@@ -24,6 +24,18 @@ test("the footer leads to the contact page and back", async ({ page }) => {
   await expect(page).toHaveTitle("Michal Landsman");
 });
 
+test("/work-with-me opens with the name, leading home", async ({ page }) => {
+  // The home page is the name; the CV and the contact page keep only the room.
+  for (const path of [ROUTES.home, ROUTES.cv, ROUTES.contact]) {
+    await page.goto(path);
+    await expect(page.getByRole("banner"), path).toHaveCount(0);
+  }
+
+  await page.goto(ROUTES.hire);
+  await page.getByRole("banner").getByRole("link", { name: "Michal Landsman" }).click();
+  await expect(page).toHaveURL(ROUTES.home);
+});
+
 test("a page opens from its own address", async ({ page }) => {
   await page.goto(ROUTES.cv);
   await expect(page).toHaveTitle("Curriculum Vitae - Michal Landsman");

@@ -18,6 +18,10 @@ When("I press {string}", async function (this: AppWorld, key: string) {
   await this.page.keyboard.press(key);
 });
 
+Then("I see the heading {string}", async function (this: AppWorld, name: string) {
+  await expect(this.page.getByRole("heading", { name })).toBeVisible();
+});
+
 Then("I am offered a link to {string}", async function (this: AppWorld, name: string) {
   await expect(this.page.getByRole("link", { name })).toBeVisible();
 });

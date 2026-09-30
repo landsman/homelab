@@ -1,6 +1,7 @@
 # insuit.cz
 
-Personal site — a home page, a contact page and the CV. React + TypeScript on
+Personal site — a home page, what I can be hired for, a contact page and the
+CV. React + TypeScript on
 TanStack Start with file-based routes, the testing and tooling of
 [`dashboard/`](../dashboard), and plain CSS, no Tailwind. **Every page is
 rendered to an HTML file at build time**, so its text is in the page source;
@@ -87,7 +88,7 @@ reports.
 
 Every word of the interface is a key in `messages/en.json`, used through
 Paraglide: `m.home_heading()`, `m.cv_video_play({ title })`. A missing key is a
-type error. Keys are `<area>_<thing>` — `common_`, `home_`, `contact_`, `cv_`,
+type error. Keys are `<area>_<thing>` — `common_`, `home_`, `hire_`, `contact_`, `cv_`,
 `not_found_` — and name the thing, not where it sits.
 
 English is the only locale. A second one is one entry in

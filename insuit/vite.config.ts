@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -5,6 +6,18 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, configDefaults } from "vitest/config";
 import { ROUTES } from "./src/app/routes.ts";
 import { cvPlugin } from "./vite/cv.ts";
+
+// The commit the site is built from, written into every page's <head> so a
+// deployed page says which version it is. CI names it (a PR is checked out as a
+// merge commit, which is not the commit that was pushed); locally it is HEAD.
+function commit(): string {
+  if (process.env.COMMIT_SHA) return process.env.COMMIT_SHA;
+  try {
+    return execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
+  } catch {
+    return "unknown";
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -53,6 +66,7 @@ export default defineConfig({
     // is in no file of the repo — and goes into the bundle base64-encoded, so
     // it is not in the deployed files as text a scraper can grep either.
     __CONTACT_EMAIL__: JSON.stringify(btoa(process.env.CONTACT_EMAIL || "hello@example.com")),
+    __COMMIT__: JSON.stringify(commit()),
   },
   server: {
     port: 4321,

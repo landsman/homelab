@@ -19,6 +19,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      // Which version this is: view source, or scripts/check-pages.ts.
+      { name: "commit", content: __COMMIT__ },
       // What a page gets when no route says otherwise — and the one page with
       // no route to say it is "nothing here", so these are its tags. Every
       // real page replaces both through pageMeta() in its own `head`; one that

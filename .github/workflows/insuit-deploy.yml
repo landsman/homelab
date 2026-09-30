@@ -91,6 +91,7 @@ jobs:
         env:
           VITE_CF_BEACON_TOKEN: ${{ needs.infra.outputs.analytics_token }}
           CONTACT_EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           test -n "$VITE_CF_BEACON_TOKEN" && test -n "$CONTACT_EMAIL"
           make install build
@@ -99,6 +100,13 @@ jobs:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy insuit/dist/client --project-name=insuit-cz --branch=main
+      # The upload succeeding is not the site being live. This waits until
+      # www.insuit.cz says it is this commit, then asks it what the tests asked
+      # the local preview: the pages, the redirects, the 404, the caching.
+      - name: "Is this commit live?"
+        env:
+          COMMIT: ${{ github.sha }}
+        run: bun insuit/scripts/check-pages.ts https://www.insuit.cz "$COMMIT"
       # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
       # at (insuit/links/).
       - uses: cloudflare/wrangler-action@v4

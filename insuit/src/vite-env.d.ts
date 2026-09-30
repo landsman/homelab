@@ -7,6 +7,9 @@ interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
 }
 
+/** The commit the site was built from (vite.config.ts). */
+declare const __COMMIT__: string;
+
 /** The contact address, base64-encoded by vite.config.ts. */
 declare const __CONTACT_EMAIL__: string;
 

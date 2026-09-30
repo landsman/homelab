@@ -10,6 +10,7 @@ test.describe("in the file, without JavaScript", () => {
   test("every page describes itself, not another page", async ({ page }) => {
     const titles: string[] = [];
     const descriptions: string[] = [];
+    const commits: string[] = [];
 
     for (const path of PAGES) {
       await page.goto(path);
@@ -32,9 +33,14 @@ test.describe("in the file, without JavaScript", () => {
       const picture = new URL((await content('meta[property="og:image"]')) ?? "");
       expect(picture.origin, path).toBe(address.origin);
 
+      commits.push((await content('meta[name="commit"]')) ?? "");
       titles.push(title);
       descriptions.push(description ?? "");
     }
+
+    // Each page names the commit it was built from, and all name the same one.
+    expect(new Set(commits).size).toBe(1);
+    expect(commits[0]).toMatch(/^[0-9a-f]{40}$/);
 
     expect(new Set(titles).size).toBe(PAGES.length);
     expect(new Set(descriptions).size).toBe(PAGES.length);

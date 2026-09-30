@@ -136,6 +136,19 @@ repo's own reading of them, because Cloudflare's local server
 cannot drift apart unnoticed, CI asks each PR's real preview on Pages the same
 questions (`scripts/check-pages.ts`).
 
+## Which version is live
+
+Every page carries `<meta name="commit" content="…">`: the commit it was built
+from. View the source, or ask:
+
+```bash
+bun scripts/check-pages.ts https://www.insuit.cz            # says the commit
+bun scripts/check-pages.ts https://www.insuit.cz <commit>   # fails unless it is that one
+```
+
+CI does the second after every deploy — a PR's preview and production alike —
+and the PR comment names the commit its preview was built from.
+
 ## The CV
 
 `src/features/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
@@ -232,8 +245,8 @@ suites against the built site, and `terraform fmt`/`validate`. Each PR from a br
 repo is also uploaded to Pages under its branch name, and the preview's address
 is posted on the PR: the project is fed by direct upload, so Cloudflare builds
 no previews of its own. A preview is the build the tests ran against: its
-pages name the preview's own address, and it has no analytics token, no OG card
-and the placeholder contact address.
+pages name the preview's own address, link-preview card included, and it has no
+analytics token and the placeholder contact address.
 
 ## DNS cutover (manual, deliberate)
 

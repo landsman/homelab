@@ -96,7 +96,9 @@ One bot account per organisation that publishes images, made by
 - named `<org>-bot`, and a member of that organisation's `packages` team and nothing else — Forgejo
   has no token scoped to one package, so the reach of the account is what limits a leaked token;
 - its password is random and known to nobody, because the account exists to hold tokens;
-- two tokens, `registry-write` for a pipeline and `registry-read` for the host that pulls.
+- one token per holder — `registry-write-<pipeline>`, `registry-read-<box>` — because Forgejo
+  refuses a name the account already has and can never print an old token again, and because
+  revoking the box that pulls must not log out the pipeline that pushes.
 
 **Which organisations those are is not written down here.** This repository is public and the
 organisations on the instance are clients' and employers'; the concrete names live in the private

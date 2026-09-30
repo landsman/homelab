@@ -21,6 +21,9 @@ on:
 jobs:
   site:
     runs-on: ubuntu-latest
+    # A step that hangs fails the job here instead of holding a runner for
+    # the six hours GitHub allows by default.
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: insuit
@@ -52,10 +55,11 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('insuit/bun.lock') }}
           restore-keys: ${{ runner.os }}-playwright-
 
-      # Still runs on a cache hit — the browser is skipped, the apt system deps
-      # are not cached and have to be installed either way.
+      # The browser only, not `make e2e-deps`: that also installs its system
+      # libraries through apt, which the hosted runner already has — and apt is
+      # what hung this job for fourteen minutes when Ubuntu's mirror was down.
       - name: "Install Playwright browser"
-        run: make e2e-deps
+        run: make browser
 
       # The link-preview card is not committed, so it is drawn here: the build
       # then carries it, and a PR's preview shows the card its pages point at.
@@ -106,6 +110,7 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       github.head_ref != 'main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # The environment the deploy reads the same token from.
     environment: production
     permissions:
@@ -145,6 +150,7 @@ jobs:
 
   infra:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: insuit/infra

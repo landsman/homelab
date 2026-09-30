@@ -40,7 +40,7 @@ preview: build ## Build, then serve it the way Pages does, http://localhost:8788
 	npm run preview
 
 clean: ## Remove everything a build or an install wrote
-	rm -rf dist node_modules src/paraglide public/assets/cv-qr .tanstack
+	rm -rf dist node_modules src/paraglide public/assets/cv-qr.svg .tanstack
 
 ##@ Quality assurance
 

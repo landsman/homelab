@@ -99,7 +99,8 @@ function Projects({
                 {project.qrs.map((qr) => (
                   <figure key={qr.src} className="print-qr">
                     {/* Not lazy: a lazy image hidden on screen is never
-                        fetched, so it would miss print. */}
+                        fetched, so it would miss print. All the codes are
+                        views of one file, so that is one request. */}
                     <img src={qr.src} alt="" fetchPriority="low" />
                     {/* A long host wraps after a dot, never inside its domain. */}
                     <figcaption>

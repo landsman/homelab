@@ -15,7 +15,7 @@ og/*.woff2
 public/assets/icons/og-image.png
 
 # The printed CV's QR codes — written by vite/cv.ts whenever the CV is built.
-public/assets/cv-qr/
+public/assets/cv-qr.svg
 
 # The compiled message catalogue — written by Paraglide from messages/*.json on
 # every build. (project.inlang/ keeps its own ignore file: all but settings.json.)

@@ -3,7 +3,7 @@
 // drift. Runs inside Vite: on `make dev` (again on every edit of the markdown),
 // on `make build` and under the tests.
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import { Marked, type Token, type Tokens } from "marked";
@@ -51,6 +51,12 @@ const isLinkLine = (t: Token) =>
     (i) => i.type === "link" || (i.type === "text" && /^[\s·]*$/.test(i.text)),
   );
 
+/** Where the page asks for the QR codes; the plugin below writes the file. */
+const QR_SPRITE = "/assets/cv-qr.svg";
+// The codes stand this far apart in the file, in modules. The largest QR code
+// there is has 177 to a side.
+const QR_PITCH = 200;
+
 type Draft = { heading: Tokens.Heading; images: CvImage[]; rest: Token[] };
 
 /** A picture's size in pixels, or nothing when it cannot be read. */
@@ -65,28 +71,36 @@ export function buildCv(
   md: string,
   redirects: string,
   sizeOf: SizeOf,
-): { cv: Cv; qrs: Map<string, string> } {
+): { cv: Cv; qrSprite: string } {
   // ponytail: the markdown is ours, so marked's output goes in unsanitised.
   const tokens = marked.lexer(md);
   const render = (list: Token[]) =>
     marked.parser(Object.assign(list, { links: tokens.links }) as Token[]);
 
   // Paper cannot be clicked, so a project's links print as QR codes, each with
-  // the site's name under it, in place of the line of links. The codes are SVG
-  // files, drawn from qrcode's module grid and written next to the other assets.
-  const qrs = new Map<string, string>();
+  // the site's name under it, in place of the line of links. The codes are
+  // drawn from qrcode's module grid into one SVG file, side by side, each with
+  // a <view> that frames it: `cv-qr.svg#q3` shows the third. One file, because
+  // the screen never shows them and yet has to fetch them — a picture hidden
+  // until print is not there in time if it is only asked for then.
+  const codes: string[] = [];
   const qr = (href: string) => {
     const { modules } = QRCode.create(href, { errorCorrectionLevel: "M" });
     const size = modules.size;
+    const left = codes.length * QR_PITCH;
+    // One rectangle per run of dark modules in a row, not one per module.
     let path = "";
     for (let y = 0; y < size; y++)
-      for (let x = 0; x < size; x++) if (modules.get(y, x)) path += `M${x} ${y}h1v1h-1z`;
-    const file = `${qrs.size + 1}.svg`;
-    qrs.set(
-      file,
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges"><path d="${path}"/></svg>`,
-    );
-    return `/assets/cv-qr/${file}`;
+      for (let x = 0; x < size; x++) {
+        if (!modules.get(y, x)) continue;
+        let run = 1;
+        while (x + run < size && modules.get(y, x + run)) run++;
+        path += `M${left + x} ${y}h${run}v1h-${run}z`;
+        x += run;
+      }
+    const id = `q${codes.length + 1}`;
+    codes.push(`<view id="${id}" viewBox="${left} 0 ${size} ${size}"/><path d="${path}"/>`);
+    return `${QR_SPRITE}#${id}`;
   };
 
   // A printed code never points at the project's site directly: it points at
@@ -249,14 +263,15 @@ export function buildCv(
   closeIntro();
   flush();
 
-  return { cv, qrs };
+  const qrSprite = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Math.max(codes.length, 1) * QR_PITCH} ${QR_PITCH}" shape-rendering="crispEdges">${codes.join("")}</svg>`;
+  return { cv, qrSprite };
 }
 
 const root = new URL("../", import.meta.url);
 const source = fileURLToPath(new URL("src/features/cv/cv.md", root));
 const redirects = fileURLToPath(new URL("links/_redirects", root));
 const publicDir = new URL("public/", root);
-const qrDir = new URL("assets/cv-qr/", publicDir);
+const qrSprite = new URL(`.${QR_SPRITE}`, publicDir);
 
 // A few JPEGs trip the reader, though browsers render them fine; such a
 // picture goes out without a size.
@@ -270,7 +285,7 @@ const sizeOf: SizeOf = (href) => {
   }
 };
 
-/** Serves the CV's data as `virtual:cv` and writes its QR codes into public/. */
+/** Serves the CV's data as `virtual:cv` and writes its QR codes into public/assets. */
 export function cvPlugin(): Plugin {
   const id = "\0virtual:cv";
   return {
@@ -278,17 +293,9 @@ export function cvPlugin(): Plugin {
     resolveId: (name) => (name === "virtual:cv" ? id : undefined),
     load(loaded) {
       if (loaded !== id) return;
-      const { cv, qrs } = buildCv(
-        readFileSync(source, "utf8"),
-        readFileSync(redirects, "utf8"),
-        sizeOf,
-      );
-      // Cleared first: a code for a link that has since left the CV would
-      // otherwise ship with the next local build.
-      rmSync(qrDir, { recursive: true, force: true });
-      mkdirSync(qrDir, { recursive: true });
-      for (const [file, svg] of qrs) writeFileSync(new URL(file, qrDir), svg);
-      return `export default ${JSON.stringify(cv)}`;
+      const built = buildCv(readFileSync(source, "utf8"), readFileSync(redirects, "utf8"), sizeOf);
+      writeFileSync(qrSprite, built.qrSprite);
+      return `export default ${JSON.stringify(built.cv)}`;
     },
     // An edit to either file rebuilds the page while `make dev` runs: a
     // virtual module has no file of its own for the dev server to watch.

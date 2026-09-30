@@ -11,7 +11,8 @@ export type CvImage = {
   height?: number;
 };
 
-/** A printed link: its QR code, and the host it leads to, split for wrapping. */
+/** A printed link: its QR code (one view of the shared file), and the host it
+    leads to, split for wrapping. */
 export type CvQr = { src: string; labels: string[]; domain?: string };
 
 export type CvProject = {

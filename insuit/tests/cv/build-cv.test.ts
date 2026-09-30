@@ -109,24 +109,28 @@ test("a project carries its pictures, its video and its text for the dialog", ()
 });
 
 test("print gets a project's links as QR codes of their short links, not as text", () => {
-  const { cv, qrs } = buildCv(md, redirects, wide);
+  const { cv, qrSprite } = buildCv(md, redirects, wide);
   const [first, second] = projectsOf(cv[1]);
 
   expect(first.printHtml).not.toContain("example.com");
   expect(first.printHtml).toContain("What it was.");
   expect(first.qrs).toEqual([
-    { src: "/assets/cv-qr/1.svg", labels: [], domain: "example.com" },
-    { src: "/assets/cv-qr/2.svg", labels: [], domain: "youtube.com" },
+    { src: "/assets/cv-qr.svg#q1", labels: [], domain: "example.com" },
+    { src: "/assets/cv-qr.svg#q2", labels: [], domain: "youtube.com" },
   ]);
   expect(second.qrs).toEqual([]);
-  expect([...qrs.keys()]).toEqual(["1.svg", "2.svg"]);
-  expect(qrs.get("1.svg")).toMatch(/^<svg .*<path d="M/);
+  // One file holds both, each behind a view that frames it.
+  const code = (sprite: string, id: string) =>
+    sprite.match(new RegExp(`<view id="${id}" viewBox="[^"]+"/><path d="[^"]+"/>`))?.[0];
+  expect(qrSprite).toMatch(/^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 400 200"/);
+  expect(code(qrSprite, "q1")).toContain('viewBox="0 0 ');
+  expect(code(qrSprite, "q2")).toContain('viewBox="200 0 ');
 
   // The code holds the short link, not the project's address: the same address
   // behind another short code draws another picture.
   const renamed = buildCv(md, redirects.replace("/ex ", "/another "), wide);
-  expect(renamed.qrs.get("1.svg")).not.toEqual(qrs.get("1.svg"));
-  expect(renamed.qrs.get("2.svg")).toEqual(qrs.get("2.svg"));
+  expect(code(renamed.qrSprite, "q1")).not.toEqual(code(qrSprite, "q1"));
+  expect(code(renamed.qrSprite, "q2")).toEqual(code(qrSprite, "q2"));
 });
 
 test("a link with no short link stops the build and names the rule to add", () => {

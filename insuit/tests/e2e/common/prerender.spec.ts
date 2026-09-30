@@ -81,18 +81,24 @@ test.describe("without JavaScript", () => {
     });
   }
 
-  test("the CV's printed QR codes are files the build wrote", async ({ page, request }) => {
+  test("the CV's printed QR codes are views of one file the build wrote", async ({
+    page,
+    request,
+  }) => {
     await page.goto(ROUTES.cv);
     const codes = await page
-      .locator('img[src^="/assets/cv-qr/"]')
+      .locator('img[src^="/assets/cv-qr.svg#"]')
       .evaluateAll((images) => images.map((image) => image.getAttribute("src") ?? ""));
     expect(codes.length).toBeGreaterThan(0);
-    // One code per link: two links never share a file.
+    // One code per link: two links never share a view.
     expect(new Set(codes).size).toBe(codes.length);
 
-    const first = await request.get(codes[0]);
-    expect(first.headers()["content-type"]).toContain("image/svg+xml");
-    expect(await first.text()).toMatch(/^<svg .*<path d="M/);
+    const file = await request.get("/assets/cv-qr.svg");
+    expect(file.headers()["content-type"]).toContain("image/svg+xml");
+    const svg = await file.text();
+    // Every view a picture asks for is in the file.
+    const missing = codes.filter((src) => !svg.includes(`<view id="${src.split("#")[1]}" `));
+    expect(missing).toEqual([]);
   });
 });
 

@@ -53,9 +53,10 @@ path — oxlint rejects `./` and `../` there.
 A page is rendered twice: at build time, where there is no `window`, and in the
 browser. Anything that needs the browser — `document`, `localStorage`,
 `matchMedia` — goes in an effect or an event handler, and the first render has
-to come out the same in both places. `tests/e2e/common/prerender.spec.ts` fails
-on a page whose elements or text differ; a differing attribute only shows as a
-console error under `make dev`.
+to come out the same in both places. `make e2e` fails on a page where it does
+not: on the built site for elements and text, and on the dev server
+(`tests/e2e/dev/`) for attributes, which only React's development build
+reports.
 
 ## Localisation
 

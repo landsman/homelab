@@ -1,6 +1,5 @@
+import { SITE_URL } from "@/app/site";
 import { m } from "@/paraglide/messages.js";
-
-export const SITE_URL = "https://www.insuit.cz";
 
 // 1200×630, rendered from og/og.html by `make og` — keep the two in sync.
 const SHARE_IMAGE = `${SITE_URL}/assets/icons/og-image.png`;

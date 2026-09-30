@@ -89,6 +89,8 @@
   --cv-thumb-height: 160px;
   --play-size: 64px;
   --close-size: 40px;
+  /* The ring keyboard focus draws on the round buttons. */
+  --focus-ring-width: 2px;
   --close-size-touch: 48px;
   --thumb-padding: 6px;
   --photo-caption-room: 4em;

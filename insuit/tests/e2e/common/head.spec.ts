@@ -60,7 +60,7 @@ test("the tab's title follows every navigation", async ({ page }) => {
   await page.getByRole("link", { name: "Let's talk" }).click();
   await expect(page).toHaveTitle(titles.contact);
 
-  await page.getByRole("link", { name: "← Back" }).click();
+  await page.getByRole("link", { name: "Back" }).click();
   await expect(page).toHaveTitle(titles.home);
 
   await page.getByRole("link", { name: "Curriculum vitae" }).click();

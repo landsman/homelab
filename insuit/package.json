@@ -25,6 +25,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@cucumber/cucumber": "^13.2.1",
     "@fontsource/fira-mono": "^5.2.6",
     "@inlang/paraglide-js": "^2.25.4",

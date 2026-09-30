@@ -19,7 +19,7 @@ test("the footer leads to the contact page and back", async ({ page }) => {
     "mailto:hello@example.com",
   );
 
-  await page.getByRole("link", { name: "← Back" }).click();
+  await page.getByRole("link", { name: "Back" }).click();
   await expect(page).toHaveURL(ROUTES.home);
   await expect(page).toHaveTitle("Michal Landsman");
 });

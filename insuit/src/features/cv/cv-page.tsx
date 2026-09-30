@@ -61,11 +61,13 @@ function Projects({
                 <span className="frame">
                   {logo ? (
                     // Below the first screen for all but a few: fetched as the
-                    // reader gets near, not all 23 with the page.
+                    // reader gets near, not all 23 with the page. No alt: the
+                    // project's name is right under it in the same button, and
+                    // the picture's own description would be read before it as
+                    // part of the name. The dialog has the description.
                     <img
                       src={logo.src}
-                      alt={logo.alt}
-                      title={logo.title}
+                      alt=""
                       width={logo.width}
                       height={logo.height}
                       loading="lazy"

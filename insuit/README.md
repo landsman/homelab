@@ -93,6 +93,22 @@ compiles the catalogue for the type checker; change both.
 Not in the catalogue: the CV itself, which is content and lives in `cv.md`, and
 the names of the services on the contact page.
 
+## Accessibility
+
+The target is WCAG 2.2 AA. `tests/e2e/common/a11y.spec.ts` runs axe on every
+page and with each dialog open, in both themes, and fails on a violation — so a
+new page is scanned without being listed. What axe cannot judge is worth a look
+by hand when a page changes:
+
+- **Names.** A picture beside the text that names the same thing takes
+  `alt=""`, or its description is read out as part of the name (the CV's cards).
+  A link that opens a new tab says so in a `.visually-hidden` span.
+- **Focus.** Every control shows keyboard focus with more than a faint fill. A
+  client-side navigation moves focus to the new page's `<main>`.
+- **Landmarks.** Two `<nav>`s on one page each get an `aria-label`.
+- **Language.** A passage in another language is wrapped in `<span lang="…">`,
+  in `cv.md` too; names of institutions are left as they are.
+
 ## URLs
 
 Flat files decide them: `contact.html` is served at `/contact`, and both

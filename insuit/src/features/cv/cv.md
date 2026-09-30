@@ -308,7 +308,7 @@ indistinguishable from the native screens around it.
 
 ![Talk: A first Drupal 8 project through the eyes of a non-Drupalist, Michal Landsman, DrupalCamp CS, 27 May 2017, Brno](/assets/cv/drupalcamp-2017.jpg)
 
-"První projekt na Drupal 8 očima nedrupalisty": the first project on Drupal 8,
+<span lang="cs">"První projekt na Drupal 8 očima nedrupalisty"</span>: the first project on Drupal 8,
 seen through the eyes of someone who was not a Drupal developer. A talk in
 Czech at the Czech and Slovak Drupal community's yearly conference.
 

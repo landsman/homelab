@@ -1,7 +1,9 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "common_nav_cv": "Curriculum vitae",
-  "common_nav_back": "← Back",
+  "common_nav_label": "Site",
+  "common_nav_back": "Back",
+  "common_opens_new_tab": "(opens in a new tab)",
   "common_theme_switch": "Switch theme",
   "common_theme_to_dark": "Switch to dark theme",
   "common_theme_to_light": "Switch to light theme",
@@ -16,6 +18,7 @@
   "contact_description": "Where to find Michal Landsman, developer in Prague.",
   "contact_heading": "Let's talk",
   "contact_lead": "You'll find me here:",
+  "contact_links_label": "Contact and profiles",
   "cv_title": "Curriculum Vitae - Michal Landsman",
   "cv_description": "Michal Landsman, full-stack developer in Prague: experience and projects.",
   "cv_projects_label": "Projects",

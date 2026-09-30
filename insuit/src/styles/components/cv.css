@@ -234,8 +234,9 @@ html:has(.cv) {
   scrollbar-gutter: stable;
 }
 
-/* The × sits in a circle that fills on hover and on keyboard focus — the fill
-   is the focus indicator, so the browser's square outline goes. */
+/* The × sits in a circle that fills on hover. The fill is too faint to be a
+   focus indicator on its own (1.1:1 against the dialog), so keyboard focus also
+   draws a ring in the text colour, round like the button. */
 .dialog-close {
   position: absolute;
   top: calc(var(--page-padding) - var(--close-size) / 4);
@@ -255,8 +256,9 @@ html:has(.cv) {
   cursor: pointer;
   transition: background-color var(--speed);
 }
-.dialog-close:focus {
-  outline: none;
+.dialog-close:focus-visible {
+  outline: var(--focus-ring-width) solid currentcolor;
+  outline-offset: 2px;
 }
 .dialog-close:hover,
 .dialog-close:focus-visible {
@@ -481,8 +483,9 @@ html:has(.cv) {
   transform: translateY(-50%);
   transition: background-color var(--speed);
 }
-.photo-step:focus {
-  outline: none;
+.photo-step:focus-visible {
+  outline: var(--focus-ring-width) solid currentcolor;
+  outline-offset: 2px;
 }
 .photo-step:hover,
 .photo-step:focus-visible {

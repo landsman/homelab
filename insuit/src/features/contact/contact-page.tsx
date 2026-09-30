@@ -23,7 +23,7 @@ export function ContactPage() {
       <div className="content">
         <p>{m.contact_lead()}</p>
 
-        <nav className="links links-stacked">
+        <nav className="links links-stacked" aria-label={m.contact_links_label()}>
           {email && <a href={`mailto:${email}`}>{email}</a>}
           {PROFILES.map(({ name, url }) => (
             <a
@@ -34,6 +34,7 @@ export function ContactPage() {
               rel="noopener"
             >
               {name}
+              <span className="visually-hidden"> {m.common_opens_new_tab()}</span>
             </a>
           ))}
         </nav>

@@ -34,4 +34,4 @@ screenshot.
 - Fira Mono (SIL OFL) comes from the `@fontsource/fira-mono` dev dependency; the
   site ships its own committed 400 weight, so nothing is duplicated in git.
 - Card size is 1200×630 (1.91:1), the size `og:image:width/height` declare in
-  `index.html`. Keep them in sync if you change the canvas.
+  `src/app/page-meta.ts`. Keep them in sync if you change the canvas.

@@ -20,12 +20,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* React mounts into #root, which gets no box of its own: the page's <main>
-   and <footer> lay out as the body's own flex children. */
-#root {
-  display: contents;
-}
-
 /* `margin: auto` does the centering rather than justify-content, because auto
    margins collapse to 0 when the content overflows — so a viewport shorter
    than the text scrolls from the top instead of clipping it out of reach.

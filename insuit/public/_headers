@@ -1,7 +1,0 @@
-# Cloudflare Pages response headers. The CV is hidden from search engines. Every
-# route is served from the one index.html, which cannot say "noindex" for /cv
-# alone, so the header does.
-/cv
-  X-Robots-Tag: noindex, nofollow
-/cv/*
-  X-Robots-Tag: noindex, nofollow

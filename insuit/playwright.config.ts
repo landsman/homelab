@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 4321;
+const PORT = 8788;
 // `make e2e-head` sets this so a watched run moves at human speed; 0 otherwise.
 const SLOW_MO = Number(process.env.SLOW_MO) || 0;
 
@@ -24,8 +24,10 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], viewport: { width: 1600, height: 1000 } },
     },
   ],
+  // The built site, served the way Pages serves it — not the dev server: what
+  // is under test is the prerendered HTML, its flat URLs and its 404.
   webServer: {
-    command: "npm run dev",
+    command: "npm run build && npm run preview",
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

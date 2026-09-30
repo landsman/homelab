@@ -15,17 +15,23 @@ async function isUp(): Promise<boolean> {
   }
 }
 
-// Playwright starts the app through its own `webServer`; Cucumber has no such
-// thing, so the same job is done here — reuse a running `make dev`, else spawn.
+// Playwright starts the site through its own `webServer`; Cucumber has no such
+// thing, so the same job is done here — reuse a running `make preview`, else
+// build the site and serve it.
 async function startApp(): Promise<void> {
   if (await isUp()) return;
 
-  server = spawn("npm", ["run", "dev"], { stdio: "ignore" });
+  server = spawn("npm run build && npm run preview", {
+    shell: true,
+    stdio: "ignore",
+    // Its own process group, so stopping it takes the server down with the shell.
+    detached: true,
+  });
   for (let attempt = 0; attempt < 120; attempt++) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (await isUp()) return;
   }
-  throw new Error(`the dev server never answered on ${BASE_URL}`);
+  throw new Error(`the preview never answered on ${BASE_URL}`);
 }
 
 BeforeAll(async function () {
@@ -47,5 +53,5 @@ After(async function (this: AppWorld) {
 
 AfterAll(async function () {
   await browser?.close();
-  server?.kill();
+  if (server?.pid) process.kill(-server.pid);
 });

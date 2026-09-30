@@ -1,14 +1,12 @@
 import { Fragment, useState } from "react";
 import cv from "virtual:cv";
-import { usePageTitle } from "@/app/hooks/use-page-title";
 import type { CvImage, CvProject } from "@/features/cv/cv.types";
 import { PhotoDialog } from "@/features/cv/photo-dialog";
 import { ProjectDialog } from "@/features/cv/project-dialog";
 import { Prose } from "@/features/cv/prose";
+import { m } from "@/paraglide/messages.js";
 
 export function CvPage() {
-  usePageTitle("Curriculum Vitae - Michal Landsman");
-
   const [project, setProject] = useState<CvProject | null>(null);
   const [zoom, setZoom] = useState<{ photos: CvImage[]; index: number } | null>(null);
 
@@ -53,7 +51,7 @@ function Projects({
   return (
     <>
       {/* A small label names the row of cards, the way "Experience" names the jobs. */}
-      <p className="projects-label">Projects</p>
+      <p className="projects-label">{m.cv_projects_label()}</p>
       <div className="projects">
         {projects.map((project) => {
           const [logo] = project.images;

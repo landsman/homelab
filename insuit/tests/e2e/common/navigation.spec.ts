@@ -29,10 +29,13 @@ test("a page opens from its own address", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Michal Landsman", level: 1 })).toBeVisible();
 });
 
-test("an address that is no page says so and leads home", async ({ page }) => {
-  await page.goto("/no-such-page");
+test("an address that is no page answers 404, says so and leads home", async ({ page }) => {
+  const response = await page.goto("/no-such-page");
+  expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Nothing here" })).toBeVisible();
+  await expect(page).toHaveTitle("Page not found — Michal Landsman");
 
   await page.getByRole("link", { name: "Go to the homepage" }).click();
   await expect(page).toHaveURL(ROUTES.home);
+  await expect(page.getByRole("heading", { name: "Hello there!" })).toBeVisible();
 });

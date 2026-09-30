@@ -1,22 +1,14 @@
-import { usePageTitle } from "@/app/hooks/use-page-title";
+import { m } from "@/paraglide/messages.js";
 
 export function HomePage() {
-  usePageTitle("Michal Landsman");
-
   return (
     <main className="wrapper">
-      <h1>Hello there!</h1>
+      <h1>{m.home_heading()}</h1>
 
       <div className="content">
-        <p>I'm Michal, a developer in Prague.</p>
-        <p>
-          Infrastructure, backends, and the client apps on top of them. Some of it as CTO, all of it
-          hands-on.
-        </p>
-        <p>
-          Design taken as seriously as the deploy — down to the wording. Rebuildable from zero, or
-          it isn't done.
-        </p>
+        <p>{m.home_intro()}</p>
+        <p>{m.home_work()}</p>
+        <p>{m.home_craft()}</p>
       </div>
     </main>
   );

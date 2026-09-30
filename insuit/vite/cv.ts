@@ -269,9 +269,10 @@ export function cvPlugin(): Plugin {
     },
     // An edit to either file rebuilds the page while `make dev` runs: a
     // virtual module has no file of its own for the dev server to watch.
-    handleHotUpdate({ file, server }) {
+    // Called once for the browser's modules and once for the renderer's.
+    hotUpdate({ file }) {
       if (file !== source && file !== redirects) return;
-      const module = server.moduleGraph.getModuleById(id);
+      const module = this.environment.moduleGraph.getModuleById(id);
       return module ? [module] : [];
     },
   };

@@ -54,11 +54,6 @@ jobs:
       - name: "Quality checks (images, typecheck, oxfmt, oxlint, unit tests)"
         run: make qa
 
-      # Builds the CV from cv.md too, and fails if one of its links has no
-      # short link in links/_redirects.
-      - name: "Build"
-        run: make build
-
       # Keyed on the lockfile: only a dependency bump (which may move the
       # Playwright version) has to re-download the ~90 MB browser.
       - name: "Cache Playwright browser"
@@ -73,6 +68,9 @@ jobs:
       - name: "Install Playwright browser"
         run: make e2e-deps
 
+      # Builds the site first and tests what was built: the prerendered pages,
+      # served the way Pages serves them. The build fails if a CV link has no
+      # short link in links/_redirects.
       - name: "End-to-end tests"
         run: make e2e
 
@@ -113,7 +111,7 @@ jobs:
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy insuit/dist --project-name=insuit-cz --branch=${{ github.head_ref }}
+          command: pages deploy insuit/dist/client --project-name=insuit-cz --branch=${{ github.head_ref }}
       - name: "Link the preview on the PR"
         env:
           GH_TOKEN: ${{ github.token }}

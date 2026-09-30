@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
+import { m } from "@/paraglide/messages.js";
 
 /* Theme override.
    The OS drives the theme by default (see styles/tokens.css); this only handles
    the manual override and persists it. The stored override is applied to
-   <html> by the inline script in index.html, before first paint. */
+   <html> by the inline script in the document's head (app/theme-boot.ts),
+   before first paint. */
 
 type Theme = "light" | "dark";
 
 const OS_DARK = "(prefers-color-scheme: dark)";
-const root = document.documentElement;
 
 const osTheme = (): Theme => (matchMedia(OS_DARK).matches ? "dark" : "light");
-const activeTheme = (): Theme => (root.dataset.theme as Theme | undefined) ?? osTheme();
+const activeTheme = (): Theme =>
+  (document.documentElement.dataset.theme as Theme | undefined) ?? osTheme();
 
 /** Persist the override, or clear it. Failures are ignored — the theme still
     applies for the current page view. */
@@ -25,12 +27,15 @@ function store(theme: Theme | null) {
 }
 
 export function ThemeToggle() {
-  const [active, setActive] = useState(activeTheme);
+  // Unknown until the page runs in a browser: the prerendered button is hidden,
+  // since without JS it would do nothing and the OS preference already applies.
+  const [active, setActive] = useState<Theme | null>(null);
 
-  // Keep the label honest when the OS flips and no override is set.
   useEffect(() => {
     const os = matchMedia(OS_DARK);
     const sync = () => setActive(activeTheme());
+    sync();
+    // Keep the label honest when the OS flips and no override is set.
     os.addEventListener("change", sync);
     return () => os.removeEventListener("change", sync);
   }, []);
@@ -38,7 +43,8 @@ export function ThemeToggle() {
   // Flip the theme. Landing back on what the OS says drops the override
   // entirely, so the page resumes following the system from then on.
   const toggle = () => {
-    const next: Theme = active === "dark" ? "light" : "dark";
+    const root = document.documentElement;
+    const next: Theme = activeTheme() === "dark" ? "light" : "dark";
     if (next === osTheme()) {
       delete root.dataset.theme;
       store(null);
@@ -51,7 +57,12 @@ export function ThemeToggle() {
 
   // The label names the theme a click would switch to — on aria-label for
   // screen readers, on title so a sighted user gets the same answer on hover.
-  const label = `Switch to ${active === "dark" ? "light" : "dark"} theme`;
+  const label =
+    active === null
+      ? m.common_theme_switch()
+      : active === "dark"
+        ? m.common_theme_to_light()
+        : m.common_theme_to_dark();
 
   return (
     <button
@@ -59,6 +70,7 @@ export function ThemeToggle() {
       type="button"
       title={label}
       aria-label={label}
+      hidden={active === null}
       onClick={toggle}
     >
       <span className="icon-theme" aria-hidden="true" />

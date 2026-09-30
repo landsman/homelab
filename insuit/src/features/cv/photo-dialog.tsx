@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { CvImage } from "@/features/cv/cv.types";
 import { closeOnBackdrop } from "@/features/cv/dialog";
+import { m } from "@/paraglide/messages.js";
 
 type Props = {
   /** The open project's photos in gallery order, and which one is shown. */
@@ -34,7 +35,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       id="photo-dialog"
       className="photo-dialog"
       closedby="any"
-      aria-label="Photo"
+      aria-label={m.cv_photo_label()}
       tabIndex={-1}
       onClick={closeOnBackdrop}
       onClose={onClose}
@@ -47,8 +48,8 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       <button
         className="project-dialog-close"
         type="button"
-        aria-label="Close"
-        title="Close"
+        aria-label={m.cv_dialog_close()}
+        title={m.cv_dialog_close()}
         onClick={() => ref.current?.close()}
       >
         ×
@@ -57,7 +58,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         id="photo-previous"
         className="photo-step"
         type="button"
-        aria-label="Previous photo"
+        aria-label={m.cv_photo_previous()}
         hidden={single}
         onClick={() => onStep(-1)}
       >
@@ -67,7 +68,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         id="photo-next"
         className="photo-step"
         type="button"
-        aria-label="Next photo"
+        aria-label={m.cv_photo_next()}
         hidden={single}
         onClick={() => onStep(1)}
       >

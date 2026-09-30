@@ -1,4 +1,4 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["dist/", "src/routeTree.gen.ts"]
+  "ignorePatterns": ["dist/", "src/paraglide/", "src/routeTree.gen.ts"]
 }

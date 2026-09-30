@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CvProject } from "@/features/cv/cv.types";
 import { closeOnBackdrop } from "@/features/cv/dialog";
 import { Prose } from "@/features/cv/prose";
+import { m } from "@/paraglide/messages.js";
 
 type Props = {
   /** The project to show; null keeps the dialog closed and empty. */
@@ -52,8 +53,8 @@ export function ProjectDialog({ project, onClose, onZoom }: Props) {
       <button
         className="project-dialog-close"
         type="button"
-        aria-label="Close"
-        title="Close"
+        aria-label={m.cv_dialog_close()}
+        title={m.cv_dialog_close()}
         onClick={() => ref.current?.close()}
       >
         ×
@@ -87,7 +88,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
           <iframe
             className="project-video"
             src={`https://www.youtube-nocookie.com/embed/${video}?autoplay=1`}
-            title={`Play the video: ${title}`}
+            title={m.cv_video_play({ title })}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
@@ -96,7 +97,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
           <button
             type="button"
             className="photo-zoom video-play"
-            aria-label={`Play the video: ${title}`}
+            aria-label={m.cv_video_play({ title })}
             onClick={(event) => {
               // The button is about to go; focus stays in the dialog.
               event.currentTarget.closest("dialog")?.focus();

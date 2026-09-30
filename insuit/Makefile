@@ -26,14 +26,18 @@ install: ## npm deps, plus the OG card's font symlinks
 dev: ## Start the dev server on http://localhost:4321 (hot reload, cv.md included)
 	npm run dev
 
-# The CV is built here too: src/features/cv/cv.md becomes the page's data and
-# the printed QR codes (vite/cv.ts), and a CV link with no short link in
-# links/_redirects stops the build.
-build: ## Build the site into dist/ — what gets deployed
+# Every page is rendered to an HTML file here. The CV is built here too:
+# src/features/cv/cv.md becomes the page's data and the printed QR codes
+# (vite/cv.ts), and a CV link with no short link in links/_redirects stops the
+# build.
+build: ## Build the site into dist/client — what gets deployed
 	npm run build
 
-preview: build ## Build, then serve dist/ on http://localhost:4173
-	npm run preview -- --port 4173
+# Cloudflare's own asset server rather than a plain static one: it is what
+# resolves /contact to contact.html and answers an unknown address with
+# 404.html. The e2e and Cucumber suites run against this, not the dev server.
+preview: build ## Build, then serve it the way Pages does, http://localhost:8788
+	npm run preview
 
 clean: ## Remove dist/ and node_modules/
 	rm -rf dist node_modules
@@ -72,7 +76,7 @@ browser: ## Install the Playwright browser if it is missing
 e2e-deps: ## The browser plus its system libraries — what a fresh CI runner needs
 	npx playwright install --with-deps chromium
 
-e2e: browser ## Run Playwright end-to-end tests (starts the dev server itself)
+e2e: browser ## Run Playwright end-to-end tests (builds and serves the site itself)
 	npm run test:e2e
 
 # One worker, one window, a pause between actions — otherwise it is six Chromes

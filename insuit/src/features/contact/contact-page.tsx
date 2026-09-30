@@ -1,8 +1,8 @@
-import { usePageTitle } from "@/app/hooks/use-page-title";
+import { useEffect, useState } from "react";
+import { m } from "@/paraglide/messages.js";
 
-const email = atob(__CONTACT_EMAIL__);
-
-// The title is the address without its scheme — what the link leads to.
+// Names of the services, not words to translate. The title is the address
+// without its scheme — what the link leads to.
 const PROFILES = [
   { name: "Twitter/X", url: "https://x.com/Landsman" },
   { name: "Bluesky", url: "https://bsky.app/profile/landsman.bsky.social" },
@@ -11,17 +11,20 @@ const PROFILES = [
 ];
 
 export function ContactPage() {
-  usePageTitle("Let's talk — Michal Landsman");
+  // The address is the one thing left out of the prerendered HTML, where a
+  // scraper would read it: it is decoded and shown once the page runs.
+  const [email, setEmail] = useState<string>();
+  useEffect(() => setEmail(atob(__CONTACT_EMAIL__)), []);
 
   return (
     <main className="wrapper">
-      <h1>Let's talk</h1>
+      <h1>{m.contact_heading()}</h1>
 
       <div className="content">
-        <p>You'll find me here:</p>
+        <p>{m.contact_lead()}</p>
 
         <nav className="links links-stacked">
-          <a href={`mailto:${email}`}>{email}</a>
+          {email && <a href={`mailto:${email}`}>{email}</a>}
           {PROFILES.map(({ name, url }) => (
             <a
               key={url}

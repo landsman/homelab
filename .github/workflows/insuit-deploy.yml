@@ -97,7 +97,7 @@ jobs:
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy insuit/dist --project-name=insuit-cz --branch=main
+          command: pages deploy insuit/dist/client --project-name=insuit-cz --branch=main
       # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
       # at (insuit/links/).
       - uses: cloudflare/wrangler-action@v4

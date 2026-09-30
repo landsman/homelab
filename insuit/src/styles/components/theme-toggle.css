@@ -1,4 +1,6 @@
-/* Theme override button (theme-toggle.tsx). */
+/* Theme override button (theme-toggle.tsx). Hidden in the prerendered page and
+   until the app runs — without JS it would do nothing, and the OS preference
+   already applies. */
 
 .theme-toggle {
   display: inline-flex;
@@ -15,6 +17,9 @@
   cursor: pointer;
   opacity: 0.55;
   transition: opacity var(--speed);
+}
+.theme-toggle[hidden] {
+  display: none;
 }
 .theme-toggle:hover,
 .theme-toggle:focus-visible {

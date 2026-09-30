@@ -28,13 +28,20 @@ chmod +x "$t/bin/docker" "$t/bin/curl"
 export CALLS="$t/calls" DOCKER_OUT="$t/docker.out" CURL_OUT="$t/curl.out"
 
 fail=0
-run() { # run <expected exit> <what it is> -- env… -- args…
-	local want=$1 what=$2 out rc=0
+# want is an exit code, or `fail` for any non-zero one: a shell that dies on ${VAR:?…} picks its
+# own status — bash says 1, dash says 2 — and the runner's /bin/sh is dash.
+run() { # run <expected exit|fail> <what it is> <env…>
+	local want=$1 what=$2 out rc=0 ok
 	shift 2
 	: >"$CALLS"
 	out=$(env "${@:1:$#}" sh "$script" "${ARGS[@]}" 2>&1) || rc=$?
 	LAST_OUT=$out
-	if [ "$rc" != "$want" ]; then
+	if [ "$want" = fail ]; then
+		[ "$rc" != 0 ] && ok=yes || ok=no
+	else
+		[ "$rc" = "$want" ] && ok=yes || ok=no
+	fi
+	if [ "$ok" = no ]; then
 		echo "FAIL $what: exit $rc, wanted $want"
 		echo "     $out"
 		fail=1
@@ -67,9 +74,9 @@ not_called() { # not_called <substring> <what it is>
 
 # The names have no defaults, because this repository is public.
 ARGS=(account)
-run 1 "account without ORG" ORG= BOT_USER=b
+run fail "account without ORG" ORG= BOT_USER=b
 says "set ORG" "and it names ORG"
-run 1 "account without BOT_USER" ORG=o BOT_USER=
+run fail "account without BOT_USER" ORG=o BOT_USER=
 says "set BOT_USER" "and it names BOT_USER"
 
 ARGS=(nonsense)

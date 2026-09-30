@@ -25,7 +25,8 @@
 # Everything here is idempotent, so it is also the answer to "what was set up on this box".
 set -eu
 
-org=${ORG:?set ORG to the organisation whose packages the bot may write}
+# Per subcommand, not up here: `token` and `account` have nothing to do with an organisation, and a
+# guard that asks for a value the work does not need is a guard people learn to feed with anything.
 bot=${BOT_USER:?set BOT_USER to the bot account name}
 team=${TEAM:-packages}
 api=${FORGEJO_URL:-https://git.insuit.cz}/api/v1
@@ -49,6 +50,7 @@ account() {
 }
 
 team_() {
+	org=${ORG:?set ORG to the organisation whose packages the bot may write}
 	token=${FORGEJO_TOKEN:?set FORGEJO_TOKEN to a token with write:organization — see the header}
 	id=$(curl -fsS -H "Authorization: token $token" "$api/orgs/$org/teams" |
 		sed -n 's/.*"id":\([0-9]*\),"name":"'"$team"'".*/\1/p' | head -1)

@@ -74,12 +74,19 @@ not_called() { # not_called <substring> <what it is>
 	else echo "ok   $2"; fi
 }
 
-# The names have no defaults, because this repository is public.
+# The names have no defaults, because this repository is public. ORG is asked for by the one
+# subcommand that needs it, not by all of them — `token` and `account` have no organisation in them.
 ARGS=(account)
-run fail "account without ORG" ORG= BOT_USER=b
-says "set ORG" "and it names ORG"
 run fail "account without BOT_USER" ORG=o BOT_USER=
 says "set BOT_USER" "and it names BOT_USER"
+
+printf '1 acme-bot acme@example.com\n' >"$DOCKER_OUT"
+run 0 "account without ORG" ORG= BOT_USER=acme-bot
+says "acme-bot exists" "and does not ask for one it does not need"
+
+ARGS=(team)
+run fail "team without ORG" ORG= BOT_USER=b FORGEJO_TOKEN=t
+says "set ORG" "and that one does name ORG"
 
 ARGS=(nonsense)
 run 2 "an unknown subcommand" ORG=o BOT_USER=b

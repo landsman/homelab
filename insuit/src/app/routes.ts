@@ -1,5 +1,6 @@
 export const ROUTES = {
   home: "/",
+  hire: "/work-with-me",
   contact: "/contact",
   cv: "/cv",
   // No route: the path the "nothing here" page is prerendered from, into the

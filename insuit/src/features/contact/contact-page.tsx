@@ -21,10 +21,14 @@ export function ContactPage() {
       <h1>{m.contact_heading()}</h1>
 
       <div className="content">
-        <p>{m.contact_lead()}</p>
+        {/* The address first and largest: it is what the page is for. The line
+            is there before the address is, so nothing below it moves. */}
+        <p className="contact-email">{email && <a href={`mailto:${email}`}>{email}</a>}</p>
 
-        <nav className="links links-stacked" aria-label={m.contact_links_label()}>
-          {email && <a href={`mailto:${email}`}>{email}</a>}
+        <p className="label" id="elsewhere">
+          {m.contact_elsewhere()}
+        </p>
+        <nav className="links links-shown" aria-labelledby="elsewhere">
           {PROFILES.map(({ name, url }) => (
             <a
               key={url}

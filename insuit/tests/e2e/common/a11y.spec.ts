@@ -84,7 +84,7 @@ test("keyboard focus can be seen on the dialogs' round buttons", async ({ page }
 
 test("the landmarks on the contact page can be told apart", async ({ page }) => {
   await page.goto(ROUTES.contact);
-  await expect(page.getByRole("navigation", { name: "Contact and profiles" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Elsewhere" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Site" })).toBeVisible();
   // Read out as "Back"; the arrow is for the eye.
   await expect(page.getByRole("link", { name: "Back", exact: true })).toHaveText("← Back");

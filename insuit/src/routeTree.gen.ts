@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CvRouteImport } from './routes/cv'
+import { Route as WorkWithMeRouteImport } from './routes/work-with-me'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const CvRoute = CvRouteImport.update({
   path: '/cv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkWithMeRoute = WorkWithMeRouteImport.update({
+  id: '/work-with-me',
+  path: '/work-with-me',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
+  '/work-with-me': typeof WorkWithMeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
+  '/work-with-me': typeof WorkWithMeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/cv': typeof CvRoute
+  '/work-with-me': typeof WorkWithMeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact' | '/cv'
+  fullPaths: '/' | '/contact' | '/cv' | '/work-with-me'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/cv'
-  id: '__root__' | '/' | '/contact' | '/cv'
+  to: '/' | '/contact' | '/cv' | '/work-with-me'
+  id: '__root__' | '/' | '/contact' | '/cv' | '/work-with-me'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   CvRoute: typeof CvRoute
+  WorkWithMeRoute: typeof WorkWithMeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CvRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/work-with-me': {
+      id: '/work-with-me'
+      path: '/work-with-me'
+      fullPath: '/work-with-me'
+      preLoaderRoute: typeof WorkWithMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   CvRoute: CvRoute,
+  WorkWithMeRoute: WorkWithMeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

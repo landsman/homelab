@@ -1,7 +1,12 @@
 VOLUME := forgejo_forgejo
 BACKUP_DIR := /home/containers/backup/forgejo
 
-.PHONY: up down logs backup restore cron-install
+.PHONY: up down logs serve unserve serve-status backup restore cron-install
+
+# The container registry over the tailnet. git.insuit.cz goes through Cloudflare, which refuses a
+# request body over 100 MiB, and an image layer is one request — so a push goes to the tailnet name
+# instead. Requires the one-time `sudo tailscale set --operator=containers`, same as yt-archive.
+SERVE_PATH ?= /v2
 
 up:
 	docker compose up -d
@@ -11,6 +16,15 @@ down:
 
 logs:
 	docker compose logs -f
+
+serve:
+	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://127.0.0.1:3000$(SERVE_PATH)
+
+unserve:
+	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
+
+serve-status:
+	tailscale serve status
 
 backup:
 	docker run --rm \

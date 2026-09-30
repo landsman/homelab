@@ -16,7 +16,10 @@ version: 2
 #
 # commit-message.prefix: without it dependabot guesses the prefix from recent
 # history, which is how `build(deps-dev):` got into the log. The convention here
-# is `deps:`, and it has to be repeated per block — there is no global default.
+# is `deps(<service>):`, the folder the block watches, and it has to be repeated
+# per block — there is no global default. A group's title ("bump the all group
+# with 3 updates") cannot be templated here at all; dependabot-title.yml rewrites
+# it into the list of what was bumped.
 
 updates:
   ## ci
@@ -32,7 +35,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(ci)
 
   ## dashboard
   - package-ecosystem: npm
@@ -47,7 +50,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(dashboard)
 
   - package-ecosystem: docker
     directory: /dashboard/docker
@@ -61,7 +64,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(dashboard)
 
   ## ip service
   # `bun`, not `npm`: with a bun.lock in the folder the npm ecosystem refuses
@@ -78,7 +81,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(ip-service)
 
   - package-ecosystem: docker
     directory: /ip-service/docker
@@ -92,7 +95,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(ip-service)
 
   ## compose services
   # Every image here is pinned to an exact version rather than a floating major
@@ -115,7 +118,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(forgejo)
 
   - package-ecosystem: docker-compose
     directory: /readeck
@@ -129,7 +132,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(readeck)
 
   - package-ecosystem: docker-compose
     directory: /database
@@ -143,7 +146,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(database)
 
   - package-ecosystem: docker-compose
     directory: /gotenberg
@@ -157,7 +160,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(gotenberg)
 
   - package-ecosystem: docker-compose
     directory: /forgejo-runner
@@ -171,7 +174,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(forgejo-runner)
 
   - package-ecosystem: docker-compose
     directory: /archivebox
@@ -185,7 +188,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(archivebox)
 
   - package-ecosystem: docker-compose
     directory: /mealie
@@ -199,7 +202,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(mealie)
 
   - package-ecosystem: docker-compose
     directory: /yt-archive
@@ -213,7 +216,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(yt-archive)
 
   ## dockerfile services
   - package-ecosystem: docker
@@ -228,7 +231,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(github-runner)
 
   ## pollos microsite
   # Two npm roots: the Astro site and the worker in front of it. Separate
@@ -246,7 +249,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(pollos)
 
   - package-ecosystem: npm
     directory: /pollos/microsite-ws
@@ -260,7 +263,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(pollos)
 
   ## insuit
   # `bun`, not `npm`: with a bun.lock in the folder the npm ecosystem refuses
@@ -279,7 +282,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(insuit)
 
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
@@ -306,7 +309,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(insuit)
 
   - package-ecosystem: terraform
     directory: /pollos/infra
@@ -325,4 +328,4 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(pollos)

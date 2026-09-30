@@ -97,10 +97,12 @@ called "--username 'acme-bot'" "with the name it was given"
 printf 'Access token was successfully created: 0123456789abcdef\n' >"$DOCKER_OUT"
 ARGS=(token read)
 run 0 "token read" BOT_USER=acme-bot ORG=o
-[ "$LAST_OUT" = "0123456789abcdef" ] && echo "ok   and prints the token alone" || {
+if [ "$LAST_OUT" = "0123456789abcdef" ]; then
+	echo "ok   and prints the token alone"
+else
 	echo "FAIL token read printed: $LAST_OUT"
 	fail=1
-}
+fi
 called "--scopes read:package" "with the scope asked for"
 
 # The team: found by name in a list that has several, and the member added to the id found.
@@ -112,5 +114,9 @@ called "/teams/7/members/acme-bot" "and adds the member to that team"
 not_called "-d {" "and creates no second team"
 
 echo
-[ "$fail" = 0 ] && echo "registry-bot.sh: all cases pass" || echo "registry-bot.sh: FAILURES"
+if [ "$fail" = 0 ]; then
+	echo "registry-bot.sh: all cases pass"
+else
+	echo "registry-bot.sh: FAILURES"
+fi
 exit "$fail"

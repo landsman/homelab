@@ -21,8 +21,8 @@ export default defineConfig({
     launchOptions: { slowMo: SLOW_MO },
   },
   projects: [
-    // The built site, served the way Pages serves it: what is under test is the
-    // prerendered HTML, its flat URLs and its 404.
+    // The built site, served by the rules Pages serves it by (scripts/preview.ts):
+    // what is under test is the prerendered HTML, its flat URLs and its 404.
     {
       name: "chromium",
       testIgnore: "dev/**",
@@ -38,13 +38,13 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "npm run build && npm run preview",
+      command: "bun run build && bun run preview",
       url: `http://localhost:${PORT}`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
     {
-      command: "npm run dev",
+      command: "bun run dev",
       url: `http://localhost:${DEV_PORT}`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

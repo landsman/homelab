@@ -12,52 +12,55 @@ help: ## Show this list
 
 ##@ Development
 
-# npm deps + the OG fonts. Fira Mono comes from the @fontsource npm package
+# Bun is the one tool: it installs, runs every script and is the runtime they
+# run on (bunfig.toml). Nothing here needs Node.
+#
+# The deps + the OG fonts. Fira Mono comes from the @fontsource npm package
 # rather than being committed under og/ — the two weights are symlinked in
 # (gitignored), so no font is stored in the repo for the card. The browser is
 # pulled by `make og` and `make e2e`, not here, so this stays fast.
-install: ## npm deps, plus the OG card's font symlinks
-	npm ci --no-audit --no-fund
+install: ## The dependencies, plus the OG card's font symlinks
+	bun install --frozen-lockfile
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-400-normal.woff2 \
 	  og/fira-mono-latin-400-normal.woff2
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-700-normal.woff2 \
 	  og/fira-mono-latin-700-normal.woff2
 
 dev: ## Start the dev server on http://localhost:4321 (hot reload, cv.md included)
-	npm run dev
+	bun run dev
 
 # Every page is rendered to an HTML file here. The CV is built here too:
 # src/features/cv/cv.md becomes the page's data and the printed QR codes
 # (vite/cv.ts), and a CV link with no short link in links/_redirects stops the
 # build.
 build: ## Build the site into dist/client — what gets deployed
-	npm run build
+	bun run build
 
-# Cloudflare's own asset server rather than a plain static one: it is what
-# resolves /contact to contact.html and answers an unknown address with
+# Not a plain static server: scripts/preview.ts follows Pages' rules, which is
+# what resolves /contact to contact.html and answers an unknown address with
 # 404.html. The e2e and Cucumber suites run against this, not the dev server.
 preview: build ## Build, then serve it the way Pages does, http://localhost:8788
-	npm run preview
+	bun run preview
 
 clean: ## Remove everything a build or an install wrote
-	rm -rf dist node_modules src/paraglide public/assets/cv-qr.svg .tanstack
+	rm -rf dist node_modules src/paraglide public/assets/cv-qr.svg public/assets/cv-thumbs .tanstack
 
 ##@ Quality assurance
 
 typecheck: ## Run the TypeScript type checker
-	npm run typecheck
+	bun run typecheck
 
 lint: ## Run oxlint (includes the filename-case check)
-	npm run lint
+	bun run lint
 
 lint-fix: ## Auto-fix oxlint issues
-	npm run lint:fix
+	bun run lint:fix
 
 format: ## Format everything with oxfmt
-	npm run format:fix
+	bun run format:fix
 
 format-check: ## Check formatting without writing
-	npm run format
+	bun run format
 
 # The CV's images stay under 150 KB each: a screenshot saved at full size is
 # how a page gets heavy without anyone noticing. Over the cap, re-encode it —
@@ -68,16 +71,16 @@ images: ## Fail if a CV image is over 150 KB
 	  if [ -n "$$big" ]; then echo "over 150 KB:"; echo "$$big"; exit 1; fi
 
 test: ## Run unit tests
-	npm test
+	bun run test
 
 browser: ## Install the Playwright browser if it is missing
-	npx playwright install chromium
+	bunx playwright install chromium
 
 e2e-deps: ## The browser plus its system libraries — what a fresh CI runner needs
-	npx playwright install --with-deps chromium
+	bunx playwright install --with-deps chromium
 
 e2e: browser ## Run Playwright end-to-end tests (builds and serves the site itself)
-	npm run test:e2e
+	bun run test:e2e
 
 # One worker, one window, a pause between actions — otherwise it is six Chromes
 # racing each other too fast to read. SLOW_MO also turns on the on-screen label
@@ -85,16 +88,16 @@ e2e: browser ## Run Playwright end-to-end tests (builds and serves the site itse
 SLOW_MO ?= 900
 
 e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
-	SLOW_MO=$(SLOW_MO) npm run test:e2e -- --headed --workers=1 $(ARGS)
+	SLOW_MO=$(SLOW_MO) bun run test:e2e --headed --workers=1 $(ARGS)
 
 bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
-	npm run test:bdd
+	bun run test:bdd
 
 qa: images ## Run all quality checks (images, typecheck, format, lint, test)
-	npm run typecheck
-	npm run format
-	npm run lint
-	npm test
+	bun run typecheck
+	bun run format
+	bun run lint
+	bun run test
 
 ##@ Release
 
@@ -103,11 +106,11 @@ qa: images ## Run all quality checks (images, typecheck, format, lint, test)
 # CI. Not committed: CI regenerates it and hands it to the deploy as an
 # artifact (see .github/workflows/insuit-deploy.yml). Run this to preview.
 og: browser ## Render the Open Graph card to public/assets/icons/
-	npx playwright screenshot --viewport-size="1200,630" --wait-for-timeout=1500 \
+	bunx playwright screenshot --viewport-size="1200,630" --wait-for-timeout=1500 \
 	  "file://$(CURDIR)/og/og.html" public/assets/icons/og-image.png
 	@echo "wrote public/assets/icons/og-image.png"
 
 # One-time: create the R2 bucket holding Terraform state. Needs `wrangler login`
-# first. npx rather than a devDependency — this runs once, ever.
+# first. bunx rather than a devDependency — this runs once, ever.
 bucket: ## Create the R2 bucket for Terraform state (once, ever)
-	npx wrangler r2 bucket create insuit-cz-tf-state
+	bunx wrangler r2 bucket create insuit-cz-tf-state

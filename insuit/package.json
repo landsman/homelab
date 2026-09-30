@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "vite",
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --strategy baseLocale --silent",
-    "prebuild": "npm run messages",
+    "prebuild": "bun run messages",
     "build": "tsc -b && vite build",
-    "preview": "wrangler pages dev dist/client --port 8788",
-    "pretypecheck": "npm run messages",
+    "preview": "bun scripts/preview.ts",
+    "pretypecheck": "bun run messages",
     "typecheck": "tsc -b --noEmit",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
@@ -31,19 +31,18 @@
     "@inlang/paraglide-js": "^2.25.4",
     "@inlang/plugin-message-format": "^4.4.4",
     "@playwright/test": "^1.63.0",
-    "@types/node": "^24.0.0",
+    "@types/bun": "^1.4.2",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "image-size": "^2.0.4",
     "marked": "^18.0.14",
     "oxfmt": "^0.59.0",
     "oxlint": "^1.85.0",
     "qrcode": "^1.5.4",
     "typescript": "^7.0.2",
     "vite": "^8.3.0",
-    "vitest": "^5.0.1",
-    "wrangler": "^4.144.0"
-  }
+    "vitest": "^5.0.1"
+  },
+  "packageManager": "bun@1.4.2"
 }

@@ -21,7 +21,7 @@ async function isUp(): Promise<boolean> {
 async function startApp(): Promise<void> {
   if (await isUp()) return;
 
-  server = spawn("npm run build && npm run preview", {
+  server = spawn("bun run build && bun run preview", {
     shell: true,
     stdio: "ignore",
     // Its own process group, so stopping it takes the server down with the shell.

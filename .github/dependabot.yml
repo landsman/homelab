@@ -261,7 +261,9 @@ updates:
       prefix: deps
 
   ## insuit
-  - package-ecosystem: npm
+  # `bun`, not `npm`: the lockfile is bun.lock, which the npm ecosystem reads
+  # the manifest beside but cannot rewrite.
+  - package-ecosystem: bun
     directory: /insuit
     schedule:
       interval: weekly

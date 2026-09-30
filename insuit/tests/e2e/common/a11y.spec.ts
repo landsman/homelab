@@ -21,7 +21,9 @@ async function expectNoViolations(page: Page) {
 
 for (const colorScheme of ["light", "dark"] as const) {
   test.describe(`${colorScheme} theme`, () => {
-    test.use({ colorScheme });
+    // No motion: a dialog fades in, and axe reading its title halfway through
+    // the fade reports the half-transparent text as low contrast.
+    test.use({ colorScheme, reducedMotion: "reduce" });
 
     for (const path of TAKEOVER_PATHS) {
       test(`${path} has no accessibility violations`, async ({ page }) => {

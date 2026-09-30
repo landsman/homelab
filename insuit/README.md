@@ -6,6 +6,11 @@ TanStack Start with file-based routes, the testing and tooling of
 rendered to an HTML file at build time**, so its text is in the page source;
 React then takes the page over in the browser. Hosted on Cloudflare Pages.
 
+**[Bun](https://bun.com/) is the one tool**: it installs the dependencies, runs
+every script and is the runtime they run on (`bunfig.toml`) — the build, the
+unit tests, Playwright, Cucumber. Nothing in `make` needs Node. None of it
+reaches the site: what is deployed is static files.
+
 ```
 src/
   routes/             one file per page — TanStack Router, file-based
@@ -19,6 +24,8 @@ src/
   index.css           stylesheet entry point, @imports only
   styles/             tokens, fonts, reset, page, typography, components/
   paraglide/          the compiled messages — generated, not committed
+scripts/              the local preview server, and the check that Pages agrees with it
+bunfig.toml           makes Bun the runtime of every script, not only the launcher
 messages/en.json      every word of the interface, by key
 project.inlang/       the locales, for Paraglide
 vite/cv.ts            builds the CV page's data and QR codes from cv.md
@@ -27,7 +34,7 @@ public/               copied to the site as is
   assets/icons/       masked glyphs + favicon
   assets/cv/          the CV's pictures
   _headers            Pages response headers: hashed files are cached for good
-tests/                vitest (cv/, i18n/), Playwright (e2e/), Cucumber (bdd/)
+tests/                vitest (cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
 links/                link.insuit.cz — see below
 og/                   the Open Graph card's source
 infra/                Terraform: the Pages projects only — see DNS cutover below
@@ -121,9 +128,13 @@ Files Vite names by a hash of their content are written to `/_build/` and
 cached for good (`public/_headers`); the pages and `public/assets`, whose names
 never change, are asked for again on every visit.
 
-That is also why `make preview` — and the tests — run Cloudflare's own asset
-server instead of a plain static one: a dumb file server 404s on every URL the
-site links to.
+That is also why `make preview` — and the tests — do not use a plain static
+server, which 404s on every URL the site links to. `scripts/preview.ts` serves
+`dist/client` by Pages' rules: the ones above, and `_headers`. It is this
+repo's own reading of them, because Cloudflare's local server
+(`wrangler pages dev`) needs Node — under Bun it never answers. So that the two
+cannot drift apart unnoticed, CI asks each PR's real preview on Pages the same
+questions (`scripts/check-pages.ts`).
 
 ## The CV
 
@@ -133,13 +144,18 @@ and on `make build`: prose is rendered to HTML, every `####` is a project with
 its pictures, video and links as data, and each link gets a QR code for print.
 The pictures live in `public/assets/cv/`, each under 150 KB (`make images`).
 
+A card or a gallery shows a picture about 240 px wide, so the build also writes
+a 480 px WebP of every wider picture to `public/assets/cv-thumbs/` (not
+committed), with Bun's own image reader — `Bun.Image`, no image library. The
+full picture is fetched only when it is opened.
+
 ## Local
 
 ```bash
 make           # list the targets
-make install   # npm deps
+make install   # the dependencies (bun install)
 make dev       # http://localhost:4321, hot reload
-make preview   # the built site, served the way Pages does, http://localhost:8788
+make preview   # the built site, served by Pages' rules, http://localhost:8788
 make qa        # images, typecheck, oxfmt, oxlint, unit tests
 make e2e       # Playwright against the built site; make e2e-head to watch it
 make bdd       # Cucumber, likewise
@@ -272,7 +288,8 @@ link can change after the CV is printed, and every copy still works.
   proxied CNAME, which takes precedence over the `*` wildcard.
 
 Locally: `npx wrangler pages dev links --port 4322`, then
-`curl -sI http://localhost:4322/<code>`.
+`curl -sI http://localhost:4322/<code>`. This is the one command here that
+needs Node: Cloudflare's local server does not answer under Bun.
 
 ## Ports
 

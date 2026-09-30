@@ -50,11 +50,14 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
   const { title, images, video } = project;
   const [playing, setPlaying] = useState(false);
 
-  // In the dialog every image is a button that opens it full size.
+  // In the dialog every image is a button that opens it full size. Several
+  // sit in a row of small frames, so they show their small copies; one alone is
+  // wide enough to need the picture itself.
+  const gallery = images.length > 1;
   const photos = images.map((image, index) => (
     <button key={image.src} type="button" className="photo-zoom" onClick={() => onZoom(index)}>
       <img
-        src={image.src}
+        src={(gallery && image.thumb) || image.src}
         alt={image.alt}
         title={image.title}
         width={image.width}
@@ -96,7 +99,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
             </span>
           </button>
         )
-      ) : images.length > 1 ? (
+      ) : gallery ? (
         <div className={`project-gallery${project.tallGallery ? " project-gallery-tall" : ""}`}>
           {photos}
         </div>

@@ -66,7 +66,7 @@ function Projects({
                     // the picture's own description would be read before it as
                     // part of the name. The dialog has the description.
                     <img
-                      src={logo.src}
+                      src={logo.thumb ?? logo.src}
                       alt=""
                       width={logo.width}
                       height={logo.height}

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { Cv, CvProject } from "@/features/cv/cv.types";
-import { buildCv, type SizeOf } from "../../vite/cv.ts";
+import { buildCv, type PictureOf } from "../../vite/cv.ts";
 
 const md = `![Me](/assets/cv/me.webp)
 
@@ -43,7 +43,7 @@ const redirects = `# comment
 /talk https://www.youtube.com/watch?v=abc-123 302
 `;
 
-const wide: SizeOf = () => ({ width: 1200, height: 630 });
+const wide: PictureOf = () => ({ width: 1200, height: 630 });
 const projectsOf = (block: Cv[number]): CvProject[] => {
   if (block.kind !== "projects") throw new Error(`a ${block.kind} block, not projects`);
   return block.projects;
@@ -76,7 +76,7 @@ test("a project carries its pictures, its video and its text for the dialog", ()
   // A phone screenshot, a picture whose size cannot be read, and a wide one.
   const { cv } = buildCv(md, redirects, (href) =>
     href === "/one.png"
-      ? { width: 1200, height: 630 }
+      ? { width: 1200, height: 630, thumb: "/thumbs/one.webp" }
       : href === "/logo.png"
         ? undefined
         : { width: 390, height: 844 },
@@ -99,7 +99,15 @@ test("a project carries its pictures, its video and its text for the dialog", ()
   expect(html).toContain("<p>Not <strong>this</strong> one.</p>");
 
   expect(second.images).toEqual([
-    { src: "/one.png", alt: "One", title: "A caption", width: 1200, height: 630 },
+    // A wide picture brings the small copy the gallery shows.
+    {
+      src: "/one.png",
+      alt: "One",
+      title: "A caption",
+      width: 1200,
+      height: 630,
+      thumb: "/thumbs/one.webp",
+    },
     { src: "/two.png", alt: "Two", width: 390, height: 844 },
     { src: "/three.png", alt: "Three", width: 390, height: 844 },
   ]);

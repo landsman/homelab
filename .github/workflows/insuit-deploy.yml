@@ -48,9 +48,11 @@ jobs:
         working-directory: insuit
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      # The version in package.json's packageManager, the one the lockfile was
+      # written by.
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: "22"
+          bun-version-file: insuit/package.json
       - name: "Install (deps, font symlinks)"
         run: make install
       - name: "Chromium + system deps"
@@ -69,12 +71,11 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      # The version in package.json's packageManager, the one the lockfile was
+      # written by.
+      - uses: oven-sh/setup-bun@v2
         with:
-          # The same Node the CI job tested the build on.
-          node-version: 26
-          cache: npm
-          cache-dependency-path: insuit/package-lock.json
+          bun-version-file: insuit/package.json
       # Into public/ before the build, which copies it to dist/ with the rest.
       - name: "Pull in the rendered OG card"
         uses: actions/download-artifact@v8

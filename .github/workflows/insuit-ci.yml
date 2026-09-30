@@ -41,12 +41,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v7
+      # The version in package.json's packageManager, the one the lockfile was
+      # written by.
+      - uses: oven-sh/setup-bun@v2
         with:
-          # 26, not 25: Cucumber runs on 22 || 24 || >=26 and refuses the rest
-          node-version: 26
-          cache: npm
-          cache-dependency-path: insuit/package-lock.json
+          bun-version-file: insuit/package.json
 
       - name: "Install dependencies"
         run: make install
@@ -60,7 +59,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('insuit/package-lock.json') }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('insuit/bun.lock') }}
           restore-keys: ${{ runner.os }}-playwright-
 
       # Still runs on a cache hit — the browser is skipped, the apt system deps
@@ -134,6 +133,16 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
         run: 'gh pr comment "$PR" --edit-last --create-if-none --body "insuit.cz preview: $URL"'
+      # The local preview the tests ran against is this repo's own reading of
+      # Pages' rules (scripts/preview.ts). The same questions go to the real
+      # thing here, so the two cannot drift apart unnoticed.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: insuit/package.json
+      - name: "Does Pages answer the way the local preview does?"
+        env:
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        run: bun insuit/scripts/check-pages.ts "$URL"
 
   infra:
     runs-on: ubuntu-latest
@@ -158,9 +167,11 @@ jobs:
         working-directory: insuit
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      # The version in package.json's packageManager, the one the lockfile was
+      # written by.
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: "22"
+          bun-version-file: insuit/package.json
       - name: "Install (deps, font symlinks)"
         run: make install
       - name: "Chromium + system deps"

@@ -5,7 +5,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { imageSize } from "image-size";
 import { Marked, type Token, type Tokens } from "marked";
 import QRCode from "qrcode";
 import type { Plugin } from "vite";
@@ -59,18 +58,22 @@ const QR_PITCH = 200;
 
 type Draft = { heading: Tokens.Heading; images: CvImage[]; rest: Token[] };
 
-/** A picture's size in pixels, or nothing when it cannot be read. */
-export type SizeOf = (href: string) => { width: number; height: number } | undefined;
+/** What the build knows of a picture: its size in pixels and, for a wide one,
+    the small copy the cards and galleries show. Nothing for a picture it was
+    not told about. */
+export type PictureOf = (
+  href: string,
+) => { width: number; height: number; thumb?: string } | undefined;
 
 /**
  * cv.md and links/_redirects in, the page's data and its QR codes out.
- * `sizeOf` reads a picture's size; it is the one thing that needs the files on
- * disk, so a test can stand in for it.
+ * `pictureOf` knows each picture's size and thumbnail; it is the one thing that
+ * needs the files on disk, so a test can stand in for it.
  */
 export function buildCv(
   md: string,
   redirects: string,
-  sizeOf: SizeOf,
+  pictureOf: PictureOf,
 ): { cv: Cv; qrSprite: string } {
   // ponytail: the markdown is ours, so marked's output goes in unsanitised.
   const tokens = marked.lexer(md);
@@ -235,7 +238,7 @@ export function buildCv(
             src: i.href,
             alt: i.text,
             title: i.title ?? undefined,
-            ...sizeOf(i.href),
+            ...pictureOf(i.href),
           });
       } else draft.rest.push(t);
     } else {
@@ -273,27 +276,59 @@ const redirects = fileURLToPath(new URL("links/_redirects", root));
 const publicDir = new URL("public/", root);
 const qrSprite = new URL(`.${QR_SPRITE}`, publicDir);
 
-// A few JPEGs trip the reader, though browsers render them fine; such a
-// picture goes out without a size.
-const sizeOf: SizeOf = (href) => {
-  try {
-    const { width, height } = imageSize(readFileSync(new URL(`.${href}`, publicDir)));
-    return { width, height };
-  } catch (error) {
-    console.warn(`cv: cannot read the size of ${href} (${(error as Error).message})`);
-    return undefined;
-  }
-};
+/** Where the thumbnails are written, and the width they are cut down to. */
+const THUMBS = "/assets/cv-thumbs/";
+// A card is about 240 px wide and a gallery picture 200: twice that for a
+// dense screen. The full picture is fetched only when it is opened.
+const THUMB_WIDTH = 480;
 
-/** Serves the CV's data as `virtual:cv` and writes its QR codes into public/assets. */
+/**
+ * Reads every picture cv.md names and writes a small WebP of each one wider
+ * than a thumbnail, with Bun's own image reader — no image library. A
+ * thumbnail newer than its picture is left alone, so an edit to the text
+ * redraws nothing.
+ */
+async function readPictures(md: string): Promise<PictureOf> {
+  const known = new Map<string, NonNullable<ReturnType<PictureOf>>>();
+  const taken = new Map<string, string>();
+  for (const [, href] of md.matchAll(/!\[[^\]]*\]\((\/assets\/cv\/[^\s)]+)/g)) {
+    if (known.has(href)) continue;
+    const source = Bun.file(new URL(`.${href}`, publicDir));
+    const image = new Bun.Image(await source.bytes());
+    const { width, height } = await image.metadata();
+    if (width <= THUMB_WIDTH) {
+      known.set(href, { width, height });
+      continue;
+    }
+    const thumb = `${THUMBS}${href
+      .split("/")
+      .at(-1)!
+      .replace(/\.[^.]+$/, "")}.webp`;
+    // Two pictures that differ only in their extension would share one.
+    if (taken.has(thumb))
+      throw new Error(`cv: ${href} and ${taken.get(thumb)} need one thumbnail name`);
+    taken.set(thumb, href);
+    const target = Bun.file(new URL(`.${thumb}`, publicDir));
+    if (!(await target.exists()) || target.lastModified < source.lastModified)
+      await Bun.write(target, await image.resize(THUMB_WIDTH).webp({ quality: 80 }).bytes());
+    known.set(href, { width, height, thumb });
+  }
+  return (href) => known.get(href);
+}
+
+/** Serves the CV's data as `virtual:cv`, and writes its QR codes and its
+    thumbnails into public/assets. */
 export function cvPlugin(): Plugin {
   const id = "\0virtual:cv";
   return {
     name: "cv",
     resolveId: (name) => (name === "virtual:cv" ? id : undefined),
-    load(loaded) {
+    async load(loaded) {
       if (loaded !== id) return;
-      const built = buildCv(readFileSync(source, "utf8"), readFileSync(redirects, "utf8"), sizeOf);
+      if (typeof Bun === "undefined")
+        throw new Error("cv: the pictures are read with Bun.Image — run the build with bun");
+      const md = readFileSync(source, "utf8");
+      const built = buildCv(md, readFileSync(redirects, "utf8"), await readPictures(md));
       writeFileSync(qrSprite, built.qrSprite);
       return `export default ${JSON.stringify(built.cv)}`;
     },

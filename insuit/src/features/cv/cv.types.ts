@@ -6,9 +6,11 @@ export type CvImage = {
   src: string;
   alt: string;
   title?: string;
-  /** In pixels, when the build could read them. */
+  /** The picture's own size in pixels. */
   width?: number;
   height?: number;
+  /** A small copy, for a wide picture: what a card or a gallery shows. */
+  thumb?: string;
 };
 
 /** A printed link: its QR code (one view of the shared file), and the host it

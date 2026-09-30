@@ -14,15 +14,14 @@ og/*.woff2
 # as an artifact, never committed.
 public/assets/icons/og-image.png
 
-# The printed CV's QR codes — written by vite/cv.ts whenever the CV is built.
+# The printed CV's QR codes and the pictures' thumbnails — written by
+# vite/cv.ts whenever the CV is built.
 public/assets/cv-qr.svg
+public/assets/cv-thumbs/
 
 # The compiled message catalogue — written by Paraglide from messages/*.json on
 # every build. (project.inlang/ keeps its own ignore file: all but settings.json.)
 src/paraglide/
-
-# `npx wrangler pages dev` scratch state.
-.wrangler/
 
 # Playwright
 test-results/

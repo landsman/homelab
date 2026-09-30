@@ -1,4 +1,4 @@
-.PHONY: fmt fmt-check validate ci init-remote authkey tunnel-tokens
+.PHONY: fmt fmt-check validate ci init-remote authkey tunnel-tokens authkey-nas
 
 # Format all .tf files in place.
 fmt:
@@ -34,6 +34,11 @@ init-remote:
 #   make -s authkey | pbcopy          # straight to the clipboard
 authkey: init-remote
 	@terraform output -raw tailscale_authkey
+
+# The same for nas, which carries tag:nas rather than tag:pollos — see the
+# runbook in README.md for the one command that re-enrols it.
+authkey-nas: init-remote
+	@terraform output -raw tailscale_authkey_nas
 
 # Per-node cloudflared connector tokens for setup/003-monitoring.sh. Prints secrets.
 tunnel-tokens: init-remote

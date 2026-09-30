@@ -19,6 +19,26 @@ resource "tailscale_acl" "this" {
       # mint new tag:pollos keys — only the Terraform automation can.
       "tag:terraform" = ["autogroup:admin"]
       "tag:pollos"    = ["autogroup:admin", "tag:terraform"]
+      # nas is not a pollos box, and it carries the tag for one reason: a
+      # Tailscale Service may only be hosted by a tagged node, and the Pi hosts
+      # the container registry. Tagging also takes the node out of my personal
+      # ownership, which is why its exit node and its service are auto-approved
+      # below — otherwise both would wait for a click after it re-authenticates.
+      "tag:nas" = ["autogroup:admin", "tag:terraform"]
+    }
+
+    # What a tagged node may do without a human approving it in the console.
+    autoApprovers = {
+      # nas has advertised 0.0.0.0/0 and ::/0 since before it was tagged; without
+      # this the phones and laptops using it as an exit node lose it the moment it
+      # re-authenticates as a tagged node.
+      exitNode = ["tag:nas"]
+
+      # The registry: `svc:registry` resolves to registry.<tailnet>.ts.net, which
+      # says what it is, where nas.<tailnet>.ts.net only says which box it is on.
+      services = {
+        "svc:registry" = ["tag:nas"]
+      }
     }
 
     acls = [
@@ -68,5 +88,25 @@ resource "tailscale_tailnet_key" "pollos" {
 # Read with: terraform output -raw tailscale_authkey
 output "tailscale_authkey" {
   value     = tailscale_tailnet_key.pollos.key
+  sensitive = true
+}
+
+# The same, for nas. A separate key rather than a second tag on the pollos one:
+# a key carries the tags a node gets, and a box enrolled with the shared key
+# must not silently become the registry host.
+resource "tailscale_tailnet_key" "nas" {
+  reusable      = true
+  ephemeral     = false
+  preauthorized = true
+  description   = "nas enrollment"
+  tags          = ["tag:nas"]
+  expiry        = 7776000 # 90 days (max), in seconds
+
+  depends_on = [tailscale_acl.this]
+}
+
+# Read with: terraform output -raw tailscale_authkey_nas
+output "tailscale_authkey_nas" {
+  value     = tailscale_tailnet_key.nas.key
   sensitive = true
 }

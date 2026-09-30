@@ -12,7 +12,7 @@ policy.
 | `status_page.tf`          | status.pollos.cz page, sections, resources                              |
 | `maintenance-schedule.tf` | status-page maintenance windows (via the generic REST provider)         |
 | `microsite-ws.tf`         | custom domain for the realtime [Worker](../microsite-ws/README.md)      |
-| `tailscale.tf`            | tailnet ACL, `tag:pollos` enrollment key, `tailscale_authkey`           |
+| `tailscale.tf`            | tailnet ACL, the `tag:pollos` and `tag:nas` enrollment keys, auto-approval of nas's exit node and of `svc:registry` |
 
 ## Apply
 
@@ -127,6 +127,31 @@ TS_AUTHKEY="$TS_AUTHKEY" wget -qO- https://pollos.cz/tailscale.sh | sh
 
 The key is reusable and pre-authorized, so one key enrolls every box. It expires
 after 90 days (Tailscale's maximum) and the next apply mints a replacement.
+
+### Re-enroll nas as a tagged node
+
+A Tailscale Service may only be hosted by a **tagged** node, and nas hosts the
+container registry as `svc:registry`. Tagging also moves the node out of my
+personal ownership, which is why the policy auto-approves both its exit node and
+that service — otherwise each would wait for a click after it re-authenticates.
+
+Merge first: a key cannot reference a tag the applied policy does not have.
+
+```sh
+make -s authkey-nas | ssh nas 'cat > /tmp/ts.key'
+
+ssh -t nas 'sudo tailscale up --advertise-tags=tag:nas --advertise-exit-node \
+    --accept-routes --operator=containers --auth-key=file:/tmp/ts.key; rm -f /tmp/ts.key'
+```
+
+Every flag after the tag is a setting nas already has. `tailscale up` applies
+what it is given and **refuses** when a non-default setting is missing from the
+command, naming it — so a wrong line fails instead of half-applying. The key
+travels in a file, so it lands in neither shell's history nor a process list.
+
+Check: `ssh nas tailscale status --json` has `Self.Tags` of `["tag:nas"]`, and
+the exit node is still advertised. If a re-auth ever leaves the box off the
+tailnet, it stays reachable on the LAN as `nas.local`.
 
 ### Connect a host to its health tunnel
 

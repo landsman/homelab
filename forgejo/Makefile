@@ -14,13 +14,21 @@ BACKUP_DIR := /home/containers/backup/forgejo
 # Nothing but these paths is reachable on that name: the web UI, the API and /user/login answer 404.
 # Requires the one-time `sudo tailscale set --operator=containers`, same as yt-archive.
 #
+# The mapping lives in tailscaled's own state, so it survives a restart of the daemon and of the
+# box — checked on 2026-09-30: the yt-archive mapping from 2026-05-04 was still up after tailscaled
+# restarted two days earlier. `make up` re-applies it anyway, because a rebuilt box has no state.
+#
 # No hostname appears here on purpose — `tailscale serve` publishes on the node's own name, so
 # renaming the box needs no change in this file. What does need changing then is every client that
 # names it; ../forgejo-runner/.env and the deploy's REGISTRY variable are the two today.
 SERVE_PATHS ?= /v2 /tools-mirror
 
+# `serve` too, so bringing the stack up is also what publishes it — a reinstall of the box then
+# needs no one to remember. It is idempotent, and a warning rather than a failure, because a box
+# where this user is not the tailscale operator should still be able to start Forgejo.
 up:
 	docker compose up -d
+	@$(MAKE) --no-print-directory serve || echo "warning: the tailnet paths are not published — see README"
 
 down:
 	docker compose down

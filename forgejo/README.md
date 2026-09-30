@@ -38,10 +38,15 @@ through it. Both are published on this box's own tailnet name:
 | `/tools-mirror` | the mirrored actions the CI runner fetches | possible, but it is a trip to a Prague edge and back for a box two hops away, about ten times per run, and it has timed out twice. See [../forgejo-runner](../forgejo-runner) |
 
 ```bash
-make serve         # publish both paths
+make serve         # publish both paths — `make up` does this too
 make serve-status  # show the current serve config
 make unserve       # stop publishing them
 ```
+
+The mapping is kept by tailscaled itself, so it survives a restart of the daemon and of the box:
+checked on 2026-09-30, the `/yt-archive` mapping made on 2026-05-04 was still up after tailscaled
+had restarted two days earlier. `make up` re-applies it regardless, so a rebuilt box needs nobody to
+remember this page.
 
 `https://<host>.<tailnet>.ts.net/v2/` then answers `401`, the same as `http://<host>:3000/v2/` does
 on the LAN. Like yt-archive, this needs the one-time `sudo tailscale set --operator=containers`.

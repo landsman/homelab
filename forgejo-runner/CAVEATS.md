@@ -136,7 +136,7 @@ someone else's host being up. The cost is owning the mirror and its sync.
 
 It became a pattern. The mirrors are in place, and a second failure — against
 `git.insuit.cz` itself — showed the path through Cloudflare was the problem, not
-the remote. See "Fetching actions over the LAN" in the [README](README.md).
+the remote. See "Fetching actions over the tailnet" in the [README](README.md).
 
 ## Cross-arch builds
 

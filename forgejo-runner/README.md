@@ -38,7 +38,7 @@ Two rules for adding another:
 
 - **It has to be public on the instance.** The automatic token reads the
   repositories associated with the workflow, not an unrelated private one, and
-  over the LAN the runner fetches without any token (next section). A private
+  over the tailnet the runner fetches without any token (next section). A private
   mirror fails with an authentication error, not a helpful one. There is nothing
   to protect in a copy of a public action.
 - **Check the tag resolves to the same commit as upstream** before pointing a
@@ -50,7 +50,7 @@ still goes out to the WAN. `actions/setup-java` and `jdx/mise-action` are not
 mirrored *anywhere* — not even by Forgejo — which is why a JVM job installs its
 toolchain with a script instead of an action.
 
-## Fetching actions over the LAN
+## Fetching actions over the tailnet
 
 `git.insuit.cz` is proxied by Cloudflare, so fetching the mirrors above leaves the
 network, reaches an edge in Prague and comes back — for a Forgejo instance two
@@ -58,20 +58,38 @@ hops away, about ten times per eight-job run. A tag is fetched again every time,
 even with the clone cached. It has already failed at the connect stage twice,
 against two different hosts, which ruled the remote out and pointed at the path.
 
-Set `FORGEJO_INTERNAL_URL` in `.env` to the origin's real address, with no
+Set `FORGEJO_INTERNAL_URL` in `.env` to the box's **tailnet** name, with no
 trailing slash:
 
-    FORGEJO_INTERNAL_URL=http://<forgejo-lan-ip>:3000
+    FORGEJO_INTERNAL_URL=https://nas.dog-macaroni.ts.net
 
 `runner/git` is mounted over `git` in the runner container and rewrites
-`https://git.insuit.cz/` to that address for the runner's own fetches. Leave the
-variable unset and it passes everything through.
+`https://git.insuit.cz/tools-mirror/` to that address for the runner's own
+fetches. Leave the variable unset and it passes everything through.
 
-It must be the address **and port** Forgejo actually listens on. It publishes
-plain HTTP on 3000 and nothing on 443, so mapping the hostname to the LAN IP with
-`--add-host` would not work on its own: there is no TLS listener on that side and
-no certificate for one. Rewriting the whole URL handles the scheme and the port
-together.
+The tailnet name rather than the LAN address and port, for three reasons:
+
+- **The certificate is real.** Tailscale provisions a Let's Encrypt one for the
+  `ts.net` name, so verification stays on and nothing needs a private CA or
+  `insecure-registries`. The LAN side has no TLS listener at all — Forgejo
+  publishes plain HTTP on 3000 and nothing on 443 — so that route meant sending
+  fetches in the clear.
+- **No address is hard-coded.** A box that moves, or a runner on another
+  network, keeps working as long as both are on the tailnet.
+- **It is the same door the deploy already uses.** The registry is published on
+  that name for a harder reason — Cloudflare refuses a request body over 100 MiB
+  and an image layer is one request — and the actions ride along on a second
+  path. Both are in [`../forgejo/Makefile`](../forgejo/Makefile) as
+  `SERVE_PATHS`, and nothing else on Forgejo is reachable there: `/`,
+  `/user/login` and the API all answer `404`.
+
+Only the mirrors are rewritten, not the whole instance. An action from another
+owner on this Forgejo still goes through Cloudflare — slower, but it works,
+where a rewrite of everything would turn it into a `404`.
+
+**When the Pi is renamed, this line is the change.** `tailscale serve` publishes
+on whatever the node is called, so the serving side needs nothing; the
+certificate is reissued for the new name.
 
 Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
 
@@ -86,10 +104,10 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
   auth. The wrapper only touches calls that start with `--no-replace-objects`,
   which is how the runner invokes git and a checkout does not.
 
-The runner scopes its job token the same way, so it is not sent to the LAN
-address either — which is why a mirror has to be public, and why the token never
-crosses the LAN in plain HTTP. If a runner upgrade changes how it calls git, the
-fetches go back through Cloudflare without an error; the check below shows it.
+The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
+to the tailnet name either — which is why a mirror has to be public. If a runner
+upgrade changes how it calls git, the fetches go back through Cloudflare without
+an error; the check below shows it.
 
 Check it on the box once the runner is up:
 
@@ -98,9 +116,14 @@ docker compose exec runner git --no-replace-objects ls-remote --get-url https://
 docker compose exec runner git --no-replace-objects ls-remote https://git.insuit.cz/tools-mirror/checkout v7
 ```
 
-The first should print the LAN address, which proves the wrapper is in place. The
-second makes the fetch the runner makes: a sha means it works; a hang means the
-origin is not reachable from this box, and the problem is not Cloudflare.
+The first should print the tailnet address, which proves the wrapper is in
+place. The second makes the fetch the runner makes: a sha means it works; a hang
+means the origin is not reachable from this box, and the problem is not
+Cloudflare.
+
+Checked from both runners on 2026-09-30:
+`git ls-remote https://nas.dog-macaroni.ts.net/tools-mirror/checkout v7.0.1`
+resolves to `3d3c42e5aac5`, the commit the workflows pin.
 
 ## Job caches
 

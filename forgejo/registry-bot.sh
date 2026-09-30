@@ -5,7 +5,8 @@
 #     ORG=… BOT_USER=… ./registry-bot.sh account   create the account if it is missing
 #     ORG=… BOT_USER=… FORGEJO_TOKEN=… \
 #         ./registry-bot.sh team                   create the team and put the account in it
-#     BOT_USER=… ./registry-bot.sh token read|write print a token — pipe it, never paste it
+#     BOT_USER=… ./registry-bot.sh token read|write [name]
+#                                                  print a token — pipe it, never paste it
 #
 # ORG and BOT_USER have no defaults **on purpose**: this repository is public, and the
 # organisations on the instance are clients' or employers'. The values belong in the private
@@ -24,7 +25,8 @@
 # Everything here is idempotent, so it is also the answer to "what was set up on this box".
 set -eu
 
-org=${ORG:?set ORG to the organisation whose packages the bot may write}
+# Per subcommand, not up here: `token` and `account` have nothing to do with an organisation, and a
+# guard that asks for a value the work does not need is a guard people learn to feed with anything.
 bot=${BOT_USER:?set BOT_USER to the bot account name}
 team=${TEAM:-packages}
 api=${FORGEJO_URL:-https://git.insuit.cz}/api/v1
@@ -48,6 +50,7 @@ account() {
 }
 
 team_() {
+	org=${ORG:?set ORG to the organisation whose packages the bot may write}
 	token=${FORGEJO_TOKEN:?set FORGEJO_TOKEN to a token with write:organization — see the header}
 	id=$(curl -fsS -H "Authorization: token $token" "$api/orgs/$org/teams" |
 		sed -n 's/.*"id":\([0-9]*\),"name":"'"$team"'".*/\1/p' | head -1)
@@ -66,7 +69,7 @@ team_() {
 }
 
 token() {
-	scope=${1:?usage: registry-bot.sh token read|write}
+	scope=${1:?usage: registry-bot.sh token read|write [name]}
 	case "$scope" in
 	read | write) ;;
 	*)
@@ -74,18 +77,40 @@ token() {
 		exit 2
 		;;
 	esac
-	# A name per scope, so a second run is visibly a second token rather than a silent duplicate.
-	fj admin user generate-access-token --username "$bot" \
-		--token-name "registry-$scope" --scopes "$scope:package" |
-		sed -n 's/.*Access token was successfully created: //p'
+	# Forgejo refuses a token name the account already has, and it can never print an existing
+	# token again — so the name says who holds this one. One per consumer: revoking the box that
+	# pulls must not log out the pipeline that pushes.
+	name="registry-$scope${2:+-$2}"
+
+	# Not a pipeline: `cli | sed` exits with sed's status, so a refused token left the script
+	# reporting success and piping an empty string into whatever asked for it. That is how an
+	# empty password reached a `docker login`.
+	if ! out=$(fj admin user generate-access-token --username "$bot" \
+		--token-name "$name" --scopes "$scope:package" 2>&1); then
+		echo "$out" >&2
+		case "$out" in
+		*"has been used already"*)
+			echo "a token called '$name' exists and Forgejo cannot print it again — pass a name: token $scope <who-holds-it>" >&2
+			;;
+		esac
+		exit 1
+	fi
+
+	value=$(printf '%s' "$out" | sed -n 's/.*Access token was successfully created: //p')
+	[ -n "$value" ] || {
+		echo "no token in the output of generate-access-token — did its wording change?" >&2
+		echo "$out" >&2
+		exit 1
+	}
+	printf '%s\n' "$value"
 }
 
 case "${1:-}" in
 account) account ;;
 team) team_ ;;
-token) token "${2:-}" ;;
+token) token "${2:-}" "${3:-}" ;;
 *)
-	echo "usage: $0 account|team|token read|write" >&2
+	echo "usage: $0 account|team|token read|write [name]" >&2
 	exit 2
 	;;
 esac

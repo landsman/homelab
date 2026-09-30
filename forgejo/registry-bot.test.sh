@@ -14,10 +14,12 @@ export PATH="$t/bin:$PATH"
 mkdir -p "$t/bin"
 
 # The stubs write every call to $t/calls, and read what to answer from $t/docker.out / $t/curl.out.
+# $DOCKER_RC lets a case make the stub fail the way the real CLI does.
 cat >"$t/bin/docker" <<'STUB'
 #!/bin/sh
 echo "docker $*" >>"$CALLS"
 cat "$DOCKER_OUT" 2>/dev/null
+exit "${DOCKER_RC:-0}"
 STUB
 cat >"$t/bin/curl" <<'STUB'
 #!/bin/sh
@@ -72,12 +74,19 @@ not_called() { # not_called <substring> <what it is>
 	else echo "ok   $2"; fi
 }
 
-# The names have no defaults, because this repository is public.
+# The names have no defaults, because this repository is public. ORG is asked for by the one
+# subcommand that needs it, not by all of them — `token` and `account` have no organisation in them.
 ARGS=(account)
-run fail "account without ORG" ORG= BOT_USER=b
-says "set ORG" "and it names ORG"
 run fail "account without BOT_USER" ORG=o BOT_USER=
 says "set BOT_USER" "and it names BOT_USER"
+
+printf '1 acme-bot acme@example.com\n' >"$DOCKER_OUT"
+run 0 "account without ORG" ORG= BOT_USER=acme-bot
+says "acme-bot exists" "and does not ask for one it does not need"
+
+ARGS=(team)
+run fail "team without ORG" ORG= BOT_USER=b FORGEJO_TOKEN=t
+says "set ORG" "and that one does name ORG"
 
 ARGS=(nonsense)
 run 2 "an unknown subcommand" ORG=o BOT_USER=b
@@ -111,6 +120,25 @@ else
 	fail=1
 fi
 called "--scopes read:package" "with the scope asked for"
+called "--token-name registry-read " "named after the scope"
+
+# One token per holder, because Forgejo refuses a name twice and can never print an old one again.
+ARGS=(token read mike)
+run 0 "token read with a holder" BOT_USER=acme-bot ORG=o
+called "--token-name registry-read-mike " "named after the holder too"
+
+# The failure that mattered: the CLI refuses, and the script must not report success and print
+# nothing — that is how an empty password reached a docker login.
+printf 'Command error: access token name has been used already\n' >"$DOCKER_OUT"
+ARGS=(token read)
+run 1 "token read when the name is taken" BOT_USER=acme-bot ORG=o DOCKER_RC=1
+says "has been used already" "and passes the CLI's own words on"
+says "pass a name" "and says how to get out of it"
+
+# And a CLI that succeeds but says something unexpected must not pass an empty token on either.
+printf 'something else entirely\n' >"$DOCKER_OUT"
+run 1 "token read when the output has no token in it" BOT_USER=acme-bot ORG=o
+says "no token in the output" "and says the wording may have changed"
 
 # The team: found by name in a list that has several, and the member added to the id found.
 printf '[{"id":3,"name":"Owners"},{"id":7,"name":"packages"}]\n' >"$CURL_OUT"

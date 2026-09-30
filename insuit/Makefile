@@ -76,7 +76,7 @@ test: ## Run unit tests
 browser: ## Install the Playwright browser if it is missing
 	bunx playwright install chromium
 
-e2e-deps: ## The browser plus its system libraries — what a fresh CI runner needs
+e2e-deps: ## The browser plus its system libraries (apt) — for a bare Linux machine; CI does not need it
 	bunx playwright install --with-deps chromium
 
 e2e: browser ## Run Playwright end-to-end tests (builds and serves the site itself)

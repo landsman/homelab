@@ -64,7 +64,9 @@ updates:
       prefix: deps
 
   ## ip service
-  - package-ecosystem: npm
+  # `bun`, not `npm`: with a bun.lock in the folder the npm ecosystem refuses
+  # to run at all ("Bun is misconfigured in this repository").
+  - package-ecosystem: bun
     directory: /ip-service
     schedule:
       interval: weekly
@@ -261,8 +263,10 @@ updates:
       prefix: deps
 
   ## insuit
-  # `bun`, not `npm`: the lockfile is bun.lock, which the npm ecosystem reads
-  # the manifest beside but cannot rewrite.
+  # `bun`, not `npm`: with a bun.lock in the folder the npm ecosystem refuses
+  # to run at all. Dependabot reads bun.lock up to `lockfileVersion` 1, which is
+  # why insuit/bun.lock says 1 although Bun 1.4 writes 2 into a new one — Bun
+  # keeps the version a lockfile already has.
   - package-ecosystem: bun
     directory: /insuit
     schedule:

@@ -1,10 +1,10 @@
 import { Fragment, useState } from "react";
 import cv from "virtual:cv";
-import { usePageTitle } from "../../app/hooks/use-page-title";
-import type { CvImage, CvProject } from "./cv.types";
-import { PhotoDialog } from "./photo-dialog";
-import { ProjectDialog } from "./project-dialog";
-import { Prose } from "./prose";
+import { usePageTitle } from "@/app/hooks/use-page-title";
+import type { CvImage, CvProject } from "@/features/cv/cv.types";
+import { PhotoDialog } from "@/features/cv/photo-dialog";
+import { ProjectDialog } from "@/features/cv/project-dialog";
+import { Prose } from "@/features/cv/prose";
 
 export function CvPage() {
   usePageTitle("Curriculum Vitae - Michal Landsman");

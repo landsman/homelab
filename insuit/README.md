@@ -41,6 +41,9 @@ other files only reference custom properties.
 3. Its path in `ROUTES` (`src/app/routes.ts`); link to it with `<Link>`.
 4. An e2e spec and a Cucumber scenario, as in the dashboard.
 
+Inside `src/`, import through the `@/` alias (`@/app/routes`), never a relative
+path — oxlint rejects `./` and `../` there.
+
 ## URLs
 
 One `index.html` serves every path: Pages falls back to it for anything that is
@@ -138,7 +141,10 @@ Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 3. `wrangler pages deploy insuit/dist`.
 
 PRs run `.github/workflows/insuit-ci.yml` — `make qa`, the build, the e2e and
-Cucumber suites, and `terraform fmt`/`validate`.
+Cucumber suites, and `terraform fmt`/`validate`. Each PR from a branch of this
+repo is also uploaded to Pages under its branch name, and the preview's address
+is posted on the PR: the project is fed by direct upload, so Cloudflare builds
+no previews of its own. A preview carries no analytics token and no OG card.
 
 ## DNS cutover (manual, deliberate)
 

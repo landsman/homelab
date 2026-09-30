@@ -3,5 +3,23 @@
   "rules": {
     "unicorn/filename-case": ["error", { "case": "kebabCase" }]
   },
+  "overrides": [
+    {
+      "files": ["src/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["./*", "../*"],
+                "message": "Import through the @/ alias, which is the src root."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
   "ignorePatterns": ["dist/", "node_modules/", "src/routeTree.gen.ts"]
 }

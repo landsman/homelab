@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ROUTES } from "../routes";
-import { ThemeToggle } from "./theme-toggle";
+import { ROUTES } from "@/app/routes";
+import { ThemeToggle } from "@/app/components/theme-toggle";
 
 export function Footer() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });

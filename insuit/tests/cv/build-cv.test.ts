@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import type { CvProject } from "../../src/features/cv/cv.types.ts";
+import type { CvProject } from "@/features/cv/cv.types";
 import { buildCv } from "../../vite/cv.ts";
 
 const md = `![Me](/assets/cv/me.webp)

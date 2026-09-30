@@ -1,7 +1,7 @@
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
-import { Footer } from "../app/components/footer";
-import { usePageTitle } from "../app/hooks/use-page-title";
-import { ROUTES } from "../app/routes";
+import { Footer } from "@/app/components/footer";
+import { usePageTitle } from "@/app/hooks/use-page-title";
+import { ROUTES } from "@/app/routes";
 
 // Each page renders its own <main>; the footer under it is shared. Both are
 // laid out by <body> (styles/page.css), which #root steps out of the way of.

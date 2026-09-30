@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { CvProject } from "./cv.types";
-import { closeOnBackdrop } from "./dialog";
-import { Prose } from "./prose";
+import type { CvProject } from "@/features/cv/cv.types";
+import { closeOnBackdrop } from "@/features/cv/dialog";
+import { Prose } from "@/features/cv/prose";
 
 type Props = {
   /** The project to show; null keeps the dialog closed and empty. */

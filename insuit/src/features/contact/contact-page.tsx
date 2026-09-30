@@ -1,4 +1,4 @@
-import { usePageTitle } from "../../app/hooks/use-page-title";
+import { usePageTitle } from "@/app/hooks/use-page-title";
 
 const email = atob(__CONTACT_EMAIL__);
 

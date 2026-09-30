@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { animateFavicon } from "./app/animated-favicon";
-import { loadAnalytics } from "./app/analytics";
-import { routeTree } from "./routeTree.gen";
-import "./index.css";
+import { animateFavicon } from "@/app/animated-favicon";
+import { loadAnalytics } from "@/app/analytics";
+import { routeTree } from "@/routeTree.gen";
+import "@/index.css";
 
 const router = createRouter({ routeTree });
 

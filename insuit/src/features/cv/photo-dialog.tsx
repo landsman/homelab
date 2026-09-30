@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import type { CvImage } from "./cv.types";
-import { closeOnBackdrop } from "./dialog";
+import type { CvImage } from "@/features/cv/cv.types";
+import { closeOnBackdrop } from "@/features/cv/dialog";
 
 type Props = {
   /** The open project's photos in gallery order, and which one is shown. */

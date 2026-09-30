@@ -18,11 +18,11 @@
    colour and tracking do the rest — a synthesised bold would smear the mono. */
 /* The portrait sits to the right of the name and tagline. It comes first in
    cv.md so both can wrap beside it. */
-.cv > .cv-prose:first-child > p:first-child:has(> img:only-child) {
+.cv .portrait {
   float: right;
   margin: 0 0 var(--space) var(--space);
 }
-.cv > .cv-prose:first-child > p:first-child > img:only-child {
+.cv .portrait img {
   width: var(--cv-portrait-size);
   height: var(--cv-portrait-size);
   border-radius: 50%;
@@ -34,10 +34,10 @@
   transform: scaleX(-1);
   transition: filter var(--speed-slow);
 }
-.cv > .cv-prose:first-child > p:first-child > img:only-child:hover {
+.cv .portrait img:hover {
   filter: none;
 }
-.cv > .cv-prose:first-child > p:first-child:has(> img:only-child) + h1 {
+.cv .portrait + h1 {
   margin-top: 0;
 }
 .cv h1 {
@@ -51,7 +51,7 @@
 }
 /* "I work with: …" under the tagline is set like every "Technologies:" line
    (a bold-led paragraph, below); it only sits closer to the tagline. */
-.cv h1 + p + p {
+.cv h1 + p + .technologies {
   margin-top: var(--space-tight);
 }
 
@@ -92,7 +92,7 @@
 }
 
 /* Role · dates · where — the line directly under a company, kept tight to it. */
-.cv h3 + p {
+.cv .job-meta {
   margin-top: calc(var(--space-tight) * 2);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -103,12 +103,12 @@
 .cv strong {
   font-weight: normal;
 }
-.cv p:has(> strong:first-child) {
+.cv .technologies {
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   color: var(--color-muted);
 }
-.cv p > strong:first-child {
+.cv .technologies > strong:first-child {
   color: var(--color-fg);
 }
 
@@ -236,7 +236,7 @@ html:has(.cv) {
 
 /* The × sits in a circle that fills on hover and on keyboard focus — the fill
    is the focus indicator, so the browser's square outline goes. */
-.project-dialog-close {
+.dialog-close {
   position: absolute;
   top: calc(var(--page-padding) - var(--close-size) / 4);
   right: calc(var(--page-padding) - var(--close-size) / 4);
@@ -255,11 +255,11 @@ html:has(.cv) {
   cursor: pointer;
   transition: background-color var(--speed);
 }
-.project-dialog-close:focus {
+.dialog-close:focus {
   outline: none;
 }
-.project-dialog-close:hover,
-.project-dialog-close:focus-visible {
+.dialog-close:hover,
+.dialog-close:focus-visible {
   background: var(--color-close-hover);
 }
 .cv .project-dialog h4 {
@@ -267,7 +267,7 @@ html:has(.cv) {
   padding-right: calc(var(--space) * 2);
   font-size: var(--font-size-h1);
 }
-#project-dialog-content > .cv-prose > :last-child {
+.project-dialog-content > .cv-prose > :last-child {
   margin-bottom: 0;
 }
 
@@ -405,13 +405,13 @@ html:has(.cv) {
 .photo-dialog figcaption:empty {
   display: none;
 }
-.photo-dialog .project-dialog-close {
+.photo-dialog .dialog-close {
   top: calc(var(--close-size) * -1.25);
   right: calc(var(--close-size) / -4);
   color: var(--color-photo-close);
 }
-.photo-dialog .project-dialog-close:hover,
-.photo-dialog .project-dialog-close:focus-visible {
+.photo-dialog .dialog-close:hover,
+.photo-dialog .dialog-close:focus-visible {
   background: var(--color-close-hover-dark);
 }
 
@@ -419,11 +419,11 @@ html:has(.cv) {
    corner, and over a full-size photo it moves to the corner of the screen,
    where a thumb expects it, instead of floating just above the picture. */
 @media (max-width: 600px) {
-  .project-dialog-close {
+  .dialog-close {
     --close-size: var(--close-size-touch);
     font-size: var(--font-size-display);
   }
-  .photo-dialog .project-dialog-close {
+  .photo-dialog .dialog-close {
     position: fixed;
     top: calc(var(--space) / 2);
     right: calc(var(--space) / 2);
@@ -451,10 +451,10 @@ html:has(.cv) {
 
 /* A project's only photo is not in a gallery, so its frame takes the single
    image's width rather than the whole dialog's. */
-#project-dialog-content > .photo-zoom {
+.project-dialog-content > .photo-zoom {
   max-width: calc(var(--cv-image-width) + (var(--thumb-padding) + var(--border-width)) * 2);
 }
-#project-dialog-content > .photo-zoom img {
+.project-dialog-content > .photo-zoom img {
   max-width: 100%;
 }
 
@@ -488,10 +488,10 @@ html:has(.cv) {
 .photo-step:focus-visible {
   background: var(--color-close-hover-dark);
 }
-#photo-previous {
+.photo-step-previous {
   left: calc(var(--space) / 2);
 }
-#photo-next {
+.photo-step-next {
   right: calc(var(--space) / 2);
 }
 .photo-step[hidden] {
@@ -516,12 +516,12 @@ html:has(.cv) {
 
 /* A video waits as its picture with a play button over it, in the same frame
    as the photos, at the full width of the player that replaces it. */
-#project-dialog-content > .video-play {
+.project-dialog-content > .video-play {
   position: relative;
   max-width: none;
   cursor: pointer;
 }
-#project-dialog-content > .video-play img {
+.project-dialog-content > .video-play img {
   max-width: none;
 }
 /* A dark round badge carries the white triangle, so it reads over any picture,
@@ -566,13 +566,13 @@ html:has(.cv) {
      narrower rail that carries the asides — the portrait, a job's role and
      dates, a project's QR codes. Labels and
      headings stay in the text column, so the left edge reads straight down. */
-  .cv > .cv-prose:first-child > p:first-child:has(> img:only-child) {
+  .cv .portrait {
     width: var(--cv-print-rail);
     margin: 0 0 0 var(--cv-print-gutter);
   }
   /* Smaller than the rail and set against its right edge, so it does not hang
      far below the name, tagline and contacts beside it. */
-  .cv > .cv-prose:first-child > p:first-child > img:only-child {
+  .cv .portrait img {
     width: var(--cv-print-portrait-size);
     height: var(--cv-print-portrait-size);
     margin-left: auto;
@@ -650,11 +650,11 @@ html:has(.cv) {
   /* Technologies are what a reader scans a printed CV for, so on paper the
      list keeps full size and full contrast instead of receding like on screen;
      the label steps back instead. */
-  .cv p:has(> strong:first-child) {
+  .cv .technologies {
     font-size: var(--font-size-print-technologies);
     color: var(--color-fg);
   }
-  .cv p > strong:first-child {
+  .cv .technologies > strong:first-child {
     color: var(--color-muted);
   }
   .projects,

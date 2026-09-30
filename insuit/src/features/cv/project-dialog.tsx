@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CvProject } from "@/features/cv/cv.types";
-import { closeOnBackdrop } from "@/features/cv/dialog";
+import { Modal } from "@/features/cv/modal";
 import { Prose } from "@/features/cv/prose";
 import { m } from "@/paraglide/messages.js";
 
@@ -14,15 +14,7 @@ type Props = {
 
 /** A project's details, in the page's one modal dialog. */
 export function ProjectDialog({ project, onClose, onZoom }: Props) {
-  const ref = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!project || !dialog || dialog.open) return;
-    dialog.showModal();
-    // The dialog itself takes focus, not its close button.
-    dialog.focus();
-  }, [project]);
+  const dialog = useRef<HTMLDialogElement>(null);
 
   // A click into the YouTube player moves focus into its frame, and a key
   // pressed there never reaches this page, so Esc stops closing the dialog.
@@ -30,39 +22,27 @@ export function ProjectDialog({ project, onClose, onZoom }: Props) {
   // work with the mouse, only its keyboard shortcuts are given up.
   useEffect(() => {
     const refocus = () => {
-      const dialog = ref.current;
-      if (!dialog?.open || !(document.activeElement instanceof HTMLIFrameElement)) return;
-      setTimeout(() => dialog.focus());
+      const element = dialog.current;
+      if (!element?.open || !(document.activeElement instanceof HTMLIFrameElement)) return;
+      setTimeout(() => element.focus());
     };
     window.addEventListener("blur", refocus);
     return () => window.removeEventListener("blur", refocus);
   }, []);
 
   return (
-    <dialog
-      ref={ref}
-      id="project-dialog"
-      className="project-dialog"
-      closedby="any"
-      aria-labelledby="project-dialog-title"
-      tabIndex={-1}
-      onClick={closeOnBackdrop}
+    <Modal
+      ref={dialog}
+      open={project !== null}
       // Closing a project empties it, so a playing video stops with it.
       onClose={onClose}
+      className="project-dialog"
+      aria-labelledby="project-dialog-title"
     >
-      <button
-        className="project-dialog-close"
-        type="button"
-        aria-label={m.cv_dialog_close()}
-        title={m.cv_dialog_close()}
-        onClick={() => ref.current?.close()}
-      >
-        ×
-      </button>
-      <div id="project-dialog-content">
+      <div className="project-dialog-content">
         {project && <ProjectDetails key={project.slug} project={project} onZoom={onZoom} />}
       </div>
-    </dialog>
+    </Modal>
   );
 }
 

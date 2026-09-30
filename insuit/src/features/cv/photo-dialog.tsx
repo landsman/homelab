@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { CvImage } from "@/features/cv/cv.types";
-import { closeOnBackdrop } from "@/features/cv/dialog";
+import { Modal } from "@/features/cv/modal";
 import { m } from "@/paraglide/messages.js";
 
 type Props = {
@@ -13,32 +13,18 @@ type Props = {
 
 /** A project's photo at full size, stacked on top of the project dialog. */
 export function PhotoDialog({ zoom, onStep, onClose }: Props) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const open = zoom !== null;
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!open || !dialog || dialog.open) return;
-    dialog.showModal();
-    // The dialog itself takes focus, not its close button: the arrow keys
-    // that step through the photos would otherwise show the button's ring.
-    dialog.focus();
-  }, [open]);
-
+  const dialog = useRef<HTMLDialogElement>(null);
   const photo = zoom?.photos[zoom.index];
   // One photo has nowhere to step to, so the arrows stay out of the way.
   const single = (zoom?.photos.length ?? 0) < 2;
 
   return (
-    <dialog
-      ref={ref}
-      id="photo-dialog"
-      className="photo-dialog"
-      closedby="any"
-      aria-label={m.cv_photo_label()}
-      tabIndex={-1}
-      onClick={closeOnBackdrop}
+    <Modal
+      ref={dialog}
+      open={zoom !== null}
       onClose={onClose}
+      className="photo-dialog"
+      aria-label={m.cv_photo_label()}
       onKeyDown={(event) => {
         if (single) return;
         if (event.key === "ArrowLeft") onStep(-1);
@@ -46,17 +32,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       }}
     >
       <button
-        className="project-dialog-close"
-        type="button"
-        aria-label={m.cv_dialog_close()}
-        title={m.cv_dialog_close()}
-        onClick={() => ref.current?.close()}
-      >
-        ×
-      </button>
-      <button
-        id="photo-previous"
-        className="photo-step"
+        className="photo-step photo-step-previous"
         type="button"
         aria-label={m.cv_photo_previous()}
         hidden={single}
@@ -65,8 +41,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         ‹
       </button>
       <button
-        id="photo-next"
-        className="photo-step"
+        className="photo-step photo-step-next"
         type="button"
         aria-label={m.cv_photo_next()}
         hidden={single}
@@ -77,11 +52,11 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       {photo && (
         <figure>
           {/* The full-size photo closes on a click anywhere on it, too. */}
-          <img src={photo.src} alt={photo.alt} onClick={() => ref.current?.close()} />
+          <img src={photo.src} alt={photo.alt} onClick={() => dialog.current?.close()} />
           {/* A markdown title (`![alt](src "caption")`) wins; otherwise the alt text. */}
           <figcaption>{photo.title || photo.alt}</figcaption>
         </figure>
       )}
-    </dialog>
+    </Modal>
   );
 }

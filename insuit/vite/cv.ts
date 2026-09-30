@@ -27,6 +27,13 @@ const marked = new Marked({
         : "";
       return `<a href="${href}"${tip}${attrs}>${this.parser.parseInline(text)}${hint}</a>`;
     },
+    // A paragraph that opens with a bold label — "Technologies:", "I work
+    // with:" — is a list of technologies, set smaller and quieter (cv.css).
+    // Named here, so the stylesheet does not have to guess it from the markup.
+    paragraph({ tokens: text }) {
+      const label = text[0]?.type === "strong" ? ' class="technologies"' : "";
+      return `<p${label}>${this.parser.parseInline(text)}</p>\n`;
+    },
   },
 });
 
@@ -226,7 +233,17 @@ export function buildCv(
           `<p class="print-contact"><a href="https://insuit.cz">insuit.cz</a> · <a href="https://www.linkedin.com/in/landsmanmichal">linkedin.com/in/landsmanmichal</a> · <a href="https://github.com/landsman">github.com/landsman</a></p>\n`,
         );
       }
-      html(render([t]));
+      // The picture the CV opens with is the portrait, set beside the name.
+      const opensWithPicture =
+        cv.length === 0 &&
+        t.type === "paragraph" &&
+        t.tokens?.length === 1 &&
+        t.tokens[0].type === "image";
+      html(
+        opensWithPicture
+          ? `<p class="portrait">${marked.parseInline(t.raw.trim())}</p>\n`
+          : render([t]),
+      );
     }
   }
   closeIntro();

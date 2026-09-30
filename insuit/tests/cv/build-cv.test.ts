@@ -60,6 +60,10 @@ test("a job's projects become one block between the prose around them", () => {
   const intro = { html: proseOf(cv[0]) };
   const rest = { html: proseOf(cv[2]) };
   expect(projectsOf(cv[1])).toHaveLength(2);
+  // The stylesheet finds these by name, not by where they sit in the markdown.
+  expect(intro.html).toMatch(
+    /^<p class="portrait"><img src="\/assets\/cv\/me\.webp" alt="Me"><\/p>/,
+  );
   // The job's own block is wrapped, with its dates kept in one piece for print.
   expect(intro.html).toContain('<div class="job-intro">');
   expect(intro.html).toContain('<span class="job-dates">May 2024 – present</span>');
@@ -88,6 +92,11 @@ test("a project carries its pictures, its video and its text for the dialog", ()
   });
   expect(first.images[0]).not.toHaveProperty("width");
   expect(first.html).toContain('href="https://example.com/" target="_blank" rel="noopener"');
+  // A line that opens with a bold label is a list of technologies.
+  const labelled = buildCv("#### P\n\n**Technologies:** Go, Bun\n\nNot **this** one.\n", "", wide);
+  const [{ html }] = projectsOf(labelled.cv[0]);
+  expect(html).toContain('<p class="technologies"><strong>Technologies:</strong> Go, Bun</p>');
+  expect(html).toContain("<p>Not <strong>this</strong> one.</p>");
 
   expect(second.images).toEqual([
     { src: "/one.png", alt: "One", title: "A caption", width: 1200, height: 630 },

@@ -79,6 +79,48 @@ jobs:
       - name: "Feature tests"
         run: make bdd
 
+  # Cloudflare builds no previews on its own — the Pages project is fed by
+  # direct upload, not connected to git. So every PR uploads its build under
+  # its branch name and links the alias back on the PR. Fork and Dependabot
+  # PRs get no secrets, so they are skipped rather than failed.
+  preview:
+    needs: site
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    # The environment the deploy reads the same token from.
+    environment: production
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: insuit/package-lock.json
+      # No analytics token: a visit to a preview is not a visit to the site.
+      - name: "Build the site"
+        working-directory: insuit
+        env:
+          CONTACT_EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
+        run: make install build
+      - uses: cloudflare/wrangler-action@v4
+        id: deploy
+        with:
+          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy insuit/dist --project-name=insuit-cz --branch=${{ github.head_ref }}
+      - name: "Link the preview on the PR"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        run: 'gh pr comment "$PR" --edit-last --create-if-none --body "insuit.cz preview: $URL"'
+
   infra:
     runs-on: ubuntu-latest
     defaults:

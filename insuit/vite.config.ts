@@ -13,7 +13,7 @@ export default defineConfig({
     // The address on /contact comes from the environment at build time, so it
     // is in no file of the repo — and goes into the bundle base64-encoded, so
     // it is not in the deployed files as text a scraper can grep either.
-    __CONTACT_EMAIL__: JSON.stringify(btoa(process.env.CONTACT_EMAIL ?? "hello@example.com")),
+    __CONTACT_EMAIL__: JSON.stringify(btoa(process.env.CONTACT_EMAIL || "hello@example.com")),
   },
   server: {
     port: 4321,

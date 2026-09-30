@@ -260,6 +260,21 @@ updates:
     commit-message:
       prefix: deps
 
+  ## insuit
+  - package-ecosystem: npm
+    directory: /insuit
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps
+
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
   # reads the required_providers of the directory it is pointed at and nothing

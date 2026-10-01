@@ -368,6 +368,8 @@ A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize
 draw.
 
+**Technologies:** PHP, SunLight CMS, MySQL, Jenkins
+
 #### KetoDiet e-commerce
 
 [ketodiet.cz](https://www.ketodiet.cz)

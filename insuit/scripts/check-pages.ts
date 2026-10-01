@@ -2,7 +2,7 @@
 // locally, so the local preview cannot drift from what Cloudflare Pages really
 // does. CI runs it against each PR's preview:
 //
-//   bun scripts/check-pages.ts https://<branch>.insuit-preview.pages.dev [commit]
+//   bun scripts/check-pages.ts https://<branch>.insuit-cz.pages.dev [commit]
 //
 // With a commit, it first waits until the site says it is that commit — every
 // page carries <meta name="commit"> — so a deploy that did not land, or has not

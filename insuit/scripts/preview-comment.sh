@@ -4,9 +4,12 @@
 #
 #   preview-comment.sh post <owner/repo> <pr> <url> <commit>   needs GH_TOKEN
 #   preview-comment.sh stale < comments.json   node ids of the comments to hide
+#
+# PREVIEW_MARKER names the site, so a PR that previews two sites (music uses
+# this too) keeps one live link for each rather than hiding the other's.
 set -euo pipefail
 
-marker="insuit.cz preview:"
+marker=${PREVIEW_MARKER:-"insuit.cz preview:"}
 
 # Earlier preview comments by the bot that are not hidden yet.
 stale() {

@@ -62,6 +62,16 @@ resource "cloudflare_pages_project" "site" {
   production_branch = "main"
 }
 
+# Pull request previews. Their own project because Chrome flags
+# <branch>.insuit-cz.pages.dev as a lookalike of insuit.cz and puts a "Did you
+# mean insuit.cz?" warning in front of every preview. The name must not carry
+# "insuit-cz", or the warning comes back. Nothing deploys to main here.
+resource "cloudflare_pages_project" "preview" {
+  account_id        = var.cloudflare_account_id
+  name              = "insuit-preview"
+  production_branch = "main"
+}
+
 # link.insuit.cz: short addresses the printed CV's QR codes point at, redirected
 # to each project's site. Its own project because Pages redirect rules match
 # the path only — on insuit-cz they would fire on www.insuit.cz/<code> too. The

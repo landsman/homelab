@@ -107,7 +107,7 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
 The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
 to the tailnet name either — which is why a mirror has to be public. If a runner
 upgrade changes how it calls git, the fetches go back through Cloudflare without
-an error; the check below shows it.
+an error; the Forgejo log check below shows it, the runner-side one does not.
 
 Check it on the box once the runner is up:
 
@@ -124,6 +124,23 @@ Cloudflare.
 Checked from both runners on 2026-09-30:
 `git ls-remote https://nas.dog-macaroni.ts.net/tools-mirror/checkout v7.0.1`
 resolves to `3d3c42e5aac5`, the commit the workflows pin.
+
+Both commands call the wrapper by hand, so they prove it is in place, not that
+the runner still goes through it. Real jobs show up on the Forgejo box, where
+every fetch is logged with its source:
+
+```sh
+docker logs --since 24h forgejo 2>&1 | grep '/tools-mirror/.*info/refs' \
+  | sed -E 's/.* for ([^ ]+):[0-9]+,.*/\1/' | sort | uniq -c
+```
+
+Every address should be a runner's tailnet one (`100.x`). The network's public
+address in that list is a fetch that went through Cloudflare. A mirror pinned to
+a commit the runner has already cached, like `upload-artifact`, is not fetched
+at all and does not appear.
+
+Checked on 2026-10-01: every mirror fetch since the switch came from the two
+runners' tailnet addresses, none through Cloudflare.
 
 ## Job caches
 

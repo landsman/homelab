@@ -73,6 +73,11 @@ images: ## Fail if a CV image is over 150 KB
 test: ## Run unit tests
 	bun run test
 
+shell: ## shellcheck the scripts, and test the decisions CI makes with them
+	shellcheck scripts/*.sh
+	scripts/preview-comment.test.sh
+	scripts/app-changed.test.sh
+
 browser: ## Install the Playwright browser if it is missing
 	bunx playwright install chromium
 
@@ -93,11 +98,12 @@ e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms,
 bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
 	bun run test:bdd
 
-qa: images ## Run all quality checks (images, typecheck, format, lint, test)
+qa: images ## Run all quality checks (images, typecheck, format, lint, test, shell)
 	bun run typecheck
 	bun run format
 	bun run lint
 	bun run test
+	$(MAKE) shell
 
 ##@ Release
 

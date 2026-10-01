@@ -232,7 +232,7 @@ so neither project's credentials reach the other's state.
 
 Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 
-1. `terraform apply` — creates the `insuit-cz` and `insuit-links` Pages projects
+1. `terraform apply` — creates the `insuit-cz`, `insuit-preview` and `insuit-links` Pages projects
    and the Web Analytics site, and keeps email obfuscation on. It manages
    nothing else in the zone.
 2. `make build`, with the Web Analytics token from `terraform output` and the

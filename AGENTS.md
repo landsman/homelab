@@ -89,7 +89,7 @@ Code finds the same files; don't "fix" it into a real folder, that splits the
 skills in two.
 
 ## Pull requests & Claude review
-- Never commit or push to `main` — always branch + PR, squash-merge with `.github/pr-merge.sh <n>`: the PR title becomes the subject and the PR goes into the body as a `Reviewed-on:` URL, never `(#N)` in the subject — that number points at the wrong PR once GitHub is only a mirror. In the web UI, delete the `(#N)` GitHub prefills. On Forgejo, `.forgejo/default_merge_message/SQUASH_TEMPLATE.md` gives the same shape
+- Never commit or push to `main` — always branch + PR, squash-merge (e.g. `gh pr merge <n> --squash --delete-branch`)
 - Reviews come from Anthropic's managed **Code Review** (Claude GitHub App). Gemini Code Assist is no longer used — never comment `/gemini review`
 - Reviews run automatically per the repo's Review Behavior setting. To request one explicitly, post a top-level PR comment: `@claude review` (single run) or `@claude review always` (subscribe the PR to every push)
 - Findings land as inline comments tagged 🔴 Important / 🟡 Nit / 🟣 Pre-existing, plus a `Claude Code Review` check run. The check never blocks merge

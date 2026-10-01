@@ -145,8 +145,8 @@ What we worked on together:
 On the leading side: hiring and onboarding, Scrum, salaries and the hard
 conversations too, plus customer care, sales and meetups when they were needed.
 
-**Technologies:** Kotlin, Java, Swift, TypeScript, Spring, React, Next.js,
-PostgreSQL, Docker, Terraform, AWS, Google Cloud (GCP), GitHub Actions
+**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
+Terraform, AWS, GCP, GitHub Actions
 
 #### Payment app kickoff
 
@@ -216,6 +216,8 @@ Burza #4 and Fuchs2. It paved the way for Boom Events, a new company with a
 dedicated team, built on the technology and cloud infrastructure developed at
 Trisbee.
 
+**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android
+
 #### Trisbee POS
 
 [ocellot.cz](https://www.ocellot.cz)
@@ -233,7 +235,8 @@ kept working offline, caching data through an internet or power outage.
 Features: cash register, stocktaking, inventory management, shift tracking,
 daily reports and a supplier overview.
 
-**Technologies:** Docker, AWS
+**Technologies:** Java, Kotlin, Swift, React, PostgreSQL, Terraform, Docker, AWS,
+Google Cloud (GCP)
 
 ### Burda International CZ
 

@@ -438,7 +438,7 @@ tree-based content structure, localisation and more. I also wrote several
 plugins and themes for the open-source CMS it was built on, and released them
 to that CMS's community.
 
-**Technologies:** PHP, Latte, MySQL
+**Technologies:** PHP, Latte, MySQL, CSS
 
 #### Custom e-commerce projects
 

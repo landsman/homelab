@@ -356,7 +356,7 @@ The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
 the messages were shown on screens inside Prague's O2 Arena during the games.
 
-**Technologies:** PHP, SunLight CMS, MySQL, Jenkins
+**Technologies:** PHP, SunLight CMS, MySQL, Sass, Jenkins
 
 #### Oriflame Cosmetics: 25 years in the Czech Republic
 

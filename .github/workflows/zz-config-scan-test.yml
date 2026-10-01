@@ -1,0 +1,26 @@
+name: "config scan test (temporary)"
+
+# Throwaway: exercises landsman/config's reusable scans from the branch of
+# landsman/config#173 before it merges. Closed, never merged.
+on:
+  pull_request:
+
+jobs:
+  dockerfile-built:
+    uses: landsman/config/.github/workflows/dockerfile.yml@ci/dependencies-scan
+    with:
+      dockerfile: dashboard/docker/Dockerfile
+      build: true
+      context: dashboard
+  dockerfile-registry-ignorefile:
+    uses: landsman/config/.github/workflows/dockerfile.yml@ci/dependencies-scan
+    with:
+      dockerfile: github-runner/Dockerfile
+      ignorefile: github-runner/.trivyignore
+  semgrep:
+    uses: landsman/config/.github/workflows/semgrep.yml@ci/dependencies-scan
+    with:
+      packs: p/typescript
+      path: insuit
+  dependencies:
+    uses: landsman/config/.github/workflows/dependencies.yml@ci/dependencies-scan

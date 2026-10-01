@@ -200,7 +200,7 @@ with the Czech EET law, or simply made writing a receipt quick. I handled
 ongoing maintenance, security updates and the Trisbee integration for the
 service's relaunch.
 
-**Technologies:** Java, Play Framework, PostgreSQL, AWS
+**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android, iOS
 
 #### Trisbee Event Ticketing
 

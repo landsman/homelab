@@ -18,6 +18,13 @@ on:
       - 'insuit/src/features/cv/cv.md'
   workflow_dispatch:
 
+# A new push to the same PR cancels the run still going for the previous one,
+# so the older commit can never finish last and overwrite the preview. On main
+# every push still runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   site:
     runs-on: ubuntu-latest

@@ -145,8 +145,8 @@ What we worked on together:
 On the leading side: hiring and onboarding, Scrum, salaries and the hard
 conversations too, plus customer care, sales and meetups when they were needed.
 
-**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
-Terraform, AWS, GCP, GitHub Actions
+**Technologies:** Kotlin, Java, Swift, TypeScript, Spring, React, Next.js,
+PostgreSQL, Docker, Terraform, AWS, Google Cloud (GCP), GitHub Actions
 
 #### Payment app kickoff
 

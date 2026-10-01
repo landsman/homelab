@@ -75,7 +75,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           BRANCH: ${{ github.head_ref }}
-        run: echo "VITE_SITE_URL=https://$(printf %s "$BRANCH" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | cut -c1-28).insuit-cz.pages.dev" >> "$GITHUB_ENV"
+        run: echo "VITE_SITE_URL=https://$(printf %s "$BRANCH" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | cut -c1-28).insuit-preview.pages.dev" >> "$GITHUB_ENV"
 
       # Builds the site first and tests what was built: the prerendered pages,
       # served the way Pages serves them. The build fails if a CV link has no
@@ -102,9 +102,30 @@ jobs:
   # The job only uploads: the build comes from the `site` job, which holds no
   # token, so nothing a PR installs or runs executes beside the Cloudflare one.
   # That build has no analytics token and the placeholder contact address.
+  # Whether the PR touches what the site serves. One that only changes
+  # Terraform, tests, scripts or docs gets no preview: there is nothing new to
+  # look at, and its URL would only repeat main.
+  changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      app: ${{ steps.diff.outputs.app }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: echo "app=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only | insuit/scripts/app-changed.sh)" >> "$GITHUB_OUTPUT"
+
   preview:
-    needs: site
+    needs: [site, changes]
     if: |
+      needs.changes.outputs.app == 'true' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]' &&
@@ -127,14 +148,14 @@ jobs:
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy insuit/dist/client --project-name=insuit-cz --branch=${{ github.head_ref }}
+          command: pages deploy insuit/dist/client --project-name=insuit-preview --branch=${{ github.head_ref }}
       - name: "Link the preview on the PR"
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
           URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
-        run: 'gh pr comment "$PR" --edit-last --create-if-none --body "insuit.cz preview: $URL (commit $COMMIT)"'
+        run: insuit/scripts/preview-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
       # The local preview the tests ran against is this repo's own reading of
       # Pages' rules (scripts/preview.ts). The same questions go to the real
       # thing here, so the two cannot drift apart unnoticed — after waiting

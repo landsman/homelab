@@ -230,7 +230,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps
+      prefix: deps(telemetry)
 
   ## dockerfile services
   - package-ecosystem: docker

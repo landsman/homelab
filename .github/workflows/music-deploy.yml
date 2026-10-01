@@ -23,6 +23,7 @@ jobs:
     env:
       TF_VAR_cloudflare_api_token: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
       TF_VAR_cloudflare_account_id: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+      TF_VAR_cloudflare_zone_id: ${{ vars.INSUIT_CZ_CF_ZONE_ID }}
       AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}
       R2_ENDPOINT: https://${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}.r2.cloudflarestorage.com
@@ -56,7 +57,16 @@ jobs:
           test -n "$VITE_SUPABASE_URL" && test -n "$VITE_SUPABASE_ANON_KEY"
           make build
       - uses: cloudflare/wrangler-action@v4
+        id: deploy
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy music/app/src/web/dist --project-name=music-insuit-cz --branch=main
+      # The upload succeeding is not the site being live: this waits until the
+      # deployment, then music.insuit.cz itself, serve this build.
+      - name: "Is this build live?"
+        env:
+          URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          music/scripts/check-site.sh "$URL" music/app/src/web/dist/index.html
+          music/scripts/check-site.sh https://music.insuit.cz/ music/app/src/web/dist/index.html

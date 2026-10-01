@@ -30,10 +30,12 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# The Pages projects only, for the reasons insuit/infra/main.tf gives:
-# music.insuit.cz sits in the hand-kept insuit.cz zone, so its DNS record and
-# the custom domain are attached by hand at the cutover (music/README.md), not
-# declared here. The Supabase backend does not move; music deploys it itself.
+# The Pages projects, music.insuit.cz on the site, and that one DNS record.
+# insuit/infra/main.tf keeps out of the zone's DNS because its apex and www
+# collide with records the rest of the zone depends on; music.insuit.cz is a
+# single CNAME that only ever served this app, so it is taken over here. Every
+# other record in the zone stays hand-kept. The Supabase backend does not move;
+# music deploys it itself.
 # ---------------------------------------------------------------------------
 
 resource "cloudflare_pages_project" "site" {
@@ -58,4 +60,34 @@ resource "cloudflare_pages_project" "preview" {
   account_id        = var.cloudflare_account_id
   name              = "music-preview"
   production_branch = "main"
+}
+
+resource "cloudflare_pages_domain" "site" {
+  account_id   = var.cloudflare_account_id
+  project_name = cloudflare_pages_project.site.name
+  name         = "music.insuit.cz"
+}
+
+# The record already exists — the CNAME to GitHub Pages this replaces. It is
+# looked up by name and imported, so no record id is written down, and the
+# first apply repoints it rather than failing on a duplicate.
+data "cloudflare_dns_records" "music" {
+  zone_id = var.cloudflare_zone_id
+  name    = { exact = "music.insuit.cz" }
+}
+
+import {
+  to = cloudflare_dns_record.music
+  id = "${var.cloudflare_zone_id}/${data.cloudflare_dns_records.music.result[0].id}"
+}
+
+# The project's real hostname, not its name: Cloudflare suffixes a name already
+# taken on pages.dev (music-preview became music-preview-420).
+resource "cloudflare_dns_record" "music" {
+  zone_id = var.cloudflare_zone_id
+  name    = "music.insuit.cz"
+  type    = "CNAME"
+  content = cloudflare_pages_project.site.subdomain
+  proxied = true
+  ttl     = 1
 }

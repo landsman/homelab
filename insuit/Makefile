@@ -73,9 +73,10 @@ images: ## Fail if a CV image is over 150 KB
 test: ## Run unit tests
 	bun run test
 
-shell: ## shellcheck the scripts, and test which preview comments get hidden
+shell: ## shellcheck the scripts, and test the decisions CI makes with them
 	shellcheck scripts/*.sh
 	scripts/preview-comment.test.sh
+	scripts/app-changed.test.sh
 
 browser: ## Install the Playwright browser if it is missing
 	bunx playwright install chromium

@@ -17,6 +17,7 @@ jobs:
     with:
       dockerfile: github-runner/Dockerfile
       ignorefile: github-runner/.trivyignore
+      image: myoung34/github-runner:2.335.1
   semgrep:
     uses: landsman/config/.github/workflows/semgrep.yml@ci/dependencies-scan
     with:

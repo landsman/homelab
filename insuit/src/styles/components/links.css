@@ -25,7 +25,7 @@
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .links-shown a:hover::after,
   .content p a:hover::after {
-    animation: link-rewipe var(--speed);
+    animation: link-rewipe var(--speed-slow) ease-out;
   }
 }
 @keyframes link-rewipe {

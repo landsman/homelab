@@ -75,7 +75,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           BRANCH: ${{ github.head_ref }}
-        run: echo "VITE_SITE_URL=https://$(printf %s "$BRANCH" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | cut -c1-28).insuit-cz.pages.dev" >> "$GITHUB_ENV"
+        run: echo "VITE_SITE_URL=https://$(printf %s "$BRANCH" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9' '-' | cut -c1-28).insuit-preview.pages.dev" >> "$GITHUB_ENV"
 
       # Builds the site first and tests what was built: the prerendered pages,
       # served the way Pages serves them. The build fails if a CV link has no
@@ -127,7 +127,7 @@ jobs:
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy insuit/dist/client --project-name=insuit-cz --branch=${{ github.head_ref }}
+          command: pages deploy insuit/dist/client --project-name=insuit-preview --branch=${{ github.head_ref }}
       - name: "Link the preview on the PR"
         env:
           GH_TOKEN: ${{ github.token }}

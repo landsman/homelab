@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: "shellcheck + title tests"
-        run: shellcheck .github/dependabot-title*.sh && .github/dependabot-title.test.sh
+      - name: "shellcheck + script tests"
+        run: shellcheck .github/*.sh && for t in .github/*.test.sh; do "$t"; done
 
   retitle:
     needs: test

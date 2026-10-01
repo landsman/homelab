@@ -194,6 +194,6 @@ ask whether to merge, keep pushing, or abandon.
 
 - Don't force-push to overwrite the branch unless asked. New commits are the default.
 - Don't skip hooks (`--no-verify`) unless asked — investigate the failure instead.
-- Don't auto-merge. The user merges, squash-merge, `gh pr merge <n> --squash --delete-branch`.
+- Don't auto-merge. The user merges, with `.github/pr-merge.sh <n>`.
 - Don't resolve a thread you didn't actually address — that hides feedback from the user.
 - Don't re-report what CI already catches, and don't argue a finding `REVIEW.md` already rules out of scope.

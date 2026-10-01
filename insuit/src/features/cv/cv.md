@@ -308,6 +308,8 @@ native iOS and Android apps. On our side, we integrated the payment gateway on
 the backend and built the checkout as a web view inside the apps,
 indistinguishable from the native screens around it.
 
+**Technologies:** PHP, Symfony, MySQL, Sass, GitLab, Android, iOS
+
 #### Talk at DrupalCamp CS 2017 in Brno
 
 [youtube.com](https://www.youtube.com/watch?v=DnQjnqFo1z8)

@@ -167,6 +167,9 @@ adapting the solution for customers. It was hard: every time we adjusted
 something, another piece fell apart. Under the requirements and the pressure to
 scale, we relaunched.
 
+**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
+Terraform, AWS, GCP, GitHub Actions
+
 #### Europe Expansion
 
 [businessinfo.cz](https://www.businessinfo.cz/clanky/trisbee-startuje-revoluci-v-placeni-novy-nazev-ukazuje-mezinarodni-ambice/) ·

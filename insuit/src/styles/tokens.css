@@ -71,6 +71,7 @@
   --icon-size-small: 0.8em;
   --icon-gap-small: 0.35em;
   --underline-height: 2px;
+  --underline-rest-opacity: 0.35;
   --cv-image-width: 320px;
   --cv-portrait-size: clamp(104px, 28vw, 180px);
   --cv-portrait-filter: saturate(0.9) contrast(1.05) brightness(1.04);

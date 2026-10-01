@@ -40,6 +40,8 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.MUSIC_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.MUSIC_SUPABASE_ANON_KEY }}
         run: make build
+      - name: "shellcheck the scripts, and test the check they make"
+        run: make shell
       - uses: actions/upload-artifact@v7
         with:
           name: music-site
@@ -70,19 +72,19 @@ jobs:
         with:
           name: music-site
           path: music/dist
-      # ponytail: one-time bootstrap, removed in the next commit — Terraform
-      # owns the project from its first apply (import block in main.tf).
-      - uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
-          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages project create music-preview --production-branch=main
       - uses: cloudflare/wrangler-action@v4
         id: deploy
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy music/dist --project-name=music-preview --branch=${{ github.head_ref }}
+      # The upload succeeding is not the preview answering: a new alias can go
+      # minutes without its certificate. The link goes on the PR only once it
+      # serves this build.
+      - name: "Does the preview serve this build?"
+        env:
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        run: music/scripts/check-site.sh "$URL" music/dist/index.html
       - name: "Link the preview on the PR"
         env:
           GH_TOKEN: ${{ github.token }}

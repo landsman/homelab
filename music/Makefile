@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build shell
 
 # The web app lives in the music repo, checked out here as the app/ submodule
 # (`git submodule update --init` after a fresh clone). Supabase stays there.
@@ -8,3 +8,8 @@ WEB := app/src/web
 # VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the environment.
 build:
 	cd $(WEB) && deno run compile && deno task build
+
+# shellcheck the scripts, and test the decision check-site.sh makes.
+shell:
+	shellcheck scripts/*.sh
+	scripts/check-site.test.sh

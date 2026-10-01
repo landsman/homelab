@@ -329,7 +329,7 @@ subscriptions, often bundled with gifts, as well as single issues, cookbooks
 and selected merchandise. Built on OpenCart, with custom-developed modules to
 support the publisher's needs.
 
-**Technologies:** PHP, OpenCart
+**Technologies:** PHP, OpenCart, MySQL, GitLab
 
 ### Effectix.com
 

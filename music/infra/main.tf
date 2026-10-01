@@ -45,6 +45,15 @@ resource "cloudflare_pages_project" "site" {
 # Pull request previews, in a project of their own like insuit-preview: no
 # "insuit-cz" in the name, or Chrome flags <branch>.<project>.pages.dev as a
 # lookalike of insuit.cz. Nothing deploys to main here.
+#
+# It already exists: the first PR's preview needed it before any apply, so CI
+# created it once with wrangler. The import adopts it on the first apply and
+# is a no-op on every one after.
+import {
+  to = cloudflare_pages_project.preview
+  id = "${var.cloudflare_account_id}/music-preview"
+}
+
 resource "cloudflare_pages_project" "preview" {
   account_id        = var.cloudflare_account_id
   name              = "music-preview"

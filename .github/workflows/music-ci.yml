@@ -70,6 +70,13 @@ jobs:
         with:
           name: music-site
           path: music/dist
+      # ponytail: one-time bootstrap, removed in the next commit — Terraform
+      # owns the project from its first apply (import block in main.tf).
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+          command: pages project create music-preview --production-branch=main
       - uses: cloudflare/wrangler-action@v4
         id: deploy
         with:

@@ -167,6 +167,9 @@ adapting the solution for customers. It was hard: every time we adjusted
 something, another piece fell apart. Under the requirements and the pressure to
 scale, we relaunched.
 
+**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
+Terraform, AWS, GCP, GitHub Actions
+
 #### Europe Expansion
 
 [businessinfo.cz](https://www.businessinfo.cz/clanky/trisbee-startuje-revoluci-v-placeni-novy-nazev-ukazuje-mezinarodni-ambice/) ·
@@ -200,7 +203,7 @@ with the Czech EET law, or simply made writing a receipt quick. I handled
 ongoing maintenance, security updates and the Trisbee integration for the
 service's relaunch.
 
-**Technologies:** Java, Play Framework, PostgreSQL, AWS
+**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android, iOS
 
 #### Trisbee Event Ticketing
 
@@ -215,6 +218,8 @@ Coffee Festival, United Islands of Prague and Povaleč, and several events at
 Burza #4 and Fuchs2. It paved the way for Boom Events, a new company with a
 dedicated team, built on the technology and cloud infrastructure developed at
 Trisbee.
+
+**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android
 
 #### Trisbee POS
 
@@ -233,7 +238,8 @@ kept working offline, caching data through an internet or power outage.
 Features: cash register, stocktaking, inventory management, shift tracking,
 daily reports and a supplier overview.
 
-**Technologies:** Docker, AWS
+**Technologies:** Java, Kotlin, Swift, React, PostgreSQL, Terraform, Docker, AWS,
+Google Cloud (GCP)
 
 ### Burda International CZ
 
@@ -302,6 +308,8 @@ native iOS and Android apps. On our side, we integrated the payment gateway on
 the backend and built the checkout as a web view inside the apps,
 indistinguishable from the native screens around it.
 
+**Technologies:** PHP, Symfony, MySQL, Sass, GitLab, Android, iOS
+
 #### Talk at DrupalCamp CS 2017 in Brno
 
 [youtube.com](https://www.youtube.com/watch?v=DnQjnqFo1z8)
@@ -321,7 +329,7 @@ subscriptions, often bundled with gifts, as well as single issues, cookbooks
 and selected merchandise. Built on OpenCart, with custom-developed modules to
 support the publisher's needs.
 
-**Technologies:** PHP, OpenCart
+**Technologies:** PHP, OpenCart, MySQL, GitLab
 
 ### Effectix.com
 
@@ -348,6 +356,8 @@ The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
 the messages were shown on screens inside Prague's O2 Arena during the games.
 
+**Technologies:** PHP, SunLight CMS, MySQL, Sass, Jenkins
+
 #### Oriflame Cosmetics: 25 years in the Czech Republic
 
 [cz.oriflame.com](https://cz.oriflame.com/)
@@ -357,6 +367,8 @@ the messages were shown on screens inside Prague's O2 Arena during the games.
 A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize
 draw.
+
+**Technologies:** PHP, SunLight CMS, MySQL, Sass, Jenkins
 
 #### KetoDiet e-commerce
 
@@ -426,7 +438,7 @@ tree-based content structure, localisation and more. I also wrote several
 plugins and themes for the open-source CMS it was built on, and released them
 to that CMS's community.
 
-**Technologies:** PHP, Latte, MySQL
+**Technologies:** PHP, Latte, MySQL, CSS
 
 #### Custom e-commerce projects
 

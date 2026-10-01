@@ -12,13 +12,22 @@
 }
 
 /* Contact page: the profiles are the page, not chrome around it — they carry
-   the underline without waiting for a hover that says "this is a link". So
+   an underline without waiting for a hover that says "this is a link". So
    does a link inside a sentence, which nothing else tells apart from the words
-   around it. */
-.links-shown a::after,
-.content p a::after {
-  transform: scaleX(1);
-  transform-origin: left top;
+   around it, and every link in the CV. That resting line is a faint one
+   under the wipe, so hover still draws the full underline the way the
+   navigation does. */
+.links-shown a::before,
+.content p a::before,
+.cv a::before {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: var(--underline-height);
+  background: currentcolor;
+  opacity: var(--underline-rest-opacity);
 }
 /* The underline is one box under the link, so the link stays on one line. */
 .content p a {

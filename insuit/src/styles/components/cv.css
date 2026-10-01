@@ -131,12 +131,6 @@
   border-radius: var(--cv-image-radius);
 }
 
-/* Links in running text carry the underline; the wipe is for the link rows. */
-.cv a::after {
-  transform: scaleX(1);
-  transform-origin: left top;
-}
-
 /* Projects: a row of cards on a wide screen, one per line on a phone. Each
    card is a button; the details open in a modal dialog. */
 .cv .projects-label {

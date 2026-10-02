@@ -1,0 +1,4 @@
+[submodule "music/app"]
+	path = music/app
+	url = https://github.com/landsman/music.git
+	branch = dev

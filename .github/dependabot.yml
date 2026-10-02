@@ -284,6 +284,22 @@ updates:
     commit-message:
       prefix: deps(insuit)
 
+  ## music
+  # music/app is a submodule of my own repo, so the bump is the deploy: merging
+  # it ships whatever music's dev branch had. Daily, and music/app is excluded
+  # from the cooldown by name — the soak is for other people's releases, and
+  # this one I wrote. The 7 stays for any submodule added later.
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+      exclude:
+        - music/app
+    commit-message:
+      prefix: deps(music)
+
   ## terraform
   # One entry per root module, because that is the unit dependabot resolves: it
   # reads the required_providers of the directory it is pointed at and nothing
@@ -329,3 +345,22 @@ updates:
       default-days: 7
     commit-message:
       prefix: deps(pollos)
+
+  - package-ecosystem: terraform
+    directory: /music/infra
+    schedule:
+      interval: weekly
+    ignore:
+      # breaks every DNS record apply; drop once a fixed release is out
+      # (https://github.com/cloudflare/terraform-provider-cloudflare/issues/7387)
+      - dependency-name: cloudflare/cloudflare
+        versions: ["5.26.0"]
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps(music)

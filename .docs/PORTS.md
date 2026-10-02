@@ -8,6 +8,9 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3000 | [forgejo](../forgejo)                 | web UI                                     |
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 3031 | [gotenberg](../gotenberg)             | PDF conversion API                         |
+| 3210 | [telemetry](../telemetry) (prometheus) | 127.0.0.1 only; OTLP at /api/v1/otlp      |
+| 3211 | [telemetry](../telemetry) (grafana)   | dashboards                                 |
+| 3215 | [telemetry](../telemetry) (loki)      | 127.0.0.1 only; OTLP logs at /otlp         |
 | 5432 | [database](../database) (postgres 17) |                                            |
 | 8000 | [database](../database) (adminer)     | DB admin UI                                |
 | 8001 | [readeck](../readeck)                 |                                            |
@@ -15,6 +18,8 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 8003 | [yt-archive](../yt-archive)           | MeTube web UI (also tailscale serve → 443) |
 | 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
 | 8080 | [dashboard](../dashboard)             | nginx (also tailscale serve → 443 at /dashboard)    |
+| 9100 | [telemetry](../telemetry/host) node-exporter | on the host, not Docker; Tailscale address only; every host |
+| 12345 | [telemetry](../telemetry/host) Alloy, journal shipper | on the host, not Docker; 127.0.0.1 only (its own status and metrics) |
 | 9925 | [mealie](../mealie)                   |                                            |
 | 20299 | cloudflared-health ([pollos/setup/003-monitoring.sh](../pollos/setup/003-monitoring.sh)) | health connector metrics, 127.0.0.1 only; not a container |
 

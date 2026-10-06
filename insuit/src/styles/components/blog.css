@@ -188,7 +188,8 @@ button.blog-video:focus-visible {
   border-top: var(--border-width) solid var(--color-border);
 }
 
-/* A table scrolls sideways on its own rather than widening the page. Its rows
+/* A table scrolls sideways on its own rather than widening the page, in the
+   text's own size, so it reads as part of the post. Its rows
    alternate and the one under the pointer lights up, so a long row can be
    followed across; the shades are the text's colour mixed into the page's,
    so they follow the theme. A table without a header row has no <thead>
@@ -201,8 +202,6 @@ button.blog-video:focus-visible {
   max-width: 100%;
   margin: var(--space) 0;
   overflow-x: auto;
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-small);
   border-collapse: collapse;
 }
 .blog-post .content th,

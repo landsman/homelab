@@ -113,6 +113,7 @@ const LANGUAGES: Record<string, string> = {
   kotlin: "Kotlin",
   java: "Java",
   hcl: "HCL",
+  css: "CSS",
 };
 
 type Node = {

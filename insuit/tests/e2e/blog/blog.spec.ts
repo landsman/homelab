@@ -11,15 +11,17 @@ import { ROUTES } from "@/app/routes";
 const HELLO = `${ROUTES.blog}/hello`;
 
 // Never the network. hello.mdx's pictures are remote stock photos: each is
-// answered with one picture of the site's own, a tall one, so a test still has
-// a real picture to lay out. Anything else off this server is refused.
-const TALL_PICTURE = "public/assets/cv/hazena-nove-veseli.jpg";
+// answered with a tall picture drawn here, so a test still has a picture to lay
+// out, the viewer's fit to the screen included. Anything else off this server
+// is refused.
+const TALL_PICTURE =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1500"><rect width="100%" height="100%" fill="#888"/></svg>';
 test.beforeEach(async ({ page }) => {
   await page.route(
     (url) => url.hostname !== "localhost",
     (route) =>
       new URL(route.request().url()).hostname === "picsum.photos"
-        ? route.fulfill({ path: TALL_PICTURE, contentType: "image/jpeg" })
+        ? route.fulfill({ body: TALL_PICTURE, contentType: "image/svg+xml" })
         : route.abort(),
   );
 });

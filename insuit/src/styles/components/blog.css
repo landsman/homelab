@@ -146,26 +146,40 @@ button.blog-video:focus-visible {
 
 /* A code block's colours (vite/blog.ts): every token carries both themes as
    variables, and the one shown follows the page's — the OS, then the toggle,
-   as in tokens.css. The background stays the page's own. */
+   as in tokens.css. The background stays the page's own. The dark ones are
+   for the screen only: paper is white whatever the screen is (print.css). */
 .blog-post .content .shiki,
 .blog-post .content .shiki span {
   color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
   font-weight: var(--shiki-light-font-weight);
   text-decoration: var(--shiki-light-text-decoration);
 }
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .blog-post .content .shiki,
   :root:not([data-theme="light"]) .blog-post .content .shiki span {
     color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
     font-weight: var(--shiki-dark-font-weight);
     text-decoration: var(--shiki-dark-text-decoration);
   }
 }
-:root[data-theme="dark"] .blog-post .content .shiki,
-:root[data-theme="dark"] .blog-post .content .shiki span {
-  color: var(--shiki-dark);
-  font-weight: var(--shiki-dark-font-weight);
-  text-decoration: var(--shiki-dark-text-decoration);
+@media screen {
+  :root[data-theme="dark"] .blog-post .content .shiki,
+  :root[data-theme="dark"] .blog-post .content .shiki span {
+    color: var(--shiki-dark);
+    font-style: var(--shiki-dark-font-style);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
+  }
+}
+
+/* Paper cannot scroll: a long line wraps rather than being cut off. */
+@media print {
+  .blog-post .content pre {
+    overflow: visible;
+    white-space: pre-wrap;
+  }
 }
 
 .blog-post .content hr {
@@ -174,8 +188,15 @@ button.blog-video:focus-visible {
   border-top: var(--border-width) solid var(--color-border);
 }
 
-/* A table scrolls sideways on its own rather than widening the page. */
+/* A table scrolls sideways on its own rather than widening the page. Its rows
+   alternate and the one under the pointer lights up, so a long row can be
+   followed across; the shades are the text's colour mixed into the page's,
+   so they follow the theme. A table without a header row has no <thead>
+   (vite/blog.ts). */
 .blog-post .content table {
+  --table-stripe: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  --table-hover: color-mix(in srgb, var(--color-fg) 9%, transparent);
+  --table-head: color-mix(in srgb, var(--color-fg) 8%, transparent);
   display: block;
   max-width: 100%;
   margin: var(--space) 0;
@@ -186,13 +207,21 @@ button.blog-video:focus-visible {
 }
 .blog-post .content th,
 .blog-post .content td {
-  padding: calc(var(--space) / 2) var(--space) calc(var(--space) / 2) 0;
+  padding: calc(var(--space) / 2) calc(var(--space) * 0.75);
   text-align: left;
   vertical-align: top;
   border-bottom: var(--border-width) solid var(--color-border);
 }
 .blog-post .content th {
-  font-weight: var(--font-weight-medium);
+  font-weight: 600;
+  background: var(--table-head);
+  border-bottom: calc(var(--border-width) * 2) solid var(--color-fg);
+}
+.blog-post .content tbody tr:nth-child(even) {
+  background: var(--table-stripe);
+}
+.blog-post .content tbody tr:hover {
+  background: var(--table-hover);
 }
 
 .blog-post .content img {

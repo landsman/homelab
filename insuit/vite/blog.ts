@@ -9,7 +9,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import mdx from "@mdx-js/rollup";
-import rehypeShiki from "@shikijs/rehype";
+import rehypeShiki, { type RehypeShikiOptions } from "@shikijs/rehype";
 import remarkFrontmatter from "remark-frontmatter";
 import rehypeUnwrapImages from "rehype-unwrap-images";
 import remarkGfm from "remark-gfm";
@@ -98,22 +98,55 @@ export const readPosts = (): PostMeta[] =>
       .map((file) => parsePost(file, readFileSync(DIR + file, "utf8"))),
   );
 
+// The languages a code block is coloured in, by the name a fence gives them,
+// and the name a reader knows them by.
+const LANGUAGES: Record<string, string> = {
+  ts: "TypeScript",
+  tsx: "TSX",
+  js: "JavaScript",
+  jsx: "JSX",
+  yaml: "YAML",
+  sh: "Shell",
+  json: "JSON",
+  md: "Markdown",
+  php: "PHP",
+  kotlin: "Kotlin",
+  java: "Java",
+};
+
 type Node = {
   type: string;
   tagName?: string;
+  value?: string;
   properties?: Record<string, unknown>;
   children?: Node[];
 };
 
 /**
- * Numbers a post's code blocks, in the order they come. Each is a landmark of
- * its own (src/features/blog/components.tsx), and two landmarks of one name
- * cannot be told apart.
+ * Numbers a post's code blocks, in the order they come. Each is named for a
+ * screen reader (src/features/blog/components.tsx), and two blocks of one
+ * language would otherwise share a name.
  */
 export const rehypeNumberCode = () => (tree: Node) => {
   let n = 0;
   const walk = (node: Node) => {
     if (node.tagName === "pre") node.properties = { ...node.properties, dataBlock: ++n };
+    node.children?.forEach(walk);
+  };
+  walk(tree);
+};
+
+const text = (node: Node): string => node.value ?? (node.children ?? []).map(text).join("");
+
+/**
+ * Drops a table's header row when every cell of it is empty. GFM has no table
+ * without one, so `|  |  |` over the delimiter row is how a post asks for a
+ * table of rows only — and gets no empty header for a screen reader to read.
+ */
+export const rehypeHeadlessTables = () => (tree: Node) => {
+  const walk = (node: Node) => {
+    if (node.tagName === "table")
+      node.children = node.children?.filter((c) => c.tagName !== "thead" || text(c).trim());
     node.children?.forEach(walk);
   };
   walk(tree);
@@ -141,10 +174,20 @@ export function blogPlugin(): Plugin[] {
         {
           themes: { light: "github-light-default", dark: "github-dark-default" },
           defaultColor: false,
-          langs: ["ts", "tsx", "js", "jsx", "yaml", "sh", "json", "md", "php", "kotlin", "java"],
-        },
+          langs: Object.keys(LANGUAGES) as RehypeShikiOptions["langs"],
+          // The language's name goes with the block, for its label.
+          transformers: [
+            {
+              pre(node) {
+                node.properties["data-language"] =
+                  LANGUAGES[this.options.lang] ?? this.options.lang;
+              },
+            },
+          ],
+        } satisfies RehypeShikiOptions,
       ],
       rehypeNumberCode,
+      rehypeHeadlessTables,
     ],
     // The footnotes' heading is the site's word, whatever the post's language.
     remarkRehypeOptions: { footnoteLabelProperties: { className: ["sr-only"], lang: "en" } },

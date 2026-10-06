@@ -80,7 +80,7 @@ test.describe("without JavaScript", () => {
 test("code is coloured by its language, in the theme the page is in", async ({ page }) => {
   await page.goto(HELLO);
   const keyword = page
-    .getByRole("region", { name: "Code" })
+    .getByRole("group", { name: "Code" })
     .first()
     .getByText("export", { exact: true });
   const color = () => keyword.evaluate((el) => getComputedStyle(el).color);
@@ -96,6 +96,30 @@ test("code is coloured by its language, in the theme the page is in", async ({ p
   await page.emulateMedia({ colorScheme: "light" });
   await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
   expect(await color()).toBe(dark);
+
+  // Paper is white whatever the screen is, so it gets the light colours.
+  await page.emulateMedia({ media: "print", colorScheme: "dark" });
+  expect(await color()).toBe(light);
+});
+
+test("a table's rows alternate and light up under the pointer, its header is optional", async ({
+  page,
+}) => {
+  await page.goto(HELLO);
+  const [withHead, rowsOnly] = [0, 1].map((i) => page.getByRole("table").nth(i));
+  await expect(withHead.getByRole("columnheader")).toHaveCount(3);
+  // An empty header row in the markdown is no header at all, not an empty one.
+  await expect(rowsOnly.getByRole("columnheader")).toHaveCount(0);
+  await expect(rowsOnly.getByRole("row").first()).toContainText("Light theme");
+
+  const rows = rowsOnly.getByRole("row");
+  const background = (i: number) =>
+    rows.nth(i).evaluate((el) => getComputedStyle(el).backgroundColor);
+  const [odd, even] = [await background(0), await background(1)];
+  expect(odd).not.toBe(even);
+  await rows.nth(0).hover();
+  expect(await background(0)).not.toBe(odd);
+  expect(await background(0)).not.toBe(even);
 });
 
 test("React takes a post over without an error, and back to the list", async ({ page }) => {

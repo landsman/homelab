@@ -193,6 +193,15 @@ public record User(String name, int age) {
 | Body         | Markdown and components             | everything under it |
 | Components   | A video, a gallery                  | `components.ts`     |
 
+A table of rows only: an empty header row leaves it out.
+
+|             |                                           |
+| ----------- | ----------------------------------------- |
+| Light theme | `github-light-default`                    |
+| Dark theme  | `github-dark-default`                     |
+| Highlighter | Shiki, at build time                      |
+| Rows        | alternate, and light up under the pointer |
+
 A footnote, for the end of the post.[^1]
 
 [^1]: Footnotes gather at the bottom, under a rule.

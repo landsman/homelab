@@ -44,8 +44,20 @@ Then("I am offered a link to {string}", async function (this: AppWorld, name: st
 });
 
 Then("the code's keywords stand out from the rest of it", async function (this: AppWorld) {
-  const block = this.page.getByRole("region", { name: "Code" }).first();
+  const block = this.page.getByRole("group", { name: "Code" }).first();
   const keyword = block.getByText("export", { exact: true });
   const plain = await block.evaluate((el) => getComputedStyle(el).color);
   await expect(keyword).not.toHaveCSS("color", plain);
+});
+
+Then("I see a table with a header row", async function (this: AppWorld) {
+  await expect(
+    this.page.getByRole("table").filter({ has: this.page.getByRole("columnheader") }),
+  ).not.toHaveCount(0);
+});
+
+Then("I see a table without one", async function (this: AppWorld) {
+  await expect(
+    this.page.getByRole("table").filter({ hasNot: this.page.getByRole("columnheader") }),
+  ).not.toHaveCount(0);
 });

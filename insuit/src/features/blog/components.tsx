@@ -13,12 +13,23 @@ export const POST_COMPONENTS = {
   Gallery,
   YouTube,
   // A code block or a table scrolls sideways when it is wider than the column,
-  // so a keyboard has to be able to reach it to scroll it (WCAG 2.1.1).
-  // Named, as a stop on the way through, in the site's language — the post
-  // around it may be in another (WCAG 3.1.2).
-  // Numbered by vite/blog.ts, since a post with two would have two of one name.
-  pre: ({ "data-block": n, ...props }: ComponentProps<"pre"> & { "data-block": number }) => (
-    <pre tabIndex={0} role="region" aria-label={m.blog_code({ n })} lang={getLocale()} {...props} />
+  // so a keyboard has to be able to reach it to scroll it (WCAG 2.1.1). A
+  // block is a named group rather than a region, so ten of them do not bury
+  // the page's landmarks; named, as a stop on the way through, by its number
+  // and language (vite/blog.ts), in the site's language — the post around it
+  // may be in another (WCAG 3.1.2).
+  pre: ({
+    "data-block": n,
+    "data-language": language,
+    ...props
+  }: ComponentProps<"pre"> & { "data-block": number; "data-language"?: string }) => (
+    <pre
+      tabIndex={0}
+      role="group"
+      aria-label={language ? m.blog_code_language({ n, language }) : m.blog_code({ n })}
+      lang={getLocale()}
+      {...props}
+    />
   ),
   table: (props: ComponentProps<"table">) => (
     <table tabIndex={0} aria-label={m.blog_table()} {...props} />

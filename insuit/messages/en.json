@@ -79,5 +79,6 @@
   "blog_task_done": "done",
   "blog_task_open": "not done",
   "blog_code": "Code {n}",
+  "blog_code_language": "Code {n}, {language}",
   "blog_table": "Table"
 }

@@ -22,3 +22,8 @@ Feature: Reading the blog before it is announced
   Scenario: Code in a post is coloured by its language
     Given I open the post "hello"
     Then the code's keywords stand out from the rest of it
+
+  Scenario: A table can go without a header row
+    Given I open the post "hello"
+    Then I see a table with a header row
+    And I see a table without one

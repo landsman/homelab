@@ -186,6 +186,15 @@ public record User(String name, int age) {
 }
 ```
 
+```hcl
+# HCL
+resource "cloudflare_pages_project" "site" {
+  account_id        = var.cloudflare_account_id
+  name              = "insuit-cz"
+  production_branch = "main"
+}
+```
+
 ---
 
 | Part         | What it does                        | Where               |

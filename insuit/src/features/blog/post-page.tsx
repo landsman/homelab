@@ -1,6 +1,4 @@
 import { Suspense } from "react";
-import { Link } from "@tanstack/react-router";
-import { ROUTES } from "@/app/routes";
 import { POST_COMPONENTS } from "@/features/blog/components";
 import type { PostMeta } from "@/features/blog/post.types";
 import { formatDate, usePostBody } from "@/features/blog/posts";
@@ -29,9 +27,6 @@ export function PostPage({ post }: { post: PostMeta }) {
           </Suspense>
         </div>
       </article>
-      <p>
-        <Link to={ROUTES.blog}>{m.blog_all_posts()}</Link>
-      </p>
     </main>
   );
 }

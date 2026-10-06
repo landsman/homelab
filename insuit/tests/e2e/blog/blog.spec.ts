@@ -58,7 +58,9 @@ test.describe("without JavaScript", () => {
 test("React takes a post over without an error, and back to the list", async ({ page }) => {
   await expectCleanTakeover(page, HELLO);
 
-  await page.getByRole("link", { name: "All posts" }).click();
+  // Back is one level up, to the list, not home.
+  await page.getByRole("link", { name: "Back", exact: true }).click();
+  await expect(page).toHaveURL(ROUTES.blog);
   await expect(page.getByRole("heading", { name: "Posts" })).toBeVisible();
 });
 
@@ -97,10 +99,14 @@ test("Hello opens by its address, its body loaded in the browser", async ({ page
 test("the video in Hello plays on a click, and loads nothing before it", async ({ page }) => {
   // Never the network: what the click starts is the player, at its address.
   const youtube: string[] = [];
-  await page.route(/youtube/, (route) => {
-    youtube.push(route.request().url());
-    return route.abort();
-  });
+  // Anything off this server; the thumbnail is the site's own file.
+  await page.route(
+    (url) => url.hostname !== "localhost",
+    (route) => {
+      youtube.push(route.request().url());
+      return route.abort();
+    },
+  );
   await page.goto(HELLO);
   await waitForApp(page);
 
@@ -108,6 +114,11 @@ test("the video in Hello plays on a click, and loads nothing before it", async (
     name: "Play the video: Rick Astley — Never Gonna Give You Up",
   });
   await expect(play).toBeVisible();
+  // Its thumbnail, served by the site.
+  await expect(play.locator("img")).toHaveJSProperty("complete", true);
+  expect(await play.locator("img").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(
+    1280,
+  );
   await expect(page.locator("iframe")).toHaveCount(0);
   expect(youtube).toEqual([]);
 
@@ -115,11 +126,11 @@ test("the video in Hello plays on a click, and loads nothing before it", async (
   const player = page.getByTitle("Play the video: Rick Astley — Never Gonna Give You Up");
   await expect(player).toHaveAttribute(
     "src",
-    "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1",
+    "https://www.youtube-nocookie.com/embed/DLzxrzFCyOs?autoplay=1",
   );
   // Asked to play straight away, and allowed to.
   await expect(player).toHaveAttribute("allow", /autoplay/);
-  await expect.poll(() => youtube[0]).toContain("youtube-nocookie.com/embed/dQw4w9WgXcQ");
+  await expect.poll(() => youtube[0]).toContain("youtube-nocookie.com/embed/DLzxrzFCyOs");
 });
 
 test("a post, its video included, has no accessibility violations", async ({ page }) => {

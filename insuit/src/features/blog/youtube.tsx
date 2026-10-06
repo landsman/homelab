@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { youtubeThumbnail } from "@/app/assets";
 import { m } from "@/paraglide/messages.js";
 
 type Props = {
@@ -6,14 +7,14 @@ type Props = {
   id: string;
   /** What the video is; it names the play button and the player. */
   title: string;
-  /** A picture under the play button. Not YouTube's own thumbnail: that would
-      load from YouTube before anyone asked to play. */
+  /** A picture under the play button, in place of the video's thumbnail. */
   poster?: string;
 };
 
 /**
  * A YouTube video in a post: `<YouTube id="…" title="…" />`. It waits as a play
- * button, so nothing loads from YouTube until it is pressed, and
+ * button over the video's thumbnail, which the site serves itself (`make
+ * youtube-thumbnail ID=…`), so nothing loads from YouTube until it is pressed, and
  * youtube-nocookie sets no cookies until playback — the CV's videos do the
  * same (features/cv/project-dialog.tsx).
  */
@@ -40,7 +41,7 @@ export function YouTube({ id, title, poster }: Props) {
       aria-label={label}
       onClick={() => setPlaying(true)}
     >
-      {poster ? <img src={poster} alt="" /> : <span className="blog-video-title">{title}</span>}
+      <img src={poster ?? youtubeThumbnail(id)} alt="" />
       <span className="video-badge" aria-hidden="true">
         <span className="icon-play" />
       </span>

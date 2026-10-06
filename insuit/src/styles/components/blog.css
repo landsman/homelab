@@ -24,7 +24,7 @@
 }
 
 /* A video in a post (features/blog/youtube.tsx): a 16:9 frame, first a play
-   button over its poster or its title, then the player in the same place. */
+   button over its thumbnail, then the player in the same place. */
 .blog-video {
   position: relative;
   display: block;
@@ -50,11 +50,6 @@ button.blog-video:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.blog-video-title {
-  position: absolute;
-  inset: auto var(--space) var(--space);
-  text-align: left;
 }
 .blog-video:hover .video-badge,
 .blog-video:focus-visible .video-badge {

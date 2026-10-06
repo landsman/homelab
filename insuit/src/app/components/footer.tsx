@@ -5,6 +5,8 @@ import { m } from "@/paraglide/messages.js";
 
 export function Footer() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Back is one level up: from a post to the blog's list, from the rest home.
+  const back = pathname.startsWith(`${ROUTES.blog}/`) ? ROUTES.blog : ROUTES.home;
 
   return (
     <footer>
@@ -18,7 +20,7 @@ export function Footer() {
         ) : (
           // The arrow is for the eye; a screen reader is told "Back", not
           // "leftwards arrow, Back".
-          <Link to={ROUTES.home} aria-label={m.common_nav_back()}>
+          <Link to={back} aria-label={m.common_nav_back()}>
             {`← ${m.common_nav_back()}`}
           </Link>
         )}

@@ -73,7 +73,6 @@
   "blog_description": "What Michal Landsman, developer in Prague, has written down.",
   "blog_heading": "Posts",
   "blog_post_title": "{title} — Michal Landsman",
-  "blog_all_posts": "All posts",
   "blog_updated": "updated {date}",
   "blog_empty": "Nothing here yet.",
   "blog_hidden": "hidden"

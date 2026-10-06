@@ -6,7 +6,7 @@ Feature: Reading the blog before it is announced
   Scenario: A hidden post is read by its address, and missing from the list
     Given I open the post "hello"
     Then I see the heading "Hello"
-    When I follow "All posts"
+    When I follow "Back"
     Then I see the heading "Posts"
     And I am not offered a link to "Hello"
 

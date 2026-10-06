@@ -222,7 +222,8 @@ button.blog-video:focus-visible {
 .blog-post .content th {
   font-weight: 600;
   background: var(--table-head);
-  border-bottom: calc(var(--border-width) * 2) solid var(--color-fg);
+  border-bottom: calc(var(--border-width) * 2) solid
+    color-mix(in srgb, var(--color-fg) 25%, transparent);
 }
 .blog-post .content tbody tr:nth-child(even) {
   background: var(--table-stripe);

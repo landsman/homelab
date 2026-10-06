@@ -256,6 +256,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Cloudflare',
         url: 'https://dash.cloudflare.com',
         icon: ServiceIcon.CLOUDFLARE,
+        tags: ['proxy', 'dns', 'vpn', 'tunnel', 'pages', 'redirect'],
         shortcut: Hotkey.SHIFT_SEVEN,
       },
       {

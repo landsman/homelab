@@ -31,8 +31,12 @@ export const POST_COMPONENTS = {
       {...props}
     />
   ),
+  // A table fills the column, so it scrolls in a frame of its own: a table
+  // that scrolls itself cannot stretch its cells.
   table: (props: ComponentProps<"table">) => (
-    <table tabIndex={0} aria-label={m.blog_table()} {...props} />
+    <div className="blog-table" tabIndex={0} role="group" aria-label={m.blog_table()}>
+      <table {...props} />
+    </div>
   ),
   // A picture's title (`![alt](src "title")`) is its caption, shown, rather
   // than a tooltip nobody on a keyboard or a phone sees. vite/blog.ts lifts a

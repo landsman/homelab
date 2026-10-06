@@ -188,21 +188,29 @@ button.blog-video:focus-visible {
   border-top: var(--border-width) solid var(--color-border);
 }
 
-/* A table scrolls sideways on its own rather than widening the page, in the
-   text's own size, so it reads as part of the post. Its rows
-   alternate and the one under the pointer lights up, so a long row can be
-   followed across; the shades are the text's colour mixed into the page's,
-   so they follow the theme. A table without a header row has no <thead>
+/* A table spans the column in a frame like a code block's, with room around
+   it, and scrolls sideways inside it rather than widening the page. Its text
+   is the post's own size, so it reads as part of the post. Its rows alternate
+   and the one under the pointer lights up, so a long row can be followed
+   across; the shades are the text's colour mixed into the page's, so they
+   follow the theme. A table without a header row has no <thead>
    (vite/blog.ts). */
+.blog-table {
+  margin: calc(var(--space) * 1.75) 0;
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--image-radius);
+}
 .blog-post .content table {
   --table-stripe: color-mix(in srgb, var(--color-fg) 4%, transparent);
   --table-hover: color-mix(in srgb, var(--color-fg) 9%, transparent);
   --table-head: color-mix(in srgb, var(--color-fg) 8%, transparent);
-  display: block;
-  max-width: 100%;
-  margin: var(--space) 0;
-  overflow-x: auto;
+  width: 100%;
   border-collapse: collapse;
+}
+/* The frame closes the last row. */
+.blog-post .content tr:last-child > td {
+  border-bottom: 0;
 }
 .blog-post .content th,
 .blog-post .content td {
@@ -258,7 +266,7 @@ button.blog-video:focus-visible {
 
 /* A code block or a table can take keyboard focus, to scroll it. */
 .blog-post .content pre:focus-visible,
-.blog-post .content table:focus-visible {
+.blog-table:focus-visible {
   outline: var(--border-width) solid currentcolor;
   outline-offset: 4px;
 }

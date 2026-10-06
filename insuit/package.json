@@ -32,6 +32,7 @@
     "@inlang/plugin-message-format": "^4.4.4",
     "@mdx-js/rollup": "3.1.1",
     "@playwright/test": "^1.63.0",
+    "@shikijs/rehype": "4.5.0",
     "@types/bun": "^1.4.2",
     "@types/mdx": "2.0.14",
     "@types/qrcode": "^1.5.5",

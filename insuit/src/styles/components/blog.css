@@ -144,6 +144,30 @@ button.blog-video:focus-visible {
   font-size: inherit;
 }
 
+/* A code block's colours (vite/blog.ts): every token carries both themes as
+   variables, and the one shown follows the page's — the OS, then the toggle,
+   as in tokens.css. The background stays the page's own. */
+.blog-post .content .shiki,
+.blog-post .content .shiki span {
+  color: var(--shiki-light);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .blog-post .content .shiki,
+  :root:not([data-theme="light"]) .blog-post .content .shiki span {
+    color: var(--shiki-dark);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
+  }
+}
+:root[data-theme="dark"] .blog-post .content .shiki,
+:root[data-theme="dark"] .blog-post .content .shiki span {
+  color: var(--shiki-dark);
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
+}
+
 .blog-post .content hr {
   margin: var(--space-section) 0;
   border: 0;

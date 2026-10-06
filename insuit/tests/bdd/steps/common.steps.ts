@@ -42,3 +42,10 @@ Then("I am not offered a link to {string}", async function (this: AppWorld, name
 Then("I am offered a link to {string}", async function (this: AppWorld, name: string) {
   await expect(this.page.getByRole("link", { name })).toBeVisible();
 });
+
+Then("the code's keywords stand out from the rest of it", async function (this: AppWorld) {
+  const block = this.page.getByRole("region", { name: "Code" }).first();
+  const keyword = block.getByText("export", { exact: true });
+  const plain = await block.evaluate((el) => getComputedStyle(el).color);
+  await expect(keyword).not.toHaveCSS("color", plain);
+});

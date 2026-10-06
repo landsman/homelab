@@ -84,6 +84,107 @@ and addresses wrap: https://www.example.com/a/rather/long/address/that/has/to/wr
 export const greet = (name: string) => `Hello, ${name}!`;
 ```
 
+### Code, coloured
+
+One block per language the highlighter knows, to see each one in both themes.
+
+```js
+// JavaScript
+const items = [1, 2, 3].map((n) => n * 2);
+console.log(`doubled: ${items.join(", ")}`);
+```
+
+```tsx
+// TypeScript with JSX
+type Props = { name: string; count?: number };
+export const Badge = ({ name, count = 0 }: Props) => (
+  <span className="badge">
+    {name}: {count}
+  </span>
+);
+```
+
+```yaml
+# YAML
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: make qa
+```
+
+```sh
+#!/usr/bin/env bash
+# Shell
+set -euo pipefail
+for file in content/blog/*/*.mdx; do
+  echo "post: ${file##*/}"
+done
+```
+
+```json
+{
+  "name": "insuit-cz",
+  "private": true,
+  "count": 3,
+  "tags": ["blog", "cv"],
+  "draft": null
+}
+```
+
+````md
+# Markdown
+
+Some **bold**, a [link](https://example.com/) and a list:
+
+- one
+- two
+
+```ts
+const nested = true;
+```
+````
+
+```php
+<?php
+// PHP
+declare(strict_types=1);
+
+final class Greeter
+{
+    public function __construct(private string $name) {}
+
+    public function greet(): string
+    {
+        return "Hello, {$this->name}!";
+    }
+}
+```
+
+```kotlin
+// Kotlin
+data class User(val name: String, val age: Int)
+
+fun main() {
+    val users = listOf(User("Ada", 36), User("Linus", 28))
+    users.filter { it.age > 30 }.forEach { println("${it.name} is ${it.age}") }
+}
+```
+
+```java
+// Java
+import java.util.List;
+
+public record User(String name, int age) {
+    public static void main(String[] args) {
+        List.of(new User("Ada", 36)).forEach(u -> System.out.println(u.name()));
+    }
+}
+```
+
 ---
 
 | Part         | What it does                        | Where               |

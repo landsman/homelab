@@ -9,6 +9,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import mdx from "@mdx-js/rollup";
+import rehypeShiki from "@shikijs/rehype";
 import remarkFrontmatter from "remark-frontmatter";
 import rehypeUnwrapImages from "rehype-unwrap-images";
 import remarkGfm from "remark-gfm";
@@ -97,6 +98,27 @@ export const readPosts = (): PostMeta[] =>
       .map((file) => parsePost(file, readFileSync(DIR + file, "utf8"))),
   );
 
+type Node = {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: Node[];
+};
+
+/**
+ * Numbers a post's code blocks, in the order they come. Each is a landmark of
+ * its own (src/features/blog/components.tsx), and two landmarks of one name
+ * cannot be told apart.
+ */
+export const rehypeNumberCode = () => (tree: Node) => {
+  let n = 0;
+  const walk = (node: Node) => {
+    if (node.tagName === "pre") node.properties = { ...node.properties, dataBlock: ++n };
+    node.children?.forEach(walk);
+  };
+  walk(tree);
+};
+
 export function blogPlugin(): Plugin[] {
   const compiler = mdx({
     include: /\/content\/blog\/\d{4}\/[^/]+\.mdx$/,
@@ -105,7 +127,25 @@ export function blogPlugin(): Plugin[] {
     remarkPlugins: [remarkFrontmatter, remarkGfm],
     // A picture alone in its paragraph comes out of it, so it can be a figure
     // with its caption (src/features/blog/components.tsx).
-    rehypePlugins: [rehypeUnwrapImages],
+    // A code block is coloured here, at build time, so the page carries spans
+    // and no highlighter reaches the browser. Both themes go in as CSS
+    // variables, and blog.css picks one the way tokens.css picks the page's.
+    // The "-default" GitHub themes, since their every colour reaches 4.5:1 on
+    // the page's backgrounds (WCAG 1.4.3), which the classic ones' comments do
+    // not. Only these languages load; a fence in another stays plain text
+    // until it is added here.
+    rehypePlugins: [
+      rehypeUnwrapImages,
+      [
+        rehypeShiki,
+        {
+          themes: { light: "github-light-default", dark: "github-dark-default" },
+          defaultColor: false,
+          langs: ["ts", "tsx", "js", "jsx", "yaml", "sh", "json", "md", "php", "kotlin", "java"],
+        },
+      ],
+      rehypeNumberCode,
+    ],
     // The footnotes' heading is the site's word, whatever the post's language.
     remarkRehypeOptions: { footnoteLabelProperties: { className: ["sr-only"], lang: "en" } },
   });

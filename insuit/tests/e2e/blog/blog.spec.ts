@@ -75,6 +75,29 @@ test.describe("without JavaScript", () => {
   });
 });
 
+// Coloured at build time (vite/blog.ts), so the colours are in the page; the
+// theme picks which, the OS first and the toggle over it.
+test("code is coloured by its language, in the theme the page is in", async ({ page }) => {
+  await page.goto(HELLO);
+  const keyword = page
+    .getByRole("region", { name: "Code" })
+    .first()
+    .getByText("export", { exact: true });
+  const color = () => keyword.evaluate((el) => getComputedStyle(el).color);
+
+  await page.emulateMedia({ colorScheme: "light" });
+  const light = await color();
+  await page.emulateMedia({ colorScheme: "dark" });
+  const dark = await color();
+  expect(light).not.toBe(dark);
+
+  await page.evaluate(() => (document.documentElement.dataset.theme = "light"));
+  expect(await color()).toBe(light);
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
+  expect(await color()).toBe(dark);
+});
+
 test("React takes a post over without an error, and back to the list", async ({ page }) => {
   await expectCleanTakeover(page, HELLO);
 

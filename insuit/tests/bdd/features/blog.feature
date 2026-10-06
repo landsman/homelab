@@ -18,3 +18,7 @@ Feature: Reading the blog before it is announced
   Scenario: A video in a post waits to be played
     Given I open the post "hello"
     Then I am offered a button to play the video
+
+  Scenario: Code in a post is coloured by its language
+    Given I open the post "hello"
+    Then the code's keywords stand out from the rest of it

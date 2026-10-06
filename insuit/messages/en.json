@@ -78,6 +78,6 @@
   "blog_hidden": "hidden",
   "blog_task_done": "done",
   "blog_task_open": "not done",
-  "blog_code": "Code",
+  "blog_code": "Code {n}",
   "blog_table": "Table"
 }

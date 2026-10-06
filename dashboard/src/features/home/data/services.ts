@@ -63,18 +63,21 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Claude',
         url: 'https://claude.ai',
         icon: ServiceIcon.CLAUDE,
+        tags: ['ai'],
         shortcut: Hotkey.SHIFT_C,
       },
       {
         name: 'Perplexity',
         url: 'https://perplexity.ai',
         icon: ServiceIcon.PERPLEXITY,
+        tags: ['ai'],
         shortcut: Hotkey.SHIFT_P,
       },
       {
         name: 'Gemini',
         url: 'https://gemini.google.com',
         icon: ServiceIcon.GEMINI,
+        tags: ['ai'],
         shortcut: Hotkey.SHIFT_G,
       },
       {

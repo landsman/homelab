@@ -38,6 +38,21 @@ export const POST_COMPONENTS = {
       <table {...props} />
     </div>
   ),
+  // A link in a post opens a new tab, so the post stays where it was read;
+  // a screen reader is told so, in the site's language (contact-page.tsx). A
+  // jump within the page — a footnote and its way back — stays in this one.
+  a: ({ children, ...props }: ComponentProps<"a">) =>
+    props.href?.startsWith("#") ? (
+      <a {...props}>{children}</a>
+    ) : (
+      <a target="_blank" rel="noopener" {...props}>
+        {children}
+        <span className="visually-hidden" lang={getLocale()}>
+          {" "}
+          {m.common_opens_new_tab()}
+        </span>
+      </a>
+    ),
   // A picture's title (`![alt](src "title")`) is its caption, shown, rather
   // than a tooltip nobody on a keyboard or a phone sees. vite/blog.ts lifts a
   // picture alone in its paragraph out of it, so the figure is not in a <p>.

@@ -27,3 +27,7 @@ Feature: Reading the blog before it is announced
     Given I open the post "hello"
     Then I see a table with a header row
     And I see a table without one
+
+  Scenario: A link in a post opens a new tab, so the post stays open
+    Given I open the post "hello"
+    Then the link "link out" opens in a new tab

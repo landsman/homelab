@@ -61,3 +61,8 @@ Then("I see a table without one", async function (this: AppWorld) {
     this.page.getByRole("table").filter({ hasNot: this.page.getByRole("columnheader") }),
   ).not.toHaveCount(0);
 });
+
+Then("the link {string} opens in a new tab", async function (this: AppWorld, name: string) {
+  const link = this.page.getByRole("link", { name: `${name} (opens in a new tab)` });
+  await expect(link).toHaveAttribute("target", "_blank");
+});

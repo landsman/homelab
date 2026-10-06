@@ -122,6 +122,22 @@ test("a table's rows alternate and light up under the pointer, its header is opt
   expect(await background(0)).not.toBe(even);
 });
 
+test("a link in a post opens a new tab and says so, a footnote's mark does not", async ({
+  page,
+}) => {
+  await page.goto(HELLO);
+  const out = page.getByRole("link", { name: "link out (opens in a new tab)" });
+  await expect(out).toHaveAttribute("target", "_blank");
+  await expect(out).toHaveAttribute("rel", "noopener");
+  await expect(
+    page.getByRole("link", { name: "link within the site (opens in a new tab)" }),
+  ).toHaveAttribute("target", "_blank");
+  const mark = page.locator("a[data-footnote-ref]");
+  await expect(mark).not.toHaveAttribute("target", /./);
+  await mark.click();
+  await expect(page).toHaveURL(/#user-content-fn-1$/);
+});
+
 test("React takes a post over without an error, and back to the list", async ({ page }) => {
   await expectCleanTakeover(page, HELLO);
 

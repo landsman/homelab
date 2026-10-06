@@ -6,16 +6,18 @@ on:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
-      # cv.md is the CV page's source, not docs — re-included after the skip.
-      - 'insuit/src/features/cv/cv.md'
+      # content/ is what the site says, not docs — the CV's cv.md and the
+      # blog's posts. Re-included after the skip.
+      - 'insuit/content/**'
   push:
     branches: [main]
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
       - '!**/*.md'
-      # cv.md is the CV page's source, not docs — re-included after the skip.
-      - 'insuit/src/features/cv/cv.md'
+      # content/ is what the site says, not docs — the CV's cv.md and the
+      # blog's posts. Re-included after the skip.
+      - 'insuit/content/**'
   workflow_dispatch:
 
 # A new push to the same PR cancels the run still going for the previous one,

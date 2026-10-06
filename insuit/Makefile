@@ -30,7 +30,7 @@ dev: ## Start the dev server on http://localhost:4321 (hot reload, cv.md include
 	bun run dev
 
 # Every page is rendered to an HTML file here. The CV is built here too:
-# src/features/cv/cv.md becomes the page's data and the printed QR codes
+# content/cv/cv.md becomes the page's data and the printed QR codes
 # (vite/cv.ts), and a CV link with no short link in links/_redirects stops the
 # build.
 build: ## Build the site into dist/client — what gets deployed

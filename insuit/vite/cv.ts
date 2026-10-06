@@ -1,4 +1,4 @@
-// Builds the CV page's data from src/features/cv/cv.md — the markdown is the
+// Builds the CV page's data from content/cv/cv.md — the markdown is the
 // source, the page imports the result as `virtual:cv`, so the two can never
 // drift. Runs inside Vite: on `make dev` (again on every edit of the markdown),
 // on `make build` and under the tests.
@@ -271,7 +271,7 @@ export function buildCv(
 }
 
 const root = new URL("../", import.meta.url);
-const source = fileURLToPath(new URL("src/features/cv/cv.md", root));
+const source = fileURLToPath(new URL("content/cv/cv.md", root));
 const redirects = fileURLToPath(new URL("links/_redirects", root));
 const publicDir = new URL("public/", root);
 const qrSprite = new URL(`.${QR_SPRITE}`, publicDir);

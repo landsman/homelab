@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import cv from "virtual:cv";
 import type { CvImage, CvProject } from "@/features/cv/cv.types";
-import { PhotoDialog } from "@/features/cv/photo-dialog";
+import { PhotoDialog } from "@/app/components/photo-dialog";
 import { ProjectDialog } from "@/features/cv/project-dialog";
 import { Prose } from "@/features/cv/prose";
 import { m } from "@/paraglide/messages.js";

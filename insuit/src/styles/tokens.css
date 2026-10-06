@@ -75,7 +75,7 @@
   --cv-image-width: 320px;
   --cv-portrait-size: clamp(104px, 28vw, 180px);
   --cv-portrait-filter: saturate(0.9) contrast(1.05) brightness(1.04);
-  --cv-image-radius: 12px;
+  --image-radius: 12px;
   --cv-card-min: 200px;
   /* Paper: one text column and a narrower one to its right that carries the
      asides — the portrait, a job's role and dates, a project's QR codes. */
@@ -87,9 +87,9 @@
   --font-size-print-technologies: 9pt;
   --font-size-print-project: 10pt;
   --font-size-print-caption: 6.5pt;
-  --cv-thumb-width: 200px;
+  --thumb-width: 200px;
   --gallery-inset: 6px;
-  --cv-thumb-height: 160px;
+  --thumb-height: 160px;
   --play-size: 64px;
   --close-size: 40px;
   /* The ring keyboard focus draws on the round buttons. */
@@ -99,6 +99,8 @@
   --photo-caption-room: 4em;
   /* The logos are 1200×630 share cards; a logo-less tile takes the same shape. */
   --cv-logo-ratio: 1200 / 630;
+  /* A gallery's thumbnails: the share-card shape the CV's logos already have. */
+  --thumb-ratio: var(--cv-logo-ratio);
   --cv-dialog-width: 640px;
   --border-width: 1px;
 

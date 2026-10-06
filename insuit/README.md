@@ -21,21 +21,26 @@ src/
   app/                what every page shares: footer, theme toggle, ROUTES, page-meta,
                       the site's address (site.ts), icon and font paths (assets.ts)
   features/<page>/    a page's own components and data
-  features/cv/cv.md   the CV's source — edit this, not the components
   index.css           stylesheet entry point, @imports only
   styles/             tokens, fonts, reset, page, typography, components/
   paraglide/          the compiled messages — generated, not committed
+content/              what the site says, apart from the app in src/
+  cv/cv.md            the CV's source — edit this, not the components
+  blog/<year>/        the blog's posts, one MDX file each
 scripts/              the local preview server, and the check that Pages agrees with it
 bunfig.toml           makes Bun the runtime of every script, not only the launcher
 messages/en.json      every word of the interface, by key
 project.inlang/       the locales, for Paraglide
 vite/cv.ts            builds the CV page's data and QR codes from cv.md
+vite/blog.ts          compiles each post's MDX, and serves its front matter apart
+vite/sitemap.ts       robots.txt and the sitemaps, written into the build
+vite/youtube.ts       the thumbnails of the posts' videos, fetched into the build
 public/               copied to the site as is
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
   assets/cv/          the CV's pictures
   _headers            Pages response headers: hashed files are cached for good
-tests/                vitest (cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
+tests/                vitest (blog/, cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
 links/                link.insuit.cz — see below
 og/                   the Open Graph card's source
 infra/                Terraform: the Pages projects only — see DNS cutover below
@@ -74,6 +79,66 @@ way `vite/cv.ts` does for the CV (`virtual:cv`). For a page per file —
 loader, one chunk per post; the build finds each post by the link to it from
 an index page.
 
+### Writing a post
+
+The blog is at `/blog`. No menu links to it yet. Search engines find it through
+its sitemap. A post is an MDX file in `content/blog/<year>/`, which is markdown
+that takes JSX. The year folder is the year it was published, and it only keeps
+the files in order. The address is the file's name alone, in lowercase letters,
+digits and dashes: `2026/hello.mdx` is `/blog/hello`. So no two posts may share
+a name, whatever their years, and the build stops on two that do. It opens with
+its front matter:
+
+```markdown
+---
+title: Hello
+description: One sentence, for the link preview.
+lang: en
+published: 2026-10-06
+updated: 2026-11-02
+hidden: true
+---
+```
+
+- `lang` is `en` or `cs`, the post's own language (`POST_LANGS` in
+  `src/features/blog/post.types.ts`). The post is marked up in it, so a screen
+  reader reads it right, and its `og:locale` says it too.
+- `updated` is optional. Set it by hand when the content changes, not for a
+  typo. It is shown under the title, and it dates the post in the sitemap and
+  in `article:modified_time`. Git's dates would move on every typo, and CI
+  checks out without history anyway.
+- `hidden: true` leaves a post out of the list and the sitemap and asks
+  search engines to stay out: it is read by its address only. `/blog?qa=true`
+  lists it anyway, marked, to check it before it is out. Its title and address
+  are in the bundle all the same, so hidden is not secret. `hello.mdx` is one,
+  kept for the tests.
+- A post missing a required field, in the wrong year's folder, or updated
+  before it was published stops the build.
+
+A post uses a component without importing it, e.g. `<YouTube id="…" title="…" />`.
+The components it can use are listed in `src/features/blog/components.tsx`. A
+video waits as a play button over its thumbnail. `vite/youtube.ts` fetches the
+thumbnail from YouTube when the site is built, keeps it in
+`node_modules/.cache`, and writes it into the build, never into the repo. A
+reader gets it from the site and asks YouTube for nothing until they press
+play. A thumbnail that cannot be fetched stops the build. MDX
+itself is JavaScript, so a component's types are checked in its own `.tsx`
+file and not in the post.
+
+`vite/blog.ts` compiles each post with `@mdx-js/rollup` into a component of its
+own. The list carries only the front matter. Each post is a chunk of its own,
+yet the build writes its whole text into the page's HTML file. While `make dev`
+runs, an edit recompiles that one post.
+
+### Sitemaps
+
+The build writes `robots.txt`, which points at `sitemap.xml`. That is an index
+linking `sitemap-pages.xml` and `sitemap-blog.xml`, all on the build's own
+`SITE_URL` (`vite/sitemap.ts`). The blog's sitemap lists every post. The
+pages' sitemap is a list kept by hand, and it leaves out `/cv`, which asks
+search engines to stay out. `make e2e` fails on an address in a sitemap that
+is missing or says `noindex`.
+
 ### Rendered twice
 
 A page is rendered twice: at build time, where there is no `window`, and in the
@@ -87,7 +152,7 @@ reports.
 ## Localisation
 
 Every word of the interface is a key in `messages/en.json`, used through
-Paraglide: `m.home_heading()`, `m.cv_video_play({ title })`. A missing key is a
+Paraglide: `m.home_heading()`, `m.common_video_play({ title })`. A missing key is a
 type error. Keys are `<area>_<thing>` — `common_`, `home_`, `hire_`, `contact_`, `cv_`,
 `not_found_` — and name the thing, not where it sits.
 
@@ -152,7 +217,7 @@ and the PR comment names the commit its preview was built from.
 
 ## The CV
 
-`src/features/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
+`content/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
 data — served to the app as `virtual:cv` — on `make dev` (again on every edit)
 and on `make build`: prose is rendered to HTML, every `####` is a project with
 its pictures, video and links as data, and each link gets a QR code for print.

@@ -1,0 +1,223 @@
+/* The blog: a list of posts, newest first, each title followed by its date,
+   and a post under its date. Loaded
+   by the blog's routes only (routes/blog.tsx, routes/blog_.$slug.tsx), not with
+   the site's styles. Pictures, the photo viewer and the play badge come from
+   media.css, shared with the CV. */
+
+.blog-list {
+  padding: 0;
+  list-style: none;
+}
+.blog-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--links-gap-column);
+}
+.blog-list time,
+.blog-hidden,
+.blog-date {
+  font-size: var(--font-size-small);
+  color: var(--color-muted);
+}
+.blog-date {
+  margin: var(--space-tight) 0 0;
+}
+
+/* A video in a post (features/blog/youtube.tsx): a 16:9 frame, first a play
+   button over its thumbnail, then the player in the same place. */
+.blog-video {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: var(--space) 0;
+  padding: 0;
+  overflow: hidden;
+  font: inherit;
+  color: var(--color-fg);
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--image-radius);
+}
+button.blog-video {
+  cursor: pointer;
+}
+button.blog-video:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+}
+.blog-video img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A post's text, written in markdown (vite/blog.ts): everything markdown and
+   GFM can produce, in the site's type. The rest of the site's pages have no
+   need of most of it, so it lives here, loaded with the blog only. */
+.blog-post .content h2,
+.blog-post .content h3,
+.blog-post .content h4 {
+  margin: var(--space-section) 0 var(--space);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-h1);
+  text-wrap: balance;
+}
+.blog-post .content h2 {
+  font-size: var(--font-size-h1);
+}
+.blog-post .content h3 {
+  font-size: var(--font-size-base);
+}
+.blog-post .content h4 {
+  margin-top: calc(var(--space) * 2);
+  font-size: var(--font-size-small);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.blog-post .content h2 + h3 {
+  margin-top: var(--space);
+}
+
+/* A link in a post's text is underlined by the text itself, not by the site's
+   box under the link (links.css): that box keeps a link on one line, and a long
+   address on one line pushes the page sideways on a phone (WCAG 1.4.10). */
+.blog-post .content a {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.blog-post .content a:hover,
+.blog-post .content a:focus-visible {
+  text-decoration-thickness: var(--underline-height);
+}
+.blog-post .content a::before,
+.blog-post .content a::after {
+  content: none;
+}
+/* A footnote's way back (↩) is one character: some room around it to hit. */
+.blog-post .content .data-footnote-backref {
+  padding-inline: 0.25em;
+}
+
+.blog-post .content ol {
+  margin: var(--space) 0;
+  padding-left: 1.5em;
+}
+.blog-post .content ol li::marker {
+  color: var(--color-muted);
+}
+.blog-post .content li > ul,
+.blog-post .content li > ol {
+  margin: 0;
+}
+/* A task list (GFM `- [x]`): the box is the marker. */
+.blog-post .content .contains-task-list {
+  padding-left: 0;
+  list-style: none;
+}
+
+.blog-post .content blockquote {
+  margin: var(--space) 0;
+  padding-left: var(--space);
+  border-left: calc(var(--border-width) * 3) solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.blog-post .content code {
+  font-size: 0.9em;
+}
+.blog-post .content pre {
+  margin: var(--space) 0;
+  padding: var(--space);
+  overflow-x: auto;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--image-radius);
+}
+.blog-post .content pre code {
+  font-size: inherit;
+}
+
+.blog-post .content hr {
+  margin: var(--space-section) 0;
+  border: 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+/* A table scrolls sideways on its own rather than widening the page. */
+.blog-post .content table {
+  display: block;
+  max-width: 100%;
+  margin: var(--space) 0;
+  overflow-x: auto;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  border-collapse: collapse;
+}
+.blog-post .content th,
+.blog-post .content td {
+  padding: calc(var(--space) / 2) var(--space) calc(var(--space) / 2) 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+.blog-post .content th {
+  font-weight: var(--font-weight-medium);
+}
+
+.blog-post .content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--image-radius);
+}
+.blog-post .content del {
+  color: var(--color-muted);
+}
+
+/* Footnotes (GFM `[^1]`): small, under a rule. Their "Footnotes" heading is
+   for a screen reader only — GFM marks it sr-only, the site's .visually-hidden. */
+.blog-post .content .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.blog-post .content .footnotes {
+  margin-top: var(--space-section);
+  padding-top: var(--space);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+/* A gallery (features/blog/gallery.tsx) is media.css's row of frames. */
+.blog-gallery {
+  margin: var(--space) 0;
+}
+
+/* A code block or a table can take keyboard focus, to scroll it. */
+.blog-post .content pre:focus-visible,
+.blog-post .content table:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+}
+
+/* A picture with a title (`![alt](src "title")`) shows it as its caption. */
+.blog-post .content figure {
+  margin: var(--space) 0;
+}
+.blog-post .content figcaption {
+  margin-top: calc(var(--space) / 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
+}

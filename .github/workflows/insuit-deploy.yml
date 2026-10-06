@@ -7,8 +7,9 @@ on:
       - 'insuit/**'
       - '.github/workflows/insuit-deploy.yml'
       - '!**/*.md'
-      # cv.md is the CV page's source, not docs — re-included after the skip.
-      - 'insuit/src/features/cv/cv.md'
+      # content/ is what the site says, not docs — the CV's cv.md and the
+      # blog's posts. Re-included after the skip.
+      - 'insuit/content/**'
   workflow_dispatch:
 
 jobs:

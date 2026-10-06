@@ -1,0 +1,259 @@
+/* Pictures and video on any page: a picture in its frame, a row of them, the
+   full-size photo viewer with its arrows, a dialog's close button, and the
+   badge a video waits under. The CV (cv.css) and the blog (blog.css) both
+   build on these; neither stylesheet has to be loaded for the other's page. */
+
+/* A picture that opens full size on click sits in a frame: a thin border with
+   a little space around the picture, so the hover has something to act on
+   without touching the image. A CV project card's .frame is the same. */
+.photo-zoom,
+.frame {
+  display: block;
+  width: 100%;
+  padding: var(--thumb-padding);
+  font: inherit;
+  background: var(--color-bg);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--image-radius);
+  transition:
+    border-color var(--speed),
+    transform var(--speed);
+}
+.photo-zoom {
+  cursor: zoom-in;
+}
+.photo-zoom img,
+.frame img {
+  border: 0;
+  border-radius: calc(var(--image-radius) - var(--thumb-padding));
+}
+.photo-zoom:focus-visible {
+  outline: var(--border-width) solid currentcolor;
+  outline-offset: 4px;
+}
+/* Hover darkens the frame to the text colour and lifts it a little, so it reads
+   as something to open. */
+.photo-zoom:hover,
+.photo-zoom:focus-visible {
+  border-color: currentcolor;
+  transform: translateY(var(--lift));
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-zoom:hover,
+  .photo-zoom:focus-visible {
+    transform: none;
+  }
+}
+
+/* Several pictures: one row that scrolls sideways, snapping to each. The
+   thumbnails are all one size, cropped to one shape from the top, where a
+   screenshot carries its headline. The padding keeps the hover lift and the
+   focus ring from being clipped by the scroll box. */
+.gallery {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  padding: var(--gallery-inset);
+  margin-inline: calc(var(--gallery-inset) * -1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gallery-inset);
+}
+.gallery .photo-zoom {
+  flex: none;
+  width: var(--thumb-width);
+  scroll-snap-align: start;
+}
+.gallery img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  aspect-ratio: var(--thumb-ratio);
+  object-fit: cover;
+  object-position: top;
+}
+/* Mostly tall pictures (phone screenshots): the frames share one height and
+   each is as wide as its picture, so every screen shows whole. */
+.gallery-tall .photo-zoom {
+  width: auto;
+}
+.gallery-tall img {
+  width: auto;
+  height: var(--thumb-height);
+  aspect-ratio: auto;
+}
+
+/* A dialog's ×, in a circle that fills on hover. The fill is too faint to be a
+   focus indicator on its own (1.1:1 against the dialog), so keyboard focus also
+   draws a ring in the text colour, round like the button. */
+.dialog-close {
+  position: absolute;
+  top: calc(var(--page-padding) - var(--close-size) / 4);
+  right: calc(var(--page-padding) - var(--close-size) / 4);
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-h1);
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color var(--speed);
+}
+.dialog-close:focus-visible {
+  outline: var(--focus-ring-width) solid currentcolor;
+  outline-offset: 2px;
+}
+.dialog-close:hover,
+.dialog-close:focus-visible {
+  background: var(--color-close-hover);
+}
+/* On a phone the × is a bigger target. */
+@media (max-width: 600px) {
+  .dialog-close {
+    --close-size: var(--close-size-touch);
+    font-size: var(--font-size-display);
+  }
+}
+
+/* The photo viewer (app/components/photo-dialog.tsx): the photo at its own
+   size, shrunk only to fit the screen, on a near-black backdrop. */
+.photo-dialog {
+  max-width: 100vw;
+  max-height: 100vh;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: 0;
+}
+.photo-dialog::backdrop {
+  background: var(--color-backdrop-strong);
+}
+/* It takes focus when it opens, not its close button, and needs no ring of
+   its own around the photo. */
+.photo-dialog:focus {
+  outline: none;
+}
+.photo-dialog figure {
+  /* A table shrinks to the photo's width and its caption row follows it, so a
+     long caption wraps under the photo instead of widening the dialog and
+     pushing the photo to one side on a narrow screen. */
+  display: table;
+  margin: 0 auto;
+}
+.photo-dialog img {
+  display: block;
+  width: auto;
+  max-width: calc(100vw - var(--page-padding) * 2);
+  /* Leaves room for the caption below it. */
+  max-height: calc(100vh - var(--page-padding) * 2 - var(--photo-caption-room));
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--image-radius);
+  cursor: zoom-out;
+}
+/* The caption sits on the dark backdrop, so it takes the light close-button
+   colour in both themes. */
+.photo-dialog figcaption {
+  display: table-caption;
+  caption-side: bottom;
+  padding-top: calc(var(--space) / 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-photo-close);
+  text-wrap: pretty;
+}
+.photo-dialog figcaption:empty {
+  display: none;
+}
+/* The × sits in the corner of the screen, on a dark disc: above the picture it
+   ran off the top of the screen whenever the picture was tall, and the white ×
+   alone vanished over a light one. */
+.photo-dialog .dialog-close {
+  position: fixed;
+  top: calc(var(--space) / 2);
+  right: calc(var(--space) / 2);
+  color: var(--color-photo-close);
+  background: var(--color-play-badge);
+}
+.photo-dialog .dialog-close:hover,
+.photo-dialog .dialog-close:focus-visible {
+  background: var(--color-close-hover-dark);
+}
+
+/* Previous and next: on the backdrop either side of the picture, light like
+   the close button, on a dark disc like the video's play button — on a phone
+   they sit over the photo itself and must read against any picture. */
+.photo-step {
+  position: fixed;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 0 0 0.1em;
+  font: inherit;
+  font-size: var(--font-size-h1);
+  line-height: 1;
+  color: var(--color-photo-close);
+  background: var(--color-play-badge);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color var(--speed);
+}
+.photo-step:focus-visible {
+  outline: var(--focus-ring-width) solid currentcolor;
+  outline-offset: 2px;
+}
+.photo-step:hover,
+.photo-step:focus-visible {
+  background: var(--color-close-hover-dark);
+}
+.photo-step-previous {
+  left: calc(var(--space) / 2);
+}
+.photo-step-next {
+  right: calc(var(--space) / 2);
+}
+.photo-step[hidden] {
+  display: none;
+}
+
+/* A video waits under a dark round badge with the white triangle, so it reads
+   over any picture. It grows a little when the button it is in is hovered or
+   focused. play.svg already sets its triangle off-centre so its weight sits in
+   the middle; it needs no nudge on top. */
+.video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: var(--play-size);
+  height: var(--play-size);
+  border-radius: 50%;
+  background: var(--color-play-badge);
+  transform: translate(-50%, -50%);
+  transition: transform var(--speed);
+}
+.video-badge .icon-play {
+  width: 45%;
+  height: 45%;
+  background: var(--color-play);
+}
+:hover > .video-badge,
+:focus-visible > .video-badge {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :hover > .video-badge,
+  :focus-visible > .video-badge {
+    transform: translate(-50%, -50%);
+  }
+}

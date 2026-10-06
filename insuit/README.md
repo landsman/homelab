@@ -34,6 +34,7 @@ project.inlang/       the locales, for Paraglide
 vite/cv.ts            builds the CV page's data and QR codes from cv.md
 vite/blog.ts          compiles each post's MDX, and serves its front matter apart
 vite/sitemap.ts       robots.txt and the sitemaps, written into the build
+vite/youtube.ts       the thumbnails of the posts' videos, fetched into the build
 public/               copied to the site as is
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
@@ -115,7 +116,12 @@ hidden: true
   before it was published stops the build.
 
 A post uses a component without importing it, e.g. `<YouTube id="…" title="…" />`.
-The components it can use are listed in `src/features/blog/components.ts`. MDX
+The components it can use are listed in `src/features/blog/components.ts`. A
+video waits as a play button over its thumbnail. `vite/youtube.ts` fetches the
+thumbnail from YouTube when the site is built, keeps it in
+`node_modules/.cache`, and writes it into the build, never into the repo. A
+reader gets it from the site and asks YouTube for nothing until they press
+play. A thumbnail that cannot be fetched stops the build. MDX
 itself is JavaScript, so a component's types are checked in its own `.tsx`
 file and not in the post.
 

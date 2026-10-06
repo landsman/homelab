@@ -1,6 +1,6 @@
 .PHONY: help install dev build preview clean
 .PHONY: typecheck lint lint-fix format format-check images test browser e2e-deps e2e e2e-head bdd qa
-.PHONY: og bucket youtube-thumbnail
+.PHONY: og bucket
 
 # Bare `make` lists the targets. Each one's `##` comment is its description,
 # each `##@` line opens a section — there is no second list to keep in sync.
@@ -44,12 +44,6 @@ preview: build ## Build, then serve it the way Pages does, http://localhost:8788
 
 clean: ## Remove everything a build or an install wrote
 	rm -rf dist node_modules src/paraglide public/assets/cv-qr.svg public/assets/cv-thumbs .tanstack
-
-# A post's <YouTube> shows the video's thumbnail from the site itself, so the
-# page asks YouTube for nothing until play is pressed. A post whose video has no
-# thumbnail saved fails `make test`.
-youtube-thumbnail: ## Save a YouTube video's thumbnail for a post (ID=<video id>)
-	scripts/youtube-thumbnail.sh $(ID)
 
 ##@ Quality assurance
 

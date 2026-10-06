@@ -20,6 +20,6 @@ export const FONTS = {
   medium: "/assets/fonts/fira-mono-latin-500-normal.woff2",
 } as const;
 
-/** A YouTube video's thumbnail, saved into the site by `make youtube-thumbnail`
-    so a page shows it without asking YouTube (features/blog/youtube.tsx). */
+/** A YouTube video's thumbnail, fetched into the build by vite/youtube.ts so a
+    page shows it without asking YouTube (features/blog/youtube.tsx). */
 export const youtubeThumbnail = (id: string) => `/assets/blog/youtube/${id}.jpg`;

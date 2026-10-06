@@ -13,8 +13,9 @@ type Props = {
 
 /**
  * A YouTube video in a post: `<YouTube id="…" title="…" />`. It waits as a play
- * button over the video's thumbnail, which the site serves itself (`make
- * youtube-thumbnail ID=…`), so nothing loads from YouTube until it is pressed, and
+ * button over the video's thumbnail, which the build fetches and the site
+ * serves itself (vite/youtube.ts), so nothing loads from YouTube until it is
+ * pressed, and
  * youtube-nocookie sets no cookies until playback — the CV's videos do the
  * same (features/cv/project-dialog.tsx).
  */

@@ -8,6 +8,7 @@ import { ROUTES } from "./src/app/routes.ts";
 import { blogPlugin, readPosts } from "./vite/blog.ts";
 import { cvPlugin } from "./vite/cv.ts";
 import { sitemapPlugin } from "./vite/sitemap.ts";
+import { youtubePlugin } from "./vite/youtube.ts";
 
 // The commit the site is built from, written into every page's <head> so a
 // deployed page says which version it is. CI names it (a PR is checked out as a
@@ -61,6 +62,7 @@ export default defineConfig({
     react(),
     cvPlugin(),
     sitemapPlugin(),
+    youtubePlugin(),
   ],
   build: {
     // Everything Vite names by a hash of its content goes in a folder of its

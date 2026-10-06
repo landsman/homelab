@@ -16,7 +16,7 @@ declare const __BUILD_YEAR__: number;
 /** The contact address, base64-encoded by vite.config.ts. */
 declare const __CONTACT_EMAIL__: string;
 
-/** The CV, built from src/features/cv/cv.md by vite/cv.ts. */
+/** The CV, built from content/cv/cv.md by vite/cv.ts. */
 declare module "virtual:cv" {
   const cv: import("@/features/cv/cv.types").Cv;
   export default cv;

@@ -9,7 +9,8 @@ set -euo pipefail
 
 around='^insuit/(infra/|links/|tests/|scripts/|[^/]*\.md$|Makefile$|cucumber\.mjs$|playwright\.config\.ts$)'
 
-# Top-level *.md only: insuit/src/features/cv/cv.md is the CV page's source.
+# Top-level *.md only: insuit/content/ is what the site says, the CV's cv.md
+# included.
 # grep -c, not -q: -q stops reading early, and pipefail turns the SIGPIPE
 # upstream into a false "false".
 n=$(grep '^insuit/' | grep -cvE "$around" || true)

@@ -9,7 +9,8 @@ check() {
   [ "$got" = "$want" ] || { echo "FAIL  want $want, got $got for: ${*:2}" >&2; exit 1; }
 }
 
-check true insuit/src/features/cv/cv.md
+check true insuit/content/cv/cv.md
+check true insuit/content/blog/hello.mdx
 check true insuit/messages/en.json
 check true insuit/package.json .github/workflows/insuit-ci.yml
 check true insuit/infra/main.tf insuit/public/assets/cv/new.jpg

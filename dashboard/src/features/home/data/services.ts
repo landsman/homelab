@@ -63,7 +63,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Claude',
         url: 'https://claude.ai',
         icon: ServiceIcon.CLAUDE,
-        tags: ['ai'],
+        tags: ['ai', 'code'],
         shortcut: Hotkey.SHIFT_C,
       },
       {

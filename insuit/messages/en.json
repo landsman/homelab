@@ -68,5 +68,10 @@
   "not_found_title": "Page not found — Michal Landsman",
   "not_found_heading": "Nothing here",
   "not_found_body": "This page does not exist.",
-  "not_found_home_link": "Go to the homepage"
+  "not_found_home_link": "Go to the homepage",
+  "blog_title": "Posts — Michal Landsman",
+  "blog_description": "What Michal Landsman, developer in Prague, has written down.",
+  "blog_heading": "Posts",
+  "blog_post_title": "{title} — Michal Landsman",
+  "blog_all_posts": "All posts"
 }

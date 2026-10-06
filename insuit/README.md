@@ -21,21 +21,25 @@ src/
   app/                what every page shares: footer, theme toggle, ROUTES, page-meta,
                       the site's address (site.ts), icon and font paths (assets.ts)
   features/<page>/    a page's own components and data
-  features/cv/cv.md   the CV's source — edit this, not the components
   index.css           stylesheet entry point, @imports only
   styles/             tokens, fonts, reset, page, typography, components/
   paraglide/          the compiled messages — generated, not committed
+content/              what the site says, apart from the app in src/
+  cv/cv.md            the CV's source — edit this, not the components
+  blog/               the blog's posts, one MDX file each
 scripts/              the local preview server, and the check that Pages agrees with it
 bunfig.toml           makes Bun the runtime of every script, not only the launcher
 messages/en.json      every word of the interface, by key
 project.inlang/       the locales, for Paraglide
 vite/cv.ts            builds the CV page's data and QR codes from cv.md
+vite/blog.ts          compiles each post's MDX, and serves its front matter apart
+vite/sitemap.ts       robots.txt and the sitemaps, written into the build
 public/               copied to the site as is
   assets/fonts/       self-hosted Fira Mono (SIL OFL)
   assets/icons/       masked glyphs + favicon
   assets/cv/          the CV's pictures
   _headers            Pages response headers: hashed files are cached for good
-tests/                vitest (cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
+tests/                vitest (blog/, cv/, i18n/, preview/), Playwright (e2e/), Cucumber (bdd/)
 links/                link.insuit.cz — see below
 og/                   the Open Graph card's source
 infra/                Terraform: the Pages projects only — see DNS cutover below
@@ -73,6 +77,40 @@ way `vite/cv.ts` does for the CV (`virtual:cv`). For a page per file —
 `/blog/$slug` from a folder of markdown — that is `import.meta.glob` in the
 loader, one chunk per post; the build finds each post by the link to it from
 an index page.
+
+### Writing a post
+
+The blog is at `/blog`. No menu links to it yet. Search engines find it through
+its sitemap. A post is an MDX file in `content/blog/`, which is markdown that
+takes JSX. Its name is its address, in lowercase letters, digits and dashes:
+`hello.mdx` is `/blog/hello`. It opens with its front matter:
+
+```markdown
+---
+title: Hello
+date: 2026-10-06
+description: One sentence, for the link preview.
+---
+```
+
+All three fields are required. A post that lacks one stops the build. A
+component goes in with an `import` at the top of the post. MDX itself is
+JavaScript, so the component's types are checked in its own `.tsx` file and not
+in the post.
+
+`vite/blog.ts` compiles each post with `@mdx-js/rollup` into a component of its
+own. The list carries only the front matter. Each post is a chunk of its own,
+yet the build writes its whole text into the page's HTML file. While `make dev`
+runs, an edit recompiles that one post.
+
+### Sitemaps
+
+The build writes `robots.txt`, which points at `sitemap.xml`. That is an index
+linking `sitemap-pages.xml` and `sitemap-blog.xml`, all on the build's own
+`SITE_URL` (`vite/sitemap.ts`). The blog's sitemap lists every post. The
+pages' sitemap is a list kept by hand, and it leaves out `/cv`, which asks
+search engines to stay out. `make e2e` fails on an address in a sitemap that
+is missing or says `noindex`.
 
 ### Rendered twice
 
@@ -152,7 +190,7 @@ and the PR comment names the commit its preview was built from.
 
 ## The CV
 
-`src/features/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
+`content/cv/cv.md` is the source. `vite/cv.ts` turns it into the page's
 data — served to the app as `virtual:cv` — on `make dev` (again on every edit)
 and on `make build`: prose is rendered to HTML, every `####` is a project with
 its pictures, video and links as data, and each link gets a QR code for print.

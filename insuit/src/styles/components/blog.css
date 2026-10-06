@@ -1,0 +1,23 @@
+/* The blog: a list of posts, newest first, and a post under its date. */
+
+.blog-list {
+  padding: 0;
+  list-style: none;
+}
+.blog-list li {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--links-gap-column);
+}
+.blog-list time,
+.blog-date {
+  font-size: var(--font-size-small);
+  color: var(--color-muted);
+}
+.blog-list time {
+  /* Dates line up whatever the month's name. */
+  min-width: 11em;
+}
+.blog-date {
+  margin: var(--space-tight) 0 0;
+}

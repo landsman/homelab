@@ -7,7 +7,7 @@ type Page = {
   description: string;
   /** The page's own path, for the address a shared link shows. */
   path: string;
-  type?: "website" | "profile";
+  type?: "website" | "profile" | "article";
   /** Kept out of search results. */
   hidden?: boolean;
 };

@@ -10,6 +10,10 @@ Given("I am on the home page", async function (this: AppWorld) {
   await expect(this.page.getByRole("heading", { name: "Hello there!" })).toBeVisible();
 });
 
+Given("I am on the blog", async function (this: AppWorld) {
+  await this.page.goto(`${BASE_URL}${ROUTES.blog}`);
+});
+
 When("I follow {string}", async function (this: AppWorld, name: string) {
   await this.page.getByRole("link", { name }).click();
 });

@@ -5,7 +5,9 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, configDefaults } from "vitest/config";
 import { ROUTES } from "./src/app/routes.ts";
+import { blogPlugin } from "./vite/blog.ts";
 import { cvPlugin } from "./vite/cv.ts";
+import { sitemapPlugin } from "./vite/sitemap.ts";
 
 // The commit the site is built from, written into every page's <head> so a
 // deployed page says which version it is. CI names it (a PR is checked out as a
@@ -41,16 +43,20 @@ export default defineConfig({
         // trailing slash.
         autoSubfolderIndex: false,
       },
-      // The second is linked from nowhere, so the crawl would not find it. It
-      // is what the router shows for no route (src/server.ts), written as the
+      // No menu links to the blog yet, so it is named here; the crawl finds
+      // each post from its list. The 404 is linked from nowhere either. It is what the router shows for no route (src/server.ts), written as the
       // 404.html Pages answers every unknown address with.
       pages: [
         { path: ROUTES.home },
+        { path: ROUTES.blog },
         { path: ROUTES.notFound, prerender: { outputPath: "/404.html" } },
       ],
     }),
+    // Before React's plugin: it compiles the blog's MDX into the JSX that one reads.
+    blogPlugin(),
     react(),
     cvPlugin(),
+    sitemapPlugin(),
   ],
   build: {
     // Everything Vite names by a hash of its content goes in a folder of its

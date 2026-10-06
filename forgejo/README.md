@@ -132,3 +132,8 @@ Nothing runner-related lives here anymore.
 Known Forgejo registry/package and Actions limitations: see
 [forgejo-runner/CAVEATS.md](../forgejo-runner/CAVEATS.md).
 
+## Caveats
+
+What the application cannot do, and the workaround for each — closing a review conversation
+over the API, an email invite with registration off: [CAVEATS.md](CAVEATS.md).
+

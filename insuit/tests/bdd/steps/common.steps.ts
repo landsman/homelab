@@ -19,7 +19,8 @@ Given("I open the post {string}", async function (this: AppWorld, slug: string) 
 });
 
 When("I follow {string}", async function (this: AppWorld, name: string) {
-  await this.page.getByRole("link", { name }).click();
+  // Exact: "Back" is not a footnote's "Back to reference 1".
+  await this.page.getByRole("link", { name, exact: true }).click();
 });
 
 When("I press {string}", async function (this: AppWorld, key: string) {

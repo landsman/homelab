@@ -8,9 +8,86 @@ hidden: true
 
 The blog starts here. Each post is an MDX file in `content/blog/<year>/`, its
 name the address: this one is `2026/hello.mdx`, at `/blog/hello`. It is hidden,
-so the list leaves it out; it stays for the tests.
+so the list leaves it out; it stays for the tests, and to show what a post can
+hold.
+
+## A video
 
 MDX is markdown that takes JSX, so a post can hold a component. This video, for
 one, loads nothing from YouTube until it is played. You have been warned:
 
 <YouTube id="DLzxrzFCyOs" title="Rick Astley — Never Gonna Give You Up" />
+
+## Pictures
+
+A single picture is plain markdown, its caption the title in quotes:
+
+![A talk at DrupalCamp CS 2017 in Brno: the title slide](/assets/cv/drupalcamp-2017.jpg "DrupalCamp CS, Brno, 2017")
+
+A gallery is a component. A click opens a picture full size, and the arrow keys
+step through the rest:
+
+<Gallery
+  images={[
+    {
+      src: "/assets/cv/drupalcamp-2017.jpg",
+      alt: "A talk at DrupalCamp CS 2017 in Brno: the title slide",
+    },
+    {
+      src: "/assets/cv/hazena-nove-veseli.jpg",
+      alt: "A match-day poster for Házená Nové Veselí, 29 September 2013",
+      title: "A poster, from back when posters were how a match was announced",
+    },
+    {
+      src: "/assets/cv/sokol-nove-veseli.webp",
+      alt: "The Sokol Nové Veselí website in 2013: the club's sections, news and contact",
+    },
+  ]}
+/>
+
+## Typography
+
+Everything below is here to see how the text looks: headings, lists, quotes,
+code and a table.
+
+### A third-level heading
+
+A paragraph with **bold**, _italic_, ~~struck through~~, `inline code`, a
+[link within the site](/cv) and a [link out](https://example.com/). Long words
+and addresses wrap: https://www.example.com/a/rather/long/address/that/has/to/wrap.
+
+#### A fourth-level heading
+
+- A list item
+- Another, long enough to wrap onto a second line on a phone and show how the
+  text under the marker lines up
+  - A nested item
+  - And one more
+- The last
+
+1. First
+2. Second
+3. Third, with `code` in it
+
+- [x] A task that is done
+- [ ] A task that is not
+
+> A quotation. It sits apart from the text around it, quieter, and wraps like any
+> other paragraph when it runs long enough to need a second line.
+
+```ts
+// A block of code keeps its lines and scrolls sideways when one is too long for the column it sits in.
+export const greet = (name: string) => `Hello, ${name}!`;
+```
+
+---
+
+| Part         | What it does                        | Where               |
+| ------------ | ----------------------------------- | ------------------- |
+| Front matter | Title, description, language, dates | the top of the post |
+| Body         | Markdown and components             | everything under it |
+| Components   | A video, a gallery                  | `components.ts`     |
+
+A footnote, for the end of the post.[^1]
+
+[^1]: Footnotes gather at the bottom, under a rule.

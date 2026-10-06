@@ -133,6 +133,31 @@ test("the video in Hello plays on a click, and loads nothing before it", async (
   await expect.poll(() => youtube[0]).toContain("youtube-nocookie.com/embed/DLzxrzFCyOs");
 });
 
+test("a gallery in Hello opens a picture full size, and the arrows step through", async ({
+  page,
+}) => {
+  await page.goto(HELLO);
+  await waitForApp(page);
+
+  await page.getByRole("button", { name: /Házená Nové Veselí/ }).click();
+  const photo = page.getByRole("dialog", { name: "Photo" });
+  await expect(photo).toBeVisible();
+  // A caption of its own wins over the alt text.
+  await expect(photo.locator("figcaption")).toHaveText(/back when posters/);
+
+  await page.keyboard.press("ArrowRight");
+  await expect(photo.locator("figcaption")).toHaveText(/Sokol Nové Veselí website/);
+  await page.keyboard.press("Escape");
+  await expect(photo).toBeHidden();
+});
+
+test("a post's footnotes are titled for a screen reader only", async ({ page }) => {
+  await page.goto(HELLO);
+  const heading = page.getByRole("heading", { name: "Footnotes" });
+  await expect(heading).toHaveCount(1);
+  expect(await heading.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(1);
+});
+
 test("a post, its video included, has no accessibility violations", async ({ page }) => {
   await page.goto(HELLO);
   await waitForApp(page);

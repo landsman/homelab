@@ -10,6 +10,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import mdx from "@mdx-js/rollup";
 import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
 import type { Plugin } from "vite";
 import { POST_LANGS, type PostLang, type PostMeta } from "../src/features/blog/post.types.ts";
 
@@ -98,8 +99,9 @@ export const readPosts = (): PostMeta[] =>
 export function blogPlugin(): Plugin[] {
   const compiler = mdx({
     include: /\/content\/blog\/\d{4}\/[^/]+\.mdx$/,
-    // Recognised, so it is left out of the body; read by parsePost.
-    remarkPlugins: [remarkFrontmatter],
+    // The front matter is recognised, so it is left out of the body (parsePost
+    // reads it). GFM adds tables, strikethrough, task lists and footnotes.
+    remarkPlugins: [remarkFrontmatter, remarkGfm],
   });
   // Its transform is a plain function of the file, and its result, source map
   // included, is what Vite takes.

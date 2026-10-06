@@ -116,7 +116,7 @@ hidden: true
   before it was published stops the build.
 
 A post uses a component without importing it, e.g. `<YouTube id="…" title="…" />`.
-The components it can use are listed in `src/features/blog/components.ts`. A
+The components it can use are listed in `src/features/blog/components.tsx`. A
 video waits as a play button over its thumbnail. `vite/youtube.ts` fetches the
 thumbnail from YouTube when the site is built, keeps it in
 `node_modules/.cache`, and writes it into the build, never into the repo. A

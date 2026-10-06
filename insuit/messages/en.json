@@ -75,5 +75,7 @@
   "blog_post_title": "{title} — Michal Landsman",
   "blog_updated": "updated {date}",
   "blog_empty": "Nothing here yet.",
-  "blog_hidden": "hidden"
+  "blog_hidden": "hidden",
+  "blog_task_done": "done",
+  "blog_task_open": "not done"
 }

@@ -10,7 +10,7 @@ export function PostPage({ post }: { post: PostMeta }) {
     <main className="wrapper">
       {/* The post's own language, which a screen reader reads it in; the page
           around it is the site's. */}
-      <article lang={post.lang}>
+      <article className="blog-post" lang={post.lang}>
         <h1>{post.title}</h1>
         <p className="blog-date">
           <time dateTime={post.published}>{formatDate(post.published)}</time>

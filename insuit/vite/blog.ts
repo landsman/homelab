@@ -114,6 +114,8 @@ const LANGUAGES: Record<string, string> = {
   java: "Java",
   hcl: "HCL",
   css: "CSS",
+  gherkin: "Gherkin",
+  makefile: "Makefile",
 };
 
 type Node = {

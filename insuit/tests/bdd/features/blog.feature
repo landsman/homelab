@@ -1,16 +1,20 @@
 Feature: Reading the blog before it is announced
 
-  The blog is prepared in the open but not linked from anywhere: whoever has
-  the address can read it, and the list leads to every post.
+  The blog is prepared in the open but not linked from the menu. A hidden post
+  is left out of the list too: whoever has its address can read it.
 
-  Scenario: From the list to a post and back
-    Given I am on the blog
-    When I follow "Hello"
+  Scenario: A hidden post is read by its address, and missing from the list
+    Given I open the post "hello"
     Then I see the heading "Hello"
     When I follow "All posts"
     Then I see the heading "Posts"
+    And I am not offered a link to "Hello"
+
+  Scenario: Checking hidden posts before they are out
+    Given I open the blog with "?qa=true"
+    When I follow "Hello"
+    Then I see the heading "Hello"
 
   Scenario: A video in a post waits to be played
-    Given I am on the blog
-    When I follow "Hello"
+    Given I open the post "hello"
     Then I am offered a button to play the video

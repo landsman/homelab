@@ -26,16 +26,20 @@ const urlset = (urls: { loc: string; lastmod?: string }[]) =>
     .join("")}</urlset>\n`;
 
 /** File name → contents, for the site at `site` with these posts. */
-export function sitemaps(site: string, posts: PostMeta[]): Record<string, string> {
-  const newest = posts
-    .map((post) => post.date)
-    .sort()
-    .at(-1);
+export function sitemaps(site: string, all: PostMeta[]): Record<string, string> {
+  // A hidden post is found by its address only.
+  const posts = all.filter((post) => !post.hidden);
+  // A post counts as changed on the day it was last updated, or came out.
+  const changed = (post: PostMeta) => post.updated ?? post.published;
+  const newest = posts.map(changed).sort().at(-1);
   const files = {
     "sitemap-pages.xml": urlset(PAGES.map((path) => ({ loc: site + path }))),
     "sitemap-blog.xml": urlset([
       { loc: site + ROUTES.blog, lastmod: newest },
-      ...posts.map((post) => ({ loc: `${site}${ROUTES.blog}/${post.slug}`, lastmod: post.date })),
+      ...posts.map((post) => ({
+        loc: `${site}${ROUTES.blog}/${post.slug}`,
+        lastmod: changed(post),
+      })),
     ]),
   };
   const index = `${XML}\n<sitemapindex ${NS}>\n${Object.keys(files)

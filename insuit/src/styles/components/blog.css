@@ -1,4 +1,6 @@
-/* The blog: a list of posts, newest first, and a post under its date. */
+/* The blog: a list of posts, newest first, and a post under its date. Loaded
+   by the blog's routes only (routes/blog.tsx, routes/blog_.$slug.tsx), not with
+   the site's styles; the play badge comes from cv.css, which every page has. */
 
 .blog-list {
   padding: 0;
@@ -7,9 +9,11 @@
 .blog-list li {
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
   column-gap: var(--links-gap-column);
 }
 .blog-list time,
+.blog-hidden,
 .blog-date {
   font-size: var(--font-size-small);
   color: var(--color-muted);

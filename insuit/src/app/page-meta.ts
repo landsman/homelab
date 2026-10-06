@@ -10,6 +10,11 @@ type Page = {
   type?: "website" | "profile" | "article";
   /** Kept out of search results. */
   hidden?: boolean;
+  /** The page's Open Graph locale, when it is not the site's. */
+  locale?: string;
+  /** For an article: when it came out and last changed, YYYY-MM-DD. */
+  published?: string;
+  updated?: string;
 };
 
 /**
@@ -17,7 +22,16 @@ type Page = {
  * route's `head`. A route's tags replace the root's of the same name — and the
  * root's say "page not found" (routes/__root.tsx), so every page needs these.
  */
-export function pageMeta({ title, description, path, type = "website", hidden }: Page) {
+export function pageMeta({
+  title,
+  description,
+  path,
+  type = "website",
+  hidden,
+  locale,
+  published,
+  updated,
+}: Page) {
   return [
     { title },
     { name: "description", content: description },
@@ -32,6 +46,9 @@ export function pageMeta({ title, description, path, type = "website", hidden }:
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: m.common_share_image_alt() },
+    ...(locale ? [{ property: "og:locale", content: locale }] : []),
+    ...(published ? [{ property: "article:published_time", content: published }] : []),
+    ...(updated ? [{ property: "article:modified_time", content: updated }] : []),
 
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },

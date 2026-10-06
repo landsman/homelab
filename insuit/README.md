@@ -26,7 +26,7 @@ src/
   paraglide/          the compiled messages — generated, not committed
 content/              what the site says, apart from the app in src/
   cv/cv.md            the CV's source — edit this, not the components
-  blog/               the blog's posts, one MDX file each
+  blog/<year>/        the blog's posts, one MDX file each
 scripts/              the local preview server, and the check that Pages agrees with it
 bunfig.toml           makes Bun the runtime of every script, not only the launcher
 messages/en.json      every word of the interface, by key
@@ -81,22 +81,43 @@ an index page.
 ### Writing a post
 
 The blog is at `/blog`. No menu links to it yet. Search engines find it through
-its sitemap. A post is an MDX file in `content/blog/`, which is markdown that
-takes JSX. Its name is its address, in lowercase letters, digits and dashes:
-`hello.mdx` is `/blog/hello`. It opens with its front matter:
+its sitemap. A post is an MDX file in `content/blog/<year>/`, which is markdown
+that takes JSX. The year folder is the year it was published, and it only keeps
+the files in order. The address is the file's name alone, in lowercase letters,
+digits and dashes: `2026/hello.mdx` is `/blog/hello`. So no two posts may share
+a name, whatever their years, and the build stops on two that do. It opens with
+its front matter:
 
 ```markdown
 ---
 title: Hello
-date: 2026-10-06
 description: One sentence, for the link preview.
+lang: en
+published: 2026-10-06
+updated: 2026-11-02
+hidden: true
 ---
 ```
 
-All three fields are required. A post that lacks one stops the build. A
-component goes in with an `import` at the top of the post. MDX itself is
-JavaScript, so the component's types are checked in its own `.tsx` file and not
-in the post.
+- `lang` is `en` or `cs`, the post's own language (`POST_LANGS` in
+  `src/features/blog/post.types.ts`). The post is marked up in it, so a screen
+  reader reads it right, and its `og:locale` says it too.
+- `updated` is optional. Set it by hand when the content changes, not for a
+  typo. It is shown under the title, and it dates the post in the sitemap and
+  in `article:modified_time`. Git's dates would move on every typo, and CI
+  checks out without history anyway.
+- `hidden: true` leaves a post out of the list and the sitemap and asks
+  search engines to stay out: it is read by its address only. `/blog?qa=true`
+  lists it anyway, marked, to check it before it is out. Its title and address
+  are in the bundle all the same, so hidden is not secret. `hello.mdx` is one,
+  kept for the tests.
+- A post missing a required field, in the wrong year's folder, or updated
+  before it was published stops the build.
+
+A post uses a component without importing it, e.g. `<YouTube id="…" title="…" />`.
+The components it can use are listed in `src/features/blog/components.ts`. MDX
+itself is JavaScript, so a component's types are checked in its own `.tsx`
+file and not in the post.
 
 `vite/blog.ts` compiles each post with `@mdx-js/rollup` into a component of its
 own. The list carries only the front matter. Each post is a chunk of its own,

@@ -10,8 +10,12 @@ Given("I am on the home page", async function (this: AppWorld) {
   await expect(this.page.getByRole("heading", { name: "Hello there!" })).toBeVisible();
 });
 
-Given("I am on the blog", async function (this: AppWorld) {
-  await this.page.goto(`${BASE_URL}${ROUTES.blog}`);
+Given("I open the blog with {string}", async function (this: AppWorld, query: string) {
+  await this.page.goto(`${BASE_URL}${ROUTES.blog}${query}`);
+});
+
+Given("I open the post {string}", async function (this: AppWorld, slug: string) {
+  await this.page.goto(`${BASE_URL}${ROUTES.blog}/${slug}`);
 });
 
 When("I follow {string}", async function (this: AppWorld, name: string) {
@@ -28,6 +32,10 @@ Then("I see the heading {string}", async function (this: AppWorld, name: string)
 
 Then("I am offered a button to play the video", async function (this: AppWorld) {
   await expect(this.page.getByRole("button", { name: /^Play the video: / })).toBeVisible();
+});
+
+Then("I am not offered a link to {string}", async function (this: AppWorld, name: string) {
+  await expect(this.page.getByRole("main").getByRole("link", { name })).toHaveCount(0);
 });
 
 Then("I am offered a link to {string}", async function (this: AppWorld, name: string) {

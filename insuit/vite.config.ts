@@ -5,7 +5,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, configDefaults } from "vitest/config";
 import { ROUTES } from "./src/app/routes.ts";
-import { blogPlugin } from "./vite/blog.ts";
+import { blogPlugin, readPosts } from "./vite/blog.ts";
 import { cvPlugin } from "./vite/cv.ts";
 import { sitemapPlugin } from "./vite/sitemap.ts";
 
@@ -49,6 +49,10 @@ export default defineConfig({
       pages: [
         { path: ROUTES.home },
         { path: ROUTES.blog },
+        // A hidden post is in no list for the crawl to follow.
+        ...readPosts()
+          .filter((post) => post.hidden)
+          .map((post) => ({ path: `${ROUTES.blog}/${post.slug}` })),
         { path: ROUTES.notFound, prerender: { outputPath: "/404.html" } },
       ],
     }),

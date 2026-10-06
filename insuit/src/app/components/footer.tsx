@@ -20,7 +20,8 @@ export function Footer() {
         ) : (
           // The arrow is for the eye; a screen reader is told "Back", not
           // "leftwards arrow, Back".
-          <Link to={back} aria-label={m.common_nav_back()}>
+          // Exact: /blog is where a post's Back leads, not the page it is on.
+          <Link to={back} aria-label={m.common_nav_back()} activeOptions={{ exact: true }}>
             {`← ${m.common_nav_back()}`}
           </Link>
         )}

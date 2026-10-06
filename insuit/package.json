@@ -42,6 +42,7 @@
     "oxfmt": "^0.70.0",
     "oxlint": "^1.85.0",
     "qrcode": "^1.5.4",
+    "rehype-unwrap-images": "1.0.0",
     "remark-frontmatter": "5.0.0",
     "remark-gfm": "4.0.1",
     "typescript": "^7.0.2",

@@ -55,6 +55,12 @@ button.blog-video:focus-visible {
 .blog-video:focus-visible .video-badge {
   transform: translate(-50%, -50%) scale(1.1);
 }
+@media (prefers-reduced-motion: reduce) {
+  .blog-video:hover .video-badge,
+  .blog-video:focus-visible .video-badge {
+    transform: translate(-50%, -50%);
+  }
+}
 
 /* A post's text, written in markdown (vite/blog.ts): everything markdown and
    GFM can produce, in the site's type. The rest of the site's pages have no
@@ -84,11 +90,27 @@ button.blog-video:focus-visible {
   margin-top: var(--space);
 }
 
-/* A link in running text is underlined for good: the site's wipe-in on hover
-   alone leaves only the colour, which is the text's own (WCAG 1.4.1). */
+/* A link in a post's text is underlined by the text itself, not by the site's
+   box under the link (links.css): that box keeps a link on one line, and a long
+   address on one line pushes the page sideways on a phone (WCAG 1.4.10). */
+.blog-post .content a {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+.blog-post .content a:hover,
+.blog-post .content a:focus-visible {
+  text-decoration-thickness: var(--underline-height);
+}
+.blog-post .content a::before,
 .blog-post .content a::after {
-  transform: scaleX(1);
-  height: 1px;
+  content: none;
+}
+/* A footnote's way back (↩) is one character: some room around it to hit. */
+.blog-post .content .data-footnote-backref {
+  padding-inline: 0.25em;
 }
 
 .blog-post .content ol {
@@ -196,4 +218,15 @@ button.blog-video:focus-visible {
 .blog-post .content table:focus-visible {
   outline: var(--border-width) solid currentcolor;
   outline-offset: 4px;
+}
+
+/* A picture with a title (`![alt](src "title")`) shows it as its caption. */
+.blog-post .content figure {
+  margin: var(--space) 0;
+}
+.blog-post .content figcaption {
+  margin-top: calc(var(--space) / 2);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-muted);
 }

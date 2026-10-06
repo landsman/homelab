@@ -123,7 +123,7 @@ test("the video in Hello plays on a click, and loads nothing before it", async (
   expect(youtube).toEqual([]);
 
   await play.click();
-  const player = page.getByTitle("Play the video: Rick Astley — Never Gonna Give You Up");
+  const player = page.getByTitle("Rick Astley — Never Gonna Give You Up");
   await expect(player).toHaveAttribute(
     "src",
     "https://www.youtube-nocookie.com/embed/DLzxrzFCyOs?autoplay=1",
@@ -149,6 +149,55 @@ test("a gallery in Hello opens a picture full size, and the arrows step through"
   await expect(photo.locator("figcaption")).toHaveText(/Sokol Nové Veselí website/);
   await page.keyboard.press("Escape");
   await expect(photo).toBeHidden();
+});
+
+test("a post fits a 320 px screen: a long address wraps, wide parts scroll in place", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto(HELLO);
+  // WCAG 1.4.10: nothing pushes the page sideways.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
+});
+
+test("a tall picture in the viewer fits the screen, its close button on it", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(HELLO);
+  await waitForApp(page);
+  await page.getByRole("button", { name: /Házená Nové Veselí/ }).click();
+  const photo = page.getByRole("dialog", { name: "Photo" });
+  await expect(photo).toBeVisible();
+  await expect(photo.getByRole("button", { name: "Close" })).toBeInViewport();
+  await expect(photo.locator("figcaption")).toBeInViewport();
+});
+
+test("pressing play hands focus to the player, named by its video", async ({ page }) => {
+  await page.route(
+    (url) => url.hostname !== "localhost",
+    (route) => route.abort(),
+  );
+  await page.goto(HELLO);
+  await waitForApp(page);
+  await page.getByRole("button", { name: /^Play the video: / }).click();
+  const player = page.locator("iframe");
+  await expect(player).toBeFocused();
+  await expect(player).toHaveAttribute("title", "Rick Astley — Never Gonna Give You Up");
+});
+
+test("a picture's title is its caption, shown under it", async ({ page }) => {
+  await page.goto(HELLO);
+  const figure = page.getByRole("figure").filter({ hasText: "DrupalCamp CS, Brno, 2017" });
+  await expect(figure.getByRole("img")).toBeVisible();
+  await expect(figure.locator("figcaption")).toBeVisible();
+});
+
+test("Back on a post is a way out, not the page it is on", async ({ page }) => {
+  await page.goto(HELLO);
+  await waitForApp(page);
+  await expect(page.getByRole("link", { name: "Back", exact: true })).not.toHaveAttribute(
+    "aria-current",
+    /.*/,
+  );
 });
 
 test("a post's footnotes are titled for a screen reader only", async ({ page }) => {

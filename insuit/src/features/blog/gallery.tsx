@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PhotoDialog } from "@/features/cv/photo-dialog";
 import type { CvImage } from "@/features/cv/cv.types";
+import { getLocale } from "@/paraglide/runtime.js";
 
 type Props = {
   /** The pictures in order: `src` and `alt` each, `title` for a caption. */
@@ -26,11 +27,15 @@ export function Gallery({ images }: Props) {
           </button>
         ))}
       </div>
-      <PhotoDialog
-        zoom={index === null ? null : { photos: images, index }}
-        onStep={step}
-        onClose={() => setIndex(null)}
-      />
+      {/* The viewer's own words (Photo, Previous, Close) are the site's,
+          whatever language the post is in. */}
+      <div lang={getLocale()}>
+        <PhotoDialog
+          zoom={index === null ? null : { photos: images, index }}
+          onStep={step}
+          onClose={() => setIndex(null)}
+        />
+      </div>
     </>
   );
 }

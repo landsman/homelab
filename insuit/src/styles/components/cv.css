@@ -380,7 +380,9 @@ html:has(.cv) {
   display: table;
   margin: 0 auto;
 }
-.cv .photo-dialog img {
+/* A post's gallery opens the same viewer (features/blog/gallery.tsx). */
+.cv .photo-dialog img,
+.blog-post .photo-dialog img {
   width: auto;
   max-width: calc(100vw - var(--page-padding) * 2);
   /* Leaves room for the caption below it. */
@@ -442,6 +444,10 @@ html:has(.cv) {
   .project button:hover .frame,
   .project button:focus-visible .frame {
     transform: none;
+  }
+  .video-play:hover .video-badge,
+  .video-play:focus-visible .video-badge {
+    transform: translate(-50%, -50%);
   }
 }
 

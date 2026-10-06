@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { youtubeThumbnail } from "@/app/assets";
 import { m } from "@/paraglide/messages.js";
 
@@ -22,13 +22,21 @@ type Props = {
 export function YouTube({ id, title, poster }: Props) {
   const [playing, setPlaying] = useState(false);
   const label = m.common_video_play({ title });
+  // The button goes when it is pressed; focus goes on to the player in its
+  // place, or it would drop to the top of the page (WCAG 2.4.3).
+  const player = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    if (playing) player.current?.focus();
+  }, [playing]);
 
   if (playing)
     return (
       <iframe
+        ref={player}
         className="blog-video"
         src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1`}
-        title={label}
+        // The player, named by its video; "Play the video" was the button.
+        title={title}
         allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
         allowFullScreen
         referrerPolicy="strict-origin-when-cross-origin"

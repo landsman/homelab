@@ -77,5 +77,7 @@
   "blog_empty": "Nothing here yet.",
   "blog_hidden": "hidden",
   "blog_task_done": "done",
-  "blog_task_open": "not done"
+  "blog_task_open": "not done",
+  "blog_code": "Code",
+  "blog_table": "Table"
 }

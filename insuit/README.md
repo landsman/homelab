@@ -267,12 +267,15 @@ optional locally:
    | Account              | Cloudflare Pages · Edit        | deploying the sites    |
    | Account              | Account Settings · Read + Edit | the Web Analytics site |
    | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation      |
+   | Zone: insuit.cz only | DNS · Edit                     | music.insuit.cz only   |
 
    Tick **both** Read and Edit on Account Settings. Unlike most Cloudflare
    permissions, Edit does not include Read here: Edit alone creates the site but
    every later refresh of it fails with a 403, and Read alone can't create it
    (cloudflare/terraform-provider-cloudflare#3234). The zone scope covers
-   settings only — Terraform doesn't manage DNS here (see the cutover section).
+   settings, plus DNS for the one `music.insuit.cz` record `music/infra` owns
+   (music/README.md) — insuit's own Terraform still manages no DNS (see the
+   cutover section).
 
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.

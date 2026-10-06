@@ -16,3 +16,14 @@ EOF
 want=$'A\nD'
 [ "$got" = "$want" ] || { printf 'want:\n%s\ngot:\n%s\n' "$want" "$got" >&2; exit 1; }
 echo "ok    preview-comment stale"
+
+# Another site's marker hides only its own links, not insuit's.
+got=$(PREVIEW_MARKER="music.insuit.cz preview:" ./preview-comment.sh stale <<'EOF'
+[
+  {"node_id": "A", "user": {"login": "github-actions[bot]"}, "body": "insuit.cz preview: https://a.example (commit 1)"},
+  {"node_id": "M", "user": {"login": "github-actions[bot]"}, "body": "music.insuit.cz preview: https://m.example (commit 1)"}
+]
+EOF
+)
+[ "$got" = "M" ] || { printf 'want: M\ngot:\n%s\n' "$got" >&2; exit 1; }
+echo "ok    preview-comment stale, per site"

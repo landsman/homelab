@@ -1,0 +1,117 @@
+name: "music.insuit.cz ci"
+
+# music's web app is the music/app submodule; a PR that moves it is how a new
+# version of music gets here. The app's own checks run in its repo — this only
+# builds what the submodule points at, previews it, and checks the Terraform.
+on:
+  pull_request:
+    paths:
+      - 'music/**'
+      - '.gitmodules'
+      - '.github/workflows/music-ci.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+# A new push to the same PR cancels the run still going for the previous one,
+# so the older commit can never finish last and overwrite the preview.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: music
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      # Production's Supabase: a preview is the frontend only, and the anon key
+      # is public — every visitor's browser gets it.
+      - name: "Build the site"
+        env:
+          VITE_SUPABASE_URL: ${{ vars.MUSIC_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.MUSIC_SUPABASE_ANON_KEY }}
+        run: make build
+      - name: "shellcheck the scripts, and test the check they make"
+        run: make shell
+      - uses: actions/upload-artifact@v7
+        with:
+          name: music-site
+          path: music/app/src/web/dist
+          retention-days: 1
+
+  # Same rules as insuit's preview: the build comes from the job above, which
+  # holds no token, and fork, Dependabot and main PRs are skipped because they
+  # get no secrets or would land on the live branch name.
+  preview:
+    needs: site
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]' &&
+      github.head_ref != 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: music-site
+          path: music/dist
+      - uses: cloudflare/wrangler-action@v4
+        id: deploy
+        with:
+          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy music/dist --project-name=music-preview --branch=${{ github.head_ref }}
+      # The upload succeeding is not the preview answering: a new alias can go
+      # minutes without its certificate. The link goes on the PR only once it
+      # serves this build.
+      - name: "Does the preview serve this build?"
+        env:
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        run: music/scripts/check-site.sh "$URL" music/dist/index.html
+      - name: "Link the preview on the PR"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+          PREVIEW_MARKER: "music.insuit.cz preview:"
+        run: insuit/scripts/preview-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
+
+  infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: music/infra
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@v4
+      - name: "Format check + validate"
+        run: make ci
+
+  # The submodule is not checked out here, so this reads the Terraform and the
+  # Makefile; the app's code is scanned in its own repo.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/terraform
+      path: music

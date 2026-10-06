@@ -24,10 +24,10 @@ export function BlogPage() {
         <ul className="content blog-list">
           {posts.map((post) => (
             <li key={post.slug}>
-              <time dateTime={post.published}>{formatDate(post.published)}</time>
               <Link to="/blog/$slug" params={{ slug: post.slug }} lang={post.lang}>
                 {post.title}
               </Link>
+              <time dateTime={post.published}>{formatDate(post.published)}</time>
               {post.hidden && <span className="blog-hidden">{m.blog_hidden()}</span>}
             </li>
           ))}

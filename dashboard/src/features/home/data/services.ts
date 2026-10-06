@@ -81,7 +81,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'NotebookLM',
         url: 'https://notebooklm.google.com',
         icon: ServiceIcon.NOTEBOOKML,
-        tags: ['google'],
+        tags: ['google', 'ai', 'voice'],
         shortcut: Hotkey.SHIFT_N,
       },
     ],

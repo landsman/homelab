@@ -93,12 +93,14 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'GitHub',
         url: 'https://github.com',
         icon: ServiceIcon.GITHUB,
+        tags: ['code'],
         shortcut: Hotkey.SHIFT_H,
       },
       {
         name: 'GitLab',
         url: 'https://gitlab.com',
         icon: ServiceIcon.GITLAB,
+        tags: ['code'],
         shortcut: Hotkey.SHIFT_L,
       },
       {
@@ -127,8 +129,18 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         icon: ServiceIcon.GREP_VERCEL,
         shortcut: Hotkey.SHIFT_W,
       },
-      { name: 'Vaadin Docs', url: 'https://vaadin.com/docs', icon: ServiceIcon.VAADIN },
-      { name: 'Azure DevOps', url: 'https://dev.azure.com', icon: ServiceIcon.AZURE_DEVOPS },
+      {
+        name: 'Vaadin Docs',
+        url: 'https://vaadin.com/docs',
+        icon: ServiceIcon.VAADIN,
+        tags: ['code'],
+      },
+      {
+        name: 'Azure DevOps',
+        url: 'https://dev.azure.com',
+        icon: ServiceIcon.AZURE_DEVOPS,
+        tags: ['code'],
+      },
       {
         name: 'Better Stack',
         url: 'https://uptime.betterstack.com',
@@ -139,6 +151,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Supabase',
         url: 'https://supabase.com/dashboard/projects',
         icon: ServiceIcon.SUPABASE,
+        tags: ['code'],
       },
     ],
   },

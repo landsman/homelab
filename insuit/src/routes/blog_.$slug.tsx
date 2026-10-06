@@ -8,6 +8,8 @@ import { m } from "@/paraglide/messages.js";
 import styles from "@/styles/components/blog.css?url";
 
 export const Route = createFileRoute("/blog_/$slug")({
+  // The footer's Back leads to the list, not home.
+  staticData: { up: ROUTES.blog },
   loader: ({ params }) => loadPost(params.slug),
   // No post, no data: the root's "page not found" tags stay.
   head: ({ loaderData: post }) =>

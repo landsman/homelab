@@ -17,14 +17,14 @@ not done.
 
 ## The pieces
 
-| Piece             | What it does                                    |
-| ----------------- | ----------------------------------------------- |
-| WEDOS             | the registrar, paid once a year, nothing else   |
-| Cloudflare DNS    | the zone for the domain                         |
-| Cloudflare Pages  | hosts the built site, production and previews   |
-| Cloudflare R2     | holds Terraform's state                         |
-| Terraform         | creates the Pages projects and the analytics    |
-| GitHub Actions    | tests every pull request, deploys every merge   |
+| Piece            | What it does                                  |
+| ---------------- | --------------------------------------------- |
+| WEDOS            | the registrar, paid once a year, nothing else |
+| Cloudflare DNS   | the zone for the domain                       |
+| Cloudflare Pages | hosts the built site, production and previews |
+| Cloudflare R2    | holds Terraform's state                       |
+| Terraform        | creates the Pages projects and the analytics  |
+| GitHub Actions   | tests every pull request, deploys every merge |
 
 No server, no container, no database. The site is built to static files and
 uploaded.

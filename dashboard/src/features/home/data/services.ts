@@ -263,11 +263,13 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Tailscale',
         url: 'https://login.tailscale.com/admin',
         icon: ServiceIcon.TAILSCALE,
+        tags: ['vpn', 'wireguard', 'appletv', 'nas', 'pollos'],
       },
       {
         name: 'Pollos',
         url: 'https://pollos.cz',
         icon: ServiceIcon.POLLOS,
+        tags: ['cluster', 'hp', 'mike', 'gus', 'walter', 'jesse', 'ci', 'git'],
       },
     ],
   },

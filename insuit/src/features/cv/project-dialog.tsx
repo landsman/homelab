@@ -77,7 +77,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
           <iframe
             className="project-video"
             src={`https://www.youtube-nocookie.com/embed/${video}?autoplay=1`}
-            title={m.cv_video_play({ title })}
+            title={m.common_video_play({ title })}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
             referrerPolicy="strict-origin-when-cross-origin"
@@ -86,7 +86,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
           <button
             type="button"
             className="photo-zoom video-play"
-            aria-label={m.cv_video_play({ title })}
+            aria-label={m.common_video_play({ title })}
             onClick={(event) => {
               // The button is about to go; focus stays in the dialog.
               event.currentTarget.closest("dialog")?.focus();

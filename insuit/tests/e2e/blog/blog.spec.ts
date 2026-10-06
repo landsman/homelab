@@ -1,5 +1,6 @@
+import { AxeBuilder } from "@axe-core/playwright";
 import { test, expect } from "../fixture";
-import { expectCleanTakeover } from "../takeover";
+import { expectCleanTakeover, waitForApp } from "../takeover";
 import { ROUTES } from "@/app/routes";
 
 // The blog is being prepared: no menu links to it yet. Search engines find it
@@ -42,4 +43,33 @@ test("React takes a post over without an error, and back to the list", async ({ 
 
   await page.getByRole("link", { name: "All posts" }).click();
   await expect(page.getByRole("heading", { name: "Posts" })).toBeVisible();
+});
+
+// hello.mdx holds one, the post that shows a component works in MDX.
+const WITH_VIDEO = `${ROUTES.blog}/hello`;
+
+test("a video in a post loads nothing from YouTube until it is played", async ({ page }) => {
+  // Never the network: the player's address is what counts.
+  await page.route(/youtube/, (route) => route.abort());
+  await page.goto(WITH_VIDEO);
+  await waitForApp(page);
+
+  const play = page.getByRole("button", { name: /^Play the video: / });
+  await expect(play).toBeVisible();
+  await expect(page.locator("iframe")).toHaveCount(0);
+
+  await play.click();
+  await expect(page.locator("iframe")).toHaveAttribute(
+    "src",
+    /^https:\/\/www\.youtube-nocookie\.com\/embed\/[\w-]+\?autoplay=1$/,
+  );
+});
+
+test("a post, its video included, has no accessibility violations", async ({ page }) => {
+  await page.goto(WITH_VIDEO);
+  await waitForApp(page);
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"])
+    .analyze();
+  expect(violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
 });

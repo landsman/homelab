@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Link } from "@tanstack/react-router";
 import { ROUTES } from "@/app/routes";
+import { POST_COMPONENTS } from "@/features/blog/components";
 import type { PostMeta } from "@/features/blog/post.types";
 import { formatDate, usePostBody } from "@/features/blog/posts";
 import { m } from "@/paraglide/messages.js";
@@ -16,7 +17,7 @@ export function PostPage({ post }: { post: PostMeta }) {
         </p>
         <div className="content">
           <Suspense>
-            <Body />
+            <Body components={POST_COMPONENTS} />
           </Suspense>
         </div>
       </article>

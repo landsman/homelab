@@ -64,7 +64,7 @@
   "cv_photo_label": "Photo",
   "cv_photo_previous": "Previous photo",
   "cv_photo_next": "Next photo",
-  "cv_video_play": "Play the video: {title}",
+  "common_video_play": "Play the video: {title}",
   "not_found_title": "Page not found — Michal Landsman",
   "not_found_heading": "Nothing here",
   "not_found_body": "This page does not exist.",

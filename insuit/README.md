@@ -125,7 +125,7 @@ reports.
 ## Localisation
 
 Every word of the interface is a key in `messages/en.json`, used through
-Paraglide: `m.home_heading()`, `m.cv_video_play({ title })`. A missing key is a
+Paraglide: `m.home_heading()`, `m.common_video_play({ title })`. A missing key is a
 type error. Keys are `<area>_<thing>` — `common_`, `home_`, `hire_`, `contact_`, `cv_`,
 `not_found_` — and name the thing, not where it sits.
 

@@ -26,6 +26,10 @@ Then("I see the heading {string}", async function (this: AppWorld, name: string)
   await expect(this.page.getByRole("heading", { name })).toBeVisible();
 });
 
+Then("I am offered a button to play the video", async function (this: AppWorld) {
+  await expect(this.page.getByRole("button", { name: /^Play the video: / })).toBeVisible();
+});
+
 Then("I am offered a link to {string}", async function (this: AppWorld, name: string) {
   await expect(this.page.getByRole("link", { name })).toBeVisible();
 });

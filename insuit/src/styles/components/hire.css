@@ -1,4 +1,5 @@
-/* /work-with-me: a page meant to be skimmed. */
+/* /work-with-me: a page meant to be skimmed. Loaded by its route only
+   (routes/work-with-me.tsx), not with the site's styles. */
 
 /* The title at the CV name's scale, so the page starts clearly above the
    headings under it. */

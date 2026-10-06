@@ -19,12 +19,15 @@ help: ## Show this list
 # rather than being committed under og/ — the two weights are symlinked in
 # (gitignored), so no font is stored in the repo for the card. The browser is
 # pulled by `make og` and `make e2e`, not here, so this stays fast.
-install: ## The dependencies, plus the OG card's font symlinks
+# Also points git at the repo's hooks, so the format gate in
+# .githooks/pre-commit runs from the first commit in a new worktree.
+install: ## The dependencies, the OG card's font symlinks and the git hooks
 	bun install --frozen-lockfile
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-400-normal.woff2 \
 	  og/fira-mono-latin-400-normal.woff2
 	ln -sf ../node_modules/@fontsource/fira-mono/files/fira-mono-latin-700-normal.woff2 \
 	  og/fira-mono-latin-700-normal.woff2
+	git config core.hooksPath .githooks
 
 dev: ## Start the dev server on http://localhost:4321 (hot reload, cv.md included)
 	bun run dev

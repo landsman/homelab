@@ -7,3 +7,13 @@ if [ -n "$STAGED_IP" ]; then
   (cd ip-service && bun format)
   echo "$STAGED_IP" | xargs git add
 fi
+
+# insuit: a gate, not a fixer — the commit stops until `make format` is run.
+# It also stops when oxfmt is missing (a fresh worktree before `make install`),
+# which is how an unformatted file once reached CI.
+if git diff --cached --name-only | grep -q '^insuit/'; then
+  (cd insuit && bun run format) || {
+    echo "insuit: formatting check failed — run 'make format' in insuit/ (or 'make install' first)" >&2
+    exit 1
+  }
+fi

@@ -542,10 +542,11 @@ html:has(.cv) {
   transform: translate(-50%, -50%);
   transition: transform var(--speed);
 }
+/* No nudge to the right: play.svg already sets its triangle off-centre so its
+   weight sits in the middle, and a margin on top pushed it too far. */
 .video-badge .icon-play {
   width: 45%;
   height: 45%;
-  margin-left: 8%;
   background: var(--color-play);
 }
 .video-play:hover .video-badge,

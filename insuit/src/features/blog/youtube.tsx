@@ -48,6 +48,7 @@ export function YouTube({ id, title, poster }: Props) {
       type="button"
       className="blog-video"
       aria-label={label}
+      data-tooltip={m.common_video_play_hint()}
       onClick={() => setPlaying(true)}
     >
       <img src={poster ?? youtubeThumbnail(id)} alt="" />

@@ -19,6 +19,11 @@ Feature: Reading the blog before it is announced
     Given I open the post "hello"
     Then I am offered a button to play the video
 
+  Scenario: Pointing at a video says what a click does
+    Given I open the post "hello"
+    When I point at the video
+    Then I see the hint "Play video"
+
   Scenario: Code in a post is coloured by its language
     Given I open the post "hello"
     Then the code's keywords stand out from the rest of it

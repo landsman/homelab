@@ -47,6 +47,12 @@ button.blog-video:focus-visible {
   outline: var(--border-width) solid currentcolor;
   outline-offset: 4px;
 }
+/* Its tooltip (tooltip.css) sits over the badge, inside the frame, which
+   clips anything past its edge. */
+.blog-video[data-tooltip]::before,
+.blog-video[data-tooltip]::after {
+  bottom: calc(50% + var(--play-size) * 0.55);
+}
 .blog-video img {
   width: 100%;
   height: 100%;

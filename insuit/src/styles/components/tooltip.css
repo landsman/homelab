@@ -1,0 +1,71 @@
+/* A tooltip on any element: `data-tooltip="…"`, shown on hover and on keyboard
+   focus, above the element; `data-tooltip-position="bottom"` puts it below.
+   Pared down from microtip (https://github.com/ghosh/microtip, MIT, © Ghosh):
+   CSS only, its text from the attribute, its arrow a border triangle.
+   The text is for the eye only (`/ ""`): the element keeps its own accessible
+   name, an aria-label or its content, which a screen reader reads instead.
+   ponytail: no flip at the viewport edge and no Esc to hide (WCAG 1.4.13);
+   anchor positioning and a few lines of JS, if a tooltip ever needs them. */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::before,
+[data-tooltip]::after {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--speed),
+    transform var(--speed);
+}
+/* The arrow. */
+[data-tooltip]::before {
+  content: "";
+  margin-bottom: 2px;
+  border: 6px solid transparent;
+  border-top-color: var(--color-fg);
+}
+/* The bubble. */
+[data-tooltip]::after {
+  content: attr(data-tooltip) / "";
+  margin-bottom: 14px;
+  padding: 0.4em 0.8em;
+  font-size: var(--font-size-small);
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-radius: 6px;
+}
+[data-tooltip]:is(:hover, :focus-visible)::before,
+[data-tooltip]:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+[data-tooltip-position="bottom"]::before,
+[data-tooltip-position="bottom"]::after {
+  top: 100%;
+  bottom: auto;
+  transform: translate(-50%, -4px);
+}
+[data-tooltip-position="bottom"]::before {
+  margin: 2px 0 0;
+  border-color: transparent;
+  border-bottom-color: var(--color-fg);
+}
+[data-tooltip-position="bottom"]::after {
+  margin: 14px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip]::before,
+  [data-tooltip]::after {
+    transform: translate(-50%, 0);
+    transition: opacity var(--speed);
+  }
+}

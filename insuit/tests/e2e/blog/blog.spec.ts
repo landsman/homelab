@@ -10,6 +10,20 @@ import { ROUTES } from "@/app/routes";
 // found by its address only.
 const HELLO = `${ROUTES.blog}/hello`;
 
+// Never the network. hello.mdx's pictures are remote stock photos: each is
+// answered with one picture of the site's own, a tall one, so a test still has
+// a real picture to lay out. Anything else off this server is refused.
+const TALL_PICTURE = "public/assets/cv/hazena-nove-veseli.jpg";
+test.beforeEach(async ({ page }) => {
+  await page.route(
+    (url) => url.hostname !== "localhost",
+    (route) =>
+      new URL(route.request().url()).hostname === "picsum.photos"
+        ? route.fulfill({ path: TALL_PICTURE, contentType: "image/jpeg" })
+        : route.abort(),
+  );
+});
+
 test("no page links to the blog yet", async ({ page }) => {
   await page.goto(ROUTES.home);
   await expect(page.locator(`a[href^="${ROUTES.blog}"]`)).toHaveCount(0);
@@ -101,16 +115,11 @@ test("Hello opens by its address, its body loaded in the browser", async ({ page
 });
 
 test("the video in Hello plays on a click, and loads nothing before it", async ({ page }) => {
-  // Never the network: what the click starts is the player, at its address.
+  // What the page asks YouTube for; the thumbnail is the site's own file.
   const youtube: string[] = [];
-  // Anything off this server; the thumbnail is the site's own file.
-  await page.route(
-    (url) => url.hostname !== "localhost",
-    (route) => {
-      youtube.push(route.request().url());
-      return route.abort();
-    },
-  );
+  page.on("request", (request) => {
+    if (/youtube|ytimg/.test(new URL(request.url()).hostname)) youtube.push(request.url());
+  });
   await page.goto(HELLO);
   await waitForApp(page);
 
@@ -143,14 +152,14 @@ test("a gallery in Hello opens a picture full size, and the arrows step through"
   await page.goto(HELLO);
   await waitForApp(page);
 
-  await page.getByRole("button", { name: /Házená Nové Veselí/ }).click();
+  await page.getByRole("button", { name: /A pug wrapped up/ }).click();
   const photo = page.getByRole("dialog", { name: "Photo" });
   await expect(photo).toBeVisible();
   // A caption of its own wins over the alt text.
-  await expect(photo.locator("figcaption")).toHaveText(/back when posters/);
+  await expect(photo.locator("figcaption")).toHaveText(/Ready for autumn/);
 
   await page.keyboard.press("ArrowRight");
-  await expect(photo.locator("figcaption")).toHaveText(/Sokol Nové Veselí website/);
+  await expect(photo.locator("figcaption")).toHaveText(/Christian Joudrey/);
   await page.keyboard.press("Escape");
   await expect(photo).toBeHidden();
 });
@@ -168,7 +177,7 @@ test("a tall picture in the viewer fits the screen, its close button on it", asy
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto(HELLO);
   await waitForApp(page);
-  await page.getByRole("button", { name: /Házená Nové Veselí/ }).click();
+  await page.getByRole("button", { name: /A pug wrapped up/ }).click();
   const photo = page.getByRole("dialog", { name: "Photo" });
   await expect(photo).toBeVisible();
   await expect(photo.getByRole("button", { name: "Close" })).toBeInViewport({ ratio: 1 });
@@ -182,10 +191,6 @@ test("a tall picture in the viewer fits the screen, its close button on it", asy
 });
 
 test("pressing play hands focus to the player, named by its video", async ({ page }) => {
-  await page.route(
-    (url) => url.hostname !== "localhost",
-    (route) => route.abort(),
-  );
   await page.goto(HELLO);
   await waitForApp(page);
   await page.getByRole("button", { name: /^Play the video: / }).click();
@@ -196,7 +201,7 @@ test("pressing play hands focus to the player, named by its video", async ({ pag
 
 test("a picture's title is its caption, shown under it", async ({ page }) => {
   await page.goto(HELLO);
-  const figure = page.getByRole("figure").filter({ hasText: "DrupalCamp CS, Brno, 2017" });
+  const figure = page.getByRole("figure").filter({ hasText: "A fjord." });
   await expect(figure.getByRole("img")).toBeVisible();
   await expect(figure.locator("figcaption")).toBeVisible();
 });

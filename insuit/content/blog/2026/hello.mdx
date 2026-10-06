@@ -20,9 +20,11 @@ one, loads nothing from YouTube until it is played. You have been warned:
 
 ## Pictures
 
-A single picture is plain markdown, its caption the title in quotes:
+The pictures here are stock photos from Unsplash, served by Picsum
+(picsum.photos), so the post carries no picture of its own. A single picture is
+plain markdown, its caption the title in quotes:
 
-![A talk at DrupalCamp CS 2017 in Brno: the title slide](/assets/cv/drupalcamp-2017.jpg "DrupalCamp CS, Brno, 2017")
+![A deep blue fjord between grey cliffs, seen from high on a rock ledge](https://picsum.photos/id/1015/1600/1067 "A fjord. Photo: Alexey Topolyanskiy, Unsplash")
 
 A gallery is a component. A click opens a picture full size, and the arrow keys
 step through the rest:
@@ -30,17 +32,19 @@ step through the rest:
 <Gallery
   images={[
     {
-      src: "/assets/cv/drupalcamp-2017.jpg",
-      alt: "A talk at DrupalCamp CS 2017 in Brno: the title slide",
+      src: "https://picsum.photos/id/1025/1000/1500",
+      alt: "A pug wrapped up to its face in a striped blanket, sitting on a forest path",
+      title: "Ready for autumn. Photo: Matthew Wiebe, Unsplash",
     },
     {
-      src: "/assets/cv/hazena-nove-veseli.jpg",
-      alt: "A match-day poster for Házená Nové Veselí, 29 September 2013",
-      title: "A poster, from back when posters were how a match was announced",
+      src: "https://picsum.photos/id/1043/1600/1067",
+      alt: "A calm river among pines, under a granite cliff",
+      title: "Photo: Christian Joudrey, Unsplash",
     },
     {
-      src: "/assets/cv/sokol-nove-veseli.webp",
-      alt: "The Sokol Nové Veselí website in 2013: the club's sections, news and contact",
+      src: "https://picsum.photos/id/1039/1600/1067",
+      alt: "A waterfall dropping into a mossy green gorge in a misty forest",
+      title: "Photo: Andrew Coelho, Unsplash",
     },
   ]}
 />

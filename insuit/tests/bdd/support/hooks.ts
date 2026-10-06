@@ -44,6 +44,12 @@ BeforeAll(async function () {
 
 Before(async function (this: AppWorld) {
   this.context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  // Never the network: anything off the site is refused, a stock photo in a
+  // post included.
+  await this.context.route(
+    (url) => url.hostname !== new URL(BASE_URL).hostname,
+    (route) => route.abort(),
+  );
   this.page = await this.context.newPage();
 });
 

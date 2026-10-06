@@ -35,6 +35,18 @@ Then("I am offered a button to play the video", async function (this: AppWorld) 
   await expect(this.page.getByRole("button", { name: /^Play the video: / })).toBeVisible();
 });
 
+When("I point at the video", async function (this: AppWorld) {
+  await this.page.getByRole("button", { name: /^Play the video: / }).hover();
+});
+
+Then("I see the hint {string}", async function (this: AppWorld, hint: string) {
+  // The hint is drawn by CSS (tooltip.css), so it is checked where it is drawn.
+  const hinted = this.page.locator(`[data-tooltip="${hint}"]`);
+  await expect
+    .poll(() => hinted.evaluate((el) => getComputedStyle(el, "::after").opacity))
+    .toBe("1");
+});
+
 Then("I am not offered a link to {string}", async function (this: AppWorld, name: string) {
   await expect(this.page.getByRole("main").getByRole("link", { name })).toHaveCount(0);
 });

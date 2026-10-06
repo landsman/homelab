@@ -264,6 +264,25 @@ test("pressing play hands focus to the player, named by its video", async ({ pag
   await expect(player).toHaveAttribute("title", "Rick Astley — Never Gonna Give You Up");
 });
 
+test("the video says what a click does, on hover and on keyboard focus", async ({ page }) => {
+  await page.goto(HELLO);
+  await waitForApp(page);
+  const play = page.getByRole("button", { name: /^Play the video: / });
+  await expect(play).toHaveAttribute("data-tooltip", "Play video");
+  const shown = () => play.evaluate((el) => getComputedStyle(el, "::after").opacity);
+
+  expect(await shown()).toBe("0");
+  await play.hover();
+  await expect.poll(shown).toBe("1");
+
+  await page.mouse.move(0, 0);
+  await expect.poll(shown).toBe("0");
+  await play.focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  await expect.poll(shown).toBe("1");
+});
+
 test("a picture's title is its caption, shown under it", async ({ page }) => {
   await page.goto(HELLO);
   const figure = page.getByRole("figure").filter({ hasText: "A fjord." });

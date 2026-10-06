@@ -12,8 +12,8 @@ type Props = {
 } & Pick<ComponentProps<"dialog">, "aria-label" | "aria-labelledby" | "onKeyDown">;
 
 /**
- * A modal <dialog> with its close button: what the project dialog and the
- * full-size photo share. It closes on Escape and the × on its own, and on a
+ * A modal <dialog> with its close button: what the CV's project dialog and the
+ * full-size photo viewer share. It closes on Escape and the × on its own, and on a
  * click outside it.
  */
 export function Modal({ open, onClose, className, children, ref, ...dialogProps }: Props) {
@@ -49,8 +49,8 @@ export function Modal({ open, onClose, className, children, ref, ...dialogProps 
       <button
         className="dialog-close"
         type="button"
-        aria-label={m.cv_dialog_close()}
-        title={m.cv_dialog_close()}
+        aria-label={m.common_dialog_close()}
+        title={m.common_dialog_close()}
         onClick={() => dialog.current?.close()}
       >
         ×

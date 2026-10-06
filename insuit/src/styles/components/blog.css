@@ -1,7 +1,8 @@
 /* The blog: a list of posts, newest first, each title followed by its date,
    and a post under its date. Loaded
    by the blog's routes only (routes/blog.tsx, routes/blog_.$slug.tsx), not with
-   the site's styles; the play badge comes from cv.css, which every page has. */
+   the site's styles. Pictures, the photo viewer and the play badge come from
+   media.css, shared with the CV. */
 
 .blog-list {
   padding: 0;
@@ -37,7 +38,7 @@
   color: var(--color-fg);
   background: var(--color-bg);
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--cv-image-radius);
+  border-radius: var(--image-radius);
 }
 button.blog-video {
   cursor: pointer;
@@ -50,16 +51,6 @@ button.blog-video:focus-visible {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.blog-video:hover .video-badge,
-.blog-video:focus-visible .video-badge {
-  transform: translate(-50%, -50%) scale(1.1);
-}
-@media (prefers-reduced-motion: reduce) {
-  .blog-video:hover .video-badge,
-  .blog-video:focus-visible .video-badge {
-    transform: translate(-50%, -50%);
-  }
 }
 
 /* A post's text, written in markdown (vite/blog.ts): everything markdown and
@@ -147,7 +138,7 @@ button.blog-video:focus-visible {
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--cv-image-radius);
+  border-radius: var(--image-radius);
 }
 .blog-post .content pre code {
   font-size: inherit;
@@ -184,7 +175,7 @@ button.blog-video:focus-visible {
   display: block;
   max-width: 100%;
   height: auto;
-  border-radius: var(--cv-image-radius);
+  border-radius: var(--image-radius);
 }
 .blog-post .content del {
   color: var(--color-muted);
@@ -208,7 +199,7 @@ button.blog-video:focus-visible {
   border-top: var(--border-width) solid var(--color-border);
 }
 
-/* A gallery (features/blog/gallery.tsx) is the CV's row of frames. */
+/* A gallery (features/blog/gallery.tsx) is media.css's row of frames. */
 .blog-gallery {
   margin: var(--space) 0;
 }

@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { PhotoDialog } from "@/features/cv/photo-dialog";
-import type { CvImage } from "@/features/cv/cv.types";
+import { PhotoDialog, type Photo } from "@/app/components/photo-dialog";
 import { getLocale } from "@/paraglide/runtime.js";
 
 type Props = {
   /** The pictures in order: `src` and `alt` each, `title` for a caption. */
-  images: CvImage[];
+  images: Photo[];
 };
 
 /**
  * Pictures in a row of frames in a post: `<Gallery images={[{ src, alt }, …]} />`.
- * A click opens one full size, where the arrow keys step through the rest — the
- * CV's photo viewer (features/cv/photo-dialog.tsx), styled by cv.css.
+ * A click opens one full size, where the arrow keys step through the rest
+ * (app/components/photo-dialog.tsx, styled by media.css).
  */
 export function Gallery({ images }: Props) {
   const [index, setIndex] = useState<number | null>(null);
@@ -20,7 +19,7 @@ export function Gallery({ images }: Props) {
 
   return (
     <>
-      <div className="project-gallery blog-gallery">
+      <div className="gallery blog-gallery">
         {images.map((image, at) => (
           <button key={image.src} type="button" className="photo-zoom" onClick={() => setIndex(at)}>
             <img src={image.src} alt={image.alt} title={image.title} />

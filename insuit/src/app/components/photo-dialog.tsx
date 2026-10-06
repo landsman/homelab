@@ -1,17 +1,22 @@
 import { useRef } from "react";
-import type { CvImage } from "@/features/cv/cv.types";
-import { Modal } from "@/features/cv/modal";
+import { Modal } from "@/app/components/modal";
 import { m } from "@/paraglide/messages.js";
 
+/** A picture the viewer can show: a markdown title, when it has one, is its caption. */
+export type Photo = { src: string; alt: string; title?: string };
+
 type Props = {
-  /** The open project's photos in gallery order, and which one is shown. */
-  zoom: { photos: CvImage[]; index: number } | null;
+  /** The photos in gallery order, and which one is shown. */
+  zoom: { photos: Photo[]; index: number } | null;
   /** Move to the previous (-1) or next (+1) photo. */
   onStep: (by: number) => void;
   onClose: () => void;
 };
 
-/** A project's photo at full size, stacked on top of the project dialog. */
+/**
+ * A photo at full size, with arrows to the others: a CV project's (stacked on
+ * its dialog) or a post's gallery's (features/blog/gallery.tsx).
+ */
 export function PhotoDialog({ zoom, onStep, onClose }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const photo = zoom?.photos[zoom.index];
@@ -24,7 +29,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       open={zoom !== null}
       onClose={onClose}
       className="photo-dialog"
-      aria-label={m.cv_photo_label()}
+      aria-label={m.common_photo_label()}
       onKeyDown={(event) => {
         if (single) return;
         if (event.key === "ArrowLeft") onStep(-1);
@@ -34,7 +39,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       <button
         className="photo-step photo-step-previous"
         type="button"
-        aria-label={m.cv_photo_previous()}
+        aria-label={m.common_photo_previous()}
         hidden={single}
         onClick={() => onStep(-1)}
       >
@@ -43,7 +48,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       <button
         className="photo-step photo-step-next"
         type="button"
-        aria-label={m.cv_photo_next()}
+        aria-label={m.common_photo_next()}
         hidden={single}
         onClick={() => onStep(1)}
       >

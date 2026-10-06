@@ -15,14 +15,18 @@ test("no page links to the blog yet", async ({ page }) => {
   await expect(page.locator(`a[href^="${ROUTES.blog}"]`)).toHaveCount(0);
 });
 
-test("the blog's styles load on its pages, not on the rest", async ({ page }) => {
-  const blogStyles = page.locator('link[rel="stylesheet"][href*="/blog-"]');
-  await page.goto(ROUTES.home);
-  await expect(blogStyles).toHaveCount(0);
-  await page.goto(ROUTES.blog);
-  await expect(blogStyles).toHaveCount(1);
-  await page.goto(`${ROUTES.blog}/hello`);
-  await expect(blogStyles).toHaveCount(1);
+test("the blog's and the CV's styles each load on their own pages only", async ({ page }) => {
+  const styles = (name: string) => page.locator(`link[rel="stylesheet"][href*="/${name}-"]`);
+  for (const [path, blog, cv] of [
+    [ROUTES.home, 0, 0],
+    [ROUTES.blog, 1, 0],
+    [`${ROUTES.blog}/hello`, 1, 0],
+    [ROUTES.cv, 0, 1],
+  ] as const) {
+    await page.goto(path);
+    await expect(styles("blog"), path).toHaveCount(blog);
+    await expect(styles("cv"), path).toHaveCount(cv);
+  }
 });
 
 test.describe("without JavaScript", () => {

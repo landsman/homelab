@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CvProject } from "@/features/cv/cv.types";
-import { Modal } from "@/features/cv/modal";
+import { Modal } from "@/app/components/modal";
 import { Prose } from "@/features/cv/prose";
 import { m } from "@/paraglide/messages.js";
 
@@ -100,9 +100,7 @@ function ProjectDetails({ project, onZoom }: { project: CvProject; onZoom: Props
           </button>
         )
       ) : gallery ? (
-        <div className={`project-gallery${project.tallGallery ? " project-gallery-tall" : ""}`}>
-          {photos}
-        </div>
+        <div className={`gallery${project.tallGallery ? " gallery-tall" : ""}`}>{photos}</div>
       ) : (
         photos
       )}

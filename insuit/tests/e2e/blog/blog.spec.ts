@@ -167,8 +167,14 @@ test("a tall picture in the viewer fits the screen, its close button on it", asy
   await page.getByRole("button", { name: /Házená Nové Veselí/ }).click();
   const photo = page.getByRole("dialog", { name: "Photo" });
   await expect(photo).toBeVisible();
-  await expect(photo.getByRole("button", { name: "Close" })).toBeInViewport();
+  await expect(photo.getByRole("button", { name: "Close" })).toBeInViewport({ ratio: 1 });
   await expect(photo.locator("figcaption")).toBeInViewport();
+
+  // The page behind it does not scroll while it is open.
+  const before = await page.evaluate(() => scrollY);
+  await page.mouse.wheel(0, 600);
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => scrollY)).toBe(before);
 });
 
 test("pressing play hands focus to the player, named by its video", async ({ page }) => {

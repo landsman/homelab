@@ -81,3 +81,9 @@ footer {
   padding-top: var(--space);
   border-top: var(--border-width) solid var(--color-border);
 }
+
+/* While a dialog is open — a project, a photo — the page behind it stays put:
+   a scroll meant for the dialog does not move the page under the backdrop. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}

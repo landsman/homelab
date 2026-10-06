@@ -403,29 +403,26 @@ html:has(.cv) {
 .photo-dialog figcaption:empty {
   display: none;
 }
+/* The × over a full-size photo sits in the corner of the screen, on a dark
+   disc: above the picture it ran off the top of the screen whenever the
+   picture was tall, and the white × alone vanished over a light one. */
 .photo-dialog .dialog-close {
-  top: calc(var(--close-size) * -1.25);
-  right: calc(var(--close-size) / -4);
+  position: fixed;
+  top: calc(var(--space) / 2);
+  right: calc(var(--space) / 2);
   color: var(--color-photo-close);
+  background: var(--color-play-badge);
 }
 .photo-dialog .dialog-close:hover,
 .photo-dialog .dialog-close:focus-visible {
   background: var(--color-close-hover-dark);
 }
 
-/* On a phone the × is a bigger target: in the project dialog it grows in its
-   corner, and over a full-size photo it moves to the corner of the screen,
-   where a thumb expects it, instead of floating just above the picture. */
+/* On a phone the × is a bigger target. */
 @media (max-width: 600px) {
   .dialog-close {
     --close-size: var(--close-size-touch);
     font-size: var(--font-size-display);
-  }
-  .photo-dialog .dialog-close {
-    position: fixed;
-    top: calc(var(--space) / 2);
-    right: calc(var(--space) / 2);
-    background: var(--color-play-badge);
   }
 }
 

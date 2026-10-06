@@ -6,6 +6,8 @@ export interface HomeService {
   icon?: ServiceIconName
   iconWhiteBg?: boolean
   shortcut?: string
+  /** Extra words the search matches besides the name. */
+  tags?: string[]
 }
 
 export interface HomeCategory {

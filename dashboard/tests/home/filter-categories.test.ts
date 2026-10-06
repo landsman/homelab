@@ -7,7 +7,7 @@ const CATEGORIES: HomeCategory[] = [
     label: 'Free time',
     services: [
       { name: 'Reddit', url: 'https://reddit.com' },
-      { name: 'Bluesky', url: 'https://bsky.app' },
+      { name: 'Bluesky', url: 'https://bsky.app', tags: ['social'] },
     ],
   },
   { label: 'LLM', services: [{ name: 'Claude', url: 'https://claude.ai' }] },
@@ -22,6 +22,15 @@ describe('filterCategories', () => {
   it('matches case-insensitively on a substring of the name', () => {
     expect(filterCategories(CATEGORIES, 'DDI')).toEqual([
       { label: 'Free time', services: [{ name: 'Reddit', url: 'https://reddit.com' }] },
+    ])
+  })
+
+  it('matches on a tag as well as the name', () => {
+    expect(filterCategories(CATEGORIES, 'SOCIAL')).toEqual([
+      {
+        label: 'Free time',
+        services: [{ name: 'Bluesky', url: 'https://bsky.app', tags: ['social'] }],
+      },
     ])
   })
 

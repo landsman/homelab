@@ -81,6 +81,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'NotebookLM',
         url: 'https://notebooklm.google.com',
         icon: ServiceIcon.NOTEBOOKML,
+        tags: ['google'],
         shortcut: Hotkey.SHIFT_N,
       },
     ],
@@ -104,17 +105,20 @@ export const HOME_CATEGORIES: HomeCategory[] = [
         name: 'Penpot',
         url: 'https://design.penpot.app',
         icon: ServiceIcon.PENPOT,
+        tags: ['design'],
       },
       {
         name: 'Figma',
         url: 'https://figma.com',
         icon: ServiceIcon.FIGMA,
+        tags: ['design'],
         shortcut: Hotkey.SHIFT_F,
       },
       {
         name: 'Photopea',
         url: 'https://www.photopea.com',
         icon: ServiceIcon.PHOTOPEA,
+        tags: ['design'],
         shortcut: Hotkey.SHIFT_U,
       },
       {

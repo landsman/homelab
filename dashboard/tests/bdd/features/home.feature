@@ -11,6 +11,11 @@ Feature: Finding a service on the home page
     Then I see the "Reddit" shortcut
     But I do not see the "Hacker News" shortcut
 
+  Scenario: Finding a service by what it is rather than what it is called
+    When I search for "google"
+    Then I see the "NotebookLM" shortcut
+    But I do not see the "Reddit" shortcut
+
   Scenario: Searching for something that is not there
     When I search for "no such service"
     Then I am told that nothing matches

@@ -13,15 +13,46 @@ export const POST_COMPONENTS = {
   Gallery,
   YouTube,
   // A code block or a table scrolls sideways when it is wider than the column,
-  // so a keyboard has to be able to reach it to scroll it (WCAG 2.1.1).
-  // Named, as a stop on the way through, in the site's language — the post
-  // around it may be in another (WCAG 3.1.2).
-  pre: (props: ComponentProps<"pre">) => (
-    <pre tabIndex={0} role="region" aria-label={m.blog_code()} lang={getLocale()} {...props} />
+  // so a keyboard has to be able to reach it to scroll it (WCAG 2.1.1). A
+  // block is a named group rather than a region, so ten of them do not bury
+  // the page's landmarks; named, as a stop on the way through, by its number
+  // and language (vite/blog.ts), in the site's language — the post around it
+  // may be in another (WCAG 3.1.2).
+  pre: ({
+    "data-block": n,
+    "data-language": language,
+    ...props
+  }: ComponentProps<"pre"> & { "data-block": number; "data-language"?: string }) => (
+    <pre
+      tabIndex={0}
+      role="group"
+      aria-label={language ? m.blog_code_language({ n, language }) : m.blog_code({ n })}
+      lang={getLocale()}
+      {...props}
+    />
   ),
+  // A table fills the column, so it scrolls in a frame of its own: a table
+  // that scrolls itself cannot stretch its cells.
   table: (props: ComponentProps<"table">) => (
-    <table tabIndex={0} aria-label={m.blog_table()} {...props} />
+    <div className="blog-table" tabIndex={0} role="group" aria-label={m.blog_table()}>
+      <table {...props} />
+    </div>
   ),
+  // A link in a post opens a new tab, so the post stays where it was read;
+  // a screen reader is told so, in the site's language (contact-page.tsx). A
+  // jump within the page — a footnote and its way back — stays in this one.
+  a: ({ children, ...props }: ComponentProps<"a">) =>
+    props.href?.startsWith("#") ? (
+      <a {...props}>{children}</a>
+    ) : (
+      <a target="_blank" rel="noopener" {...props}>
+        {children}
+        <span className="visually-hidden" lang={getLocale()}>
+          {" "}
+          {m.common_opens_new_tab()}
+        </span>
+      </a>
+    ),
   // A picture's title (`![alt](src "title")`) is its caption, shown, rather
   // than a tooltip nobody on a keyboard or a phone sees. vite/blog.ts lifts a
   // picture alone in its paragraph out of it, so the figure is not in a <p>.

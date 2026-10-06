@@ -75,6 +75,69 @@ test.describe("without JavaScript", () => {
   });
 });
 
+// Coloured at build time (vite/blog.ts), so the colours are in the page; the
+// theme picks which, the OS first and the toggle over it.
+test("code is coloured by its language, in the theme the page is in", async ({ page }) => {
+  await page.goto(HELLO);
+  const keyword = page
+    .getByRole("group", { name: "Code" })
+    .first()
+    .getByText("export", { exact: true });
+  const color = () => keyword.evaluate((el) => getComputedStyle(el).color);
+
+  await page.emulateMedia({ colorScheme: "light" });
+  const light = await color();
+  await page.emulateMedia({ colorScheme: "dark" });
+  const dark = await color();
+  expect(light).not.toBe(dark);
+
+  await page.evaluate(() => (document.documentElement.dataset.theme = "light"));
+  expect(await color()).toBe(light);
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
+  expect(await color()).toBe(dark);
+
+  // Paper is white whatever the screen is, so it gets the light colours.
+  await page.emulateMedia({ media: "print", colorScheme: "dark" });
+  expect(await color()).toBe(light);
+});
+
+test("a table's rows alternate and light up under the pointer, its header is optional", async ({
+  page,
+}) => {
+  await page.goto(HELLO);
+  const [withHead, rowsOnly] = [0, 1].map((i) => page.getByRole("table").nth(i));
+  await expect(withHead.getByRole("columnheader")).toHaveCount(3);
+  // An empty header row in the markdown is no header at all, not an empty one.
+  await expect(rowsOnly.getByRole("columnheader")).toHaveCount(0);
+  await expect(rowsOnly.getByRole("row").first()).toContainText("Light theme");
+
+  const rows = rowsOnly.getByRole("row");
+  const background = (i: number) =>
+    rows.nth(i).evaluate((el) => getComputedStyle(el).backgroundColor);
+  const [odd, even] = [await background(0), await background(1)];
+  expect(odd).not.toBe(even);
+  await rows.nth(0).hover();
+  expect(await background(0)).not.toBe(odd);
+  expect(await background(0)).not.toBe(even);
+});
+
+test("a link in a post opens a new tab and says so, a footnote's mark does not", async ({
+  page,
+}) => {
+  await page.goto(HELLO);
+  const out = page.getByRole("link", { name: "link out (opens in a new tab)" });
+  await expect(out).toHaveAttribute("target", "_blank");
+  await expect(out).toHaveAttribute("rel", "noopener");
+  await expect(
+    page.getByRole("link", { name: "link within the site (opens in a new tab)" }),
+  ).toHaveAttribute("target", "_blank");
+  const mark = page.locator("a[data-footnote-ref]");
+  await expect(mark).not.toHaveAttribute("target", /./);
+  await mark.click();
+  await expect(page).toHaveURL(/#user-content-fn-1$/);
+});
+
 test("React takes a post over without an error, and back to the list", async ({ page }) => {
   await expectCleanTakeover(page, HELLO);
 

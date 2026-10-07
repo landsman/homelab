@@ -27,9 +27,10 @@
   border: 0;
   border-radius: calc(var(--image-radius) - var(--thumb-padding));
 }
+/* Keyboard focus glows around the frame, as a CV project card's does. */
 .photo-zoom:focus-visible {
-  outline: var(--border-width) solid currentcolor;
-  outline-offset: 4px;
+  outline: none;
+  box-shadow: var(--focus-glow);
 }
 /* Hover darkens the frame to the text colour and lifts it a little, so it reads
    as something to open. */

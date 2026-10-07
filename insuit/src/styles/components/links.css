@@ -67,6 +67,24 @@ a::after {
   transform-origin: right top;
   transition: transform var(--speed);
 }
+/* Keyboard focus on a footer link: a tinted pill with room around the text
+   and a thin halo ring, the colour the theme button and the pictures carry.
+   Box shadows draw it, so the link does not move; the pill replaces the
+   underline, which would crowd its bottom edge. */
+footer a:focus-visible {
+  outline: none;
+  border-radius: 8px;
+  /* Opaque, mixed into the page colour: a see-through fill would let the ring
+     behind it show through the whole pill. */
+  --pill: color-mix(in srgb, currentcolor 8%, var(--color-bg));
+  background: var(--pill);
+  box-shadow:
+    0 0 0 6px var(--pill),
+    0 0 0 8px var(--focus-halo-color);
+}
+footer a:focus-visible::after {
+  transform: scaleX(0);
+}
 a:hover::after,
 a:focus-visible::after {
   transform: scaleX(1);

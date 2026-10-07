@@ -239,7 +239,7 @@ Features: cash register, stocktaking, inventory management, shift tracking,
 daily reports and a supplier overview.
 
 **Technologies:** Kotlin, Java, React, Swift, PostgreSQL, Docker, Terraform,
-AWS, Google Cloud (GCP)
+AWS, GCP
 
 ### Burda International CZ
 

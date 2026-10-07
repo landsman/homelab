@@ -235,18 +235,6 @@ html:has(.cv) {
   margin-bottom: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .project-dialog[open] {
-    animation: dialog-in var(--speed) ease-out;
-  }
-}
-@keyframes dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
 /* External links in a project dialog get a small out-arrow after the text; the
    rest of the page keeps them plain. */
 .cv .icon-external {

@@ -185,6 +185,50 @@
   background: var(--color-close-hover-dark);
 }
 
+/* A dialog fades in and out, the backdrop with it, rather than appearing and
+   vanishing at once. The content stays until the fade-out has finished
+   (app/components/modal.tsx). */
+@media (prefers-reduced-motion: no-preference) {
+  .project-dialog,
+  .photo-dialog,
+  .project-dialog::backdrop,
+  .photo-dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--speed) ease-out,
+      transform var(--speed) ease-out,
+      overlay var(--speed) allow-discrete,
+      display var(--speed) allow-discrete;
+  }
+  .project-dialog {
+    transform: translateY(8px);
+  }
+  .photo-dialog {
+    transform: scale(0.97);
+  }
+  .project-dialog[open],
+  .photo-dialog[open],
+  .project-dialog[open]::backdrop,
+  .photo-dialog[open]::backdrop {
+    opacity: 1;
+    transform: none;
+  }
+  @starting-style {
+    .project-dialog[open],
+    .photo-dialog[open],
+    .project-dialog[open]::backdrop,
+    .photo-dialog[open]::backdrop {
+      opacity: 0;
+    }
+    .project-dialog[open] {
+      transform: translateY(8px);
+    }
+    .photo-dialog[open] {
+      transform: scale(0.97);
+    }
+  }
+}
+
 /* Previous and next: on the backdrop either side of the picture, light like
    the close button, on a dark disc like the video's play button — on a phone
    they sit over the photo itself and must read against any picture. */

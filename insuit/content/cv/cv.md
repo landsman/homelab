@@ -4,7 +4,7 @@
 
 Full-stack developer in Prague, Czech Republic.
 
-**I work with:** Kotlin, Java, PHP, TypeScript, PostgreSQL, React, Terraform,
+**I work with:** Kotlin, Java, PHP, TypeScript, React, PostgreSQL, Terraform,
 Linux.
 
 ## Experience
@@ -18,9 +18,9 @@ content platforms and web-based SaaS applications. The whole lifecycle, from
 client meetings and requirements to design discussions, implementation and
 reporting, across frontend, backend, CI/CD and infrastructure.
 
-**Technologies:** Kotlin, Java, PHP, TypeScript, Go, .NET, Spring Boot, Vaadin,
-Symfony, Bun, React, PostgreSQL, Microsoft SQL Server, Docker Swarm, Kubernetes,
-Argo CD, Azure Cloud, GitHub, GitLab CI/CD
+**Technologies:** Kotlin, Java, Spring Boot, Vaadin, PHP, Symfony, TypeScript,
+Bun, React, Go, .NET, PostgreSQL, Microsoft SQL Server, Docker Swarm,
+Kubernetes, Argo CD, Azure Cloud, GitHub, GitLab CI/CD
 
 #### The Police of the Czech Republic
 
@@ -36,7 +36,7 @@ microservices, and new infrastructure to run them. Alongside it, meetings with
 the client to discuss the site's design and content, shape the requirements,
 and translate them into design and code.
 
-**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
+**Technologies:** TypeScript, Bun, React, Go, .NET, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 #### The Ministry of the Interior of the Czech Republic
@@ -53,7 +53,7 @@ microservices with Docker, and new infrastructure to run them. Alongside it,
 meetings with the client to discuss the site's design and content, shape the
 requirements, and translate them into design and code.
 
-**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
+**Technologies:** TypeScript, Bun, React, Go, .NET, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 #### The Fire Rescue Service of the Czech Republic
@@ -70,7 +70,7 @@ microservices, and new infrastructure to run them. It started with the first
 client meetings: discussing the site's design and content, shaping the
 requirements, and translating them into design and code.
 
-**Technologies:** TypeScript, Go, .NET, Bun, React, PostgreSQL, Microsoft SQL
+**Technologies:** TypeScript, Bun, React, Go, .NET, PostgreSQL, Microsoft SQL
 Server, Docker Swarm, Kubernetes, Argo CD, GitHub, GitLab
 
 #### CASEC: chemicals finally under control
@@ -86,7 +86,7 @@ The work covered analysing the existing software, defining requirements with the
 client, and discussing implementation and UX in client meetings. I also helped
 finalise the project reports.
 
-**Technologies:** Kotlin, Java, TypeScript, Spring Boot, Vaadin, PostgreSQL,
+**Technologies:** Kotlin, Java, Spring Boot, Vaadin, TypeScript, PostgreSQL,
 Azure Cloud
 
 #### Masaryk University: SIMU
@@ -98,7 +98,7 @@ Azure Cloud
 The Masaryk University Faculty of Medicine portfolio platform, continued through
 refactoring and the development of new modules.
 
-**Technologies:** PHP, TypeScript, Symfony, React, PostgreSQL, Docker, GitLab
+**Technologies:** PHP, Symfony, TypeScript, React, PostgreSQL, Docker, GitLab
 CI/CD
 
 ### GRAET
@@ -114,7 +114,7 @@ Co-Founder · Jul 2023 – Mar 2024
 - Supabase for the waiting list, authentication and frontend data
 - An MVP of a native app wrapper
 
-**Technologies:** Kotlin, Java, TypeScript, Spring Boot, Next.js, Storybook,
+**Technologies:** Kotlin, Java, Spring Boot, TypeScript, Next.js, Storybook,
 PostgreSQL, Supabase, Docker, Terraform, AWS, Stripe, Figma
 
 ### Trisbee
@@ -145,7 +145,7 @@ What we worked on together:
 On the leading side: hiring and onboarding, Scrum, salaries and the hard
 conversations too, plus customer care, sales and meetups when they were needed.
 
-**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
+**Technologies:** Kotlin, Java, Spring, TypeScript, React, Next.js, Docker,
 Terraform, AWS, GCP, GitHub Actions
 
 #### Payment app kickoff
@@ -167,7 +167,7 @@ adapting the solution for customers. It was hard: every time we adjusted
 something, another piece fell apart. Under the requirements and the pressure to
 scale, we relaunched.
 
-**Technologies:** Kotlin, Java, TypeScript, Spring, React, Next.js, Docker,
+**Technologies:** Kotlin, Java, Spring, TypeScript, React, Next.js, Docker,
 Terraform, AWS, GCP, GitHub Actions
 
 #### Europe Expansion
@@ -203,7 +203,7 @@ with the Czech EET law, or simply made writing a receipt quick. I handled
 ongoing maintenance, security updates and the Trisbee integration for the
 service's relaunch.
 
-**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android, iOS
+**Technologies:** Java, Play Framework, iOS, Android, PostgreSQL, AWS
 
 #### Trisbee Event Ticketing
 
@@ -219,7 +219,7 @@ Burza #4 and Fuchs2. It paved the way for Boom Events, a new company with a
 dedicated team, built on the technology and cloud infrastructure developed at
 Trisbee.
 
-**Technologies:** Java, Play Framework, PostgreSQL, AWS, Android
+**Technologies:** Java, Play Framework, Android, PostgreSQL, AWS
 
 #### Trisbee POS
 
@@ -238,8 +238,8 @@ kept working offline, caching data through an internet or power outage.
 Features: cash register, stocktaking, inventory management, shift tracking,
 daily reports and a supplier overview.
 
-**Technologies:** Java, Kotlin, Swift, React, PostgreSQL, Terraform, Docker, AWS,
-Google Cloud (GCP)
+**Technologies:** Kotlin, Java, React, Swift, PostgreSQL, Docker, Terraform,
+AWS, Google Cloud (GCP)
 
 ### Burda International CZ
 
@@ -267,8 +267,8 @@ agency:
 - A few open-source plugins, still on the company's GitHub
 - Took part in Drupal conferences
 
-**Technologies:** PHP, JavaScript, Symfony, Twig, Drupal, OpenCart, Sass,
-Webpack, Gulp, Grunt, Redis, Nginx, Varnish, Debian, Composer, GitLab, Jenkins,
+**Technologies:** PHP, Composer, Symfony, Twig, Drupal, OpenCart, JavaScript,
+Sass, Webpack, Gulp, Grunt, Redis, Nginx, Varnish, Debian, GitLab, Jenkins,
 Sentry, Redmine
 
 #### Marianne: magazine platform relaunch
@@ -288,8 +288,8 @@ GitLab instance. To support the project, I initiated an internal Redmine for
 managing feedback, tasks and bug reports. The new platform later carried the
 relaunches of other magazine websites, including ELLE.cz.
 
-**Technologies:** PHP, JavaScript, Symfony, Twig, Drupal, Sass, Webpack, Redis,
-Nginx, Varnish, Composer, GitLab, Jenkins, Sentry, Redmine
+**Technologies:** PHP, Composer, Symfony, Twig, Drupal, JavaScript, Sass,
+Webpack, Redis, Nginx, Varnish, GitLab, Jenkins, Sentry, Redmine
 
 #### Dny Marianne: shopping fever event
 
@@ -308,7 +308,7 @@ native iOS and Android apps. On our side, we integrated the payment gateway on
 the backend and built the checkout as a web view inside the apps,
 indistinguishable from the native screens around it.
 
-**Technologies:** PHP, Symfony, MySQL, Sass, GitLab, Android, iOS
+**Technologies:** PHP, Symfony, Sass, iOS, Android, MySQL, GitLab
 
 #### Talk at DrupalCamp CS 2017 in Brno
 
@@ -356,7 +356,7 @@ The McDonald's campaign microsite for the 2015 Ice Hockey World Championship.
 Fans sent a photo and a message of support for the Czech national team, and
 the messages were shown on screens inside Prague's O2 Arena during the games.
 
-**Technologies:** PHP, SunLight CMS, MySQL, Sass, Jenkins
+**Technologies:** PHP, SunLight CMS, Sass, MySQL, Jenkins
 
 #### Oriflame Cosmetics: 25 years in the Czech Republic
 
@@ -368,7 +368,7 @@ A microsite for Oriflame's 25th anniversary in the Czech Republic, with a
 competition for customers: visitors sent in their answers to enter a prize
 draw.
 
-**Technologies:** PHP, SunLight CMS, MySQL, Sass, Jenkins
+**Technologies:** PHP, SunLight CMS, Sass, MySQL, Jenkins
 
 #### KetoDiet e-commerce
 
@@ -411,9 +411,9 @@ it built its own CMS, e-commerce platform and marketing tools.
 - Graphics, from print to online
 - Marketing: PPC, A/B testing, SEO, copywriting
 
-**Technologies:** PHP, Vanilla JS, Nette, Node.js, Drupal, WordPress, Joomla,
-SunLight CMS, PrestaShop, OpenCart, jQuery, Less, Sass, Gulp, Grunt, Linux,
-Jenkins, Adobe Photoshop, Adobe Illustrator
+**Technologies:** PHP, Nette, Drupal, WordPress, Joomla, SunLight CMS,
+PrestaShop, OpenCart, Vanilla JS, Node.js, jQuery, Less, Sass, Gulp, Grunt,
+Linux, Jenkins, Adobe Photoshop, Adobe Illustrator
 
 Before that, and alongside its first years: Graphic Designer · self-employed ·
 Jan 2009 – Feb 2012 · remote. Web design, and DTP for printed marketing
@@ -438,7 +438,7 @@ tree-based content structure, localisation and more. I also wrote several
 plugins and themes for the open-source CMS it was built on, and released them
 to that CMS's community.
 
-**Technologies:** PHP, Latte, MySQL, CSS
+**Technologies:** PHP, Latte, CSS, MySQL
 
 #### Custom e-commerce projects
 

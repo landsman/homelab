@@ -37,7 +37,12 @@ export function Modal({ open, onClose, className, children, ref, ...dialogProps 
       className={className}
       closedby="any"
       tabIndex={-1}
-      onClose={onClose}
+      onClose={(event) => {
+        // The dialog fades out (media.css); its content is emptied only once
+        // that has finished, or the fade would show an empty box.
+        const animations = event.currentTarget.getAnimations();
+        void Promise.allSettled(animations.map((a) => a.finished)).then(onClose);
+      }}
       onClick={(event) => {
         // `closedby="any"` closes on a click outside. Where the browser does
         // not know the attribute yet, that click is handled here: one on the

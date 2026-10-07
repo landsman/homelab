@@ -94,6 +94,13 @@
   --close-size: 40px;
   /* The ring keyboard focus draws on the round buttons. */
   --focus-ring-width: 2px;
+  /* Keyboard focus on a picture's frame, a link or the theme button: a soft
+     halo in the text colour rather than a hard ring, so it reads in both
+     themes. Resolved where it is used, so currentcolor is that element's. */
+  --focus-halo-color: color-mix(in srgb, currentcolor 45%, transparent);
+  --focus-glow:
+    0 0 0 3px var(--focus-halo-color),
+    0 8px 24px -8px color-mix(in srgb, currentcolor 35%, transparent);
   --close-size-touch: 48px;
   --thumb-padding: 6px;
   --photo-caption-room: 4em;

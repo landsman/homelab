@@ -178,10 +178,18 @@
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
 }
+/* Keyboard focus marks the picture's frame alone (below), not a box around
+   the frame and the name together; the name underlines. */
 .project button:focus-visible {
-  outline: var(--border-width) solid currentcolor;
-  outline-offset: 4px;
-  border-radius: var(--image-radius);
+  outline: none;
+}
+.project-name {
+  text-decoration: underline transparent;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--speed);
+}
+.project button:focus-visible .project-name {
+  text-decoration-color: currentcolor;
 }
 .cv .project img {
   max-width: 100%;
@@ -235,18 +243,6 @@ html:has(.cv) {
   margin-bottom: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .project-dialog[open] {
-    animation: dialog-in var(--speed) ease-out;
-  }
-}
-@keyframes dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
 /* External links in a project dialog get a small out-arrow after the text; the
    rest of the page keeps them plain. */
 .cv .icon-external {
@@ -271,6 +267,10 @@ html:has(.cv) {
 .project button:focus-visible .frame {
   border-color: currentcolor;
   transform: translateY(var(--lift));
+}
+/* Keyboard focus glows around the frame (tokens.css). */
+.project button:focus-visible .frame {
+  box-shadow: var(--focus-glow);
 }
 @media (prefers-reduced-motion: reduce) {
   .project button:hover .frame,

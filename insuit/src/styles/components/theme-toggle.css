@@ -25,6 +25,12 @@
 .theme-toggle:focus-visible {
   opacity: 1;
 }
+/* Keyboard focus: the same halo as a picture's frame, round around the icon. */
+.theme-toggle:focus-visible {
+  outline: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--focus-halo-color);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .theme-toggle {

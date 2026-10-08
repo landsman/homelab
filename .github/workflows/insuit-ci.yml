@@ -151,6 +151,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    outputs:
+      url: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
     steps:
       - name: "Check out"
         uses: actions/checkout@v7
@@ -173,19 +175,33 @@ jobs:
           URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
         run: insuit/scripts/preview-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
-      # The local preview the tests ran against is this repo's own reading of
-      # Pages' rules (scripts/preview.ts). The same questions go to the real
-      # thing here, so the two cannot drift apart unnoticed — after waiting
-      # until the preview says it is this commit.
+
+  # The local preview the tests ran against is this repo's own reading of
+  # Pages' rules (scripts/preview.ts). The same questions go to the real thing
+  # here, so the two cannot drift apart unnoticed — after waiting until the
+  # preview says it is this commit. Its own job, because it installs the PR's
+  # dependencies, and the preview job holds the Cloudflare token.
+  preview-smoke:
+    needs: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: insuit
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
       - name: "Set up Bun"
         uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: insuit/package.json
       - name: "Check the preview"
         env:
-          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
-          COMMIT: ${{ github.event.pull_request.head.sha }}
-        run: bun insuit/scripts/check-pages.ts "$URL" "$COMMIT"
+          SMOKE_URL: ${{ needs.preview.outputs.url }}
+          SMOKE_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: make install smoke ARGS=--project=site
 
   infra:
     runs-on: ubuntu-latest

@@ -27,10 +27,7 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: insuit/package.json
-      - name: "www.insuit.cz"
-        run: bun scripts/check-pages.ts https://www.insuit.cz
-      # Each target is someone else's site, so only here: a site gone is not a
-      # reason to fail a deploy.
-      - name: "link.insuit.cz and its targets"
-        if: ${{ !cancelled() }}
-        run: bun scripts/check-links.ts https://link.insuit.cz --targets
+      # Every project, the targets included: each is someone else's site, so
+      # only here — a site gone is not a reason to fail a deploy.
+      - name: "Smoke tests"
+        run: make install smoke

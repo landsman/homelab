@@ -16,7 +16,8 @@
     "format:fix": "oxfmt .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:bdd": "bun --bun cucumber-js"
+    "test:bdd": "bun --bun cucumber-js",
+    "test:smoke": "playwright test -c playwright.smoke.config.ts"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.38",

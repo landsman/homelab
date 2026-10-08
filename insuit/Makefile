@@ -1,5 +1,5 @@
 .PHONY: help install dev build preview clean
-.PHONY: typecheck lint lint-fix format format-check images test browser e2e-deps e2e e2e-head bdd qa
+.PHONY: typecheck lint lint-fix format format-check images test browser e2e-deps e2e e2e-head bdd smoke qa
 .PHONY: og bucket
 
 # Bare `make` lists the targets. Each one's `##` comment is its description,
@@ -100,6 +100,12 @@ e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms,
 
 bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
 	bun run test:bdd
+
+# The live sites, not a local build — see playwright.smoke.config.ts. No
+# browser: plain HTTP. SMOKE_URL picks the site, SMOKE_COMMIT waits for a
+# deploy, ARGS="--project=site" narrows it.
+smoke: ## Ask the live sites, short links and their targets what a visitor would
+	bun run test:smoke $(ARGS)
 
 qa: images ## Run all quality checks (images, typecheck, format, lint, test, shell)
 	bun run typecheck

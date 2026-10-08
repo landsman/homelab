@@ -200,7 +200,7 @@ server, which 404s on every URL the site links to. `scripts/preview.ts` serves
 repo's own reading of them, because Cloudflare's local server
 (`wrangler pages dev`) needs Node — under Bun it never answers. So that the two
 cannot drift apart unnoticed, CI asks each PR's real preview on Pages the same
-questions (`scripts/check-pages.ts`).
+questions (`make smoke`, below).
 
 ## Which version is live
 
@@ -208,12 +208,31 @@ Every page carries `<meta name="commit" content="…">`: the commit it was built
 from. View the source, or ask:
 
 ```bash
-bun scripts/check-pages.ts https://www.insuit.cz            # says the commit
-bun scripts/check-pages.ts https://www.insuit.cz <commit>   # fails unless it is that one
+curl -s https://www.insuit.cz | grep -o '<meta name="commit"[^>]*>'
+SMOKE_COMMIT=<commit> make smoke ARGS=--project=site   # fails unless it is that one
 ```
 
 CI does the second after every deploy — a PR's preview and production alike —
 and the PR comment names the commit its preview was built from.
+
+## Smoke tests
+
+`make smoke` asks the live sites what a visitor would: Playwright, but over
+plain HTTP with no browser and no local server, so it has its own config
+(`playwright.smoke.config.ts`) and `make e2e` never runs it. The specs live in
+`tests/smoke/`, one Playwright project each, so a caller runs the part that
+applies to it:
+
+| Project   | Asks                                               | Run                                        |
+| --------- | -------------------------------------------------- | ------------------------------------------ |
+| `site`    | `SMOKE_URL` (www by default): pages, 404, caching  | after a deploy, on a PR's preview, nightly |
+| `links`   | every code in `links/_redirects` on link.insuit.cz | after a deploy, nightly                    |
+| `targets` | every short link's target, fails on 404/410        | nightly only — other people's sites        |
+
+Nightly is `.github/workflows/insuit-smoke.yml`, at 02:00 UTC (4:00 in Prague
+in summer, 3:00 in winter). A failed scheduled run emails whoever last changed
+the schedule. A new check goes into the spec of the thing it asks, or a new
+spec with its own project.
 
 ## The CV
 
@@ -368,11 +387,8 @@ link can change after the CV is printed, and every copy still works.
   `link` had no record of its own, so there is nothing to collide with, and the
   specific name takes precedence over the `*` wildcard. Without it the wildcard
   answers, and every QR code is a 404.
-- `scripts/check-links.ts` asks the live link.insuit.cz whether every code goes
-  where `_redirects` says — after each deploy, and nightly with `--targets`,
-  which also fails on a target that answers 404 or 410
-  (`.github/workflows/insuit-smoke.yml`, with `check-pages.ts` on www). A
-  target that turns bots away with a 403 is printed, not counted.
+- The `links` and `targets` smoke tests ask the live domain each code, and
+  each target whether it is still there (see Smoke tests).
 
 Locally: `npx wrangler pages dev links --port 4322`, then
 `curl -sI http://localhost:4322/<code>`. This is the one command here that

@@ -124,9 +124,10 @@ jobs:
       # www.insuit.cz says it is this commit, then asks it what the tests asked
       # the local preview: the pages, the redirects, the 404, the caching.
       - name: "Check it is live"
+        working-directory: insuit
         env:
-          COMMIT: ${{ github.sha }}
-        run: bun insuit/scripts/check-pages.ts https://www.insuit.cz "$COMMIT"
+          SMOKE_COMMIT: ${{ github.sha }}
+        run: make smoke ARGS=--project=site
       # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
       # at (insuit/links/).
       - name: "Deploy link.insuit.cz"
@@ -138,4 +139,5 @@ jobs:
       # The file can be right while the domain is not, so every code is asked of
       # link.insuit.cz itself.
       - name: "Do the short links redirect?"
-        run: bun insuit/scripts/check-links.ts https://link.insuit.cz
+        working-directory: insuit
+        run: make smoke ARGS=--project=links

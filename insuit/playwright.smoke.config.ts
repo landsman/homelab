@@ -22,7 +22,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
   projects: [
-    { name: "site", testMatch: "site.spec.ts", use: { baseURL: site } },
+    { name: "site", testMatch: ["site.spec.ts", "cv.spec.ts"], use: { baseURL: site } },
     { name: "links", testMatch: "links.spec.ts", use: { baseURL: "https://link.insuit.cz" } },
     { name: "targets", testMatch: "targets.spec.ts" },
   ],

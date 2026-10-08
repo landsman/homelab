@@ -41,18 +41,20 @@ jobs:
       # which is what `git rev-parse HEAD` would otherwise put into the pages.
       COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v7
+      - name: "Check out"
+        uses: actions/checkout@v7
 
       # The version in package.json's packageManager, the one the lockfile was
       # written by.
-      - uses: oven-sh/setup-bun@v2
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: insuit/package.json
 
-      - name: "Install dependencies"
+      - name: "Install"
         run: make install
 
-      - name: "Quality checks (images, typecheck, oxfmt, oxlint, unit tests)"
+      - name: "Quality checks"
         run: make qa
 
       # Keyed on the lockfile: only a dependency bump (which may move the
@@ -73,14 +75,14 @@ jobs:
       # The link-preview card is not committed, so it is drawn here: the build
       # then carries it, and a PR's preview shows the card its pages point at.
       # It also catches a card that no longer renders before merge.
-      - name: "Render the OG card"
+      - name: "Render OG card"
         run: make og
 
       # A PR's build is uploaded as its preview, so the addresses its pages give
       # for themselves (og:url, the link-preview picture) point there, not at
       # the live site. Pages names the alias after the branch: lowercased,
       # anything but a letter or a digit turned into a dash, 28 characters.
-      - name: "Aim the build at its preview address"
+      - name: "Set the preview URL"
         if: github.event_name == 'pull_request'
         env:
           BRANCH: ${{ github.head_ref }}
@@ -93,7 +95,8 @@ jobs:
         run: make e2e
 
       # What was just tested is what the preview job uploads.
-      - uses: actions/upload-artifact@v7
+      - name: "Upload the site"
+        uses: actions/upload-artifact@v7
         with:
           name: site
           path: insuit/dist/client
@@ -124,8 +127,10 @@ jobs:
     outputs:
       app: ${{ steps.diff.outputs.app }}
     steps:
-      - uses: actions/checkout@v7
-      - id: diff
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Detect site changes"
+        id: diff
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
@@ -147,18 +152,21 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/download-artifact@v8
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Download the site"
+        uses: actions/download-artifact@v8
         with:
           name: site
           path: insuit/dist/client
-      - uses: cloudflare/wrangler-action@v4
+      - name: "Deploy the preview"
+        uses: cloudflare/wrangler-action@v4
         id: deploy
         with:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy insuit/dist/client --project-name=insuit-preview --branch=${{ github.head_ref }}
-      - name: "Link the preview on the PR"
+      - name: "Comment the preview link"
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
@@ -169,10 +177,11 @@ jobs:
       # Pages' rules (scripts/preview.ts). The same questions go to the real
       # thing here, so the two cannot drift apart unnoticed — after waiting
       # until the preview says it is this commit.
-      - uses: oven-sh/setup-bun@v2
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: insuit/package.json
-      - name: "Does Pages answer the way the local preview does?"
+      - name: "Check the preview"
         env:
           URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
@@ -185,9 +194,11 @@ jobs:
       run:
         working-directory: insuit/infra
     steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
-      - name: "Format check + validate"
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Terraform"
+        uses: hashicorp/setup-terraform@v4
+      - name: "Terraform check"
         run: make ci
 
   # The scan lives in landsman/config and is called, not copied — one place to

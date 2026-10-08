@@ -78,3 +78,21 @@ Then("the link {string} opens in a new tab", async function (this: AppWorld, nam
   const link = this.page.getByRole("link", { name: `${name} (opens in a new tab)` });
   await expect(link).toHaveAttribute("target", "_blank");
 });
+
+Given("I am on a phone", async function (this: AppWorld) {
+  await this.page.setViewportSize({ width: 360, height: 740 });
+});
+
+Then("the menu's links share one row", async function (this: AppWorld) {
+  const tops = await this.page
+    .getByRole("contentinfo")
+    .getByRole("link")
+    .evaluateAll((links) => links.map((a) => a.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+});
+
+Then("the theme switch sits beneath the menu", async function (this: AppWorld) {
+  const menu = await this.page.getByRole("contentinfo").getByRole("navigation").boundingBox();
+  const toggle = await this.page.getByRole("button", { name: /theme$/ }).boundingBox();
+  expect(toggle!.y).toBeGreaterThanOrEqual(menu!.y + menu!.height);
+});

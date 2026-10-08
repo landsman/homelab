@@ -1,9 +1,20 @@
 import { expect, test } from "vitest";
 import { rehypeNumberCode } from "../../vite/blog.ts";
 
+type Node = {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: Node[];
+};
+
 test("code blocks are numbered in order, nested ones included, nothing else", () => {
-  const pre = () => ({ type: "element", tagName: "pre", properties: { className: ["shiki"] } });
-  const tree = {
+  const pre = (): Node => ({
+    type: "element",
+    tagName: "pre",
+    properties: { className: ["shiki"] },
+  });
+  const tree: Node & { children: Node[] } = {
     type: "root",
     children: [
       pre(),

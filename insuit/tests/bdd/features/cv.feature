@@ -14,3 +14,12 @@ Feature: Reading about a project on the CV
     When I open the project "The Police of the Czech Republic"
     And I press "Escape"
     Then no project is open
+
+  Scenario: Stepping through a project's photos
+    When I open the project "Payment app kickoff"
+    And I open the photo of "a hand holding a phone"
+    Then the photo reads "Together without payment terminals"
+    When I press "ArrowRight"
+    Then the photo reads "The native iOS app during mystery shopping"
+    When I press "Escape"
+    Then the project "Payment app kickoff" is still open

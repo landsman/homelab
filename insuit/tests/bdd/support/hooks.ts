@@ -1,6 +1,7 @@
 import { After, AfterAll, Before, BeforeAll } from "@cucumber/cucumber";
 import { chromium, type Browser } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
+import { DESKTOP } from "../../viewports.ts";
 import { AppWorld, BASE_URL } from "./world.ts";
 
 let browser: Browser;
@@ -43,7 +44,8 @@ BeforeAll(async function () {
 });
 
 Before(async function (this: AppWorld) {
-  this.context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  // The base URL lets a step go to a route by its path, as a spec does.
+  this.context = await browser.newContext({ viewport: DESKTOP, baseURL: BASE_URL });
   // Never the network: anything off the site is refused, a stock photo in a
   // post included.
   await this.context.route(

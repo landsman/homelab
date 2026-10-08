@@ -46,9 +46,10 @@ async function hashedFileIsImmutable(): Promise<string | null> {
   const hashed = html.match(/\/_build\/[\w.-]+\.js/)?.[0];
   if (!hashed) return "the home page names no /_build/ file";
   // Right after a deploy the edge can still answer "no-store" for a while,
-  // before the _headers rule reaches it — asked again before it counts.
+  // before the _headers rule reaches it — asked again before it counts. As
+  // long as the wait for the deployment itself: 30 s once fell short.
   let cache = "";
-  for (let attempt = 0; attempt < 10; attempt++) {
+  for (let attempt = 0; attempt < 30; attempt++) {
     cache = (await fetch(base + hashed)).headers.get("cache-control") ?? "";
     if (cache.includes("immutable")) return null;
     await Bun.sleep(3000);

@@ -14,6 +14,12 @@ Feature: Reading on a phone
     And I follow "Let's talk"
     Then the heading starts where it did
 
+  Scenario: The home page's menu keeps one row
+    Given I am on a phone
+    And I am on the home page
+    Then the menu's links share one row
+    And the theme switch sits beneath the menu
+
   Scenario: A lone Back leaves the theme switch beside it
     Given I am on a phone
     And I am on the home page

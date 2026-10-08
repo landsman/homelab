@@ -92,3 +92,16 @@ test("on a phone every page starts at the same height, /work-with-me under its h
   );
   expect((await top()) - (header!.y + header!.height)).toBeCloseTo(section, 0);
 });
+
+test("on a wide screen a long page without the header starts where /work-with-me does", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const top = () => page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
+  await page.goto(ROUTES.hire);
+  const underHeader = await top();
+  for (const path of [ROUTES.cv, `${ROUTES.blog}/hello`]) {
+    await page.goto(path);
+    expect(await top(), path).toBeCloseTo(underHeader, 0);
+  }
+});

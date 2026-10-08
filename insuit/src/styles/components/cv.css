@@ -1,10 +1,6 @@
 /* CV page — rendered from cv.md, so it styles bare elements under .cv rather
    than classes the markdown cannot carry. */
 
-.cv {
-  margin-block: var(--space-content-top) var(--space-content-bottom);
-}
-
 /* A run of text rendered from cv.md (prose.tsx). No box of its own, so its
    paragraphs and headings lay out as if they sat directly in the page or the
    dialog. */

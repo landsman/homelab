@@ -17,10 +17,11 @@ Then("the menu's links share one row", async function (this: AppWorld) {
   expect(new Set(tops).size).toBe(1);
 });
 
-Then("the theme switch sits beneath the menu", async function (this: AppWorld) {
-  const menu = await this.page.getByRole("contentinfo").getByRole("navigation").boundingBox();
+Then("the theme switch sits top right", async function (this: AppWorld) {
+  const viewport = this.page.viewportSize()!;
   const toggle = await this.page.getByRole("button", { name: /theme$/ }).boundingBox();
-  expect(toggle!.y).toBeGreaterThanOrEqual(menu!.y + menu!.height);
+  expect(toggle!.y).toBeLessThan(viewport.height / 4);
+  expect(toggle!.x).toBeGreaterThan(viewport.width / 2);
 });
 
 const headingTop = (world: AppWorld) =>

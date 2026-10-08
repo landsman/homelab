@@ -18,9 +18,15 @@
   opacity: 0.55;
   transition: opacity var(--speed);
 }
-/* Hidden, but holding its place: on the home page on a phone it sits under the
-   menu, and a button that took no room until the app ran would push the menu
-   up as it appeared. Invisible is out of reach too — no focus, no screen
+/* The home page's: top right of the page, clear of the menu (routes/__root.tsx),
+   scrolling away with it. */
+body > .theme-toggle {
+  position: absolute;
+  top: var(--page-padding);
+  right: var(--page-padding);
+}
+/* Hidden, but holding its place: a button that took no room until the app ran
+   would shift the footer as it appeared. Invisible is out of reach too — no focus, no screen
    reader. */
 .theme-toggle[hidden] {
   visibility: hidden;

@@ -81,17 +81,6 @@ footer {
   padding-top: var(--space);
   border-top: var(--border-width) solid var(--color-border);
 }
-/* The home page's footer is its menu (app/components/footer.tsx). A phone has
-   no room for its links and the theme button on one row, so the button drops
-   beneath them — twice the links' own row gap below, or the icon reads as one
-   more link. A lone Back elsewhere leaves room beside it. */
-@media (max-width: 600px) {
-  .footer-menu {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: calc(var(--links-gap-row) * 2);
-  }
-}
 
 /* While a dialog is open — a project, a photo — the page behind it stays put:
    a scroll meant for the dialog does not move the page under the backdrop. */

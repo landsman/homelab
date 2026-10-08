@@ -21,3 +21,20 @@ Then("I read {string}", async function (this: AppWorld, text: string) {
 Then("no project is open", async function (this: AppWorld) {
   await expect(this.page.getByRole("dialog")).toBeHidden();
 });
+
+When("I open the photo of {string}", async function (this: AppWorld, what: string) {
+  await this.page
+    .getByRole("dialog")
+    .getByRole("button", { name: new RegExp(what) })
+    .click();
+});
+
+Then("the photo reads {string}", async function (this: AppWorld, caption: string) {
+  await expect(this.page.getByRole("dialog", { name: "Photo" }).getByText(caption)).toBeVisible();
+});
+
+// Escape closes the photo only; the project behind it stays open.
+Then("the project {string} is still open", async function (this: AppWorld, name: string) {
+  await expect(this.page.getByRole("dialog", { name: "Photo" })).toBeHidden();
+  await expect(this.page.getByRole("dialog", { name })).toBeVisible();
+});

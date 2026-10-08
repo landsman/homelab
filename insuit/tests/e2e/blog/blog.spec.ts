@@ -226,6 +226,32 @@ test("a gallery in Hello opens a picture full size, and the arrows step through"
   await expect(photo).toBeHidden();
 });
 
+test("a swipe in the viewer steps through the gallery, as the arrows do", async ({ page }) => {
+  await page.goto(HELLO);
+  await waitForApp(page);
+
+  await page.getByRole("button", { name: /A pug wrapped up/ }).click();
+  const photo = page.getByRole("dialog", { name: "Photo" });
+  const swipe = async (from: number, to: number) => {
+    const figure = photo.locator("figure");
+    await figure.dispatchEvent("touchstart", {
+      touches: [{ identifier: 0, clientX: from, clientY: 300 }],
+    });
+    await figure.dispatchEvent("touchend", {
+      touches: [],
+      changedTouches: [{ identifier: 0, clientX: to, clientY: 300 }],
+    });
+  };
+
+  await swipe(400, 200);
+  await expect(photo.locator("figcaption")).toHaveText(/Christian Joudrey/);
+  await swipe(200, 400);
+  await expect(photo.locator("figcaption")).toHaveText(/Ready for autumn/);
+  // A tap is not a swipe: a short move leaves the photo where it is.
+  await swipe(400, 380);
+  await expect(photo.locator("figcaption")).toHaveText(/Ready for autumn/);
+});
+
 test("a post fits a 320 px screen: a long address wraps, wide parts scroll in place", async ({
   page,
 }) => {

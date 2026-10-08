@@ -41,3 +41,23 @@ Then("I am not offered a link to {string}", async function (this: AppWorld, name
 Then("I am offered a link to {string}", async function (this: AppWorld, name: string) {
   await expect(this.page.getByRole("link", { name })).toBeVisible();
 });
+
+When("I open the picture {string}", async function (this: AppWorld, alt: string) {
+  await this.page.getByRole("button", { name: new RegExp(alt) }).click();
+});
+
+When("I swipe left on it", async function (this: AppWorld) {
+  const figure = this.page.getByRole("dialog", { name: "Photo" }).locator("figure");
+  await figure.dispatchEvent("touchstart", {
+    touches: [{ identifier: 0, clientX: 400, clientY: 300 }],
+  });
+  await figure.dispatchEvent("touchend", {
+    touches: [],
+    changedTouches: [{ identifier: 0, clientX: 200, clientY: 300 }],
+  });
+});
+
+Then("I see the picture captioned {string}", async function (this: AppWorld, caption: string) {
+  const figcaption = this.page.getByRole("dialog", { name: "Photo" }).locator("figcaption");
+  await expect(figcaption).toHaveText(new RegExp(caption));
+});

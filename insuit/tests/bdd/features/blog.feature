@@ -24,6 +24,12 @@ Feature: Reading the blog before it is announced
     When I point at the video
     Then I see the hint "Play video"
 
+  Scenario: On a phone, a swipe steps through a gallery's pictures
+    Given I open the post "hello"
+    When I open the picture "A pug wrapped up"
+    And I swipe left on it
+    Then I see the picture captioned "Christian Joudrey"
+
   Scenario: Code in a post is coloured by its language
     Given I open the post "hello"
     Then the code's keywords stand out from the rest of it

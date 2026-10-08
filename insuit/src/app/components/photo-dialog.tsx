@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Modal } from "@/app/components/modal";
+import { useSwipe } from "@/app/hooks/use-swipe";
 import { m } from "@/paraglide/messages.js";
 
 /** A picture the viewer can show: a markdown title, when it has one, is its caption. */
@@ -22,6 +23,9 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
   const photo = zoom?.photos[zoom.index];
   // One photo has nowhere to step to, so the arrows stay out of the way.
   const single = (zoom?.photos.length ?? 0) < 2;
+  const swipe = useSwipe((by) => {
+    if (!single) onStep(by);
+  });
 
   return (
     <Modal
@@ -55,7 +59,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         ›
       </button>
       {photo && (
-        <figure>
+        <figure {...swipe}>
           {/* The full-size photo closes on a click anywhere on it, too. */}
           <img src={photo.src} alt={photo.alt} onClick={() => dialog.current?.close()} />
           {/* A markdown title (`![alt](src "caption")`) wins; otherwise the alt text. */}

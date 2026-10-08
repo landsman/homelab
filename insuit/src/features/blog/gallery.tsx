@@ -9,7 +9,7 @@ type Props = {
 
 /**
  * Pictures in a row of frames in a post: `<Gallery images={[{ src, alt }, …]} />`.
- * A click opens one full size, where the arrow keys step through the rest
+ * A click opens one full size, where the arrow keys or a swipe step through the rest
  * (app/components/photo-dialog.tsx, styled by media.css).
  */
 export function Gallery({ images }: Props) {

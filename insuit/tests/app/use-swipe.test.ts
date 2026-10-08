@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { swipeStep } from "../../src/app/hooks/use-swipe.ts";
+import { swipeStep } from "@/app/hooks/use-swipe";
 
 const at = (x: number, y = 300) => ({ x, y });
 

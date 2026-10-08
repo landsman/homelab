@@ -223,11 +223,11 @@ plain HTTP with no browser and no local server, so it has its own config
 `tests/smoke/`, one Playwright project each, so a caller runs the part that
 applies to it:
 
-| Project   | Asks                                               | Run                                        |
-| --------- | -------------------------------------------------- | ------------------------------------------ |
-| `site`    | `SMOKE_URL` (www by default): pages, 404, caching  | after a deploy, on a PR's preview, nightly |
-| `links`   | every code in `links/_redirects` on link.insuit.cz | after a deploy, nightly                    |
-| `targets` | every short link's target, fails on 404/410        | nightly only — other people's sites        |
+| Project   | Asks                                                                                        | Run                                        |
+| --------- | ------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `site`    | `SMOKE_URL` (www by default): every page in `ROUTES`, 404, caching, every file the CV names | after a deploy, on a PR's preview, nightly |
+| `links`   | every code in `links/_redirects` on link.insuit.cz                                          | after a deploy, nightly                    |
+| `targets` | every short link's target, fails on 404/410                                                 | nightly only — other people's sites        |
 
 Nightly is `.github/workflows/insuit-smoke.yml`, at 02:00 UTC (4:00 in Prague
 in summer, 3:00 in winter). A failed scheduled run emails whoever last changed

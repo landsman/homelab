@@ -1,13 +1,14 @@
 import { expect, test } from "@playwright/test";
+import { PAGES, ROUTES } from "@/app/routes";
 
 // The questions scripts/preview.ts answers locally, asked of a deployed copy,
 // so the local preview cannot drift from what Cloudflare Pages really does.
+// Every page comes from ROUTES, so a new one is asked without being listed here.
 
 const checks: [string, { status: number; location?: string; header?: [string, string] }][] = [
-  ["/", { status: 200 }],
-  ["/contact", { status: 200 }],
-  ["/contact.html", { status: 308, location: "/contact" }],
-  ["/contact/", { status: 308, location: "/contact" }],
+  ...PAGES.map((path): [string, { status: number }] => [path, { status: 200 }]),
+  [`${ROUTES.contact}.html`, { status: 308, location: ROUTES.contact }],
+  [`${ROUTES.contact}/`, { status: 308, location: ROUTES.contact }],
   ["/no-such-page", { status: 404 }],
   ["/assets/icons/favicon.svg", { status: 200, header: ["content-type", "image/svg+xml"] }],
 ];

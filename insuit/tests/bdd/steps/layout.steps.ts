@@ -39,3 +39,12 @@ Then("the theme switch sits beside {string}", async function (this: AppWorld, na
   expect(toggle!.y).toBeLessThan(link!.y + link!.height);
   expect(toggle!.x).toBeGreaterThan(link!.x + link!.width);
 });
+
+Then("the page's few lines sit in the middle under its heading", async function (this: AppWorld) {
+  const heading = await this.page.locator("h1").boundingBox();
+  const content = await this.page.locator("main .content").boundingBox();
+  const footer = await this.page.getByRole("contentinfo").boundingBox();
+  const above = content!.y - (heading!.y + heading!.height);
+  const below = footer!.y - (content!.y + content!.height);
+  expect(Math.abs(above - below)).toBeLessThan(80);
+});

@@ -25,3 +25,10 @@ Feature: Reading on a phone
     And I am on the home page
     When I follow "Let's talk"
     Then the theme switch sits beside "Back"
+
+  Scenario: The way to reach me sits in the middle of the screen
+    Given I am on a phone
+    And I am on the home page
+    When I follow "Let's talk"
+    Then I see the heading "Let's talk"
+    And the page's few lines sit in the middle under its heading

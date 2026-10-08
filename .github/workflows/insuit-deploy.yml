@@ -138,6 +138,6 @@ jobs:
           command: pages deploy insuit/links --project-name=insuit-links --branch=main
       # The file can be right while the domain is not, so every code is asked of
       # link.insuit.cz itself.
-      - name: "Do the short links redirect?"
+      - name: "Check the short links"
         working-directory: insuit
         run: make smoke ARGS=--project=links

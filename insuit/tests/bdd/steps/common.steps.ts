@@ -96,3 +96,21 @@ Then("the theme switch sits beneath the menu", async function (this: AppWorld) {
   const toggle = await this.page.getByRole("button", { name: /theme$/ }).boundingBox();
   expect(toggle!.y).toBeGreaterThanOrEqual(menu!.y + menu!.height);
 });
+
+const headingTop = (world: AppWorld) =>
+  world.page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
+
+Given("I note where the heading starts", async function (this: AppWorld) {
+  this.headingTop = await headingTop(this);
+});
+
+Then("the heading starts where it did", async function (this: AppWorld) {
+  await expect.poll(() => headingTop(this)).toBeCloseTo(this.headingTop!, 0);
+});
+
+Then("the theme switch sits beside {string}", async function (this: AppWorld, name: string) {
+  const link = await this.page.getByRole("link", { name, exact: true }).boundingBox();
+  const toggle = await this.page.getByRole("button", { name: /theme$/ }).boundingBox();
+  expect(toggle!.y).toBeLessThan(link!.y + link!.height);
+  expect(toggle!.x).toBeGreaterThan(link!.x + link!.width);
+});

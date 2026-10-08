@@ -9,6 +9,8 @@ export const BASE_URL = process.env.BASE_URL ?? "http://localhost:8788";
 export class AppWorld extends World {
   context!: BrowserContext;
   page!: Page;
+  /** Where the heading started, to compare the next page against. */
+  headingTop?: number;
 }
 
 setWorldConstructor(AppWorld);

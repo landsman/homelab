@@ -70,3 +70,25 @@ test("following a link moves focus to the new page", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Let's talk" })).toBeVisible();
   await expect(page.locator("main")).toBeFocused();
 });
+
+test("on a phone every page starts at the same height, /work-with-me under its header", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  const top = () => page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
+  const paths = [ROUTES.home, ROUTES.cv, ROUTES.contact, ROUTES.blog, `${ROUTES.blog}/hello`];
+  const tops = [];
+  for (const path of [...paths, "/no-such-page"]) {
+    await page.goto(path);
+    tops.push(await top());
+  }
+  for (const t of tops) expect(t).toBeCloseTo(tops[0], 0);
+
+  // The header's own margin is the room; nothing is added on top of it.
+  await page.goto(ROUTES.hire);
+  const header = await page.getByRole("banner").boundingBox();
+  const section = await page.evaluate(() =>
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--space-section")),
+  );
+  expect((await top()) - (header!.y + header!.height)).toBeCloseTo(section, 0);
+});

@@ -262,17 +262,19 @@ optional locally:
 
 3. Create an API token — My Profile → API Tokens — with:
 
-   | Scope                | Permission                     | For                    |
-   | -------------------- | ------------------------------ | ---------------------- |
-   | Account              | Cloudflare Pages · Edit        | deploying the sites    |
-   | Account              | Account Settings · Read + Edit | the Web Analytics site |
-   | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation      |
+   | Scope                | Permission                     | For                      |
+   | -------------------- | ------------------------------ | ------------------------ |
+   | Account              | Cloudflare Pages · Edit        | deploying the sites      |
+   | Account              | Account Settings · Read + Edit | the Web Analytics site   |
+   | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation        |
+   | Zone: insuit.cz only | DNS · Edit                     | the link.insuit.cz CNAME |
 
    Tick **both** Read and Edit on Account Settings. Unlike most Cloudflare
    permissions, Edit does not include Read here: Edit alone creates the site but
    every later refresh of it fails with a 403, and Read alone can't create it
-   (cloudflare/terraform-provider-cloudflare#3234). The zone scope covers
-   settings only — Terraform doesn't manage DNS here (see the cutover section).
+   (cloudflare/terraform-provider-cloudflare#3234). The only DNS record
+   Terraform manages is link.insuit.cz; apex and www stay manual (see the
+   cutover section).
 
 4. Create an R2 token scoped to **Object Read & Write on `insuit-cz-tf-state`
    only** — R2 → Manage API tokens.
@@ -362,9 +364,10 @@ link can change after the CV is printed, and every copy still works.
 - `links/` is its own Pages project, `insuit-links` (Terraform), deployed by
   the same workflow. Its own project because Pages redirect rules match the path
   only: on `insuit-cz` they would fire on `www.insuit.cz/<code>` as well.
-- Once, by hand, for the same reason as `www` above: **Workers & Pages →
-  insuit-links → Custom domains** → add `link.insuit.cz`. It gets its own
-  proxied CNAME, which takes precedence over the `*` wildcard.
+- The custom domain and its proxied CNAME are in Terraform too. Unlike `www`,
+  `link` had no record of its own, so there is nothing to collide with, and the
+  specific name takes precedence over the `*` wildcard. Without it the wildcard
+  answers, and every QR code is a 404.
 
 Locally: `npx wrangler pages dev links --port 4322`, then
 `curl -sI http://localhost:4322/<code>`. This is the one command here that

@@ -33,5 +33,14 @@ test("on a phone the footer links keep one row, the toggle sits beneath them", a
 
   const navBox = await nav.boundingBox();
   const toggleBox = await page.getByRole("button", { name: "Switch to dark theme" }).boundingBox();
-  expect(toggleBox!.y).toBeGreaterThanOrEqual(navBox!.y + navBox!.height);
+  // Not just below: far enough that the icon does not read as part of the row.
+  expect(toggleBox!.y - (navBox!.y + navBox!.height)).toBeGreaterThanOrEqual(30);
+});
+
+test("on a phone a lone Back keeps the toggle beside it", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto(ROUTES.contact);
+  const back = await page.getByRole("link", { name: "Back" }).boundingBox();
+  const toggle = await page.getByRole("button", { name: /theme$/ }).boundingBox();
+  expect(toggle!.y).toBeLessThan(back!.y + back!.height);
 });

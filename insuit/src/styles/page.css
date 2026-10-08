@@ -81,13 +81,16 @@ footer {
   padding-top: var(--space);
   border-top: var(--border-width) solid var(--color-border);
 }
-/* A phone has no room for the links and the theme button on one row, so the
-   button drops beneath them: the links stay on one line, and the button is
-   there for whoever scrolls to look for it. */
+/* A phone has no room for the home page's links and the theme button on one
+   row, so the button drops beneath them: the links stay on one line, and the
+   button is there for whoever scrolls to look for it. Twice the usual gap, or
+   the icon reads as part of the link row above it. A lone Back leaves room,
+   so the button stays beside it. */
 @media (max-width: 600px) {
-  footer {
+  footer:has(.links a + a) {
     flex-direction: column;
     align-items: flex-start;
+    gap: calc(var(--space) * 2);
     --links-gap-column: 24px;
   }
 }

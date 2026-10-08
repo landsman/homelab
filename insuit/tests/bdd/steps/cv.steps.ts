@@ -1,10 +1,10 @@
 import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { ROUTES } from "../../../src/app/routes.ts";
-import { AppWorld, BASE_URL } from "../support/world.ts";
+import { AppWorld } from "../support/world.ts";
 
 Given("I am on the CV", async function (this: AppWorld) {
-  await this.page.goto(`${BASE_URL}${ROUTES.cv}`);
+  await this.page.goto(ROUTES.cv);
   await expect(this.page.getByRole("heading", { name: "Experience" })).toBeVisible();
 });
 

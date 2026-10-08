@@ -1,12 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import { DESKTOP } from "./tests/viewports";
 
 const PORT = 8788;
 const DEV_PORT = 4321;
 // `make e2e-head` sets this so a watched run moves at human speed; 0 otherwise.
 const SLOW_MO = Number(process.env.SLOW_MO) || 0;
 
-// Roomier than the 1280x720 default, so a watched run shows a whole page.
-const browser = { ...devices["Desktop Chrome"], viewport: { width: 1600, height: 1000 } };
+const browser = { ...devices["Desktop Chrome"], viewport: DESKTOP };
 
 // Chromium only: the pages are plain markup and the two <dialog>s, and a
 // three-browser matrix would triple CI time to cover them.

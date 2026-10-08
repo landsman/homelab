@@ -1,6 +1,7 @@
 import { test, expect } from "../fixture";
 import { waitForApp } from "../takeover";
 import { ROUTES } from "@/app/routes";
+import { PHONE, WIDE } from "../../viewports";
 
 test("the footer leads to the contact page and back", async ({ page }) => {
   await page.goto(ROUTES.home);
@@ -74,7 +75,7 @@ test("following a link moves focus to the new page", async ({ page }) => {
 test("on a phone every page starts at the same height, /work-with-me under its header", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
+  await page.setViewportSize(PHONE);
   const top = () => page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
   const paths = [ROUTES.home, ROUTES.cv, ROUTES.contact, ROUTES.blog, `${ROUTES.blog}/hello`];
   const tops = [];
@@ -96,7 +97,7 @@ test("on a phone every page starts at the same height, /work-with-me under its h
 test("on a wide screen a long page without the header starts where /work-with-me does", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.setViewportSize(WIDE);
   const top = () => page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
   await page.goto(ROUTES.hire);
   const underHeader = await top();

@@ -1,5 +1,6 @@
 import { test, expect } from "../fixture";
 import { ROUTES } from "@/app/routes";
+import { PHONE } from "../../viewports";
 
 test.use({ colorScheme: "light" });
 
@@ -23,7 +24,7 @@ test("the toggle overrides the system theme and the override survives a reload",
 });
 
 test("on a phone the footer links keep one row, the toggle sits beneath them", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
+  await page.setViewportSize(PHONE);
   await page.goto(ROUTES.home);
   const nav = page.getByRole("contentinfo").getByRole("navigation");
   const tops = await nav
@@ -38,7 +39,7 @@ test("on a phone the footer links keep one row, the toggle sits beneath them", a
 });
 
 test("on a phone a lone Back keeps the toggle beside it", async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
+  await page.setViewportSize(PHONE);
   await page.goto(ROUTES.contact);
   const back = await page.getByRole("link", { name: "Back" }).boundingBox();
   const toggle = await page.getByRole("button", { name: /theme$/ }).boundingBox();

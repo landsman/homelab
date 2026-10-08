@@ -8,7 +8,20 @@ import { test as base, expect } from "@playwright/test";
 // Counted per worker, which is the whole run: a watched one is --workers=1.
 let seen = 0;
 
-export const test = base.extend<{ label: void }>({
+export const test = base.extend<{ noNetwork: void; label: void }>({
+  // Never the network: anything off this server is refused, so a result never
+  // depends on a third party being up. A spec that needs an outside answer
+  // routes it itself; a route added later is asked first.
+  noNetwork: [
+    async ({ page }, use) => {
+      await page.route(
+        (url) => url.hostname !== "localhost",
+        (route) => route.abort(),
+      );
+      await use();
+    },
+    { auto: true },
+  ],
   label: [
     async ({ page }, use, testInfo) => {
       if (process.env.SLOW_MO) {

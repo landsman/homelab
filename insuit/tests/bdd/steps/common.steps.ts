@@ -3,19 +3,20 @@ import { expect } from "@playwright/test";
 // A relative path with its extension: Node resolves this itself, and the `@`
 // alias only exists for the bundler and for Playwright.
 import { ROUTES } from "../../../src/app/routes.ts";
-import { AppWorld, BASE_URL } from "../support/world.ts";
+import { PHONE } from "../../viewports.ts";
+import { AppWorld } from "../support/world.ts";
 
 Given("I am on the home page", async function (this: AppWorld) {
-  await this.page.goto(`${BASE_URL}${ROUTES.home}`);
+  await this.page.goto(ROUTES.home);
   await expect(this.page.getByRole("heading", { name: "Hello there!" })).toBeVisible();
 });
 
 Given("I open the blog with {string}", async function (this: AppWorld, query: string) {
-  await this.page.goto(`${BASE_URL}${ROUTES.blog}${query}`);
+  await this.page.goto(`${ROUTES.blog}${query}`);
 });
 
 Given("I open the post {string}", async function (this: AppWorld, slug: string) {
-  await this.page.goto(`${BASE_URL}${ROUTES.blog}/${slug}`);
+  await this.page.goto(`${ROUTES.blog}/${slug}`);
 });
 
 When("I follow {string}", async function (this: AppWorld, name: string) {
@@ -80,7 +81,7 @@ Then("the link {string} opens in a new tab", async function (this: AppWorld, nam
 });
 
 Given("I am on a phone", async function (this: AppWorld) {
-  await this.page.setViewportSize({ width: 360, height: 740 });
+  await this.page.setViewportSize(PHONE);
 });
 
 Then("the menu's links share one row", async function (this: AppWorld) {

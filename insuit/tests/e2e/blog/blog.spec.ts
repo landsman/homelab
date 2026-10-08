@@ -2,6 +2,7 @@ import { AxeBuilder } from "@axe-core/playwright";
 import { test, expect } from "../fixture";
 import { expectCleanTakeover, waitForApp } from "../takeover";
 import { ROUTES } from "@/app/routes";
+import { NARROW_PHONE, WIDE } from "../../viewports";
 
 // The blog is being prepared: no menu links to it yet. Search engines find it
 // through its sitemap (common/sitemap.spec.ts).
@@ -10,19 +11,15 @@ import { ROUTES } from "@/app/routes";
 // found by its address only.
 const HELLO = `${ROUTES.blog}/hello`;
 
-// Never the network. hello.mdx's pictures are remote stock photos: each is
-// answered with a tall picture drawn here, so a test still has a picture to lay
-// out, the viewer's fit to the screen included. Anything else off this server
-// is refused.
+// hello.mdx's pictures are remote stock photos, and the fixture refuses the
+// network: each is answered with a tall picture drawn here, so a test still has
+// a picture to lay out, the viewer's fit to the screen included.
 const TALL_PICTURE =
   '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1500"><rect width="100%" height="100%" fill="#888"/></svg>';
 test.beforeEach(async ({ page }) => {
   await page.route(
-    (url) => url.hostname !== "localhost",
-    (route) =>
-      new URL(route.request().url()).hostname === "picsum.photos"
-        ? route.fulfill({ body: TALL_PICTURE, contentType: "image/svg+xml" })
-        : route.abort(),
+    (url) => url.hostname === "picsum.photos",
+    (route) => route.fulfill({ body: TALL_PICTURE, contentType: "image/svg+xml" }),
   );
 });
 
@@ -232,14 +229,14 @@ test("a gallery in Hello opens a picture full size, and the arrows step through"
 test("a post fits a 320 px screen: a long address wraps, wide parts scroll in place", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 320, height: 700 });
+  await page.setViewportSize(NARROW_PHONE);
   await page.goto(HELLO);
   // WCAG 1.4.10: nothing pushes the page sideways.
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320);
 });
 
 test("a tall picture in the viewer fits the screen, its close button on it", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.setViewportSize(WIDE);
   await page.goto(HELLO);
   await waitForApp(page);
   await page.getByRole("button", { name: /A pug wrapped up/ }).click();

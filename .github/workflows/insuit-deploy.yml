@@ -135,3 +135,7 @@ jobs:
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy insuit/links --project-name=insuit-links --branch=main
+      # The file can be right while the domain is not, so every code is asked of
+      # link.insuit.cz itself.
+      - name: "Do the short links redirect?"
+        run: bun insuit/scripts/check-links.ts https://link.insuit.cz

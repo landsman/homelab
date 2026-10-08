@@ -368,6 +368,11 @@ link can change after the CV is printed, and every copy still works.
   `link` had no record of its own, so there is nothing to collide with, and the
   specific name takes precedence over the `*` wildcard. Without it the wildcard
   answers, and every QR code is a 404.
+- `scripts/check-links.ts` asks the live link.insuit.cz whether every code goes
+  where `_redirects` says — after each deploy, and nightly with `--targets`,
+  which also fails on a target that answers 404 or 410
+  (`.github/workflows/insuit-smoke.yml`, with `check-pages.ts` on www). A
+  target that turns bots away with a 403 is printed, not counted.
 
 Locally: `npx wrangler pages dev links --port 4322`, then
 `curl -sI http://localhost:4322/<code>`. This is the one command here that

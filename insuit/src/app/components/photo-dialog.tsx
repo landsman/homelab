@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Modal } from "@/app/components/modal";
+import { useSwipe } from "@/app/hooks/use-swipe";
 import { m } from "@/paraglide/messages.js";
 
 /** A picture the viewer can show: a markdown title, when it has one, is its caption. */
@@ -22,8 +23,9 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
   const photo = zoom?.photos[zoom.index];
   // One photo has nowhere to step to, so the arrows stay out of the way.
   const single = (zoom?.photos.length ?? 0) < 2;
-  // Where a one-finger touch started, so lifting it can tell a swipe from a tap.
-  const touch = useRef<{ x: number; y: number } | null>(null);
+  const swipe = useSwipe((by) => {
+    if (!single) onStep(by);
+  });
 
   return (
     <Modal
@@ -57,22 +59,7 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         ›
       </button>
       {photo && (
-        <figure
-          onTouchStart={(event) => {
-            const finger = event.touches[0];
-            touch.current =
-              event.touches.length === 1 ? { x: finger.clientX, y: finger.clientY } : null;
-          }}
-          onTouchEnd={(event) => {
-            const from = touch.current;
-            touch.current = null;
-            if (!from || single) return;
-            const dx = event.changedTouches[0].clientX - from.x;
-            const dy = event.changedTouches[0].clientY - from.y;
-            // Sideways and far enough: a swipe left shows the next photo, as on a phone.
-            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) onStep(dx < 0 ? 1 : -1);
-          }}
-        >
+        <figure {...swipe}>
           {/* The full-size photo closes on a click anywhere on it, too. */}
           <img src={photo.src} alt={photo.alt} onClick={() => dialog.current?.close()} />
           {/* A markdown title (`![alt](src "caption")`) wins; otherwise the alt text. */}

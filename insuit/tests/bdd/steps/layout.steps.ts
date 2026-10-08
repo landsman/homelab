@@ -1,6 +1,7 @@
 // Where things sit on the screen: a phone, and what fits beside what.
-import { Given, Then } from "@cucumber/cucumber";
+import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
+import { recordLayoutShifts, shiftedWithin } from "../../layout-shifts.ts";
 import { PHONE } from "../../viewports.ts";
 import { AppWorld } from "../support/world.ts";
 
@@ -47,4 +48,17 @@ Then("the page's few lines sit in the middle under its heading", async function 
   const above = content!.y - (heading!.y + heading!.height);
   const below = footer!.y - (content!.y + content!.height);
   expect(Math.abs(above - below)).toBeLessThan(80);
+});
+
+Given("the page's script arrives late", async function (this: AppWorld) {
+  await recordLayoutShifts(this.page);
+});
+
+// Ready once the app runs: the theme switch is its last piece to appear.
+When("the page is ready", async function (this: AppWorld) {
+  await expect(this.page.getByRole("button", { name: /theme$/ })).toBeVisible();
+});
+
+Then("the menu has not moved", async function (this: AppWorld) {
+  expect(await shiftedWithin(this.page, "footer")).toEqual([]);
 });

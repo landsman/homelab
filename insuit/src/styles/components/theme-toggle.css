@@ -18,8 +18,12 @@
   opacity: 0.55;
   transition: opacity var(--speed);
 }
+/* Hidden, but holding its place: on the home page on a phone it sits under the
+   menu, and a button that took no room until the app ran would push the menu
+   up as it appeared. Invisible is out of reach too — no focus, no screen
+   reader. */
 .theme-toggle[hidden] {
-  display: none;
+  visibility: hidden;
 }
 .theme-toggle:hover,
 .theme-toggle:focus-visible {

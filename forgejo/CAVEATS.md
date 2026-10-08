@@ -38,3 +38,22 @@ username.
 Upstream: [forgejo/forgejo#14726](https://codeberg.org/forgejo/forgejo/issues/14726); the same
 request in Gitea since 2022,
 [go-gitea/gitea#21419](https://github.com/go-gitea/gitea/issues/21419).
+
+## An open issue or pull request page does not update itself
+
+New comments, a comment edited in place, reactions and the checks/merge box all stay as they
+were when the page loaded; only a reload shows them. A bot that posts "working…" and later
+edits it into a result looks stuck until then. Nothing is blocking a live channel: the instance
+has none for page content. Its only push channel, `/user/events` (EventSource, not a
+websocket), drives the notification bell and the stopwatch, and upstream reports even that
+broken from 15.0 up to 17.0
+([forgejo/forgejo#13511](https://codeberg.org/forgejo/forgejo/pulls/13511)). It does get through
+Cloudflare: `curl -I https://git.insuit.cz/user/events` answers `200 text/event-stream`
+(2026-10-08).
+
+**Instead:** reload. Let a bot mention whoever asked when it first posts, so the notification
+arrives without one; whether an edit notifies again has not been checked.
+
+Upstream: [forgejo/forgejo#14756](https://codeberg.org/forgejo/forgejo/issues/14756) for live
+updates on the page, and [forgejo/forgejo#12906](https://codeberg.org/forgejo/forgejo/issues/12906)
+for the checks box.

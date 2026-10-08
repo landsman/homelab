@@ -1,0 +1,33 @@
+name: insuit.cz smoke
+
+# Asks the live sites what the deploy asked them, every night, because they
+# break without a commit: a domain detached, a setting changed in the dashboard,
+# a project's site taken down. A failed scheduled run emails whoever last
+# changed this schedule.
+on:
+  schedule:
+    # UTC: 4:00 in Prague in summer, 3:00 in winter.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: insuit
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: insuit/package.json
+      # Every project, the targets included: each is someone else's site, so
+      # only here — a site gone is not a reason to fail a deploy.
+      - name: "Smoke tests"
+        run: make install smoke

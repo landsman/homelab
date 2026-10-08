@@ -88,7 +88,8 @@ export default defineConfig({
     strictPort: true,
   },
   test: {
-    // tests/e2e belongs to Playwright; vitest would otherwise pick the specs up.
-    exclude: [...configDefaults.exclude, "tests/e2e/**"],
+    // tests/e2e and tests/smoke belong to Playwright; vitest would otherwise
+    // pick the specs up.
+    exclude: [...configDefaults.exclude, "tests/e2e/**", "tests/smoke/**"],
   },
 });

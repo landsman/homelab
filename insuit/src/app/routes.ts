@@ -9,3 +9,6 @@ export const ROUTES = {
   // 404.html Pages answers every unknown address with (src/server.ts).
   notFound: "/404",
 } as const;
+
+/** Every page of the site: a new entry in ROUTES is tested without being listed again. */
+export const PAGES = Object.values(ROUTES).filter((path) => path !== ROUTES.notFound);

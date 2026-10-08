@@ -1,9 +1,8 @@
 import type { Page } from "@playwright/test";
-import { ROUTES } from "@/app/routes";
+import { PAGES } from "@/app/routes";
 import { expect } from "./fixture";
 
-/** Every page of the site: a new entry in ROUTES is tested without being listed again. */
-export const PAGES = Object.values(ROUTES).filter((path) => path !== ROUTES.notFound);
+export { PAGES };
 
 /**
  * Waits until React has taken the page over. Before that a link is a plain

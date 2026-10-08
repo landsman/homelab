@@ -61,6 +61,18 @@ header,
 header {
   border-bottom: var(--border-width) solid var(--color-border);
 }
+/* On a phone every page starts at the same height, so going from one to
+   another does not shift the heading: no empty header room, and the home
+   page's few lines start where the CV does rather than wherever centring
+   puts them. */
+@media (max-width: 600px) {
+  .header-space {
+    display: none;
+  }
+  .wrapper {
+    margin-top: var(--space-content-top);
+  }
+}
 .header-space {
   height: calc(var(--font-size-base) * var(--line-height-base));
   box-sizing: content-box;

@@ -70,3 +70,15 @@ test("following a link moves focus to the new page", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Let's talk" })).toBeVisible();
   await expect(page.locator("main")).toBeFocused();
 });
+
+test("on a phone the home page, the CV and the contact page start at the same height", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  const tops = [];
+  for (const path of [ROUTES.home, ROUTES.cv, ROUTES.contact]) {
+    await page.goto(path);
+    tops.push(await page.locator("h1").evaluate((h) => h.getBoundingClientRect().top));
+  }
+  expect(new Set(tops).size).toBe(1);
+});

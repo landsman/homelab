@@ -42,7 +42,7 @@ test("on a wide screen a long page without the header starts where /work-with-me
   }
 });
 
-test("on a phone the footer links keep one row, the toggle sits beneath them", async ({ page }) => {
+test("on a phone the footer links keep one row, the toggle sits top right", async ({ page }) => {
   await page.setViewportSize(PHONE);
   await page.goto(ROUTES.home);
   const nav = page.getByRole("contentinfo").getByRole("navigation");
@@ -51,10 +51,10 @@ test("on a phone the footer links keep one row, the toggle sits beneath them", a
     .evaluateAll((links) => links.map((a) => a.getBoundingClientRect().top));
   expect(new Set(tops).size).toBe(1);
 
-  const navBox = await nav.boundingBox();
-  const toggleBox = await page.getByRole("button", { name: "Switch to dark theme" }).boundingBox();
-  // Not just below: far enough that the icon does not read as part of the row.
-  expect(toggleBox!.y - (navBox!.y + navBox!.height)).toBeGreaterThanOrEqual(30);
+  const toggle = await page.getByRole("button", { name: "Switch to dark theme" }).boundingBox();
+  expect(toggle!.y).toBeLessThan(PHONE.height / 4);
+  expect(toggle!.x).toBeGreaterThan(PHONE.width / 2);
+  await expect(nav.getByRole("button")).toHaveCount(0);
 });
 
 test("on a phone a lone Back keeps the toggle beside it", async ({ page }) => {

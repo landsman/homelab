@@ -1,6 +1,6 @@
 Feature: Choosing a light or a dark page
 
-  The page follows the system's theme. The switch at the foot of every page
+  The page follows the system's theme. The switch on every page
   overrides it, and the choice is kept for the next visit; switching back to
   what the system says drops it, so the page follows the system again.
 

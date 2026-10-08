@@ -38,7 +38,8 @@
      theme switch: none of it does anything on paper, and the page's own
      footer names it (@page). */
   body > header,
-  footer {
+  footer,
+  body > .theme-toggle {
     display: none;
   }
 

@@ -11,6 +11,8 @@ import { animateFavicon } from "@/app/animated-favicon";
 import { FONTS, ICONS } from "@/app/assets";
 import { Footer } from "@/app/components/footer";
 import { Header } from "@/app/components/header";
+import { ThemeToggle } from "@/app/components/theme-toggle";
+import { ROUTES } from "@/app/routes";
 import { THEME_BOOT } from "@/app/theme-boot";
 import styles from "@/index.css?url";
 import { m } from "@/paraglide/messages.js";
@@ -94,11 +96,18 @@ function RootLayout() {
     main.focus({ preventScroll: true });
   }, [pathname]);
 
+  // On the home page the theme switch sits top right, clear of the menu in
+  // the footer; every other page has only Back there, and room beside it.
+  const home = useRouterState({ select: (s) => s.location.pathname === ROUTES.home });
+
   return (
     <>
       <Header />
       <Outlet />
       <Footer />
+      {/* Last, so page.css's `:first-child` still finds the page; its place on
+          screen is the stylesheet's. */}
+      {home && <ThemeToggle />}
     </>
   );
 }

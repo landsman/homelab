@@ -2,7 +2,8 @@ Feature: Reading on a phone
 
   A phone has no height to spare and no room beside the menu. Going from one
   page to the next leaves the heading where it was, so the page does not jump;
-  the theme switch goes wherever the menu leaves it room.
+  the theme switch goes where the menu leaves it room: beside a lone Back,
+  top right of the home page.
 
   Scenario: The heading stays put from page to page
     Given I am on a phone
@@ -18,7 +19,7 @@ Feature: Reading on a phone
     Given I am on a phone
     And I am on the home page
     Then the menu's links share one row
-    And the theme switch sits beneath the menu
+    And the theme switch sits top right
 
   Scenario: The menu holds still while the page loads
     Given I am on a phone

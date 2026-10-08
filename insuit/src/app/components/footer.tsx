@@ -10,7 +10,7 @@ export function Footer() {
   const up = useMatches({ select: (matches) => matches.at(-1)?.staticData.up }) ?? ROUTES.home;
 
   return (
-    <footer className={pathname === ROUTES.home ? "footer-menu" : undefined}>
+    <footer>
       <nav className="links" aria-label={m.common_nav_label()}>
         {pathname === ROUTES.home ? (
           <>
@@ -28,7 +28,9 @@ export function Footer() {
         )}
       </nav>
 
-      <ThemeToggle />
+      {/* Beside a lone Back there is room; the home page's menu has none, and
+          there it sits top right (routes/__root.tsx). */}
+      {pathname !== ROUTES.home && <ThemeToggle />}
     </footer>
   );
 }

@@ -1,0 +1,12 @@
+{
+  // The tests, typechecked like the app: vitest, Playwright and Cucumber all
+  // run TypeScript without checking it, so a wrong type would otherwise only
+  // show up as a confusing failure, or not at all.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tests.tsbuildinfo",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "bun"]
+  },
+  "include": ["tests", "playwright.config.ts", "cucumber.mjs"]
+}

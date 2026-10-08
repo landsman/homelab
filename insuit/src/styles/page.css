@@ -72,6 +72,10 @@ header {
   .wrapper {
     margin-top: var(--space-content-top);
   }
+  /* /work-with-me has a real header, whose margin is room enough. */
+  header + .wrapper {
+    margin-top: 0;
+  }
 }
 .header-space {
   height: calc(var(--font-size-base) * var(--line-height-base));

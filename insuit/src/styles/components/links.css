@@ -47,6 +47,20 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
+/* On a phone every page starts at the top, and the contact page is a few lines:
+   the heading stays up there with the rest, and the address and profiles sit
+   in the middle of what is left above the footer rather than hugging it. A
+   wider screen centres the whole page already. */
+@media (max-width: 600px) {
+  .contact {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  .contact .content {
+    margin-block: auto;
+  }
+}
 
 a {
   position: relative;

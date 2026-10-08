@@ -17,7 +17,7 @@ export function ContactPage() {
   useEffect(() => setEmail(atob(__CONTACT_EMAIL__)), []);
 
   return (
-    <main className="wrapper">
+    <main className="wrapper contact">
       <h1>{m.contact_heading()}</h1>
 
       <div className="content">

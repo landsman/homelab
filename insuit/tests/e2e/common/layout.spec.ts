@@ -63,3 +63,17 @@ test("on a phone a lone Back keeps the toggle beside it", async ({ page }) => {
   const toggle = await page.getByRole("button", { name: /theme$/ }).boundingBox();
   expect(toggle!.y).toBeLessThan(back!.y + back!.height);
 });
+
+test("on a phone the contact page's few lines sit in the middle under its heading", async ({
+  page,
+}) => {
+  await page.setViewportSize(PHONE);
+  await page.goto(ROUTES.contact);
+  const heading = await page.locator("h1").boundingBox();
+  const content = await page.locator("main .content").boundingBox();
+  const footer = await page.getByRole("contentinfo").boundingBox();
+  const above = content!.y - (heading!.y + heading!.height);
+  const below = footer!.y - (content!.y + content!.height);
+  expect(above).toBeGreaterThan(100);
+  expect(Math.abs(above - below)).toBeLessThan(80);
+});

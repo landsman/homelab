@@ -30,8 +30,9 @@ provider "cloudflare" {
 }
 
 # ---------------------------------------------------------------------------
-# Deliberately narrow: this manages the Pages projects, their analytics, and
-# one zone setting (email obfuscation, at the bottom) — nothing else.
+# Deliberately narrow: this manages the Pages projects, their analytics, the
+# link.insuit.cz record, and one zone setting (email obfuscation, at the
+# bottom) — nothing else.
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages
@@ -51,9 +52,10 @@ provider "cloudflare" {
 #     including the live www.insuit.cz -> github.com/landsman rule. Not worth
 #     owning for a single apex->www redirect that already exists.
 #
-#   * cloudflare_pages_domain. Attaching a custom domain can provision DNS on
-#     a same-account zone, which is the same collision as above. Attach the
-#     domain in the dashboard as part of the manual cutover.
+#   * cloudflare_pages_domain for apex and www. Attaching a custom domain can
+#     provision DNS on a same-account zone, which is the same collision as
+#     above. Attach those in the dashboard as part of the manual cutover.
+#     link.insuit.cz is the exception, at the links project below.
 # ---------------------------------------------------------------------------
 
 resource "cloudflare_pages_project" "site" {
@@ -75,12 +77,30 @@ resource "cloudflare_pages_project" "preview" {
 # link.insuit.cz: short addresses the printed CV's QR codes point at, redirected
 # to each project's site. Its own project because Pages redirect rules match
 # the path only — on insuit-cz they would fire on www.insuit.cz/<code> too. The
-# content is insuit/links/, kept by hand. Attach the
-# link.insuit.cz custom domain in the dashboard, for the reason given above.
+# content is insuit/links/, kept by hand.
 resource "cloudflare_pages_project" "links" {
   account_id        = var.cloudflare_account_id
   name              = "insuit-links"
   production_branch = "main"
+}
+
+# Unlike apex and www, link had no record of its own — only the proxied
+# wildcard caught it, and sent every QR code to a 404 on the wildcard's origin.
+# A specific name outranks the wildcard, so this record collides with nothing.
+# Attaching the domain over the API does not create the record; both are here.
+resource "cloudflare_pages_domain" "links" {
+  account_id   = var.cloudflare_account_id
+  project_name = cloudflare_pages_project.links.name
+  name         = "link.insuit.cz"
+}
+
+resource "cloudflare_dns_record" "links" {
+  zone_id = var.cloudflare_zone_id
+  name    = "link.insuit.cz"
+  type    = "CNAME"
+  content = "${cloudflare_pages_project.links.name}.pages.dev"
+  proxied = true
+  ttl     = 1
 }
 
 # Web Analytics for www.insuit.cz. Host-based with the snippet in the HTML,

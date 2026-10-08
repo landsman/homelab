@@ -21,3 +21,17 @@ test("the toggle overrides the system theme and the override survives a reload",
   await expect(html).not.toHaveAttribute("data-theme");
   await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
 });
+
+test("on a phone the footer links keep one row, the toggle sits beneath them", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto(ROUTES.home);
+  const nav = page.getByRole("contentinfo").getByRole("navigation");
+  const tops = await nav
+    .getByRole("link")
+    .evaluateAll((links) => links.map((a) => a.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+
+  const navBox = await nav.boundingBox();
+  const toggleBox = await page.getByRole("button", { name: "Switch to dark theme" }).boundingBox();
+  expect(toggleBox!.y).toBeGreaterThanOrEqual(navBox!.y + navBox!.height);
+});

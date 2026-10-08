@@ -1,5 +1,6 @@
 import { test, expect } from "../fixture";
 import { ROUTES } from "@/app/routes";
+import { recordLayoutShifts, shiftedWithin } from "../../layout-shifts";
 import { PHONE, WIDE } from "../../viewports";
 
 // Where a page and its chrome sit on the screen: where the heading starts, and
@@ -76,4 +77,13 @@ test("on a phone the contact page's few lines sit in the middle under its headin
   const below = footer!.y - (content!.y + content!.height);
   expect(above).toBeGreaterThan(100);
   expect(Math.abs(above - below)).toBeLessThan(80);
+});
+
+test("on a phone the home page's menu holds still while the app takes over", async ({ page }) => {
+  await page.setViewportSize(PHONE);
+  await recordLayoutShifts(page);
+  await page.goto(ROUTES.home);
+  // The theme button appears once the app runs; by then any shift has happened.
+  await expect(page.getByRole("button", { name: /theme$/ })).toBeVisible();
+  expect(await shiftedWithin(page, "footer")).toEqual([]);
 });

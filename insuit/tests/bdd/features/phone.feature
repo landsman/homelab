@@ -20,6 +20,13 @@ Feature: Reading on a phone
     Then the menu's links share one row
     And the theme switch sits beneath the menu
 
+  Scenario: The menu holds still while the page loads
+    Given I am on a phone
+    And the page's script arrives late
+    And I am on the home page
+    When the page is ready
+    Then the menu has not moved
+
   Scenario: A lone Back leaves the theme switch beside it
     Given I am on a phone
     And I am on the home page

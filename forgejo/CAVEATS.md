@@ -54,5 +54,6 @@ Cloudflare: `curl -I https://git.insuit.cz/user/events` answers `200 text/event-
 **Instead:** reload. Let a bot mention whoever asked when it first posts, so the notification
 arrives without one; whether an edit notifies again has not been checked.
 
-Upstream, for the checks box: [forgejo/forgejo#12906](https://codeberg.org/forgejo/forgejo/issues/12906).
-No issue was found for comments (Codeberg API search, 2026-10-08).
+Upstream: [forgejo/forgejo#14756](https://codeberg.org/forgejo/forgejo/issues/14756) for live
+updates on the page, and [forgejo/forgejo#12906](https://codeberg.org/forgejo/forgejo/issues/12906)
+for the checks box.

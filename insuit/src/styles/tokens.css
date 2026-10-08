@@ -53,6 +53,18 @@
   --page-padding: clamp(20px, 6vw, 35px);
   /* Gap under the pinned links on a tall viewport; see page.css. */
   --footer-breathing-room: 6vh;
+  /* Where a page starts (page.css). A short page sits in the middle of the
+     screen; every page without the header keeps the room the header takes —
+     the name, its rule and the air under it — so its heading starts where it
+     would under one. The home page is the name in the middle, and keeps none.
+     A phone sets these differently, below. */
+  --page-centring: auto;
+  --header-room: calc(
+    var(--font-size-base) * var(--line-height-base) + var(--space) + var(--border-width) +
+      var(--space-section)
+  );
+  --home-room: 0px;
+  --space-page-top: clamp(24px, 5vh, 35px);
 
   /* Spacing */
   --space: 20px;
@@ -115,6 +127,19 @@
   --speed: 200ms;
   --speed-slow: 400ms;
   --lift: -2px;
+}
+
+/* Phone: under 600px — the one breakpoint the layout uses, repeated where a
+   rule has to branch (page.css, cv.css, media.css), since a media query cannot
+   read a custom property. A phone has no height to spare: every page starts
+   at the top, at the same height, and nothing is centred. */
+@media (max-width: 600px) {
+  :root {
+    --page-centring: 0px;
+    --header-room: var(--space-page-top);
+    --home-room: var(--header-room);
+    --links-gap-column: 24px;
+  }
 }
 
 /* Theme resolution.

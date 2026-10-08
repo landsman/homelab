@@ -2,7 +2,7 @@ import { m } from "@/paraglide/messages.js";
 
 export function HomePage() {
   return (
-    <main className="wrapper">
+    <main className="wrapper home">
       <h1>{m.home_heading()}</h1>
 
       <div className="content">

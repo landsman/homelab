@@ -2,14 +2,13 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { ROUTES } from "@/app/routes";
 import { m } from "@/paraglide/messages.js";
 
-// The home page is the name and sits in the middle of the screen, so it has no
-// header. /work-with-me opens with the name, leading home. The rest get the same room
-// at the top without it: the CV starts with the name in large type already, and
-// "Let's talk" is a few lines in the middle, where a header only adds noise.
+// /work-with-me opens with the name, leading home. No other page has a header:
+// the home page is the name already, the CV starts with it in large type, and
+// "Let's talk" is a few lines where a header only adds noise. They keep its
+// room instead, which the page's own <main> holds (styles/page.css).
 export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  if (pathname === ROUTES.home) return null;
-  if (pathname !== ROUTES.hire) return <div className="header-space" />;
+  if (pathname !== ROUTES.hire) return null;
 
   return (
     <header>

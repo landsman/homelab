@@ -23,6 +23,10 @@
     --space: 7pt;
     --space-section: 16pt;
     --space-job: 28pt;
+    /* Paper has no header and nothing to centre on: a page starts at the top. */
+    --header-room: 0px;
+    --home-room: 0px;
+    --page-centring: 0px;
   }
 
   body {
@@ -33,8 +37,7 @@
   /* The header and the footer are navigation (home, Back, Let's talk) and the
      theme switch: none of it does anything on paper, and the page's own
      footer names it (@page). */
-  header,
-  .header-space,
+  body > header,
   footer {
     display: none;
   }

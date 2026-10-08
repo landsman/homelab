@@ -10,7 +10,7 @@ export function Footer() {
   const up = useMatches({ select: (matches) => matches.at(-1)?.staticData.up }) ?? ROUTES.home;
 
   return (
-    <footer>
+    <footer className={pathname === ROUTES.home ? "footer-menu" : undefined}>
       <nav className="links" aria-label={m.common_nav_label()}>
         {pathname === ROUTES.home ? (
           <>

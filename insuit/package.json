@@ -16,7 +16,7 @@
     "format:fix": "oxfmt .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:bdd": "cucumber-js"
+    "test:bdd": "bun --bun cucumber-js"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.38",

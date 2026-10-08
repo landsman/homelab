@@ -1,7 +1,7 @@
 // The blog's posts and what a post can carry: video, code, tables, links out.
 import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import { ROUTES } from "../../../src/app/routes.ts";
+import { ROUTES } from "@/app/routes";
 import { AppWorld } from "../support/world.ts";
 
 Given("I open the blog with {string}", async function (this: AppWorld, query: string) {

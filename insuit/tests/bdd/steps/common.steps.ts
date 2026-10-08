@@ -1,9 +1,7 @@
 // Getting around: the steps every feature speaks, whatever page it is about.
 import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-// A relative path with its extension: Node resolves this itself, and the `@`
-// alias only exists for the bundler and for Playwright.
-import { ROUTES } from "../../../src/app/routes.ts";
+import { ROUTES } from "@/app/routes";
 import { AppWorld } from "../support/world.ts";
 
 Given("I am on the home page", async function (this: AppWorld) {

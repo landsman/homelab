@@ -1,6 +1,6 @@
 import { Given, When, Then } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import { ROUTES } from "../../../src/app/routes.ts";
+import { ROUTES } from "@/app/routes";
 import { AppWorld } from "../support/world.ts";
 
 Given("I am on the CV", async function (this: AppWorld) {

@@ -40,7 +40,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "marked": "^18.0.14",
-    "oxfmt": "^0.70.0",
+    "oxfmt": "^0.71.0",
     "oxlint": "^1.85.0",
     "qrcode": "^1.5.4",
     "rehype-unwrap-images": "1.0.0",

@@ -57,3 +57,36 @@ arrives without one; whether an edit notifies again has not been checked.
 Upstream: [forgejo/forgejo#14756](https://codeberg.org/forgejo/forgejo/issues/14756) for live
 updates on the page, and [forgejo/forgejo#12906](https://codeberg.org/forgejo/forgejo/issues/12906)
 for the checks box.
+
+## A run does not show the inputs it was dispatched with
+
+A `workflow_dispatch` run's page names the trigger, the branch and the commit, never the
+inputs it was started with. A run is hard to debug after the fact, and starting the same run
+on a newer commit means remembering every value. This was checked against the source on
+2026-10-09: `ViewResponse` in `routers/web/repo/actions/view.go` carries no inputs, and
+`IsDispatchedRun()` only picks the header text.
+
+**Instead:** the workflow writes the inputs out itself. Put them in `run-name`
+(`run-name: e2e ${{ inputs.environment }}`), which shows in the run list and the header, or
+print them in the first step:
+
+```yaml
+- run: echo "$INPUTS"
+  env:
+    INPUTS: ${{ toJSON(inputs) }}
+```
+
+Pass them through `env:`, never straight into `run:`. Either way it has to be in place before
+the run: a run that already finished stays unreadable.
+
+Upstream: [forgejo/forgejo#14779](https://codeberg.org/forgejo/forgejo/issues/14779).
+
+## A pull request's checks are hard to click in a long list
+
+In the list of checks on a pull request, each row is one job with a "Details" link on the far
+right. The job name is plain text and the row does not highlight on hover, so in a longer list
+it is easy to follow the wrong row across and open another job's details.
+
+**Instead:** check the job name at the top of the run page before reading its log.
+
+Upstream: [forgejo/forgejo#14780](https://codeberg.org/forgejo/forgejo/issues/14780).

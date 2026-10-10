@@ -57,6 +57,17 @@ test("on a phone the footer links keep one row, the toggle sits top right", asyn
   await expect(nav.getByRole("button")).toHaveCount(0);
 });
 
+// Safari on iOS 26 floats its address bar over the bottom ~90px, page drawn
+// beneath it; a menu pinned lower than that is out of reach.
+test("on a phone the menu sits clear of a floating browser bar", async ({ page }) => {
+  await page.setViewportSize(PHONE);
+  for (const path of [ROUTES.home, ROUTES.contact]) {
+    await page.goto(path);
+    const nav = await page.getByRole("contentinfo").getByRole("navigation").boundingBox();
+    expect(PHONE.height - (nav!.y + nav!.height), path).toBeGreaterThan(90);
+  }
+});
+
 test("on a phone a lone Back keeps the toggle beside it", async ({ page }) => {
   await page.setViewportSize(PHONE);
   await page.goto(ROUTES.contact);

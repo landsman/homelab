@@ -139,6 +139,10 @@
     --header-room: var(--space-page-top);
     --home-room: var(--header-room);
     --links-gap-column: 24px;
+    /* Safari on iOS 26 draws the page under its floating address bar, the
+       bottom ~90px of the screen, and 100svh counts that strip as page — so
+       the pinned links landed behind the bar. Clear it. */
+    --footer-breathing-room: 112px;
   }
 }
 

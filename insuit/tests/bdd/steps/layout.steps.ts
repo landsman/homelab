@@ -24,6 +24,13 @@ Then("the theme switch sits top right", async function (this: AppWorld) {
   expect(toggle!.x).toBeGreaterThan(viewport.width / 2);
 });
 
+// Safari on iOS 26 floats its address bar over the bottom ~90px of the page.
+Then("the menu clears the browser's bottom bar", async function (this: AppWorld) {
+  const viewport = this.page.viewportSize()!;
+  const nav = await this.page.getByRole("contentinfo").getByRole("navigation").boundingBox();
+  expect(viewport.height - (nav!.y + nav!.height)).toBeGreaterThan(90);
+});
+
 const headingTop = (world: AppWorld) =>
   world.page.locator("h1").evaluate((h) => h.getBoundingClientRect().top);
 

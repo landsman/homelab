@@ -20,6 +20,7 @@ Feature: Reading on a phone
     And I am on the home page
     Then the menu's links share one row
     And the theme switch sits top right
+    And the menu clears the browser's bottom bar
 
   Scenario: The menu holds still while the page loads
     Given I am on a phone

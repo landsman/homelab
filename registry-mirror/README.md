@@ -40,6 +40,10 @@ the cache does not answer, Docker goes to the registry itself. Two limits:
 
 - **Docker's containerd image store only**, which jesse and walter use. The classic store pulls
   without reading `hosts.toml`, and the script refuses to run there.
+- **Public images only.** The caches pull anonymously, so a private image is never cached. Its pull
+  misses and goes on to the registry with the box's own login; not tried yet, so if a private pull
+  fails, `make logs` first. Giving a cache a login (`REGISTRY_PROXY_USERNAME`) would serve that
+  image to every box on the tailnet.
 - **The `docker` builder only.** A buildx builder with the `docker-container` driver runs its own
   BuildKit, which reads neither.
 

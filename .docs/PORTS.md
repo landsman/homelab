@@ -1,6 +1,6 @@
 # Ports
 
-Host ports exposed by containers on the Pi. Source of truth: each service's `compose.yml`.
+Host ports exposed by containers on the Pi, which is also the NAS. Source of truth: each service's `compose.yml`.
 
 | Port | Service                               | Notes                                      |
 |------|---------------------------------------|--------------------------------------------|

@@ -37,6 +37,8 @@ off) ;;
 	exit 1
 	;;
 *)
+	# The containerd store prints `io.containerd.snapshotter.v1` here (DriverStatus [[driver-type …]]).
+	# A refusal on a box that does use it means a Docker upgrade moved that string: check `docker info`.
 	case "$(docker info --format '{{range .DriverStatus}}{{index . 1}} {{end}}')" in
 	*io.containerd.snapshotter.v1*) ;;
 	*)

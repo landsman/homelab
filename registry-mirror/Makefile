@@ -7,7 +7,8 @@
 SERVE ?= docker.io=5000 ghcr.io=5001 docker.gitea.com=5002 code.forgejo.org=5003
 
 # Where the caches keep their data: MIRROR_DATA from .env when it is set there, else the same
-# default as compose.yml.
+# default as compose.yml, which has to match it. Make reads .env itself, without the quoting rules of
+# compose, so keep that line a plain MIRROR_DATA=/path.
 -include .env
 MIRROR_DATA ?= /mnt/raid0/containers/cache/registry-mirror
 

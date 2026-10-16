@@ -6,7 +6,12 @@
 #
 # Everything cached is deleted 7 days after it was fetched from upstream, used or not, and fetched
 # again on the next pull (REGISTRY_PROXY_TTL). That is what keeps the directories from growing
-# without end. Each cache is a directory under MIRROR_DATA, and an empty one is a valid start.
+# without end.
+#
+# The data is not in this directory: it is other people's images, disposable, and kept apart from
+# the app's own files under containers/cache on the NAS, next to Docker's own data. Never back it
+# up; deleting it costs one download per image. MIRROR_DATA in .env moves it, an empty directory
+# being a valid start.
 
 x-cache: &cache
   image: registry:3.1.2
@@ -20,7 +25,7 @@ services:
       REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5000:5000']
-    volumes: ['${MIRROR_DATA:-./data}/docker.io:/var/lib/registry']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/docker.io:/var/lib/registry']
 
   github:
     <<: *cache
@@ -29,7 +34,7 @@ services:
       REGISTRY_PROXY_REMOTEURL: https://ghcr.io
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5001:5000']
-    volumes: ['${MIRROR_DATA:-./data}/ghcr.io:/var/lib/registry']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/ghcr.io:/var/lib/registry']
 
   gitea:
     <<: *cache
@@ -38,7 +43,7 @@ services:
       REGISTRY_PROXY_REMOTEURL: https://docker.gitea.com
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5002:5000']
-    volumes: ['${MIRROR_DATA:-./data}/docker.gitea.com:/var/lib/registry']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/docker.gitea.com:/var/lib/registry']
 
   forgejo:
     <<: *cache
@@ -47,4 +52,4 @@ services:
       REGISTRY_PROXY_REMOTEURL: https://code.forgejo.org
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5003:5000']
-    volumes: ['${MIRROR_DATA:-./data}/code.forgejo.org:/var/lib/registry']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/code.forgejo.org:/var/lib/registry']

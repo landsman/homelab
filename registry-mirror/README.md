@@ -45,9 +45,15 @@ the cache does not answer, Docker goes to the registry itself. Two limits:
 
 ## Where the data is
 
-In `./data/<registry>` next to this file, which on the NAS is
-`/mnt/raid0/containers/apps/registry-mirror/data`, on the array. `MIRROR_DATA` in `.env` puts all
-of them anywhere else.
+In `/mnt/raid0/containers/cache/registry-mirror/<registry>` on the NAS: the layers and manifests
+of every image the boxes pulled, as the registry stores them (`docker/registry/v2/…`). It is
+other people's images and disposable, so it sits apart from the app's own files in
+`containers/apps` and from Docker's in `containers/docker`, under a `cache` directory that is
+never backed up. Deleting it costs one download per image. `MIRROR_DATA` in `.env` puts it
+anywhere else.
+
+The boxes keep their own copy of each image they pulled, in their own Docker, as before; the cache
+does not change that.
 
 Everything cached is deleted 7 days after it was fetched from upstream, used or not, and fetched
 again on the next pull (`REGISTRY_PROXY_TTL`). So the directories hold what the boxes pulled in the

@@ -15,6 +15,9 @@ Each service gets a dedicated hour to avoid I/O contention.
 | 06:00 | [yt-archive](../yt-archive) |
 | 07:00 | [archivebox](../archivebox) |
 
+Not backed up, on purpose: [registry-mirror](../registry-mirror). It is a cache of other people's
+images under `/mnt/raid0/containers/cache`, and losing it costs one download per image.
+
 ## Per-app commands
 
 ```bash

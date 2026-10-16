@@ -1,0 +1,55 @@
+# Pull-through caches of every registry the boxes pull images from, one per registry: a registry
+# proxies exactly one upstream. Read-only by design: each refuses a push.
+#
+# The ports are local only. The tailnet sees one address, https://<nas>/mirror/<registry>, which
+# the Makefile's SERVE maps onto these ports; a registry added here gets a line there too.
+#
+# Everything cached is deleted 7 days after it was fetched from upstream, used or not, and fetched
+# again on the next pull (REGISTRY_PROXY_TTL). That is what keeps the directories from growing
+# without end.
+#
+# The data is not in this directory: it is other people's images, disposable, and kept apart from
+# the app's own files under containers/cache on the NAS, next to Docker's own data. Never back it
+# up; deleting it costs one download per image. MIRROR_DATA in .env moves it, an empty directory
+# being a valid start.
+
+x-cache: &cache
+  image: registry:3.1.2
+  restart: unless-stopped
+
+services:
+  docker-hub:
+    <<: *cache
+    container_name: registry-mirror-docker-hub
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5000:5000']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/docker.io:/var/lib/registry']
+
+  github:
+    <<: *cache
+    container_name: registry-mirror-github
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://ghcr.io
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5001:5000']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/ghcr.io:/var/lib/registry']
+
+  gitea:
+    <<: *cache
+    container_name: registry-mirror-gitea
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://docker.gitea.com
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5002:5000']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/docker.gitea.com:/var/lib/registry']
+
+  forgejo:
+    <<: *cache
+    container_name: registry-mirror-forgejo
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://code.forgejo.org
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5003:5000']
+    volumes: ['${MIRROR_DATA:-/mnt/raid0/containers/cache/registry-mirror}/code.forgejo.org:/var/lib/registry']

@@ -40,9 +40,17 @@ print(c["server"], *[h + " " + str(sorted(v["capabilities"])) for h, v in c["hos
 ' "$CERTS_D/$1/hosts.toml" 2>/dev/null; }
 
 nas=nas.example.ts.net
+# Our own registries: Forgejo's, on the NAS's own name and behind git.insuit.cz. Docker reads a
+# hosts.toml per registry, so a file under either name would send their pushes to a cache.
+own_registries=("$nas" git.insuit.cz)
+for r in "${own_registries[@]}"; do mkdir -p "$CERTS_D/$r" && printf 'cert\n' >"$CERTS_D/$r/ca.crt"; done
+written() { (cd "$CERTS_D" && find . -name hosts.toml | sort | tr '\n' ' '); }
 
 run "$nas"
 check "it succeeds on the containerd image store" test "$rc" = 0
+check "it writes a hosts.toml for the four mirrored registries and no other" \
+	test "$(written)" = "./code.forgejo.org/hosts.toml ./docker.gitea.com/hosts.toml ./docker.io/hosts.toml ./ghcr.io/hosts.toml "
+check "our own registries are left alone" test "$(cat "$CERTS_D/$nas/ca.crt" "$CERTS_D/git.insuit.cz/ca.crt")" = "$(printf 'cert\ncert')"
 check "Docker Hub goes through its cache under /mirror" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas/mirror/docker.io ['pull', 'resolve']"
 check "ghcr.io through its own" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas/mirror/ghcr.io ['pull', 'resolve']"
 check "docker.gitea.com through its own" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas/mirror/docker.gitea.com ['pull', 'resolve']"
@@ -57,6 +65,7 @@ run off
 check "off removes every hosts.toml" test -z "$(find "$CERTS_D" -name hosts.toml)"
 check "and keeps a certificate next to one" test -f "$CERTS_D/ghcr.io/ca.crt"
 check "and the directories it emptied" test ! -e "$CERTS_D/docker.io"
+check "and leaves our own registries' directories" test -f "$CERTS_D/$nas/ca.crt" -a -f "$CERTS_D/git.insuit.cz/ca.crt"
 
 rm -rf "$CERTS_D"
 STORE=overlay2 run "$nas"

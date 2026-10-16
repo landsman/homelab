@@ -13,36 +13,36 @@ x-cache: &cache
   restart: unless-stopped
 
 services:
-  docker-io:
+  docker-hub:
     <<: *cache
-    container_name: registry-mirror-docker-io
+    container_name: registry-mirror-docker-hub
     environment:
       REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5000:5000']
     volumes: ['${MIRROR_DATA:-./data}/docker.io:/var/lib/registry']
 
-  ghcr-io:
+  github:
     <<: *cache
-    container_name: registry-mirror-ghcr-io
+    container_name: registry-mirror-github
     environment:
       REGISTRY_PROXY_REMOTEURL: https://ghcr.io
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5001:5000']
     volumes: ['${MIRROR_DATA:-./data}/ghcr.io:/var/lib/registry']
 
-  docker-gitea-com:
+  gitea:
     <<: *cache
-    container_name: registry-mirror-docker-gitea-com
+    container_name: registry-mirror-gitea
     environment:
       REGISTRY_PROXY_REMOTEURL: https://docker.gitea.com
       REGISTRY_PROXY_TTL: 168h
     ports: ['127.0.0.1:5002:5000']
     volumes: ['${MIRROR_DATA:-./data}/docker.gitea.com:/var/lib/registry']
 
-  code-forgejo-org:
+  forgejo:
     <<: *cache
-    container_name: registry-mirror-code-forgejo-org
+    container_name: registry-mirror-forgejo
     environment:
       REGISTRY_PROXY_REMOTEURL: https://code.forgejo.org
       REGISTRY_PROXY_TTL: 168h

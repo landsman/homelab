@@ -1,0 +1,17 @@
+services:
+  # A pull-through cache of Docker Hub for the boxes that pull images, the CI runners first.
+  # Read-only by design: it refuses a push.
+  registry-mirror:
+    image: registry:3.1.2
+    container_name: registry-mirror
+    restart: unless-stopped
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
+      # Everything cached is deleted 7 days after it was fetched from Docker Hub, used or not, and
+      # fetched again on the next pull. That is what keeps the directory from growing without end.
+      REGISTRY_PROXY_TTL: 168h
+    ports:
+      - '127.0.0.1:5000:5000'
+    volumes:
+      # A cache: an empty directory is a valid start, see "Moving it" in the README.
+      - ${MIRROR_DATA:-./data}:/var/lib/registry

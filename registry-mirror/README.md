@@ -15,7 +15,7 @@ All of them sit behind one address, `https://<nas>.<tailnet>.ts.net/mirror/<regi
 | `code.forgejo.org` | the Forgejo runner |
 
     make up      # start them and publish them on the tailnet
-    make size    # how much each one holds
+    make size    # disk taken by each cache and in total, also with them stopped
 
 Behind the address there is one `registry` per upstream, because a registry proxies exactly one.
 `tailscale serve` is the router: it maps `/mirror/<registry>` on the NAS's port 443 to that cache's
@@ -84,7 +84,11 @@ version the runners run:
   build with `# syntax=` and a ghcr.io `FROM` each went to the right cache.
 - **The upstream is down after a cache started:** an image it holds still pulls, its tag answering
   200. One it never held answers 404, and Docker goes to the registry itself.
-- **A cache is down:** Docker goes to the registry itself; the pull took 1 s longer.
+- **A cache is down:** Docker goes to the registry itself; the pull took 1 s longer. Behind a router
+  that answers 502 for it, as `tailscale serve` does for a stopped container, the pull took 2 s.
+- **The NAS is off:** its name still resolves on the tailnet and nothing answers, so without a limit
+  every pull first waits out the connect timeout: 182 s for one image. The `hosts.toml` files set
+  `dial_timeout = "3s"`, which brought it to 20 s; Docker tries the mirror once per request.
 - **The upstream is down when a cache starts:** the registry asks it for `/v2/` once and exits, so
   that cache is missing until the restart policy brings it up afterwards. The boxes pull from the
   registry directly meanwhile.

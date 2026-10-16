@@ -6,6 +6,11 @@
 # <registry>=<its cache's local port in compose.yml>.
 SERVE ?= docker.io=5000 ghcr.io=5001 docker.gitea.com=5002 code.forgejo.org=5003
 
+# Where the caches keep their data: MIRROR_DATA from .env when it is set there, else the same
+# default as compose.yml.
+-include .env
+MIRROR_DATA ?= /mnt/raid0/containers/cache/registry-mirror
+
 .PHONY: help up down logs serve unserve size
 
 help: ## show this help
@@ -25,8 +30,8 @@ down: ## stop the caches; the boxes fall back to the registries themselves
 logs: ## follow the logs, one line per request a cache serves
 	docker compose logs -f
 
-size: ## how much each cache holds now
-	@for s in $$(docker compose ps --services); do printf '%-18s ' "$$s"; docker compose exec "$$s" du -sh /var/lib/registry; done
+size: ## disk taken by each cache and by all of them, also with the caches stopped
+	@du -h -d 1 $(MIRROR_DATA) 2>/dev/null || echo "nothing at $(MIRROR_DATA) yet"
 
 ##@ Tailnet
 serve: ## publish the caches on the tailnet under /mirror/<registry>

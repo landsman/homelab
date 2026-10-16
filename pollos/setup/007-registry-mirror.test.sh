@@ -36,7 +36,7 @@ run() { # run <NAS or -> ; `-` leaves NAS unset. The script's exit code lands in
 hosts() { python3 -c '
 import sys, tomllib
 c = tomllib.load(open(sys.argv[1], "rb"))
-print(c["server"], *[h + " " + str(sorted(v["capabilities"])) for h, v in c["host"].items()])
+print(c["server"], *[h + " " + str(sorted(v["capabilities"])) + " " + v.get("dial_timeout", "none") for h, v in c["host"].items()])
 ' "$CERTS_D/$1/hosts.toml" 2>/dev/null; }
 
 nas=nas.example.ts.net
@@ -51,10 +51,10 @@ check "it succeeds on the containerd image store" test "$rc" = 0
 check "it writes a hosts.toml for the four mirrored registries and no other" \
 	test "$(written)" = "./code.forgejo.org/hosts.toml ./docker.gitea.com/hosts.toml ./docker.io/hosts.toml ./ghcr.io/hosts.toml "
 check "our own registries are left alone" test "$(cat "$CERTS_D/$nas/ca.crt" "$CERTS_D/git.insuit.cz/ca.crt")" = "$(printf 'cert\ncert')"
-check "Docker Hub goes through its cache under /mirror" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas/mirror/docker.io ['pull', 'resolve']"
-check "ghcr.io through its own" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas/mirror/ghcr.io ['pull', 'resolve']"
-check "docker.gitea.com through its own" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas/mirror/docker.gitea.com ['pull', 'resolve']"
-check "code.forgejo.org through its own" test "$(hosts code.forgejo.org)" = "https://code.forgejo.org https://$nas/mirror/code.forgejo.org ['pull', 'resolve']"
+check "Docker Hub goes through its cache under /mirror" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas/mirror/docker.io ['pull', 'resolve'] 3s"
+check "ghcr.io through its own" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas/mirror/ghcr.io ['pull', 'resolve'] 3s"
+check "docker.gitea.com through its own" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas/mirror/docker.gitea.com ['pull', 'resolve'] 3s"
+check "code.forgejo.org through its own" test "$(hosts code.forgejo.org)" = "https://code.forgejo.org https://$nas/mirror/code.forgejo.org ['pull', 'resolve'] 3s"
 
 before=$(cat "$CERTS_D"/*/hosts.toml)
 run "$nas"

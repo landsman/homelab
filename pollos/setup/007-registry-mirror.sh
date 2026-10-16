@@ -57,8 +57,10 @@ echo "$REGISTRIES" | while read -r registry server; do
 		continue
 	fi
 	mkdir -p "$dir"
-	# Docker appends /v2 to the mirror's path itself, which is where the cache answers.
-	printf 'server = "https://%s"\n\n[host."https://%s/mirror/%s"]\n  capabilities = ["pull", "resolve"]\n' \
+	# Docker appends /v2 to the mirror's path itself, which is where the cache answers. Without a
+	# dial timeout, a NAS that is off made every pull wait out the connect timeout first: 182 s for
+	# one image, against 20 s with 3 s.
+	printf 'server = "https://%s"\n\n[host."https://%s/mirror/%s"]\n  capabilities = ["pull", "resolve"]\n  dial_timeout = "3s"\n' \
 		"$server" "$NAS" "$registry" >"$dir/hosts.toml.tmp"
 	mv "$dir/hosts.toml.tmp" "$dir/hosts.toml"
 	echo "$registry: through https://$NAS/mirror/$registry"

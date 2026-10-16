@@ -2,9 +2,8 @@
 # Tests 007-registry-mirror.sh without root, Docker or systemd: `systemctl` and `docker` are stubs
 # on PATH that record how they were called, and daemon.json is a file in a throwaway directory.
 #
-# What is worth testing is what goes wrong silently on a real box: another key in daemon.json lost
-# on the way, a reload on every re-run, `off` leaving an empty file behind, and a daemon.json that
-# does not parse being overwritten instead of refused.
+# What is worth testing is what goes wrong silently on a real box: a daemon.json dockerd cannot
+# parse, a reload on every re-run, and `off` that leaves the mirror in or writes a file nobody asked for.
 set -euo pipefail
 
 script="$(cd "$(dirname "$0")" && pwd)/007-registry-mirror.sh"
@@ -35,42 +34,37 @@ run() { # run <MIRROR or -> ; `-` leaves MIRROR unset. The script's exit code la
 		MIRROR=$1 sh "$script" >/dev/null 2>&1 || rc=$?
 	fi
 }
-mirrors() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("registry-mirrors"))' "$DAEMON_JSON"; }
-key() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get(sys.argv[2]))' "$DAEMON_JSON" "$1"; }
+# What dockerd would read: the file parsed as JSON, so a quoting slip fails here as it would there.
+config() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1])))' "$DAEMON_JSON" 2>/dev/null; }
 reloads() { grep -c '^systemctl reload docker$' "$CALLS" || true; }
 
 url=https://nas.example.ts.net:5000
+other=https://other.example.ts.net:5000
 
 run "$url"
 check "it succeeds on a box without daemon.json" test "$rc" = 0
-check "a box without daemon.json gets one naming the mirror" test "$(mirrors)" = "['$url']"
-check "and dockerd is reloaded" test "$(reloads)" = 1
-
-printf '{"log-driver": "local"}\n' >"$DAEMON_JSON"
-run "$url"
-check "a key already in daemon.json is kept" test "$(key log-driver)" = local
-check "next to the mirror" test "$(mirrors)" = "['$url']"
+check "and writes a daemon.json naming the mirror and nothing else" test "$(config)" = "{'registry-mirrors': ['$url']}"
+check "and reloads dockerd" test "$(reloads)" = 1
 
 run "$url"
 check "a re-run with the same mirror does not reload dockerd" test "$(reloads)" = 0
 
-run off
-check "off removes the mirror" test "$(mirrors)" = None
-check "and keeps the other key" test "$(key log-driver)" = local
+run "$other"
+check "another mirror replaces the first" test "$(config)" = "{'registry-mirrors': ['$other']}"
 check "and reloads dockerd" test "$(reloads)" = 1
 
-rm -f "$DAEMON_JSON"
+printf '{"log-driver": "local"}\n' >"$DAEMON_JSON"
+run "$url"
+check "a key added by hand is overwritten, the script owns the file" test "$(config)" = "{'registry-mirrors': ['$url']}"
+
 run off
-check "off on a box without daemon.json writes no file" test ! -e "$DAEMON_JSON"
+check "off removes daemon.json" test ! -e "$DAEMON_JSON"
+check "and reloads dockerd" test "$(reloads)" = 1
+
+run off
+check "off on a box without daemon.json does nothing" test ! -e "$DAEMON_JSON"
 check "and does not reload dockerd" test "$(reloads)" = 0
 
-printf '{"log-driver": "local",\n' >"$DAEMON_JSON"
-run "$url"
-check "a daemon.json that does not parse is refused" test "$rc" != 0
-check "and left as it was" test "$(cat "$DAEMON_JSON")" = '{"log-driver": "local",'
-check "and dockerd is not reloaded" test "$(reloads)" = 0
-
-rm -f "$DAEMON_JSON"
 run http://nas.example.ts.net:5000
 check "a mirror that is not https is refused" test "$rc" != 0
 check "and nothing is written" test ! -e "$DAEMON_JSON"

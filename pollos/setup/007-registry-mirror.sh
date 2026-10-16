@@ -12,57 +12,37 @@ set -eu
 #   MIRROR=https://<nas>.<tailnet>.ts.net:5000 ./007-registry-mirror.sh   # use the cache
 #   MIRROR=off ./007-registry-mirror.sh                                   # stop using it
 #
-# Safe to re-run: it sets the one key in /etc/docker/daemon.json and keeps every other key, and
-# reloads dockerd only when the file changed. A reload applies `registry-mirrors` without restarting
-# a single container, the runner included.
+# This script owns /etc/docker/daemon.json and writes all of it: a setting the boxes need goes in
+# here, not into the file by hand. Safe to re-run: it reloads dockerd only when the file changed,
+# and a reload applies `registry-mirrors` without restarting a single container, the runner included.
 #
 
 DAEMON_JSON=${DAEMON_JSON:-/etc/docker/daemon.json}
 MIRROR=${MIRROR:?set MIRROR to the cache URL, https://<nas>.<tailnet>.ts.net:5000, or to off}
 
 case "$MIRROR" in
-off | https://*) ;;
+# No file at all: dockerd reloads to its defaults when the default daemon.json is missing.
+off) want= ;;
+https://*) want=$(printf '{\n  "registry-mirrors": ["%s"]\n}' "$MIRROR") ;;
 *)
 	echo "MIRROR must be an https:// URL or off, got: $MIRROR" >&2
 	exit 1
 	;;
 esac
 
-# Prints `changed` or `unchanged`. Writes through a temporary file, so a failure never leaves a
-# half-written daemon.json behind — dockerd refuses to start on one that does not parse.
-result=$(
-	python3 - "$DAEMON_JSON" "$MIRROR" <<'PY'
-import json, os, sys
-
-path, mirror = sys.argv[1], sys.argv[2]
-try:
-    with open(path) as f:
-        text = f.read()
-    config = json.loads(text) if text.strip() else {}
-except FileNotFoundError:
-    config = {}
-before = dict(config)
-if mirror == "off":
-    config.pop("registry-mirrors", None)
-else:
-    config["registry-mirrors"] = [mirror]
-# No file and nothing to put in one is unchanged too: `off` on a fresh box writes no `{}`.
-if config == before and (os.path.exists(path) or not config):
-    print("unchanged")
-    sys.exit(0)
-os.makedirs(os.path.dirname(path), exist_ok=True)
-with open(path + ".tmp", "w") as f:
-    json.dump(config, f, indent=2)
-    f.write("\n")
-os.replace(path + ".tmp", path)
-print("changed")
-PY
-)
-
-if [ "$result" = changed ]; then
-	systemctl reload docker
-	echo "$DAEMON_JSON updated, dockerd reloaded"
-else
+have=$(cat "$DAEMON_JSON" 2>/dev/null || true)
+if [ "$have" = "$want" ]; then
 	echo "$DAEMON_JSON already says so, nothing to do"
+else
+	if [ -n "$want" ]; then
+		mkdir -p "$(dirname "$DAEMON_JSON")"
+		# Through a temporary file: dockerd will not start on a half-written daemon.json.
+		printf '%s\n' "$want" >"$DAEMON_JSON.tmp"
+		mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
+	else
+		rm -f "$DAEMON_JSON"
+	fi
+	systemctl reload docker
+	echo "$DAEMON_JSON rewritten, dockerd reloaded"
 fi
 echo "registry mirrors now: $(docker info --format '{{.RegistryConfig.Mirrors}}')"

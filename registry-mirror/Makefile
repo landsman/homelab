@@ -1,9 +1,10 @@
 .DEFAULT_GOAL := help
 
-# The ports the caches have on the NAS, one per registry, published on the tailnet as https on the
-# same number (compose.yml has the table). Not 443: `/v2` there is Forgejo's own registry
-# (../forgejo), and a registry is always at `/v2`, so the two cannot share a port.
-SERVE_PORTS ?= 5000 5001 5002 5003
+# What the tailnet sees: one address, https://<this box>/mirror/<registry>, on the same port 443 as
+# Forgejo's `/v2` (../forgejo). `tailscale serve` strips the mount path, so each cache gets the
+# `/v2/…` it expects, and Docker appends `/v2` to the mirror's path itself. Each entry is
+# <registry>=<its cache's local port in compose.yml>.
+SERVE ?= docker.io=5000 ghcr.io=5001 docker.gitea.com=5002 code.forgejo.org=5003
 
 .PHONY: help up down logs serve unserve size
 
@@ -28,8 +29,8 @@ size: ## how much each cache holds now
 	@for s in $$(docker compose ps --services); do printf '%-18s ' "$$s"; docker compose exec "$$s" du -sh /var/lib/registry; done
 
 ##@ Tailnet
-serve: ## publish the caches on the tailnet, https on SERVE_PORTS
-	@for p in $(SERVE_PORTS); do tailscale serve --bg --https=$$p http://127.0.0.1:$$p; done
+serve: ## publish the caches on the tailnet under /mirror/<registry>
+	@for e in $(SERVE); do tailscale serve --bg --https=443 --set-path=/mirror/$${e%%=*} http://127.0.0.1:$${e#*=}; done
 
-unserve: ## take them off the tailnet
-	@for p in $(SERVE_PORTS); do tailscale serve --https=$$p off; done
+unserve: ## take them off the tailnet, Forgejo's paths stay
+	@for e in $(SERVE); do tailscale serve --https=443 --set-path=/mirror/$${e%%=*} off; done

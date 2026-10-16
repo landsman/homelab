@@ -5,19 +5,26 @@ Pull-through caches on the NAS for every registry the boxes pull images from, th
 from here, so a job does not need the registry, or DNS that reaches it, to get it. A CI image build
 once failed on its first line because the runner could not resolve `registry-1.docker.io`.
 
-| Registry | Cache on the NAS | Pulled for |
-|---|---|---|
-| Docker Hub (`docker.io`) | `5000` | most images, `# syntax=` in a Dockerfile, Testcontainers |
-| `ghcr.io` | `5001` | Renovate, the semgrep mirror |
-| `docker.gitea.com` | `5002` | `runner-images`, the image every CI job runs in |
-| `code.forgejo.org` | `5003` | the Forgejo runner |
+All of them sit behind one address, `https://<nas>.<tailnet>.ts.net/mirror/<registry>`:
+
+| Registry | Pulled for |
+|---|---|
+| Docker Hub (`docker.io`) | most images, `# syntax=` in a Dockerfile, Testcontainers |
+| `ghcr.io` | Renovate, the semgrep mirror |
+| `docker.gitea.com` | `runner-images`, the image every CI job runs in |
+| `code.forgejo.org` | the Forgejo runner |
 
     make up      # start them and publish them on the tailnet
     make size    # how much each one holds
 
-A registry is a new line in [compose.yml](compose.yml), in `SERVE_PORTS` in the
-[Makefile](Makefile) and in the table in `pollos/setup/007-registry-mirror.sh`. `git.insuit.cz` is
-not one: it runs on this NAS already.
+Behind the address there is one `registry` per upstream, because a registry proxies exactly one.
+`tailscale serve` is the router: it maps `/mirror/<registry>` on the NAS's port 443 to that cache's
+local port and strips the path, so each cache sees the `/v2/…` it expects. Forgejo's own `/v2` on
+the same port is untouched.
+
+A registry is a new service in [compose.yml](compose.yml), an entry in `SERVE` in the
+[Makefile](Makefile) and a line in the table in `pollos/setup/007-registry-mirror.sh`.
+`git.insuit.cz` is not one: it runs on this NAS already.
 
 ## Using it on a box
 
@@ -25,7 +32,8 @@ On the box, as root:
 
     NAS=<nas>.<tailnet>.ts.net pollos/setup/007-registry-mirror.sh
 
-It writes `/etc/docker/certs.d/<registry>/hosts.toml` for each registry above. Docker reads those
+It writes `/etc/docker/certs.d/<registry>/hosts.toml` for each registry above, naming
+`https://<nas>/mirror/<registry>` as its mirror; Docker appends the `/v2` itself. Docker reads those
 on every pull and every build, so nothing restarts: `docker pull`, `FROM`, the parser named by
 `# syntax=`, Testcontainers, and the runner pulling a job's image all go to the cache first. When
 the cache does not answer, Docker goes to the registry itself. Two limits:
@@ -65,6 +73,9 @@ that uses it. Nothing else names the caches.
 Checked on 2026-10-16 with registry 3.1.2 and a Docker 29.8.1 on the containerd image store, the
 version the runners run:
 
+- **Through one address:** with the caches behind `/mirror/<registry>` on one port, and nginx
+  stripping the path as `tailscale serve` does, `docker pull` from Docker Hub and ghcr.io and a
+  build with `# syntax=` and a ghcr.io `FROM` each went to the right cache.
 - **The upstream is down after a cache started:** an image it holds still pulls, its tag answering
   200. One it never held answers 404, and Docker goes to the registry itself.
 - **A cache is down:** Docker goes to the registry itself; the pull took 1 s longer.
@@ -78,13 +89,12 @@ pulled in the last week, but it is not offline.
 
 ## Checking it works
 
-- `curl -s https://<nas>.<tailnet>.ts.net:5001/v2/_catalog` lists the repositories a cache holds,
-  after a box has pulled through it.
+- `curl -s https://<nas>.<tailnet>.ts.net/mirror/ghcr.io/v2/_catalog` lists the repositories a
+  cache holds, after a box has pulled through it.
 - `make down`, and a CI job still pulls and passes, from the registries themselves.
 - `make size` a week later is about what a week of pulls needs, and stays there.
 
 ## Ports
 
-- `5000` to `5003` — the caches, bound to `127.0.0.1`. `tailscale serve` publishes each on the
-  tailnet as https on the same number. Not on `443`: `/v2` there is Forgejo's registry
-  ([../forgejo](../forgejo)).
+- `5000` to `5003` — the caches, bound to `127.0.0.1` and reachable only through `tailscale serve`.
+- `443` (tailnet) — `/mirror/<registry>`, next to Forgejo's `/v2` ([../forgejo](../forgejo)).

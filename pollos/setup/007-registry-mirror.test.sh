@@ -43,10 +43,10 @@ nas=nas.example.ts.net
 
 run "$nas"
 check "it succeeds on the containerd image store" test "$rc" = 0
-check "Docker Hub goes through the cache on 5000" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas:5000 ['pull', 'resolve']"
-check "ghcr.io through 5001" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas:5001 ['pull', 'resolve']"
-check "docker.gitea.com through 5002" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas:5002 ['pull', 'resolve']"
-check "code.forgejo.org through 5003" test "$(hosts code.forgejo.org)" = "https://code.forgejo.org https://$nas:5003 ['pull', 'resolve']"
+check "Docker Hub goes through its cache under /mirror" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas/mirror/docker.io ['pull', 'resolve']"
+check "ghcr.io through its own" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas/mirror/ghcr.io ['pull', 'resolve']"
+check "docker.gitea.com through its own" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas/mirror/docker.gitea.com ['pull', 'resolve']"
+check "code.forgejo.org through its own" test "$(hosts code.forgejo.org)" = "https://code.forgejo.org https://$nas/mirror/code.forgejo.org ['pull', 'resolve']"
 
 before=$(cat "$CERTS_D"/*/hosts.toml)
 run "$nas"

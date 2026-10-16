@@ -1,8 +1,8 @@
 # Pull-through caches of every registry the boxes pull images from, one per registry: a registry
 # proxies exactly one upstream. Read-only by design: each refuses a push.
 #
-# The port is the registry's address on the NAS. ../pollos/setup/007-registry-mirror.sh has the
-# same table, and the Makefile's SERVE_PORTS publishes the same ports; change all three together.
+# The ports are local only. The tailnet sees one address, https://<nas>/mirror/<registry>, which
+# the Makefile's SERVE maps onto these ports; a registry added here gets a line there too.
 #
 # Everything cached is deleted 7 days after it was fetched from upstream, used or not, and fetched
 # again on the next pull (REGISTRY_PROXY_TTL). That is what keeps the directories from growing

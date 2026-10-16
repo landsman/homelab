@@ -5,8 +5,9 @@ set -eu
 # MANUAL STEP: run as root on a box whose Docker pulls images — the CI runners (jesse, walter)
 # first. After 003-docker.sh and 005-tailscale.sh.
 #
-# Points Docker at the registry caches on the NAS (../../registry-mirror), one per registry, so a
-# pull reaches the registry itself only when the cache does not have the image. Docker goes to the
+# Points Docker at the registry caches on the NAS (../../registry-mirror), one per registry at
+# https://<nas>/mirror/<registry>, so a pull reaches the registry itself only when the cache does
+# not have the image. Docker goes to the
 # registry by itself when its cache does not answer, so a NAS outage slows a pull down and does not
 # break it.
 #
@@ -22,12 +23,12 @@ set -eu
 CERTS_D=${CERTS_D:-/etc/docker/certs.d}
 NAS=${NAS:?set NAS to the NAS tailnet name, <nas>.<tailnet>.ts.net, or to off}
 
-# The registry, the host its server answers on, and the port of its cache on the NAS. The same
-# table is ../../registry-mirror/compose.yml.
-REGISTRIES='docker.io registry-1.docker.io 5000
-ghcr.io ghcr.io 5001
-docker.gitea.com docker.gitea.com 5002
-code.forgejo.org code.forgejo.org 5003'
+# The registry, and the host its server answers on. Each has a cache under /mirror/<registry>, set
+# up by SERVE in ../../registry-mirror/Makefile.
+REGISTRIES='docker.io registry-1.docker.io
+ghcr.io ghcr.io
+docker.gitea.com docker.gitea.com
+code.forgejo.org code.forgejo.org'
 
 case "$NAS" in
 off) ;;
@@ -46,7 +47,7 @@ off) ;;
 	;;
 esac
 
-echo "$REGISTRIES" | while read -r registry server port; do
+echo "$REGISTRIES" | while read -r registry server; do
 	dir=$CERTS_D/$registry
 	if [ "$NAS" = off ]; then
 		rm -f "$dir/hosts.toml"
@@ -56,8 +57,9 @@ echo "$REGISTRIES" | while read -r registry server port; do
 		continue
 	fi
 	mkdir -p "$dir"
-	printf 'server = "https://%s"\n\n[host."https://%s:%s"]\n  capabilities = ["pull", "resolve"]\n' \
-		"$server" "$NAS" "$port" >"$dir/hosts.toml.tmp"
+	# Docker appends /v2 to the mirror's path itself, which is where the cache answers.
+	printf 'server = "https://%s"\n\n[host."https://%s/mirror/%s"]\n  capabilities = ["pull", "resolve"]\n' \
+		"$server" "$NAS" "$registry" >"$dir/hosts.toml.tmp"
 	mv "$dir/hosts.toml.tmp" "$dir/hosts.toml"
-	echo "$registry: through https://$NAS:$port"
+	echo "$registry: through https://$NAS/mirror/$registry"
 done

@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
-# Tests 007-registry-mirror.sh without root, Docker or systemd: `systemctl` and `docker` are stubs
-# on PATH that record how they were called, and daemon.json is a file in a throwaway directory.
+# Tests 007-registry-mirror.sh without root or Docker: `docker` is a stub on PATH that answers
+# `docker info` with $STORE, and /etc/docker/certs.d is a throwaway directory.
 #
-# What is worth testing is what goes wrong silently on a real box: a daemon.json dockerd cannot
-# parse, a reload on every re-run, and `off` that leaves the mirror in or writes a file nobody asked for.
+# What is worth testing is what goes wrong silently on a real box: a hosts.toml Docker cannot parse
+# or that names the wrong server or port, a box on the classic image store that would ignore the
+# files, and `off` that leaves a cache in place or deletes a certificate next to it.
 set -euo pipefail
 
 script="$(cd "$(dirname "$0")" && pwd)/007-registry-mirror.sh"
 t=$(mktemp -d)
 trap 'rm -rf "$t"' EXIT
 mkdir -p "$t/bin"
-export PATH="$t/bin:$PATH" CALLS="$t/calls" DAEMON_JSON="$t/docker/daemon.json"
-for stub in systemctl docker; do
-	cat >"$t/bin/$stub" <<STUB
+export PATH="$t/bin:$PATH" CERTS_D="$t/certs.d" STORE=io.containerd.snapshotter.v1
+cat >"$t/bin/docker" <<'STUB'
 #!/bin/sh
-echo "$stub \$*" >>"\$CALLS"
+echo "$STORE"
 STUB
-	chmod +x "$t/bin/$stub"
-done
+chmod +x "$t/bin/docker"
 
 fail=0
 check() { # check <behaviour> <command…>
@@ -25,50 +24,48 @@ check() { # check <behaviour> <command…>
 	shift
 	if "$@"; then echo "ok   $what"; else echo "FAIL $what"; fail=1; fi
 }
-run() { # run <MIRROR or -> ; `-` leaves MIRROR unset. The script's exit code lands in $rc.
-	: >"$CALLS"
+run() { # run <NAS or -> ; `-` leaves NAS unset. The script's exit code lands in $rc.
 	rc=0
 	if [ "$1" = - ]; then
-		env -u MIRROR sh "$script" >/dev/null 2>&1 || rc=$?
+		env -u NAS sh "$script" >/dev/null 2>&1 || rc=$?
 	else
-		MIRROR=$1 sh "$script" >/dev/null 2>&1 || rc=$?
+		NAS=$1 sh "$script" >/dev/null 2>&1 || rc=$?
 	fi
 }
-# What dockerd would read: the file parsed as JSON, so a quoting slip fails here as it would there.
-config() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1])))' "$DAEMON_JSON" 2>/dev/null; }
-reloads() { grep -c '^systemctl reload docker$' "$CALLS" || true; }
+# What Docker would read: the file parsed as TOML, so a quoting slip fails here as it would there.
+hosts() { python3 -c '
+import sys, tomllib
+c = tomllib.load(open(sys.argv[1], "rb"))
+print(c["server"], *[h + " " + str(sorted(v["capabilities"])) for h, v in c["host"].items()])
+' "$CERTS_D/$1/hosts.toml" 2>/dev/null; }
 
-url=https://nas.example.ts.net:5000
-other=https://other.example.ts.net:5000
+nas=nas.example.ts.net
 
-run "$url"
-check "it succeeds on a box without daemon.json" test "$rc" = 0
-check "and writes a daemon.json naming the mirror and nothing else" test "$(config)" = "{'registry-mirrors': ['$url']}"
-check "and reloads dockerd" test "$(reloads)" = 1
+run "$nas"
+check "it succeeds on the containerd image store" test "$rc" = 0
+check "Docker Hub goes through the cache on 5000" test "$(hosts docker.io)" = "https://registry-1.docker.io https://$nas:5000 ['pull', 'resolve']"
+check "ghcr.io through 5001" test "$(hosts ghcr.io)" = "https://ghcr.io https://$nas:5001 ['pull', 'resolve']"
+check "docker.gitea.com through 5002" test "$(hosts docker.gitea.com)" = "https://docker.gitea.com https://$nas:5002 ['pull', 'resolve']"
+check "code.forgejo.org through 5003" test "$(hosts code.forgejo.org)" = "https://code.forgejo.org https://$nas:5003 ['pull', 'resolve']"
 
-run "$url"
-check "a re-run with the same mirror does not reload dockerd" test "$(reloads)" = 0
+before=$(cat "$CERTS_D"/*/hosts.toml)
+run "$nas"
+check "a re-run writes the same files" test "$(cat "$CERTS_D"/*/hosts.toml)" = "$before"
 
-run "$other"
-check "another mirror replaces the first" test "$(config)" = "{'registry-mirrors': ['$other']}"
-check "and reloads dockerd" test "$(reloads)" = 1
-
-printf '{"log-driver": "local"}\n' >"$DAEMON_JSON"
-run "$url"
-check "a key added by hand is overwritten, the script owns the file" test "$(config)" = "{'registry-mirrors': ['$url']}"
-
+printf 'cert\n' >"$CERTS_D/ghcr.io/ca.crt"
 run off
-check "off removes daemon.json" test ! -e "$DAEMON_JSON"
-check "and reloads dockerd" test "$(reloads)" = 1
+check "off removes every hosts.toml" test -z "$(find "$CERTS_D" -name hosts.toml)"
+check "and keeps a certificate next to one" test -f "$CERTS_D/ghcr.io/ca.crt"
+check "and the directories it emptied" test ! -e "$CERTS_D/docker.io"
 
-run off
-check "off on a box without daemon.json does nothing" test ! -e "$DAEMON_JSON"
-check "and does not reload dockerd" test "$(reloads)" = 0
+rm -rf "$CERTS_D"
+STORE=overlay2 run "$nas"
+check "the classic image store is refused" test "$rc" != 0
+check "and nothing is written there" test ! -e "$CERTS_D"
 
-run http://nas.example.ts.net:5000
-check "a mirror that is not https is refused" test "$rc" != 0
-check "and nothing is written" test ! -e "$DAEMON_JSON"
+run "https://$nas"
+check "a URL instead of a host name is refused" test "$rc" != 0
 run -
-check "MIRROR unset is refused" test "$rc" != 0
+check "NAS unset is refused" test "$rc" != 0
 
 exit "$fail"

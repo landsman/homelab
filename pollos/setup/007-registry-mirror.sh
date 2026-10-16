@@ -5,44 +5,59 @@ set -eu
 # MANUAL STEP: run as root on a box whose Docker pulls images — the CI runners (jesse, walter)
 # first. After 003-docker.sh and 005-tailscale.sh.
 #
-# Points Docker at the Docker Hub pull-through cache on the NAS (../../registry-mirror), so a pull
-# reaches Docker Hub only when the cache does not have the image. Docker falls back to Docker Hub by
-# itself when the mirror does not answer, so a NAS outage slows a pull down and does not break it.
+# Points Docker at the registry caches on the NAS (../../registry-mirror), one per registry, so a
+# pull reaches the registry itself only when the cache does not have the image. Docker goes to the
+# registry by itself when its cache does not answer, so a NAS outage slows a pull down and does not
+# break it.
 #
-#   MIRROR=https://<nas>.<tailnet>.ts.net:5000 ./007-registry-mirror.sh   # use the cache
-#   MIRROR=off ./007-registry-mirror.sh                                   # stop using it
+#   NAS=<nas>.<tailnet>.ts.net ./007-registry-mirror.sh   # use the caches
+#   NAS=off ./007-registry-mirror.sh                      # stop using them
 #
-# This script owns /etc/docker/daemon.json and writes all of it: a setting the boxes need goes in
-# here, not into the file by hand. Safe to re-run: it reloads dockerd only when the file changed,
-# and a reload applies `registry-mirrors` without restarting a single container, the runner included.
+# It writes /etc/docker/certs.d/<registry>/hosts.toml for each registry below, which Docker reads
+# on every pull and every build, so nothing restarts. That needs Docker's containerd image store,
+# which jesse and walter use (`io.containerd.snapshotter.v1` in `docker info`); the classic store
+# pulls without reading hosts.toml, so the script refuses to run there.
 #
 
-DAEMON_JSON=${DAEMON_JSON:-/etc/docker/daemon.json}
-MIRROR=${MIRROR:?set MIRROR to the cache URL, https://<nas>.<tailnet>.ts.net:5000, or to off}
+CERTS_D=${CERTS_D:-/etc/docker/certs.d}
+NAS=${NAS:?set NAS to the NAS tailnet name, <nas>.<tailnet>.ts.net, or to off}
 
-case "$MIRROR" in
-# No file at all: dockerd reloads to its defaults when the default daemon.json is missing.
-off) want= ;;
-https://*) want=$(printf '{\n  "registry-mirrors": ["%s"]\n}' "$MIRROR") ;;
-*)
-	echo "MIRROR must be an https:// URL or off, got: $MIRROR" >&2
+# The registry, the host its server answers on, and the port of its cache on the NAS. The same
+# table is ../../registry-mirror/compose.yml.
+REGISTRIES='docker.io registry-1.docker.io 5000
+ghcr.io ghcr.io 5001
+docker.gitea.com docker.gitea.com 5002
+code.forgejo.org code.forgejo.org 5003'
+
+case "$NAS" in
+off) ;;
+*[!a-z0-9.-]*)
+	echo "NAS must be a host name such as <nas>.<tailnet>.ts.net, or off; got: $NAS" >&2
 	exit 1
+	;;
+*)
+	case "$(docker info --format '{{range .DriverStatus}}{{index . 1}} {{end}}')" in
+	*io.containerd.snapshotter.v1*) ;;
+	*)
+		echo "this Docker does not use the containerd image store, which is what reads hosts.toml" >&2
+		exit 1
+		;;
+	esac
 	;;
 esac
 
-have=$(cat "$DAEMON_JSON" 2>/dev/null || true)
-if [ "$have" = "$want" ]; then
-	echo "$DAEMON_JSON already says so, nothing to do"
-else
-	if [ -n "$want" ]; then
-		mkdir -p "$(dirname "$DAEMON_JSON")"
-		# Through a temporary file: dockerd will not start on a half-written daemon.json.
-		printf '%s\n' "$want" >"$DAEMON_JSON.tmp"
-		mv "$DAEMON_JSON.tmp" "$DAEMON_JSON"
-	else
-		rm -f "$DAEMON_JSON"
+echo "$REGISTRIES" | while read -r registry server port; do
+	dir=$CERTS_D/$registry
+	if [ "$NAS" = off ]; then
+		rm -f "$dir/hosts.toml"
+		# Only when empty: a CA certificate for the registry may live in the same directory.
+		rmdir "$dir" 2>/dev/null || true
+		echo "$registry: straight to $server"
+		continue
 	fi
-	systemctl reload docker
-	echo "$DAEMON_JSON rewritten, dockerd reloaded"
-fi
-echo "registry mirrors now: $(docker info --format '{{.RegistryConfig.Mirrors}}')"
+	mkdir -p "$dir"
+	printf 'server = "https://%s"\n\n[host."https://%s:%s"]\n  capabilities = ["pull", "resolve"]\n' \
+		"$server" "$NAS" "$port" >"$dir/hosts.toml.tmp"
+	mv "$dir/hosts.toml.tmp" "$dir/hosts.toml"
+	echo "$registry: through https://$NAS:$port"
+done

@@ -1,17 +1,50 @@
+# Pull-through caches of every registry the boxes pull images from, one per registry: a registry
+# proxies exactly one upstream. Read-only by design: each refuses a push.
+#
+# The port is the registry's address on the NAS. ../pollos/setup/007-registry-mirror.sh has the
+# same table, and the Makefile's SERVE_PORTS publishes the same ports; change all three together.
+#
+# Everything cached is deleted 7 days after it was fetched from upstream, used or not, and fetched
+# again on the next pull (REGISTRY_PROXY_TTL). That is what keeps the directories from growing
+# without end. Each cache is a directory under MIRROR_DATA, and an empty one is a valid start.
+
+x-cache: &cache
+  image: registry:3.1.2
+  restart: unless-stopped
+
 services:
-  # A pull-through cache of Docker Hub for the boxes that pull images, the CI runners first.
-  # Read-only by design: it refuses a push.
-  registry-mirror:
-    image: registry:3.1.2
-    container_name: registry-mirror
-    restart: unless-stopped
+  docker-io:
+    <<: *cache
+    container_name: registry-mirror-docker-io
     environment:
       REGISTRY_PROXY_REMOTEURL: https://registry-1.docker.io
-      # Everything cached is deleted 7 days after it was fetched from Docker Hub, used or not, and
-      # fetched again on the next pull. That is what keeps the directory from growing without end.
       REGISTRY_PROXY_TTL: 168h
-    ports:
-      - '127.0.0.1:5000:5000'
-    volumes:
-      # A cache: an empty directory is a valid start, see "Moving it" in the README.
-      - ${MIRROR_DATA:-./data}:/var/lib/registry
+    ports: ['127.0.0.1:5000:5000']
+    volumes: ['${MIRROR_DATA:-./data}/docker.io:/var/lib/registry']
+
+  ghcr-io:
+    <<: *cache
+    container_name: registry-mirror-ghcr-io
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://ghcr.io
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5001:5000']
+    volumes: ['${MIRROR_DATA:-./data}/ghcr.io:/var/lib/registry']
+
+  docker-gitea-com:
+    <<: *cache
+    container_name: registry-mirror-docker-gitea-com
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://docker.gitea.com
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5002:5000']
+    volumes: ['${MIRROR_DATA:-./data}/docker.gitea.com:/var/lib/registry']
+
+  code-forgejo-org:
+    <<: *cache
+    container_name: registry-mirror-code-forgejo-org
+    environment:
+      REGISTRY_PROXY_REMOTEURL: https://code.forgejo.org
+      REGISTRY_PROXY_TTL: 168h
+    ports: ['127.0.0.1:5003:5000']
+    volumes: ['${MIRROR_DATA:-./data}/code.forgejo.org:/var/lib/registry']

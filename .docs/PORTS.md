@@ -8,7 +8,10 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3000 | [forgejo](../forgejo)                 | web UI                                     |
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 3031 | [gotenberg](../gotenberg)             | PDF conversion API                         |
-| 5000 | [registry-mirror](../registry-mirror) | Docker Hub pull-through cache, 127.0.0.1 only; tailscale serve → https :5000 |
+| 5000 | [registry-mirror](../registry-mirror) | Docker Hub cache, 127.0.0.1 only; tailscale serve → https :5000 |
+| 5001 | [registry-mirror](../registry-mirror) | ghcr.io cache, 127.0.0.1 only; tailscale serve → https :5001 |
+| 5002 | [registry-mirror](../registry-mirror) | docker.gitea.com cache, 127.0.0.1 only; tailscale serve → https :5002 |
+| 5003 | [registry-mirror](../registry-mirror) | code.forgejo.org cache, 127.0.0.1 only; tailscale serve → https :5003 |
 | 5432 | [database](../database) (postgres 17) |                                            |
 | 8000 | [database](../database) (adminer)     | DB admin UI                                |
 | 8001 | [readeck](../readeck)                 |                                            |

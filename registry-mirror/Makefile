@@ -1,8 +1,9 @@
 .DEFAULT_GOAL := help
 
-# The tailnet port the runners reach the cache on. Not 443: `/v2` there is Forgejo's own registry
+# The ports the caches have on the NAS, one per registry, published on the tailnet as https on the
+# same number (compose.yml has the table). Not 443: `/v2` there is Forgejo's own registry
 # (../forgejo), and a registry is always at `/v2`, so the two cannot share a port.
-SERVE_PORT ?= 5000
+SERVE_PORTS ?= 5000 5001 5002 5003
 
 .PHONY: help up down logs serve unserve size
 
@@ -13,22 +14,22 @@ help: ## show this help
 
 ##@ Running it
 # `serve` too, so bringing the stack up also publishes it, and a rebuilt box needs no one to remember.
-up: ## start the cache and publish it on the tailnet
+up: ## start the caches and publish them on the tailnet
 	docker compose up -d
 	@$(MAKE) --no-print-directory serve || echo "warning: not published on the tailnet — see README"
 
-down: ## stop the cache; the boxes fall back to Docker Hub
+down: ## stop the caches; the boxes fall back to the registries themselves
 	docker compose down
 
-logs: ## follow the log, one line per pull it serves
+logs: ## follow the logs, one line per request a cache serves
 	docker compose logs -f
 
-size: ## how much the cache holds now
-	docker compose exec registry-mirror du -sh /var/lib/registry
+size: ## how much each cache holds now
+	@for s in $$(docker compose ps --services); do printf '%-18s ' "$$s"; docker compose exec "$$s" du -sh /var/lib/registry; done
 
 ##@ Tailnet
-serve: ## publish it on the tailnet, https on SERVE_PORT
-	tailscale serve --bg --https=$(SERVE_PORT) http://127.0.0.1:5000
+serve: ## publish the caches on the tailnet, https on SERVE_PORTS
+	@for p in $(SERVE_PORTS); do tailscale serve --bg --https=$$p http://127.0.0.1:$$p; done
 
-unserve: ## take it off the tailnet
-	tailscale serve --https=$(SERVE_PORT) off
+unserve: ## take them off the tailnet
+	@for p in $(SERVE_PORTS); do tailscale serve --https=$$p off; done

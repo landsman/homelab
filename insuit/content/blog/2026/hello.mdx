@@ -186,6 +186,48 @@ public record User(String name, int age) {
 }
 ```
 
+```hcl
+# HCL
+resource "cloudflare_pages_project" "site" {
+  account_id        = var.cloudflare_account_id
+  name              = "insuit-cz"
+  production_branch = "main"
+}
+```
+
+```css
+/* CSS */
+:root {
+  --accent: #0a3069;
+}
+
+.post pre:hover {
+  outline: 2px solid var(--accent);
+}
+```
+
+```gherkin
+# Gherkin
+Feature: Reading the blog before it is announced
+
+  Scenario: A hidden post is read by its address, and missing from the list
+    Given I open the post "hello"
+    Then I see the heading "Hello"
+    When I follow "Back"
+    Then I see the heading "Posts"
+```
+
+```makefile
+# Makefile
+.PHONY: build preview
+
+build: ## Build the site into dist/client
+	bun run build
+
+preview: build ## Serve it the way Pages does
+	bun run preview
+```
+
 ---
 
 | Part         | What it does                        | Where               |

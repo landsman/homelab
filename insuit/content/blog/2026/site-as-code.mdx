@@ -1,0 +1,166 @@
+---
+title: A personal site, all of it in code
+description: Terraform, Cloudflare Pages and GitHub Actions behind this site — what each one holds, what stays by hand and why, and the four things that tripped it up.
+lang: en
+published: 2026-10-06
+hidden: true
+---
+
+This site costs nothing a month and nothing about it is clicked together. The
+pages, the hosting, the analytics and the deploy all live in one folder of a
+public repo, [landsman/homelab](https://github.com/landsman/homelab), and a merge
+to `main` is the only way anything changes.
+
+The test I hold it to is simple: if my Cloudflare account were wiped tomorrow,
+what brings the site back? If the answer is "I remember clicking that", it is
+not done.
+
+## The pieces
+
+| Piece            | What it does                                  |
+| ---------------- | --------------------------------------------- |
+| WEDOS            | the registrar, paid once a year, nothing else |
+| Cloudflare DNS   | the zone for the domain                       |
+| Cloudflare Pages | hosts the built site, production and previews |
+| Cloudflare R2    | holds Terraform's state                       |
+| Terraform        | creates the Pages projects and the analytics  |
+| GitHub Actions   | tests every pull request, deploys every merge |
+
+No server, no container, no database. The site is built to static files and
+uploaded.
+
+## What Terraform holds
+
+Deliberately little: three Pages projects (the site, its previews, and a short
+link domain), Web Analytics, and one zone setting that hides email addresses
+from scrapers.
+
+State sits in an R2 bucket of its own, with a token that can reach only that
+bucket. R2 speaks S3, so the stock `s3` backend works once it stops asking AWS
+questions R2 cannot answer:
+
+```hcl
+backend "s3" {
+  bucket                      = "insuit-cz-tf-state"
+  key                         = "insuit-cz.tfstate"
+  region                      = "auto"
+  use_lockfile                = true
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_region_validation      = true
+  skip_requesting_account_id  = true
+  skip_s3_checksum            = true
+  use_path_style              = true
+}
+```
+
+The endpoint is the only part that names the account, so CI passes it in at
+`terraform init` rather than committing it.
+
+## What it does not hold, and why
+
+The DNS zone is still kept by hand. That is the honest leftover in an
+"everything as code" setup, and it has two real reasons behind it:
+
+- **The apex and `www` already carry A and AAAA records.** A CNAME cannot sit
+  next to them on the same name, so declaring one fails the apply — or replaces
+  a record the rest of the zone leans on.
+- **Cloudflare allows one ruleset per phase per zone.** Managing redirects in
+  Terraform means owning that one ruleset, which silently overwrites every
+  Redirect Rule already in the zone.
+
+Terraform leaves alone every record it does not declare, so a narrow config is
+safe next to a zone kept by hand. Bringing the zone in is the next step, and it
+starts with importing what is there — an apply before the import would create
+every record a second time.
+
+## The pipeline
+
+A pull request runs the checks — formatting, `terraform validate`, the tests —
+and uploads the build as a preview, with a comment on the PR linking to it.
+
+A merge to `main` runs three jobs:
+
+1. **`terraform apply`**, which also hands the next job the analytics token from
+   its outputs.
+2. **The build**, which fills in the values kept out of the repo: the analytics
+   token and the contact address, so it is not in a file anyone can search.
+3. **`wrangler pages deploy`**, and then a script that waits until
+   www.insuit.cz says it serves this commit before asking it the same questions
+   the tests asked the local build: the pages, the redirects, the 404, the
+   caching. An upload that succeeded is not a site that is live.
+
+## What tripped it up
+
+### An API token with Edit but not Read
+
+On the token's _Account Settings_ permission, tick **both** Read and Edit. Edit
+alone creates the Pages project fine, and every later `terraform plan` then
+fails with a 403, because refreshing the state needs Read
+([terraform-provider-cloudflare#3234](https://github.com/cloudflare/terraform-provider-cloudflare/issues/3234)).
+It looks like a broken token, not a missing tick.
+
+### Chrome thought the previews were phishing
+
+Pages gives each branch an address like `my-branch.insuit-cz.pages.dev`. Chrome
+saw `insuit-cz` inside a host that is not insuit.cz and put a "Did you mean
+insuit.cz?" warning in front of every preview — its lookalike-URL check.
+
+Renaming the production project was out: Terraform would replace it, and the
+custom domain is attached to it. So the previews moved to a second project whose
+name does not carry the domain:
+
+```hcl
+resource "cloudflare_pages_project" "preview" {
+  account_id        = var.cloudflare_account_id
+  name              = "insuit-preview"
+  production_branch = "main"
+}
+```
+
+### Two pushes, one preview
+
+Two quick pushes to one pull request started two runs. The older one finished
+last, overwrote the preview, and its own check failed with "serves commit X, not
+Y". One `concurrency` group fixes it, cancelling only on pull requests so a
+deploy to `main` is never cut off halfway:
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+```
+
+### `/contact`, not `/contact.html`
+
+On Pages the file layout decides the address. A flat `contact.html` is served at
+`/contact`, and both `/contact/` and `/contact.html` redirect to it. A plain
+static server on a laptop does not do that, so the local preview is a small
+script that follows Pages' rules, and the tests run against it. After a deploy,
+the same questions go to the real Pages, in case the two ever disagree.
+
+## A bonus: QR codes that can change after printing
+
+My printed CV carries QR codes. They point not at the targets but at
+`link.insuit.cz`, a separate Pages project holding one hand-kept `_redirects`
+file:
+
+```
+/github https://github.com/landsman 302
+```
+
+The paper stays the same; the target can move. The one rule that comes with it:
+a printed code is never deleted or reused.
+
+## What it costs
+
+Nothing. Pages projects are free, up to 100 per account. The free plan allows
+500 builds a month on Cloudflare's builders; here the build runs in GitHub
+Actions and only the result is uploaded. Previews are unlimited. R2 holds one small state file. The
+only bill is the domain, once a year.
+
+If you want to copy the setup, the whole thing is in
+[the `insuit` folder](https://github.com/landsman/homelab/tree/main/insuit):
+`infra/` for Terraform, and the pipeline next door in
+[`.github/workflows/`](https://github.com/landsman/homelab/tree/main/.github/workflows),
+the two `insuit-*.yml` files.

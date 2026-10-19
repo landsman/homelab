@@ -80,7 +80,6 @@ shell: ## shellcheck the scripts, and test the decisions CI makes with them
 	shellcheck scripts/*.sh
 	scripts/preview-comment.test.sh
 	scripts/app-changed.test.sh
-	scripts/report-comment.test.sh
 
 browser: ## Install the Playwright browser if it is missing
 	bunx playwright install chromium

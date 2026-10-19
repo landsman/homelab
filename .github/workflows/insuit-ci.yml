@@ -118,7 +118,7 @@ jobs:
       - name: "Find the Cucumber report"
         id: report
         if: ${{ failure() && steps.bdd.outcome == 'failure' }}
-        run: echo "url=$(scripts/report-comment.sh url < "$RUNNER_TEMP/bdd.log")" >> "$GITHUB_OUTPUT"
+        run: echo "url=$(../.github/report-comment.sh url < "$RUNNER_TEMP/bdd.log")" >> "$GITHUB_OUTPUT"
 
       # Green runs too, kept longer than the published link.
       - name: "Upload the Cucumber report"
@@ -155,7 +155,7 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           URL: ${{ needs.site.outputs.report }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
-        run: insuit/scripts/report-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
+        run: .github/report-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
 
   # Cloudflare builds no previews on its own — the Pages project is fed by
   # direct upload, not connected to git. So every PR uploads its build under

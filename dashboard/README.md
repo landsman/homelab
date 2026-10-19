@@ -58,6 +58,9 @@ real browser, so they are kept out of `make qa` — CI runs them as their own st
 `support/` starts the app and hands every scenario its own browser context.
 Both runners drive the same browser — Cucumber exists for scenarios that someone
 outside the code has to read.
+In CI their report is published to reports.cucumber.io (the link is in the
+"Feature tests" log for 24 hours, and commented on a PR whose feature tests
+failed) and kept 14 days as the run's `cucumber-report` artifact.
 
 ## Adding a service
 

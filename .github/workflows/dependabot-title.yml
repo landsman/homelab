@@ -17,8 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: "shellcheck + title tests"
-        run: shellcheck .github/dependabot-title*.sh && .github/dependabot-title.test.sh
+      # Every PR, so the shared scripts beside it are tested here too.
+      - name: "shellcheck + script tests"
+        run: shellcheck .github/*.sh && .github/dependabot-title.test.sh && .github/report-comment.test.sh
 
   retitle:
     needs: test

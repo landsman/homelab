@@ -5,6 +5,6 @@ Feature: Landing on an address that is no page
 
   Scenario: A mistyped address leads home
     Given I open an address that is no page
-    Then I see the heading "Nothing here"
+    Then I see the heading "Nothing here, on purpose"
     When I follow "Go to the homepage"
     Then I see the heading "Hello there!"

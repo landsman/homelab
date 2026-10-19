@@ -3,4 +3,5 @@ dist/
 
 # Playwright
 test-results/
+reports/
 playwright-report/

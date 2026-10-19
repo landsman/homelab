@@ -12,6 +12,8 @@ jobs:
     # Self-hosted runner on Raspberry Pi 5 — see ./github-runner/README.md
     #runs-on: [self-hosted, pi5]
     runs-on: ubuntu-latest
+    outputs:
+      report: ${{ steps.report.outputs.url }}
     defaults:
       run:
         working-directory: dashboard
@@ -59,8 +61,57 @@ jobs:
       - name: "End-to-end tests"
         run: make e2e
 
+      # Publishes the report to reports.cucumber.io and prints its link; anyone
+      # holding it can read it for 24 hours. `shell: bash` adds pipefail, so tee
+      # does not swallow a failed run.
       - name: "Feature tests"
-        run: make bdd
+        id: bdd
+        shell: bash
+        env:
+          CUCUMBER_PUBLISH_ENABLED: "true"
+        run: make bdd 2>&1 | tee "$RUNNER_TEMP/bdd.log"
+
+      # Handed to the report-comment job, which holds the token to post it.
+      - name: "Find the Cucumber report"
+        id: report
+        if: ${{ failure() && steps.bdd.outcome == 'failure' }}
+        run: echo "url=$(../.github/report-comment.sh url < "$RUNNER_TEMP/bdd.log")" >> "$GITHUB_OUTPUT"
+
+      # Green runs too, kept longer than the published link.
+      - name: "Upload the Cucumber report"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: cucumber-report
+          path: dashboard/reports/cucumber.html
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # A failed feature run links its published report on the PR, from a job of
+  # its own: `tests` runs what the PR installs, so it holds no token that can
+  # write. Fork and Dependabot PRs get a read-only one.
+  report-comment:
+    needs: tests
+    if: |
+      failure() &&
+      needs.tests.outputs.report != '' &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Comment the report link"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ needs.tests.outputs.report }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: .github/report-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
 
   security:
     uses: landsman/config/.github/workflows/semgrep.yml@main

@@ -102,8 +102,22 @@ jobs:
           path: insuit/dist/client
           retention-days: 1
 
+      # Every run also publishes the report to reports.cucumber.io and prints
+      # its link here; anyone holding the link can read it for 24 hours.
       - name: "Feature tests"
+        env:
+          CUCUMBER_PUBLISH_ENABLED: "true"
         run: make bdd
+
+      # Green runs too, kept longer than the published link.
+      - name: "Upload the Cucumber report"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: cucumber-report
+          path: insuit/reports/cucumber.html
+          if-no-files-found: ignore
+          retention-days: 14
 
   # Cloudflare builds no previews on its own — the Pages project is fed by
   # direct upload, not connected to git. So every PR uploads its build under

@@ -328,7 +328,9 @@ Push to `main` touching `insuit/**` → `.github/workflows/insuit-deploy.yml`:
 3. `wrangler pages deploy insuit/dist/client`.
 
 PRs run `.github/workflows/insuit-ci.yml` — `make qa`, the e2e and Cucumber
-suites against the built site, and `terraform fmt`/`validate`. Each PR from a branch of this
+suites against the built site, and `terraform fmt`/`validate`. The Cucumber
+report is published to reports.cucumber.io, its link in the "Feature tests" log
+for 24 hours, and kept 14 days as the run's `cucumber-report` artifact. Each PR from a branch of this
 repo is also uploaded to Pages under its branch name, and the preview's address
 is posted on the PR: the project is fed by direct upload, so Cloudflare builds
 no previews of its own. A preview is the build the tests ran against: its

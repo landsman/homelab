@@ -33,6 +33,8 @@ jobs:
     # A step that hangs fails the job here instead of holding a runner for
     # the six hours GitHub allows by default.
     timeout-minutes: 10
+    outputs:
+      report: ${{ steps.report.outputs.url }}
     defaults:
       run:
         working-directory: insuit
@@ -104,10 +106,19 @@ jobs:
 
       # Every run also publishes the report to reports.cucumber.io and prints
       # its link here; anyone holding the link can read it for 24 hours.
+      # `shell: bash` adds pipefail, so tee does not swallow a failed run.
       - name: "Feature tests"
+        id: bdd
+        shell: bash
         env:
           CUCUMBER_PUBLISH_ENABLED: "true"
-        run: make bdd
+        run: make bdd 2>&1 | tee "$RUNNER_TEMP/bdd.log"
+
+      # Handed to the report-comment job, which holds the token to post it.
+      - name: "Find the Cucumber report"
+        id: report
+        if: ${{ failure() && steps.bdd.outcome == 'failure' }}
+        run: echo "url=$(scripts/report-comment.sh url < "$RUNNER_TEMP/bdd.log")" >> "$GITHUB_OUTPUT"
 
       # Green runs too, kept longer than the published link.
       - name: "Upload the Cucumber report"
@@ -118,6 +129,33 @@ jobs:
           path: insuit/reports/cucumber.html
           if-no-files-found: ignore
           retention-days: 14
+
+  # A failed feature run links its published report on the PR. A job of its
+  # own, like the preview's comment: `site` runs what the PR installs, so it
+  # holds no token that can write. Fork and Dependabot PRs get a read-only one.
+  report-comment:
+    needs: site
+    if: |
+      failure() &&
+      needs.site.outputs.report != '' &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Comment the report link"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ needs.site.outputs.report }}
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: insuit/scripts/report-comment.sh post "$GITHUB_REPOSITORY" "$PR" "$URL" "$COMMIT"
 
   # Cloudflare builds no previews on its own — the Pages project is fed by
   # direct upload, not connected to git. So every PR uploads its build under

@@ -15,7 +15,8 @@ url() {
 post() {
   local repo=$1 pr=$2 url=$3 commit=$4
   gh pr comment "$pr" --repo "$repo" \
-    --body "Feature tests failed on $commit. Cucumber report, readable for 24 hours: $url"
+    --body "Feature tests failed on $commit.
+Cucumber report, readable for 24 hours: $url"
 }
 
 case ${1:-} in

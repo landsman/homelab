@@ -7,6 +7,12 @@ on:
       - 'forgejo/**'
       - '!**/*.md'
 
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     runs-on: ubuntu-latest

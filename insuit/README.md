@@ -357,7 +357,7 @@ Today the domain serves: `insuit.cz` → 301 → `www.insuit.cz` → 301 →
 To point it at this site, in the Cloudflare dashboard:
 
 1. **Redirect Rules** → delete (or disable) the `www.insuit.cz →
-github.com/landsman` rule. Keep the apex→www rule; it's the direction this
+   github.com/landsman` rule. Keep the apex→www rule; it's the direction this
    site's `og:url` already assumes.
 2. **DNS** → delete the A and AAAA records on `www.insuit.cz`, and replace them
    with `CNAME www → insuit-cz.pages.dev`, proxied.

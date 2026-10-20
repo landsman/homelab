@@ -1,0 +1,3 @@
+.env
+# downloaded by make up
+grafana/dashboards/node-exporter-full.json

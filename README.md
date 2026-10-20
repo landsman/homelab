@@ -22,6 +22,7 @@ Playground for my local homelab.
 - [ArchiveBox](archivebox) for archiving whole websites
 - [IP service](ip-service)
 - [Whisper](whisper) speech-to-text API for transcribing videos, runs on-demand on a pollos node
+- [Telemetry](telemetry) Prometheus, Loki and Grafana for every host's hardware, the Pi's containers and their logs
 
 ## Useful links
 

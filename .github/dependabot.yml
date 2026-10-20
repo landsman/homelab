@@ -218,6 +218,20 @@ updates:
     commit-message:
       prefix: deps(yt-archive)
 
+  - package-ecosystem: docker-compose
+    directory: /telemetry
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps(telemetry)
+
   ## dockerfile services
   - package-ecosystem: docker
     directory: /github-runner
@@ -329,3 +343,23 @@ updates:
       default-days: 7
     commit-message:
       prefix: deps(pollos)
+
+  ## telemetry
+  - package-ecosystem: terraform
+    directory: /telemetry/infra
+    schedule:
+      interval: weekly
+    ignore:
+      # breaks every DNS record apply; drop once a fixed release is out
+      # (https://github.com/cloudflare/terraform-provider-cloudflare/issues/7387)
+      - dependency-name: cloudflare/cloudflare
+        versions: ["5.26.0"]
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps(telemetry)

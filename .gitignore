@@ -1,5 +1,4 @@
 .idea/*
-!.idea/prettier.xml
 .playwright-mcp
 
 # Claude Code — keep shared config (settings.json, settings.template.json, skills/),

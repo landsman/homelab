@@ -46,7 +46,7 @@ echo "asset version: ${ASSET_VERSION}"
 
 # Append ?v=ASSET_VERSION to every url(...) reference inside any built CSS,
 # so @imports and CSS-referenced icons all bust when content changes.
-# Match both quote styles — Prettier normalizes CSS strings to single quotes.
+# Match both quote styles — oxfmt normalizes CSS strings to single quotes.
 find public/assets -type f -name '*.css' -print0 \
   | xargs -0 sed -i.bak -E \
     -e "s|url\(\"([^\"?]+)\"\)|url(\"\1?v=${ASSET_VERSION}\")|g" \

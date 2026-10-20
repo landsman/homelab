@@ -65,7 +65,7 @@ e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms,
 bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
 	npm run test:bdd
 
-format: ## Format all files with Prettier
+format: ## Format all files with oxfmt (config in the repo root .oxfmtrc.json)
 	npm run format:fix
 
 format-check: ## Check formatting without writing

@@ -31,7 +31,7 @@
 - Keep solutions minimal — don't add features, refactors, or comments beyond what was asked
 - No docstrings or type annotations on unchanged code
 - Prefer editing existing files over creating new ones
-- After editing files, always run prettier on changed files
+- After editing files, run `make format` in the project you changed
 
 ## Tests (`dashboard/`)
 - **Every new user-facing feature ships with both a Cucumber scenario and an e2e spec** — a scenario in `tests/bdd/features/*.feature` saying what the feature is for, and a Playwright spec in `tests/e2e/<area>/` pinning the behaviour down. Not one or the other, and not "later"

@@ -57,8 +57,8 @@ lint: ## Lint shell (shellcheck) + JS (oxlint)
 	shellcheck -x cli/*.sh src/setup/*.sh
 	@npx oxlint
 
-# Format CSS, HTML, JS and JSON with Prettier (config in .prettierrc).
-format: ## Format files with Prettier
+# Format CSS, HTML, JS and JSON with oxfmt (config in the repo root .oxfmtrc.json).
+format: ## Format files with oxfmt
 	npm run format:fix
 
 # Check formatting without writing — use in CI.

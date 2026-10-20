@@ -27,6 +27,6 @@ ci:
 	npm run typecheck
 	npm run format:check
 
-# Format source with Prettier (config in .prettierrc).
+# Format source with oxfmt (config in the repo root .oxfmtrc.json).
 format:
 	npm run format

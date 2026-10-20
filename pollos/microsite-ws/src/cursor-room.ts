@@ -129,7 +129,7 @@ export class CursorRoom extends DurableObject<Env> {
         color: String(data.color ?? '').slice(0, 24),
         country: self.country,
       }),
-      ws,
+      ws
     )
   }
 
@@ -159,7 +159,7 @@ export class CursorRoom extends DurableObject<Env> {
     }
     b.tokens = Math.min(
       SOCKET_BUCKET_CAPACITY,
-      b.tokens + ((now - b.last) / 1000) * SOCKET_REFILL_PER_SEC,
+      b.tokens + ((now - b.last) / 1000) * SOCKET_REFILL_PER_SEC
     )
     b.last = now
     if (b.tokens < 1) return false

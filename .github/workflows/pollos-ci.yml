@@ -42,6 +42,9 @@ jobs:
       - name: "Lint (shellcheck + oxlint)"
         run: make lint
 
+      - name: "Format check (oxfmt)"
+        run: make format-check
+
       - name: "Build static site"
         run: make build
 

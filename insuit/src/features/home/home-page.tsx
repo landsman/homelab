@@ -1,4 +1,4 @@
-import { m } from "@/paraglide/messages.js";
+import { m } from '@/paraglide/messages.js'
 
 export function HomePage() {
   return (
@@ -11,5 +11,5 @@ export function HomePage() {
         <p>{m.home_craft()}</p>
       </div>
     </main>
-  );
+  )
 }

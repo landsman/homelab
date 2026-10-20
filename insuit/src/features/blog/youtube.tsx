@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { youtubeThumbnail } from "@/app/assets";
-import { m } from "@/paraglide/messages.js";
+import { useEffect, useRef, useState } from 'react'
+import { youtubeThumbnail } from '@/app/assets'
+import { m } from '@/paraglide/messages.js'
 
 type Props = {
   /** The video's id, the `v=` of its watch address. */
-  id: string;
+  id: string
   /** What the video is; it names the play button and the player. */
-  title: string;
+  title: string
   /** A picture under the play button, in place of the video's thumbnail. */
-  poster?: string;
-};
+  poster?: string
+}
 
 /**
  * A YouTube video in a post: `<YouTube id="…" title="…" />`. It waits as a play
@@ -20,14 +20,14 @@ type Props = {
  * same (features/cv/project-dialog.tsx).
  */
 export function YouTube({ id, title, poster }: Props) {
-  const [playing, setPlaying] = useState(false);
-  const label = m.common_video_play({ title });
+  const [playing, setPlaying] = useState(false)
+  const label = m.common_video_play({ title })
   // The button goes when it is pressed; focus goes on to the player in its
   // place, or it would drop to the top of the page (WCAG 2.4.3).
-  const player = useRef<HTMLIFrameElement>(null);
+  const player = useRef<HTMLIFrameElement>(null)
   useEffect(() => {
-    if (playing) player.current?.focus();
-  }, [playing]);
+    if (playing) player.current?.focus()
+  }, [playing])
 
   if (playing)
     return (
@@ -41,7 +41,7 @@ export function YouTube({ id, title, poster }: Props) {
         allowFullScreen
         referrerPolicy="strict-origin-when-cross-origin"
       />
-    );
+    )
 
   return (
     <button
@@ -56,5 +56,5 @@ export function YouTube({ id, title, poster }: Props) {
         <span className="icon-play" />
       </span>
     </button>
-  );
+  )
 }

@@ -22,16 +22,16 @@
 }
 
 .icon-theme {
-  -webkit-mask-image: url("/assets/icons/theme.svg");
-  mask-image: url("/assets/icons/theme.svg");
+  -webkit-mask-image: url('/assets/icons/theme.svg');
+  mask-image: url('/assets/icons/theme.svg');
 }
 
 .icon-external {
-  -webkit-mask-image: url("/assets/icons/external.svg");
-  mask-image: url("/assets/icons/external.svg");
+  -webkit-mask-image: url('/assets/icons/external.svg');
+  mask-image: url('/assets/icons/external.svg');
 }
 
 .icon-play {
-  -webkit-mask-image: url("/assets/icons/play.svg");
-  mask-image: url("/assets/icons/play.svg");
+  -webkit-mask-image: url('/assets/icons/play.svg');
+  mask-image: url('/assets/icons/play.svg');
 }

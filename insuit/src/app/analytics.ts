@@ -4,12 +4,12 @@
  * so a local page view never counts as a visit.
  */
 export function loadAnalytics() {
-  const token = import.meta.env.VITE_CF_BEACON_TOKEN;
-  if (!token) return;
+  const token = import.meta.env.VITE_CF_BEACON_TOKEN
+  if (!token) return
 
-  const beacon = document.createElement("script");
-  beacon.defer = true;
-  beacon.src = "https://static.cloudflareinsights.com/beacon.min.js";
-  beacon.dataset.cfBeacon = JSON.stringify({ token });
-  document.head.append(beacon);
+  const beacon = document.createElement('script')
+  beacon.defer = true
+  beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+  beacon.dataset.cfBeacon = JSON.stringify({ token })
+  document.head.append(beacon)
 }

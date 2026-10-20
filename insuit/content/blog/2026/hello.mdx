@@ -24,7 +24,7 @@ The pictures here are stock photos from Unsplash, served by Picsum
 (picsum.photos), so the post carries no picture of its own. A single picture is
 plain markdown, its caption the title in quotes:
 
-![A deep blue fjord between grey cliffs, seen from high on a rock ledge](https://picsum.photos/id/1015/1600/1067 "A fjord. Photo: Alexey Topolyanskiy, Unsplash")
+![A deep blue fjord between grey cliffs, seen from high on a rock ledge](https://picsum.photos/id/1015/1600/1067 'A fjord. Photo: Alexey Topolyanskiy, Unsplash')
 
 A gallery is a component. A click opens a picture full size, and the arrow keys
 step through the rest:
@@ -32,19 +32,19 @@ step through the rest:
 <Gallery
   images={[
     {
-      src: "https://picsum.photos/id/1025/1000/1500",
-      alt: "A pug wrapped up to its face in a striped blanket, sitting on a forest path",
-      title: "Ready for autumn. Photo: Matthew Wiebe, Unsplash",
+      src: 'https://picsum.photos/id/1025/1000/1500',
+      alt: 'A pug wrapped up to its face in a striped blanket, sitting on a forest path',
+      title: 'Ready for autumn. Photo: Matthew Wiebe, Unsplash',
     },
     {
-      src: "https://picsum.photos/id/1043/1600/1067",
-      alt: "A calm river among pines, under a granite cliff",
-      title: "Photo: Christian Joudrey, Unsplash",
+      src: 'https://picsum.photos/id/1043/1600/1067',
+      alt: 'A calm river among pines, under a granite cliff',
+      title: 'Photo: Christian Joudrey, Unsplash',
     },
     {
-      src: "https://picsum.photos/id/1039/1600/1067",
-      alt: "A waterfall dropping into a mossy green gorge in a misty forest",
-      title: "Photo: Andrew Coelho, Unsplash",
+      src: 'https://picsum.photos/id/1039/1600/1067',
+      alt: 'A waterfall dropping into a mossy green gorge in a misty forest',
+      title: 'Photo: Andrew Coelho, Unsplash',
     },
   ]}
 />
@@ -82,7 +82,7 @@ A footnote mark jumps to its note at the end of the post.[^1]
 
 ```ts
 // A block of code keeps its lines and scrolls sideways when one is too long for the column it sits in.
-export const greet = (name: string) => `Hello, ${name}!`;
+export const greet = (name: string) => `Hello, ${name}!`
 ```
 
 ### Code, coloured
@@ -91,18 +91,18 @@ One block per language the highlighter knows, to see each one in both themes.
 
 ```js
 // JavaScript
-const items = [1, 2, 3].map((n) => n * 2);
-console.log(`doubled: ${items.join(", ")}`);
+const items = [1, 2, 3].map(n => n * 2)
+console.log(`doubled: ${items.join(', ')}`)
 ```
 
 ```tsx
 // TypeScript with JSX
-type Props = { name: string; count?: number };
+type Props = { name: string; count?: number }
 export const Badge = ({ name, count = 0 }: Props) => (
   <span className="badge">
     {name}: {count}
   </span>
-);
+)
 ```
 
 ```yaml
@@ -145,7 +145,7 @@ Some **bold**, a [link](https://example.com/) and a list:
 - two
 
 ```ts
-const nested = true;
+const nested = true
 ```
 ````
 

@@ -60,22 +60,22 @@
   margin: 14mm 15mm 16mm;
 
   @top-left {
-    content: "";
+    content: '';
   }
   @top-center {
-    content: "";
+    content: '';
   }
   @top-right {
-    content: "";
+    content: '';
   }
   @bottom-left {
-    content: "Michal Landsman · www.insuit.cz";
+    content: 'Michal Landsman · www.insuit.cz';
     font-family: var(--font-mono);
     font-size: 7.5pt;
     color: var(--light-muted);
   }
   @bottom-right {
-    content: counter(page) " / " counter(pages);
+    content: counter(page) ' / ' counter(pages);
     font-family: var(--font-mono);
     font-size: 7.5pt;
     color: var(--light-muted);

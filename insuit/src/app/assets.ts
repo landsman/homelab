@@ -7,19 +7,19 @@
 
 export const ICONS = {
   /** The tab's icon; app/animated-favicon.ts swaps it for the rotating disc. */
-  favicon: "/assets/icons/favicon.svg",
-  appleTouch: "/assets/icons/apple-touch-icon.png",
+  favicon: '/assets/icons/favicon.svg',
+  appleTouch: '/assets/icons/apple-touch-icon.png',
   /** The link-preview card: 1200×630, rendered from og/og.html by `make og`. */
-  share: "/assets/icons/og-image.png",
-} as const;
+  share: '/assets/icons/og-image.png',
+} as const
 
 // The same two files styles/fonts.css declares; named here to preload them.
 export const FONTS = {
-  regular: "/assets/fonts/fira-mono-latin-400-normal.woff2",
+  regular: '/assets/fonts/fira-mono-latin-400-normal.woff2',
   /** The CV, and the headings inside a page's text (/work-with-me). */
-  medium: "/assets/fonts/fira-mono-latin-500-normal.woff2",
-} as const;
+  medium: '/assets/fonts/fira-mono-latin-500-normal.woff2',
+} as const
 
 /** A YouTube video's thumbnail, fetched into the build by vite/youtube.ts so a
     page shows it without asking YouTube (features/blog/youtube.tsx). */
-export const youtubeThumbnail = (id: string) => `/assets/blog/youtube/${id}.jpg`;
+export const youtubeThumbnail = (id: string) => `/assets/blog/youtube/${id}.jpg`

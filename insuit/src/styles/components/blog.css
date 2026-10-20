@@ -162,8 +162,8 @@ button.blog-video:focus-visible {
   text-decoration: var(--shiki-light-text-decoration);
 }
 @media screen and (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .blog-post .content .shiki,
-  :root:not([data-theme="light"]) .blog-post .content .shiki span {
+  :root:not([data-theme='light']) .blog-post .content .shiki,
+  :root:not([data-theme='light']) .blog-post .content .shiki span {
     color: var(--shiki-dark);
     font-style: var(--shiki-dark-font-style);
     font-weight: var(--shiki-dark-font-weight);
@@ -171,8 +171,8 @@ button.blog-video:focus-visible {
   }
 }
 @media screen {
-  :root[data-theme="dark"] .blog-post .content .shiki,
-  :root[data-theme="dark"] .blog-post .content .shiki span {
+  :root[data-theme='dark'] .blog-post .content .shiki,
+  :root[data-theme='dark'] .blog-post .content .shiki span {
     color: var(--shiki-dark);
     font-style: var(--shiki-dark-font-style);
     font-weight: var(--shiki-dark-font-weight);

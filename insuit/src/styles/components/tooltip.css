@@ -24,14 +24,14 @@
 }
 /* The arrow. */
 [data-tooltip]::before {
-  content: "";
+  content: '';
   margin-bottom: 2px;
   border: 6px solid transparent;
   border-top-color: var(--color-fg);
 }
 /* The bubble. */
 [data-tooltip]::after {
-  content: attr(data-tooltip) / "";
+  content: attr(data-tooltip) / '';
   margin-bottom: 14px;
   padding: 0.4em 0.8em;
   font-size: var(--font-size-small);
@@ -47,18 +47,18 @@
   transform: translate(-50%, 0);
 }
 
-[data-tooltip-position="bottom"]::before,
-[data-tooltip-position="bottom"]::after {
+[data-tooltip-position='bottom']::before,
+[data-tooltip-position='bottom']::after {
   top: 100%;
   bottom: auto;
   transform: translate(-50%, -4px);
 }
-[data-tooltip-position="bottom"]::before {
+[data-tooltip-position='bottom']::before {
   margin: 2px 0 0;
   border-color: transparent;
   border-bottom-color: var(--color-fg);
 }
-[data-tooltip-position="bottom"]::after {
+[data-tooltip-position='bottom']::after {
   margin: 14px 0 0;
 }
 

@@ -1,8 +1,8 @@
-import type { Page } from "@playwright/test";
-import { PAGES } from "@/app/routes";
-import { expect } from "./fixture";
+import type { Page } from '@playwright/test'
+import { PAGES } from '@/app/routes'
+import { expect } from './fixture'
 
-export { PAGES };
+export { PAGES }
 
 /**
  * Waits until React has taken the page over. Before that a link is a plain
@@ -10,7 +10,7 @@ export { PAGES };
  * the app runs, so it marks the moment.
  */
 export async function waitForApp(page: Page) {
-  await expect(page.getByRole("button", { name: /Switch to (dark|light) theme/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Switch to (dark|light) theme/ })).toBeVisible()
 }
 
 /**
@@ -19,19 +19,19 @@ export async function waitForApp(page: Page) {
  * that what it rendered differs from the HTML it was given.
  */
 export async function expectCleanTakeover(page: Page, path: string) {
-  const errors: string[] = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") errors.push(message.text());
-  });
-  page.on("pageerror", (error) => errors.push(error.message));
+  const errors: string[] = []
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(message.text())
+  })
+  page.on('pageerror', error => errors.push(error.message))
 
-  const response = await page.goto(path);
-  await waitForApp(page);
+  const response = await page.goto(path)
+  await waitForApp(page)
 
   // The one expected line: the browser's own report of a 404 response.
-  const unexpected = errors.filter((text) => !(response?.status() === 404 && text.includes("404")));
-  expect(unexpected).toEqual([]);
+  const unexpected = errors.filter(text => !(response?.status() === 404 && text.includes('404')))
+  expect(unexpected).toEqual([])
 }
 
 /** Every page, and an address that is none. */
-export const TAKEOVER_PATHS = [...PAGES, "/no-such-page"];
+export const TAKEOVER_PATHS = [...PAGES, '/no-such-page']

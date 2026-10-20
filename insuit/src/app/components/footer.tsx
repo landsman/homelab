@@ -1,13 +1,13 @@
-import { Link, useMatches, useRouterState } from "@tanstack/react-router";
-import { ROUTES } from "@/app/routes";
-import { ThemeToggle } from "@/app/components/theme-toggle";
-import { m } from "@/paraglide/messages.js";
+import { Link, useMatches, useRouterState } from '@tanstack/react-router'
+import { ROUTES } from '@/app/routes'
+import { ThemeToggle } from '@/app/components/theme-toggle'
+import { m } from '@/paraglide/messages.js'
 
 export function Footer() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({ select: s => s.location.pathname })
   // Back is one level up, which the page's own route names (`staticData.up`,
   // as a post names the blog's list); home for every page that does not.
-  const up = useMatches({ select: (matches) => matches.at(-1)?.staticData.up }) ?? ROUTES.home;
+  const up = useMatches({ select: matches => matches.at(-1)?.staticData.up }) ?? ROUTES.home
 
   return (
     <footer>
@@ -32,5 +32,5 @@ export function Footer() {
           there it sits top right (routes/__root.tsx). */}
       {pathname !== ROUTES.home && <ThemeToggle />}
     </footer>
-  );
+  )
 }

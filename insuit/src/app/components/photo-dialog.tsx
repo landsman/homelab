@@ -1,31 +1,31 @@
-import { useRef } from "react";
-import { Modal } from "@/app/components/modal";
-import { useSwipe } from "@/app/hooks/use-swipe";
-import { m } from "@/paraglide/messages.js";
+import { useRef } from 'react'
+import { Modal } from '@/app/components/modal'
+import { useSwipe } from '@/app/hooks/use-swipe'
+import { m } from '@/paraglide/messages.js'
 
 /** A picture the viewer can show: a markdown title, when it has one, is its caption. */
-export type Photo = { src: string; alt: string; title?: string };
+export type Photo = { src: string; alt: string; title?: string }
 
 type Props = {
   /** The photos in gallery order, and which one is shown. */
-  zoom: { photos: Photo[]; index: number } | null;
+  zoom: { photos: Photo[]; index: number } | null
   /** Move to the previous (-1) or next (+1) photo. */
-  onStep: (by: number) => void;
-  onClose: () => void;
-};
+  onStep: (by: number) => void
+  onClose: () => void
+}
 
 /**
  * A photo at full size, with arrows to the others: a CV project's (stacked on
  * its dialog) or a post's gallery's (features/blog/gallery.tsx).
  */
 export function PhotoDialog({ zoom, onStep, onClose }: Props) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const photo = zoom?.photos[zoom.index];
+  const dialog = useRef<HTMLDialogElement>(null)
+  const photo = zoom?.photos[zoom.index]
   // One photo has nowhere to step to, so the arrows stay out of the way.
-  const single = (zoom?.photos.length ?? 0) < 2;
-  const swipe = useSwipe((by) => {
-    if (!single) onStep(by);
-  });
+  const single = (zoom?.photos.length ?? 0) < 2
+  const swipe = useSwipe(by => {
+    if (!single) onStep(by)
+  })
 
   return (
     <Modal
@@ -34,10 +34,10 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
       onClose={onClose}
       className="photo-dialog"
       aria-label={m.common_photo_label()}
-      onKeyDown={(event) => {
-        if (single) return;
-        if (event.key === "ArrowLeft") onStep(-1);
-        else if (event.key === "ArrowRight") onStep(1);
+      onKeyDown={event => {
+        if (single) return
+        if (event.key === 'ArrowLeft') onStep(-1)
+        else if (event.key === 'ArrowRight') onStep(1)
       }}
     >
       <button
@@ -67,5 +67,5 @@ export function PhotoDialog({ zoom, onStep, onClose }: Props) {
         </figure>
       )}
     </Modal>
-  );
+  )
 }

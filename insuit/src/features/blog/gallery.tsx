@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { PhotoDialog, type Photo } from "@/app/components/photo-dialog";
-import { getLocale } from "@/paraglide/runtime.js";
+import { useState } from 'react'
+import { PhotoDialog, type Photo } from '@/app/components/photo-dialog'
+import { getLocale } from '@/paraglide/runtime.js'
 
 type Props = {
   /** The pictures in order: `src` and `alt` each, `title` for a caption. */
-  images: Photo[];
-};
+  images: Photo[]
+}
 
 /**
  * Pictures in a row of frames in a post: `<Gallery images={[{ src, alt }, …]} />`.
@@ -13,9 +13,9 @@ type Props = {
  * (app/components/photo-dialog.tsx, styled by media.css).
  */
 export function Gallery({ images }: Props) {
-  const [index, setIndex] = useState<number | null>(null);
+  const [index, setIndex] = useState<number | null>(null)
   const step = (by: number) =>
-    setIndex((at) => (at === null ? null : (at + by + images.length) % images.length));
+    setIndex(at => (at === null ? null : (at + by + images.length) % images.length))
 
   return (
     <>
@@ -36,5 +36,5 @@ export function Gallery({ images }: Props) {
         />
       </div>
     </>
-  );
+  )
 }

@@ -19,10 +19,11 @@ setup: install ## Install deps and configure git hooks
 dev: ## Start Bun server locally
 	bun dev
 
-qa: ## Run TypeScript type checker
+qa: ## Type-check and check formatting
 	bun typecheck
+	bun format:check
 
-format: ## Format all TypeScript files
+format: ## Format all TypeScript files with oxfmt (config in the repo root .oxfmtrc.json)
 	bun format
 
 ### RELEASE

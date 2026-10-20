@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "bun run src/server.ts",
     "typecheck": "tsc --noEmit",
-    "format": "bunx biome format --write src"
+    "format": "oxfmt src",
+    "format:check": "oxfmt --check src"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
     "@types/bun": "^1.4.2",
+    "oxfmt": "^0.72.0",
     "typescript": "^7.0.2"
   },
   "dependencies": {

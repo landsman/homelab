@@ -1,11 +1,11 @@
-import { Suspense } from "react";
-import { POST_COMPONENTS } from "@/features/blog/components";
-import type { PostMeta } from "@/features/blog/post.types";
-import { formatDate, usePostBody } from "@/features/blog/posts";
-import { m } from "@/paraglide/messages.js";
+import { Suspense } from 'react'
+import { POST_COMPONENTS } from '@/features/blog/components'
+import type { PostMeta } from '@/features/blog/post.types'
+import { formatDate, usePostBody } from '@/features/blog/posts'
+import { m } from '@/paraglide/messages.js'
 
 export function PostPage({ post }: { post: PostMeta }) {
-  const Body = usePostBody(post.slug);
+  const Body = usePostBody(post.slug)
   return (
     <main className="wrapper">
       {/* The post's own language, which a screen reader reads it in; the page
@@ -16,7 +16,7 @@ export function PostPage({ post }: { post: PostMeta }) {
           <time dateTime={post.published}>{formatDate(post.published)}</time>
           {post.updated && (
             <>
-              {" · "}
+              {' · '}
               {m.blog_updated({ date: formatDate(post.updated) })}
             </>
           )}
@@ -28,5 +28,5 @@ export function PostPage({ post }: { post: PostMeta }) {
         </div>
       </article>
     </main>
-  );
+  )
 }

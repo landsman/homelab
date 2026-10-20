@@ -2,7 +2,7 @@
 
 :root {
   /* Type */
-  --font-mono: "Fira Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-mono: 'Fira Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-size-base: clamp(1rem, 4.2vw, 1.125rem);
   --font-size-h1: clamp(1.25rem, 5.5vw, 1.5rem);
   --line-height-base: 1.7;
@@ -189,7 +189,7 @@
   }
 }
 
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   color-scheme: light;
   --color-fg: var(--light-fg);
   --color-bg: var(--light-bg);
@@ -206,7 +206,7 @@
   --color-close-hover-dark: var(--close-hover-dark);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   color-scheme: dark;
   --color-fg: var(--dark-fg);
   --color-bg: var(--dark-bg);

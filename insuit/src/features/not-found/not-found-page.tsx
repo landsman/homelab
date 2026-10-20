@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { ROUTES } from "@/app/routes";
-import { m } from "@/paraglide/messages.js";
+import { Link } from '@tanstack/react-router'
+import { ROUTES } from '@/app/routes'
+import { m } from '@/paraglide/messages.js'
 
 /**
  * Shown for an address that is no page: the router's answer when no route
@@ -18,5 +18,5 @@ export function NotFoundPage() {
         </p>
       </div>
     </main>
-  );
+  )
 }

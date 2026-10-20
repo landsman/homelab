@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { pageMeta } from "@/app/page-meta";
-import { ROUTES } from "@/app/routes";
-import { POST_LANGS } from "@/features/blog/post.types";
-import { loadPost } from "@/features/blog/posts";
-import { PostPage } from "@/features/blog/post-page";
-import { m } from "@/paraglide/messages.js";
-import styles from "@/styles/components/blog.css?url";
+import { createFileRoute } from '@tanstack/react-router'
+import { pageMeta } from '@/app/page-meta'
+import { ROUTES } from '@/app/routes'
+import { POST_LANGS } from '@/features/blog/post.types'
+import { loadPost } from '@/features/blog/posts'
+import { PostPage } from '@/features/blog/post-page'
+import { m } from '@/paraglide/messages.js'
+import styles from '@/styles/components/blog.css?url'
 
-export const Route = createFileRoute("/blog_/$slug")({
+export const Route = createFileRoute('/blog_/$slug')({
   // The footer's Back leads to the list, not home.
   staticData: { up: ROUTES.blog },
   loader: ({ params }) => loadPost(params.slug),
@@ -19,14 +19,14 @@ export const Route = createFileRoute("/blog_/$slug")({
             title: m.blog_post_title({ title: post.title }),
             description: post.description,
             path: `${ROUTES.blog}/${post.slug}`,
-            type: "article",
+            type: 'article',
             locale: POST_LANGS[post.lang],
             published: post.published,
             updated: post.updated,
             hidden: post.hidden,
           }),
-          links: [{ rel: "stylesheet", href: styles }],
+          links: [{ rel: 'stylesheet', href: styles }],
         }
       : {},
   component: () => <PostPage post={Route.useLoaderData()} />,
-});
+})

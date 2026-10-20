@@ -5,5 +5,5 @@
  */
 export function Prose({ html }: { html: string }) {
   // The markdown is ours, so the HTML built from it is trusted.
-  return <div className="cv-prose" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div className="cv-prose" dangerouslySetInnerHTML={{ __html: html }} />
 }

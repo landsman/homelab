@@ -1,15 +1,15 @@
-import { useEffect, useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
-import { m } from "@/paraglide/messages.js";
+import { useEffect, useRef, type ComponentProps, type ReactNode, type RefObject } from 'react'
+import { m } from '@/paraglide/messages.js'
 
 type Props = {
-  open: boolean;
+  open: boolean
   /** Called when the dialog has closed, however it was closed. */
-  onClose: () => void;
-  className: string;
-  children: ReactNode;
+  onClose: () => void
+  className: string
+  children: ReactNode
   /** For a caller that has to reach the <dialog> itself. */
-  ref?: RefObject<HTMLDialogElement | null>;
-} & Pick<ComponentProps<"dialog">, "aria-label" | "aria-labelledby" | "onKeyDown">;
+  ref?: RefObject<HTMLDialogElement | null>
+} & Pick<ComponentProps<'dialog'>, 'aria-label' | 'aria-labelledby' | 'onKeyDown'>
 
 /**
  * A modal <dialog> with its close button: what the CV's project dialog and the
@@ -17,18 +17,18 @@ type Props = {
  * click outside it.
  */
 export function Modal({ open, onClose, className, children, ref, ...dialogProps }: Props) {
-  const own = useRef<HTMLDialogElement>(null);
-  const dialog = ref ?? own;
+  const own = useRef<HTMLDialogElement>(null)
+  const dialog = ref ?? own
 
   useEffect(() => {
-    const element = dialog.current;
-    if (!open || !element || element.open) return;
-    element.showModal();
+    const element = dialog.current
+    if (!open || !element || element.open) return
+    element.showModal()
     // The dialog itself takes focus, not its close button: keys meant for the
     // content (the arrows that step through photos) would otherwise show the
     // button's ring.
-    element.focus();
-  }, [open, dialog]);
+    element.focus()
+  }, [open, dialog])
 
   return (
     <dialog
@@ -37,18 +37,18 @@ export function Modal({ open, onClose, className, children, ref, ...dialogProps 
       className={className}
       closedby="any"
       tabIndex={-1}
-      onClose={(event) => {
+      onClose={event => {
         // The dialog fades out (media.css); its content is emptied only once
         // that has finished, or the fade would show an empty box.
-        const animations = event.currentTarget.getAnimations();
-        void Promise.allSettled(animations.map((a) => a.finished)).then(onClose);
+        const animations = event.currentTarget.getAnimations()
+        void Promise.allSettled(animations.map(a => a.finished)).then(onClose)
       }}
-      onClick={(event) => {
+      onClick={event => {
         // `closedby="any"` closes on a click outside. Where the browser does
         // not know the attribute yet, that click is handled here: one on the
         // backdrop lands on the dialog element itself.
-        const lightDismiss = "closedBy" in HTMLDialogElement.prototype;
-        if (!lightDismiss && event.target === event.currentTarget) event.currentTarget.close();
+        const lightDismiss = 'closedBy' in HTMLDialogElement.prototype
+        if (!lightDismiss && event.target === event.currentTarget) event.currentTarget.close()
       }}
     >
       <button
@@ -62,5 +62,5 @@ export function Modal({ open, onClose, className, children, ref, ...dialogProps 
       </button>
       {children}
     </dialog>
-  );
+  )
 }

@@ -504,6 +504,6 @@ html:has(.cv) {
 }
 @page cv {
   @bottom-left {
-    content: "Michal Landsman · Curriculum Vitae";
+    content: 'Michal Landsman · Curriculum Vitae';
   }
 }

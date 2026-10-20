@@ -20,7 +20,7 @@
 .links-shown a::before,
 .content p a::before,
 .cv a::before {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -70,7 +70,7 @@ a {
 
 /* Underline wipes in from the left on hover, out to the right on leave. */
 a::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -1px;
   left: 0;

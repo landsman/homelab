@@ -1,18 +1,18 @@
-import { After, AfterAll, Before, BeforeAll } from "@cucumber/cucumber";
-import { chromium, type Browser } from "@playwright/test";
-import { spawn, type ChildProcess } from "node:child_process";
-import { DESKTOP } from "../../viewports.ts";
-import { AppWorld, BASE_URL } from "./world.ts";
+import { After, AfterAll, Before, BeforeAll } from '@cucumber/cucumber'
+import { chromium, type Browser } from '@playwright/test'
+import { spawn, type ChildProcess } from 'node:child_process'
+import { DESKTOP } from '../../viewports.ts'
+import { AppWorld, BASE_URL } from './world.ts'
 
-let browser: Browser;
-let server: ChildProcess | undefined;
+let browser: Browser
+let server: ChildProcess | undefined
 
 async function isUp(): Promise<boolean> {
   try {
-    await fetch(BASE_URL);
-    return true;
+    await fetch(BASE_URL)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -20,46 +20,46 @@ async function isUp(): Promise<boolean> {
 // thing, so the same job is done here — reuse a running `make preview`, else
 // build the site and serve it.
 async function startApp(): Promise<void> {
-  if (await isUp()) return;
+  if (await isUp()) return
 
-  server = spawn("bun run build && bun run preview", {
+  server = spawn('bun run build && bun run preview', {
     shell: true,
-    stdio: "ignore",
+    stdio: 'ignore',
     // Its own process group, so stopping it takes the server down with the shell.
     detached: true,
-  });
+  })
   for (let attempt = 0; attempt < 120; attempt++) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (await isUp()) return;
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    if (await isUp()) return
   }
-  throw new Error(`the preview never answered on ${BASE_URL}`);
+  throw new Error(`the preview never answered on ${BASE_URL}`)
 }
 
 BeforeAll(async function () {
-  await startApp();
+  await startApp()
   browser = await chromium.launch({
     headless: !process.env.HEADED,
     slowMo: Number(process.env.SLOW_MO) || 0,
-  });
-});
+  })
+})
 
 Before(async function (this: AppWorld) {
   // The base URL lets a step go to a route by its path, as a spec does.
-  this.context = await browser.newContext({ viewport: DESKTOP, baseURL: BASE_URL });
+  this.context = await browser.newContext({ viewport: DESKTOP, baseURL: BASE_URL })
   // Never the network: anything off the site is refused, a stock photo in a
   // post included.
   await this.context.route(
-    (url) => url.hostname !== new URL(BASE_URL).hostname,
-    (route) => route.abort(),
-  );
-  this.page = await this.context.newPage();
-});
+    url => url.hostname !== new URL(BASE_URL).hostname,
+    route => route.abort()
+  )
+  this.page = await this.context.newPage()
+})
 
 After(async function (this: AppWorld) {
-  await this.context?.close();
-});
+  await this.context?.close()
+})
 
 AfterAll(async function () {
-  await browser?.close();
-  if (server?.pid) process.kill(-server.pid);
-});
+  await browser?.close()
+  if (server?.pid) process.kill(-server.pid)
+})

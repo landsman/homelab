@@ -1,4 +1,4 @@
-import type { Reporter, Suite } from "@playwright/test/reporter";
+import type { Reporter, Suite } from '@playwright/test/reporter'
 
 /**
  * Publishes the test count so the on-screen label can say "(3/13)". Only the
@@ -7,8 +7,8 @@ import type { Reporter, Suite } from "@playwright/test/reporter";
  */
 class TotalReporter implements Reporter {
   onBegin(_config: unknown, suite: Suite) {
-    process.env.E2E_TOTAL = String(suite.allTests().length);
+    process.env.E2E_TOTAL = String(suite.allTests().length)
   }
 }
 
-export default TotalReporter;
+export default TotalReporter

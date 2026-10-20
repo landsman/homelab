@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
-import { m } from "@/paraglide/messages.js";
+import { useEffect, useState } from 'react'
+import { m } from '@/paraglide/messages.js'
 
 // Names of the services, not words to translate. The title is the address
 // without its scheme — what the link leads to.
 const PROFILES = [
-  { name: "Twitter/X", url: "https://x.com/Landsman" },
-  { name: "Bluesky", url: "https://bsky.app/profile/landsman.bsky.social" },
-  { name: "LinkedIn", url: "https://www.linkedin.com/in/landsmanmichal" },
-  { name: "GitHub", url: "https://github.com/landsman" },
-];
+  { name: 'Twitter/X', url: 'https://x.com/Landsman' },
+  { name: 'Bluesky', url: 'https://bsky.app/profile/landsman.bsky.social' },
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/landsmanmichal' },
+  { name: 'GitHub', url: 'https://github.com/landsman' },
+]
 
 export function ContactPage() {
   // The address is the one thing left out of the prerendered HTML, where a
   // scraper would read it: it is decoded and shown once the page runs.
-  const [email, setEmail] = useState<string>();
-  useEffect(() => setEmail(atob(__CONTACT_EMAIL__)), []);
+  const [email, setEmail] = useState<string>()
+  useEffect(() => setEmail(atob(__CONTACT_EMAIL__)), [])
 
   return (
     <main className="wrapper contact">
@@ -33,7 +33,7 @@ export function ContactPage() {
             <a
               key={url}
               href={url}
-              title={url.replace(/^https:\/\/(www\.)?/, "")}
+              title={url.replace(/^https:\/\/(www\.)?/, '')}
               target="_blank"
               rel="noopener"
             >
@@ -44,5 +44,5 @@ export function ContactPage() {
         </nav>
       </div>
     </main>
-  );
+  )
 }

@@ -112,6 +112,10 @@ const LANGUAGES: Record<string, string> = {
   php: "PHP",
   kotlin: "Kotlin",
   java: "Java",
+  hcl: "HCL",
+  css: "CSS",
+  gherkin: "Gherkin",
+  makefile: "Makefile",
 };
 
 type Node = {

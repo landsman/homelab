@@ -1,11 +1,11 @@
 #!/bin/sh
-# Run biome formatter for ip-service before committing
-
-STAGED_IP=$(git diff --cached --name-only | grep '^ip-service/')
-if [ -n "$STAGED_IP" ]; then
-  echo "Running formatter in ip-service..."
-  (cd ip-service && bun format)
-  echo "$STAGED_IP" | xargs git add
+# ip-service: a gate like insuit's below. Formatting and re-adding the staged
+# paths swept unstaged hunks into the commit and failed on a deleted file.
+if git diff --cached --name-only | grep -q '^ip-service/'; then
+  (cd ip-service && bun run format:check) || {
+    echo "ip-service: formatting check failed — run 'make format' in ip-service/ (or 'make install' first)" >&2
+    exit 1
+  }
 fi
 
 # insuit: a gate, not a fixer — the commit stops until `make format` is run.

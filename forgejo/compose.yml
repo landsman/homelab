@@ -10,6 +10,10 @@ services:
       FORGEJO__server__ROOT_URL: ${FORGEJO_URL}
       FORGEJO__server__SSH_DOMAIN: ${FORGEJO_SSH_DOMAIN}
       FORGEJO__service__SSH_PORT: ${FORGEJO_SSH_PORT}
+      # [repository.pull-request] — `_0X2E_` is the dot, `_0X2D_` the hyphen, which an environment
+      # variable name cannot carry. Read when a repository is created only: merge-style.sh does the
+      # existing ones, and turns the merge commit off, which no setting here can.
+      FORGEJO__repository_0X2E_pull_0X2D_request__DEFAULT_MERGE_STYLE: squash
     networks:
       - forgejo
     ports:

@@ -10,11 +10,11 @@
     "format:check": "oxfmt --check src"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.2",
-    "oxfmt": "^0.72.0",
+    "@types/bun": "^1.4.3",
+    "oxfmt": "^0.73.0",
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "ts-pattern": "^5.9.0"
+    "ts-pattern": "^5.9.2"
   }
 }

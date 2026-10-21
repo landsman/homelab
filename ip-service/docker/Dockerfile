@@ -1,4 +1,4 @@
-FROM oven/bun:1.4.2-alpine
+FROM oven/bun:1.4.3-alpine
 
 # The base image ships whatever Alpine packages it had at its last rebuild, so a
 # fixed openssl sits in the repo for days before the tag catches up. Patch here

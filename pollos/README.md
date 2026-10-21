@@ -19,6 +19,10 @@ in a swarm. It computes the address to advertise rather than taking it as an arg
 `--advertise-addr eno1` is refused on these boxes: the interface carries two IPv6 addresses and the
 daemon will not choose between them.
 
+A box whose Docker pulls images, the CI runners jesse and walter first, gets
+[setup/007-registry-mirror.sh](setup/007-registry-mirror.sh): it points Docker at the registry
+caches on the NAS ([registry-mirror](../registry-mirror/README.md)).
+
 The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).
 
 ## HW

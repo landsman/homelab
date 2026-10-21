@@ -1,6 +1,6 @@
 # Ports
 
-Host ports exposed by containers on the Pi. Source of truth: each service's `compose.yml`.
+Host ports exposed by containers on the Pi, which is also the NAS. Source of truth: each service's `compose.yml`.
 
 | Port | Service                               | Notes                                      |
 |------|---------------------------------------|--------------------------------------------|
@@ -8,6 +8,10 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 3000 | [forgejo](../forgejo)                 | web UI                                     |
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 3031 | [gotenberg](../gotenberg)             | PDF conversion API                         |
+| 5000 | [registry-mirror-docker-hub](../registry-mirror) | Docker Hub cache, 127.0.0.1 only; tailscale serve → 443 at /mirror/docker.io |
+| 5001 | [registry-mirror-github](../registry-mirror) | ghcr.io cache, 127.0.0.1 only; tailscale serve → 443 at /mirror/ghcr.io |
+| 5002 | [registry-mirror-gitea](../registry-mirror) | docker.gitea.com cache, 127.0.0.1 only; tailscale serve → 443 at /mirror/docker.gitea.com |
+| 5003 | [registry-mirror-forgejo](../registry-mirror) | code.forgejo.org cache, 127.0.0.1 only; tailscale serve → 443 at /mirror/code.forgejo.org |
 | 5432 | [database](../database) (postgres 17) |                                            |
 | 8000 | [database](../database) (adminer)     | DB admin UI                                |
 | 8001 | [readeck](../readeck)                 |                                            |

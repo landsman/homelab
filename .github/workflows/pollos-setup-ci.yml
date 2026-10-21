@@ -1,0 +1,23 @@
+name: "pollos setup ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'pollos/setup/**'
+      - '.github/workflows/pollos-setup-ci.yml'
+      - '!**/*.md'
+
+jobs:
+  test:
+    name: "setup scripts"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The scripts run as root on a real box; the tests stub systemctl and docker, so they need
+      # neither and run on a cloud runner.
+      - name: "shellcheck + setup script tests"
+        run: |
+          shellcheck pollos/setup/*.sh
+          rc=0; for t in pollos/setup/*.test.sh; do echo "== $t"; "./$t" || { echo "FAIL $t"; rc=1; }; done; exit $rc

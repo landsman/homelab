@@ -59,20 +59,25 @@ test:
 merge-style:
 	@./merge-style.sh apply
 
+# Forgejo is stopped for the copy: a tar of a live volume can catch the database mid-write, and
+# that is the copy an upgrade's rollback would restore. It starts again even when the copy fails.
 backup:
+	docker compose stop forgejo
 	docker run --rm \
 		-v $(VOLUME):/data:ro \
 		-v $(BACKUP_DIR):/backup \
 		-v $(PWD)/backup.sh:/backup.sh:ro \
-		alpine sh /backup.sh
+		alpine sh /backup.sh; status=$$?; docker compose start forgejo; exit $$status
 
 restore:
 	@test -n "$(FILE)" || (echo "Usage: make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
 	@docker volume inspect $(VOLUME) > /dev/null 2>&1 || (echo "Error: volume $(VOLUME) does not exist. Run 'make up' first." && exit 1)
+	docker compose stop forgejo
 	docker run --rm \
 		-v $(VOLUME):/data \
 		-v $(BACKUP_DIR):/backup \
 		alpine tar xzf /backup/$(FILE) -C /data
+	@echo "Restored. Start it with make up, which recreates the container from compose.yml's version."
 
 cron-install:
 	@mkdir -p $(BACKUP_DIR)

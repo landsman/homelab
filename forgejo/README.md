@@ -125,6 +125,25 @@ The last 14 days are retained; older files are deleted automatically.
 make cron-install
 ```
 
+## Upgrading
+
+A major runs database migrations on start and cannot be undone: the only way back is the
+backup taken just before. Read the release's breaking changes first
+(<https://forgejo.org/releases/>), then on the box:
+
+1. `make backup` — it stops Forgejo for the copy, so the database is not caught mid-write.
+2. `tar tzf /home/containers/backup/forgejo/<that file> | grep -c .` — the archive opens and is not empty.
+3. `git pull`, then `docker compose pull && make up`.
+4. `make logs` until the migrations finish and the web UI answers.
+5. Push a commit to a repo with CI, and comment `@claude` on a PR — the runner and the review bot are
+   the two things that talk to Forgejo's API.
+
+Rolling back: set the old version in `compose.yml` again, `make restore FILE=<that file>`, then `make up`.
+`restore` leaves Forgejo stopped on purpose: starting the existing container would run the new
+version on the restored data and migrate it again.
+Everything written since the backup is lost. The restore unpacks over the volume, so files the new
+version created there stay behind.
+
 ## Runner
 
 The Actions runner runs on a dedicated box — see [../forgejo-runner](../forgejo-runner).

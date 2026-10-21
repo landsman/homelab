@@ -25,6 +25,7 @@ make backup                                       # run backup manually
 make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz
 make cron-install                                 # register daily backup cron job (fails if already exists, run: crontab -l | grep forgejo)
 make serve                                        # publish the registry on the tailnet, see below
+FORGEJO_TOKEN=… make merge-style                  # squash by default, no merge commits, on every repo
 ```
 
 ## What this box publishes on the tailnet

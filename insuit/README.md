@@ -412,3 +412,20 @@ needs Node: Cloudflare's local server does not answer under Bun.
 None — not self-hosted. If it ever moves onto the Pi, `dist/client` goes into
 `nginx:alpine` with `try_files $uri $uri.html` and `404.html` as the error page;
 claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.
+
+## GTM as code
+
+GTM and GA4 configuration live in `analytics/analytics.yaml`. `gtm-as-code` diffs that file against the live container/property and applies changes via CI.
+
+- `bun run gtm:validate` checks the config locally.
+- `bun run gtm:plan` previews changes (needs Google credentials).
+- `bun run gtm:apply` applies changes (needs Google credentials and `--auto-approve` in CI).
+
+In CI, pull requests run validate + plan and post the plan as a comment when the GTM IDs/credentials are configured. On `main`, after the site deploy, the `gtm` job validates and applies (gated by the `production` environment). If the GTM secrets/vars are not set, those jobs skip gracefully.
+
+Set the following in GitHub (repo or environment `production`):
+
+- Vars: `GTM_ACCOUNT_ID`, `GTM_CONTAINER_ID`, `GA4_PROPERTY_ID`
+- Secrets (via Workload Identity Federation): `GCP_GTM_WIF_PROVIDER`, `GCP_GTM_SA_EMAIL`
+
+Locally, copy `analytics/.env.analytics.example` to `analytics/.env.analytics` and authenticate with `gcloud auth application-default login` or set `GOOGLE_APPLICATION_CREDENTIALS`.

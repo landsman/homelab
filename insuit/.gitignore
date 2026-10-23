@@ -27,3 +27,7 @@ src/paraglide/
 test-results/
 playwright-report/
 reports/
+
+# gtm-as-code
+analytics/.env.analytics
+analytics/.env.analytics.*.local

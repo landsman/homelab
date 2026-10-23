@@ -132,6 +132,47 @@ jobs:
         env:
           SMOKE_COMMIT: ${{ github.sha }}
         run: make smoke ARGS=--project=site
+  gtm:
+    needs: [content]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: insuit
+    env:
+      GTM_ACCOUNT_ID: ${{ vars.GTM_ACCOUNT_ID }}
+      GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
+      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: insuit/package.json
+      - name: "Install"
+        run: bun install --frozen-lockfile
+      - name: "Set up Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Authenticate to Google Cloud"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_GTM_SA_EMAIL }}
+      - name: "Validate GTM config"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        run: bun run gtm:validate
+      - name: "Apply GTM changes"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        run: bun run gtm:apply -- --auto-approve
+
       # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
       # at (insuit/links/).
       - name: "Deploy link.insuit.cz"

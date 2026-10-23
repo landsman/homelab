@@ -277,3 +277,59 @@ jobs:
     with:
       packs: p/secrets p/typescript p/terraform
       path: insuit
+
+  gtm:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: insuit
+    env:
+      GTM_ACCOUNT_ID: ${{ vars.GTM_ACCOUNT_ID }}
+      GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
+      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: insuit/package.json
+      - name: "Install"
+        run: bun install --frozen-lockfile
+      - name: "Set up Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Authenticate to Google Cloud"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_GTM_SA_EMAIL }}
+      - name: "Validate GTM config"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        run: bun run gtm:validate
+      - name: "Plan GTM changes"
+        id: gtm-plan
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
+        shell: bash
+        run: |
+          set -o pipefail
+          bun run gtm:plan 2>&1 | tee "$RUNNER_TEMP/gtm-plan.txt"
+      - name: "Comment GTM plan"
+        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' && steps.gtm-plan.outcome == 'success' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: gtm-plan
+          message: |
+            ## GTM plan
+
+            ```text
+            $(cat "$RUNNER_TEMP/gtm-plan.txt")
+            ```

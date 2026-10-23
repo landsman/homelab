@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   /** Cloudflare Web Analytics token; unset outside a deploy, so no beacon loads. */
   readonly VITE_CF_BEACON_TOKEN?: string
+  /** Google Tag Manager container; unset outside a deploy, so nothing is counted. */
+  readonly VITE_GTM_ID?: string
   /** Where the build will live, if not the real site (app/site.ts). */
   readonly VITE_SITE_URL?: string
 }

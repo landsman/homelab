@@ -12,6 +12,7 @@ import { FONTS, ICONS } from '@/app/assets'
 import { Footer } from '@/app/components/footer'
 import { Header } from '@/app/components/header'
 import { ThemeToggle } from '@/app/components/theme-toggle'
+import { GTM_ID, gtmNoscript, gtmScript, trackPageView } from '@/app/gtm'
 import { ROUTES } from '@/app/routes'
 import { THEME_BOOT } from '@/app/theme-boot'
 import styles from '@/index.css?url'
@@ -58,11 +59,16 @@ function Shell({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* In the file, before any page script: the container starts loading
+            while the rest of the page does. */}
+        {GTM_ID && <script dangerouslySetInnerHTML={{ __html: gtmScript(GTM_ID) }} />}
         {/* Inline and blocking: a stored theme override has to land on <html>
             before first paint, or the page flashes the OS theme first. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body>
+        {/* Text, not an element, so React hydrates what the browser parsed. */}
+        {GTM_ID && <noscript dangerouslySetInnerHTML={{ __html: gtmNoscript(GTM_ID) }} />}
         {children}
         <Scripts />
       </body>
@@ -89,7 +95,11 @@ function RootLayout() {
   useEffect(() => {
     const from = arrived.current
     arrived.current = pathname
-    if (from === undefined || from === pathname) return
+    if (!pathname || from === undefined || from === pathname) return
+    // A link loads no document, so nothing tells the container the page
+    // changed. The title is already the new page's: its head updates before
+    // this effect runs.
+    trackPageView(pathname)
     const main = document.querySelector('main')
     if (!main) return
     main.tabIndex = -1

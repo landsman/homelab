@@ -109,6 +109,10 @@ jobs:
         working-directory: insuit
         env:
           VITE_CF_BEACON_TOKEN: ${{ needs.infra.outputs.analytics_token }}
+          # Public, and a constant per container — not kept out of the repo.
+          # Only the deploy sets it, so a preview or a local build reports
+          # nothing (src/app/gtm.ts).
+          VITE_GTM_ID: GTM-T8PF56TV
           CONTACT_EMAIL: ${{ vars.INSUIT_CONTACT_EMAIL }}
           COMMIT_SHA: ${{ github.sha }}
         run: |

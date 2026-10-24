@@ -162,13 +162,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BEFORE: ${{ github.event.before }}
-          GTM_PATHS: '^(insuit/analytics/|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
+          GTM_PATHS: '^(insuit/analytics\.yaml$|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
         run: |
           [ -n "$BEFORE" ] || { echo gtm=true >>"$GITHUB_OUTPUT"; exit 0; }
           gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA" --jq '.files[].filename' >"$RUNNER_TEMP/changed.txt"
           echo "gtm=$(grep -qE "$GTM_PATHS" "$RUNNER_TEMP/changed.txt" && echo true || echo false)" >>"$GITHUB_OUTPUT"
 
-  # analytics/analytics.yaml onto the live GTM container and GA4 property.
+  # insuit/analytics.yaml onto the live GTM container and GA4 property.
   # Only when the push touches it, so an edit made in the GTM UI stays until
   # the next change to the config.
   gtm:

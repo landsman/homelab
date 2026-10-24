@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Reads a PR's changed paths on stdin and prints "true" when one of them can
 # change what the site serves, "false" when the PR only touches what is around
-# it: Terraform, the short links, tests, scripts, the Makefile, docs, CI or
-# another service. CI uploads a preview only on "true".
+# it: Terraform, the short links, GTM's config, tests, scripts, the Makefile,
+# docs, CI or another service. CI uploads a preview only on "true".
 #
 #   gh pr diff <pr> --name-only | app-changed.sh
 set -euo pipefail
 
-around='^insuit/(infra/|links/|tests/|scripts/|[^/]*\.md$|Makefile$|cucumber\.mjs$|playwright\.config\.ts$)'
+around='^insuit/(infra/|links/|tests/|scripts/|\.analytics/|[^/]*\.md$|Makefile$|cucumber\.mjs$|playwright\.config\.ts$|analytics\.yaml$|\.env\.analytics\.example$)'
 
 # Top-level *.md only: insuit/content/ is what the site says, the CV's cv.md
 # included.

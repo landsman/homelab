@@ -1,3 +1,5 @@
+# GTM and GA4 for insuit.cz, as code. How CI plans and applies it, and the
+# accounts it needs: ../gtm/README.md
 version: 1
 
 project:

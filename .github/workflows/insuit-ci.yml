@@ -191,7 +191,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
-          GTM_PATHS: '^(insuit/analytics/|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
+          GTM_PATHS: '^(insuit/analytics\.yaml$|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
         run: |
           gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only >"$RUNNER_TEMP/changed.txt"
           echo "app=$(insuit/scripts/app-changed.sh <"$RUNNER_TEMP/changed.txt")" >>"$GITHUB_OUTPUT"
@@ -288,7 +288,7 @@ jobs:
       path: insuit
 
 
-  # analytics/analytics.yaml against the live GTM container and GA4 property,
+  # insuit/analytics.yaml against the live GTM container and GA4 property,
   # posted on the PR, as a read-only account. Only when the PR touches it.
   gtm:
     needs: [changes]

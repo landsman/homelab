@@ -22,6 +22,7 @@ Playground for my local homelab.
 - [ArchiveBox](archivebox) for archiving whole websites
 - [IP service](ip-service)
 - [Whisper](whisper) speech-to-text API for transcribing videos, runs on-demand on a pollos node
+- [GTM as code](gtm) reusable workflow keeping a site's Tag Manager and GA4 in sync with its repo
 
 ## Useful links
 

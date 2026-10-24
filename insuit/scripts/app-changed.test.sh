@@ -17,5 +17,6 @@ check true insuit/infra/main.tf insuit/public/assets/cv/new.jpg
 check false insuit/infra/main.tf insuit/Makefile insuit/README.md
 check false insuit/scripts/app-changed.sh insuit/tests/e2e/home.spec.ts
 check false .github/workflows/insuit-ci.yml dashboard/src/main.tsx
+check false insuit/analytics.yaml insuit/.analytics/state.json insuit/.env.analytics.example
 check false ""
 echo "ok    app-changed"

@@ -1,24 +1,9 @@
 name: "GTM as code"
 
 # A site's analytics.yaml (gtm-as-code) against its live GTM container and GA4
-# property: `plan` comments the diff on the PR, `deploy` applies and publishes
-# it. The site needs @stackmade/gtm-as-code in its devDependencies and a
-# bun.lock. Skipped while any of the three ids is empty.
-#
-#   gtm:
-#     uses: landsman/homelab/.github/workflows/gtm.yml@<sha>
-#     permissions: { contents: read, id-token: write, pull-requests: write }
-#     with:
-#       command: plan            # or deploy, with environment: production
-#       working-directory: site
-#       gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
-#       gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
-#       ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
-#     secrets:
-#       workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
-#       service-account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}
-#
-# Plan with a read-only account: a PR can change what this job runs.
+# property: `plan` comments the diff on a PR, `deploy` applies and publishes.
+# How to call it, and the accounts it needs: gtm/README.md. The workflow
+# itself stays here: GitHub only finds one directly in .github/workflows/.
 
 on:
   workflow_call:
@@ -34,7 +19,7 @@ on:
       config:
         description: "The config, relative to working-directory"
         type: string
-        default: analytics/analytics.yaml
+        default: analytics.yaml
       environment:
         description: "The deployment environment, for deploy"
         type: string

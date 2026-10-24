@@ -18,9 +18,9 @@
     "test:e2e": "playwright test",
     "test:bdd": "bun --bun cucumber-js",
     "test:smoke": "playwright test -c playwright.smoke.config.ts",
-    "gtm:validate": "gtm-code validate -c analytics/analytics.yaml",
-    "gtm:plan": "gtm-code plan -c analytics/analytics.yaml",
-    "gtm:apply": "gtm-code apply -c analytics/analytics.yaml"
+    "gtm:validate": "gtm-code validate",
+    "gtm:plan": "gtm-code plan",
+    "gtm:apply": "gtm-code apply"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.44",

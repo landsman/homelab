@@ -415,21 +415,10 @@ claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.
 
 ## GTM as code
 
-GTM and GA4 configuration live in `analytics/analytics.yaml`. `gtm-as-code` diffs that file against the live container and property; CI applies it.
+GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by the shared [GTM workflow](../gtm/README.md), which says what CI does with it and which accounts it needs.
 
-- `bun run gtm:validate` checks the config locally, no credentials.
-- `bun run gtm:plan` previews changes (needs Google credentials).
-- `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish -c analytics/analytics.yaml` makes them live.
+- `bun run gtm:validate` checks the config, no credentials.
+- `bun run gtm:plan` previews changes against the live container and property.
+- `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish` makes them live.
 
-Both jobs run only when a change touches `analytics/`, `.analytics/`, `package.json` (the gtm-code version) or the shared workflow, so an edit made in the GTM UI stays until the config next changes. A pull request posts the plan as a comment. On `main`, after the site deploy, the `gtm` job applies and publishes, only when the plan has changes. Both run [`.github/workflows/gtm.yml`](../.github/workflows/gtm.yml), which any other site's repo can call too; its header says how. Both jobs skip while the three variables below are unset.
-
-`.analytics/state.json` is the only record of which GA4 resources are ours, so it is committed. When an apply changes it, the deploy fails and keeps the new file as the `gtm-state` artifact: commit that, or the next run creates the same resources again.
-
-Set in GitHub, at repo level, since the PR job has no environment:
-
-- Vars: `GTM_ACCOUNT_ID`, `GTM_CONTAINER_ID`, `GA4_PROPERTY_ID`
-- Secrets (Workload Identity Federation): `GCP_GTM_WIF_PROVIDER`, and two service accounts:
-  - `GCP_GTM_PLAN_SA_EMAIL`: Read in GTM, Viewer in GA4. A PR can change what its job runs, so it never gets an account that can write.
-  - `GCP_GTM_SA_EMAIL`: Publish in GTM, Editor in GA4. Bind it in the WIF provider to `environment:production` only.
-
-Locally, copy `analytics/.env.analytics.example` to `analytics/.env.analytics` and authenticate with `gcloud auth application-default login` or set `GOOGLE_APPLICATION_CREDENTIALS`.
+Locally, copy `.env.analytics.example` to `.env.analytics` and sign in with `gcloud auth application-default login`. In GitHub the variables and secrets are the ones the GTM workflow's README lists, at repo level.

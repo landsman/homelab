@@ -279,13 +279,9 @@ jobs:
 
   # insuit/analytics.yaml against the live GTM container and GA4 property,
   # posted on the PR, as a read-only account. Only when the PR touches it.
-  # Skipped until the repo variables are set.
   gtm:
     needs: [changes]
-    if: needs.changes.outputs.gtm != 'none' && vars.GA4_PROPERTY_ID != ''
-    # analytics.yaml reads the property id from here, until it is written there.
-    env:
-      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+    if: needs.changes.outputs.gtm != 'none'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

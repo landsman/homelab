@@ -6,15 +6,15 @@ project:
   name: insuit-cz
 
 google:
-  # The ids the Tag Manager API addresses the container by, from its URL in
-  # GTM. Not secret: they open nothing without a Google account that has
-  # access. The container's public id, GTM-T8PF56TV, is the site's.
+  # The ids the APIs address the container and the property by, from their
+  # URLs in GTM and GA4. Not secret: they open nothing without a Google account
+  # that has access. The container's public id, GTM-T8PF56TV, is the site's.
   gtm:
     accountId: '6399466088'
     containerId: '283285006'
 
   ga4:
-    propertyId: '${GA4_PROPERTY_ID}'
+    propertyId: '560662899'
     # Public, like the GTM id: it is in every page the tag loads on.
     measurementId: &measurement G-49CTM3MK36
 

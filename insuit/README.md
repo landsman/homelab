@@ -420,4 +420,4 @@ GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by
 - `bun run gtm:plan` previews changes against the live container and property.
 - `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish` makes them live.
 
-Locally, copy `.env.analytics.example` to `.env.analytics` and sign in with `gcloud auth application-default login`. In GitHub the secrets are the ones the GTM action's README lists, at repo level, and `GA4_PROPERTY_ID` a repo variable until its number is written into `analytics.yaml`.
+Locally, sign in with `gcloud auth application-default login` first. In GitHub the secrets are the ones the GTM action's README lists, at repo level.

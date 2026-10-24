@@ -34,5 +34,5 @@ test("insuit's GTM: the config, its state, the gtm-code version", () => {
   expect(value('insuit-gtm', 'insuit/analytics.yaml', 'insuit/package.json')).toBe('config')
   expect(value('insuit-gtm', 'insuit/.analytics/state.json')).toBe('state')
   expect(value('insuit-gtm', 'insuit/package.json')).toBe('toolchain')
-  expect(value('insuit-gtm', 'insuit/src/main.tsx', 'insuit/.env.analytics.example', '.github/actions/gtm/action.yml')).toBe('none')
+  expect(value('insuit-gtm', 'insuit/src/main.tsx', '.github/actions/gtm/action.yml')).toBe('none')
 })

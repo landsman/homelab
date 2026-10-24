@@ -28,8 +28,5 @@ test-results/
 playwright-report/
 reports/
 
-# gtm-as-code
-.env.analytics
-.env.analytics.*.local
-# apply's lock; state.json beside it is committed.
+# gtm-as-code: apply's lock; state.json beside it is committed.
 .analytics/state.json.lock

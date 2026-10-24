@@ -164,13 +164,10 @@ jobs:
 
   # insuit/analytics.yaml onto the live GTM container and GA4 property.
   # Only when the push touches it, so an edit made in the GTM UI stays until
-  # the next change to the config. Skipped until the repo variables are set.
+  # the next change to the config.
   gtm:
     needs: [content, changes]
-    if: needs.changes.outputs.gtm != 'none' && vars.GA4_PROPERTY_ID != ''
-    # analytics.yaml reads the property id from here, until it is written there.
-    env:
-      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
+    if: needs.changes.outputs.gtm != 'none'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production

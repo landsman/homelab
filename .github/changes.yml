@@ -21,7 +21,6 @@ insuit-site:
       - '!insuit/playwright.config.ts'
       - '!insuit/analytics.yaml'
       - '!insuit/.analytics/**'
-      - '!insuit/.env.analytics.example'
 
 # insuit's GTM jobs (.github/actions/gtm).
 insuit-gtm:

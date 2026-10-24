@@ -66,3 +66,37 @@ Workload Identity Federation, no keys. Two service accounts, because a pull requ
 | `GCP_GTM_SA_EMAIL` | Publish | Editor | `deploy`, bound in the WIF provider to `environment:production` only |
 
 Set them at repo level: the PR job has no environment. The OIDC token names the calling repo, so the WIF provider has to allow each repo that calls this.
+
+## Setting it up, once
+
+`<project>` is a Google Cloud project, `<number>` its project number (`gcloud projects describe <project> --format='value(projectNumber)'`), `<owner>/<repo>` the repo that calls this.
+
+1. Enable the APIs: `gcloud services enable tagmanager.googleapis.com analyticsadmin.googleapis.com iamcredentials.googleapis.com sts.googleapis.com --project <project>`.
+2. Create the pool: `gcloud iam workload-identity-pools create github --location global --project <project>`.
+3. Create its GitHub provider, open to your repos only:
+   ```sh
+   gcloud iam workload-identity-pools providers create-oidc github \
+     --location global --workload-identity-pool github --project <project> \
+     --issuer-uri https://token.actions.githubusercontent.com \
+     --attribute-mapping google.subject=assertion.sub,attribute.repository=assertion.repository \
+     --attribute-condition "assertion.repository_owner == '<owner>'"
+   ```
+4. Create the two accounts: `gcloud iam service-accounts create gtm-plan --project <project>`, and the same for `gtm-deploy`.
+5. Let any job of the repo sign in as `gtm-plan`:
+   ```sh
+   gcloud iam service-accounts add-iam-policy-binding gtm-plan@<project>.iam.gserviceaccount.com --project <project> \
+     --role roles/iam.workloadIdentityUser \
+     --member 'principalSet://iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/github/attribute.repository/<owner>/<repo>'
+   ```
+6. Let only its `production` jobs sign in as `gtm-deploy`: the same command for `gtm-deploy@…`, with the member `principal://iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/github/subject/repo:<owner>/<repo>:environment:production`. That is the token's `sub` for a job with that environment, and no other job has it.
+7. In GTM, Admin → User Management on the account: add `gtm-plan@…` with **Read** on the container, and `gtm-deploy@…` with **Publish**.
+8. In GA4, Admin → Property access management: add `gtm-plan@…` as **Viewer**, `gtm-deploy@…` as **Editor**.
+9. Set the secrets on the repo:
+   ```sh
+   gh secret set GCP_GTM_WIF_PROVIDER --body projects/<number>/locations/global/workloadIdentityPools/github/providers/github
+   gh secret set GCP_GTM_PLAN_SA_EMAIL --body gtm-plan@<project>.iam.gserviceaccount.com
+   gh secret set GCP_GTM_SA_EMAIL --body gtm-deploy@<project>.iam.gserviceaccount.com
+   ```
+10. Open a PR that touches `analytics.yaml`. Its plan comment says the sign-in and the read access work, and the first merge proves the deploy account.
+
+For a second repo, steps 5, 6 and 9 again with its `<owner>/<repo>`, and steps 7 and 8 for its own container and property.

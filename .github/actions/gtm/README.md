@@ -47,7 +47,7 @@ Which changes it acts on is [`changes.ts`](changes.ts), read by the shared [chan
 ```
 
 - **Pin a commit**, not `@main`: a change here then cannot change what runs with another site's credentials.
-- **The `changes` output** is `none` when the change touches neither the config, `.analytics/`, `package.json` (the gtm-code version) nor this action, and `manual` on a hand-started run. An edit made in the GTM UI stays until the config next changes.
+- **The `changes` output** is `none` when the change touches neither the config, `.analytics/` nor `package.json` (the gtm-code version), and `manual` on a hand-started run. An edit made in the GTM UI stays until the config next changes.
 - **Check the ids in `if:`**, so a repo can carry the jobs before the accounts exist.
 
 ## Accounts

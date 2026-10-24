@@ -5,7 +5,6 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
-      - '.github/actions/**'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.
@@ -15,7 +14,6 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
-      - '.github/actions/**'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.

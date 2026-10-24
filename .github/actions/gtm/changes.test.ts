@@ -6,11 +6,10 @@ import { GtmChange, gtmChange } from './changes.ts'
 
 const paths = (...paths: string[]) => ({ kind: 'paths' as const, paths })
 
-test('the config, its state, the gtm-code version and this action count', () => {
+test('the config, its state and the gtm-code version count', () => {
   expect(gtmChange(paths('insuit/analytics.yaml'), 'insuit')).toBe(GtmChange.Config)
   expect(gtmChange(paths('insuit/.analytics/state.json'), 'insuit')).toBe(GtmChange.State)
   expect(gtmChange(paths('insuit/package.json'), 'insuit')).toBe(GtmChange.Toolchain)
-  expect(gtmChange(paths('.github/actions/gtm/action.yml'), 'insuit')).toBe(GtmChange.Action)
 })
 
 test('the config wins over the rest of the same change', () => {
@@ -32,5 +31,5 @@ test('anything else is none', () => {
   expect(gtmChange(paths('insuit/src/main.tsx', 'insuit/.env.analytics.example', 'other/analytics.yaml'), 'insuit')).toBe(
     GtmChange.None,
   )
-  expect(gtmChange(paths('insuit/package.json.bak', '.github/actions/changes/detect.ts'), 'insuit')).toBe(GtmChange.None)
+  expect(gtmChange(paths('insuit/package.json.bak', '.github/actions/gtm/action.yml'), 'insuit')).toBe(GtmChange.None)
 })

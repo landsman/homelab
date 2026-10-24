@@ -9,7 +9,6 @@ export enum GtmChange {
   Config = 'config',
   State = 'state',
   Toolchain = 'toolchain',
-  Action = 'action',
   Manual = 'manual',
 }
 
@@ -28,7 +27,6 @@ function classify(paths: string[], site: string): GtmChange {
     [path => path.startsWith(`${dir}.analytics/`), GtmChange.State],
     // The gtm-code version.
     [path => path === `${dir}package.json`, GtmChange.Toolchain],
-    [path => path.startsWith('.github/actions/gtm/'), GtmChange.Action],
   ]
   return rules.find(([applies]) => paths.some(applies))?.[1] ?? GtmChange.None
 }

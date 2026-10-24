@@ -1,5 +1,5 @@
 name: "Changes"
-description: "What a run changed, per feature: outputs gtm (none, config, state, toolchain, action or manual)"
+description: "What a run changed, per feature: outputs gtm (none, config, state, toolchain or manual)"
 
 # Needs no checkout: it asks GitHub for the changed files. Calling it as
 # ./.github/actions/changes, from this repo, does. detect.ts says how a feature

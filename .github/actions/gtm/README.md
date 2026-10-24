@@ -10,7 +10,7 @@ Run it only when its config changes, with the shared [changes action](../changes
 ## What a site needs
 
 - `@stackmade/gtm-as-code` in its devDependencies, and a `bun.lock`.
-- `analytics.yaml` in its folder, its ids written as `${GTM_ACCOUNT_ID}`, `${GTM_CONTAINER_ID}` and `${GA4_PROPERTY_ID}`.
+- `analytics.yaml` in its folder, with the GTM account and container ids (in the container's URL in GTM) and the GA4 property id (Admin → Property details) written in. They are not secret; one read as `${VAR}` comes from the job's `env:`.
 - `.analytics/state.json` committed once it exists. It is the only record of which GA4 resources are ours. When a deploy changes it, the job fails and keeps the new file as the `gtm-state` artifact: commit that, or the next run creates the same resources again.
 
 ## Calling it
@@ -38,7 +38,7 @@ And the jobs:
 
   gtm:
     needs: [changes]
-    if: needs.changes.outputs.gtm != 'none' && vars.GTM_ACCOUNT_ID != ''
+    if: needs.changes.outputs.gtm != 'none'
     runs-on: ubuntu-latest
     permissions: { contents: read, id-token: write, pull-requests: write }
     # deploy: environment: production, and a concurrency group, since
@@ -49,16 +49,12 @@ And the jobs:
         with:
           command: plan                # or deploy
           working-directory: site
-          gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
-          gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
-          ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
           workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
           service-account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}   # GCP_GTM_SA_EMAIL for deploy
 ```
 
 - **Pin a commit**, not `@main`: a change here then cannot change what runs with another site's credentials.
 - **The feature** is `none` when nothing it lists changed, and `all` on a hand-started run. An edit made in the GTM UI stays until the config next changes.
-- **Check the ids in `if:`**, so a repo can carry the jobs before the accounts exist.
 
 ## Accounts
 
@@ -69,4 +65,4 @@ Workload Identity Federation, no keys. Two service accounts, because a pull requ
 | `GCP_GTM_PLAN_SA_EMAIL` | Read | Viewer | `plan`, on every PR |
 | `GCP_GTM_SA_EMAIL` | Publish | Editor | `deploy`, bound in the WIF provider to `environment:production` only |
 
-Set them, and the three ids as variables, at repo level: the PR job has no environment. The OIDC token names the calling repo, so the WIF provider has to allow each repo that calls this.
+Set them at repo level: the PR job has no environment. The OIDC token names the calling repo, so the WIF provider has to allow each repo that calls this.

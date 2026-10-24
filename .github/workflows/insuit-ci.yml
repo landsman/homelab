@@ -282,7 +282,10 @@ jobs:
   # Skipped until the repo variables are set.
   gtm:
     needs: [changes]
-    if: needs.changes.outputs.gtm != 'none' && vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
+    if: needs.changes.outputs.gtm != 'none' && vars.GA4_PROPERTY_ID != ''
+    # analytics.yaml reads the property id from here, until it is written there.
+    env:
+      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -297,8 +300,5 @@ jobs:
         with:
           command: plan
           working-directory: insuit
-          gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
-          gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
-          ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
           workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
           service-account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}

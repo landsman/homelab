@@ -14,12 +14,6 @@ inputs:
   config:
     description: "The config, relative to working-directory"
     default: analytics.yaml
-  gtm-account-id:
-    required: true
-  gtm-container-id:
-    required: true
-  ga4-property-id:
-    required: true
   workload-identity-provider:
     required: true
   service-account:
@@ -29,14 +23,13 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: "Point gtm-code at the site"
+    # The ids live in the config. One it reads as ${VAR} comes from the job's
+    # env:, which a composite action sees.
+    - name: "Point gtm-code at the config"
       shell: bash
       env:
-        GTM_ACCOUNT_ID: ${{ inputs.gtm-account-id }}
-        GTM_CONTAINER_ID: ${{ inputs.gtm-container-id }}
-        GA4_PROPERTY_ID: ${{ inputs.ga4-property-id }}
         CONFIG: ${{ inputs.config }}
-      run: printf '%s\n' "GTM_ACCOUNT_ID=$GTM_ACCOUNT_ID" "GTM_CONTAINER_ID=$GTM_CONTAINER_ID" "GA4_PROPERTY_ID=$GA4_PROPERTY_ID" "CONFIG=$CONFIG" >>"$GITHUB_ENV"
+      run: echo "CONFIG=$CONFIG" >>"$GITHUB_ENV"
     - name: "Set up Bun"
       uses: oven-sh/setup-bun@v2
       with:

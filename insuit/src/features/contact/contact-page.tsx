@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { trackContactEmail } from '@/app/gtm'
+import { trackContactEmail, trackSocialClick } from '@/app/gtm'
 import { m } from '@/paraglide/messages.js'
 
 // Names of the services, not words to translate. The title is the address
-// without its scheme — what the link leads to.
+// without its scheme — what the link leads to. `network` is what GA4 reports
+// the click under, so it stays the same if a name changes.
 const PROFILES = [
-  { name: 'Twitter/X', url: 'https://x.com/Landsman' },
-  { name: 'Bluesky', url: 'https://bsky.app/profile/landsman.bsky.social' },
-  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/landsmanmichal' },
-  { name: 'GitHub', url: 'https://github.com/landsman' },
+  { name: 'Twitter/X', network: 'x', url: 'https://x.com/Landsman' },
+  { name: 'Bluesky', network: 'bluesky', url: 'https://bsky.app/profile/landsman.bsky.social' },
+  { name: 'LinkedIn', network: 'linkedin', url: 'https://www.linkedin.com/in/landsmanmichal' },
+  { name: 'GitHub', network: 'github', url: 'https://github.com/landsman' },
 ]
 
 export function ContactPage() {
@@ -36,13 +37,14 @@ export function ContactPage() {
           {m.contact_elsewhere()}
         </p>
         <nav className="links links-shown" aria-labelledby="elsewhere">
-          {PROFILES.map(({ name, url }) => (
+          {PROFILES.map(({ name, network, url }) => (
             <a
               key={url}
               href={url}
               title={url.replace(/^https:\/\/(www\.)?/, '')}
               target="_blank"
               rel="noopener"
+              onClick={() => trackSocialClick(network)}
             >
               {name}
               <span className="visually-hidden"> {m.common_opens_new_tab()}</span>

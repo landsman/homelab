@@ -26,6 +26,14 @@ events:
     keyEvent: true
     consent: { status: notNeeded }
 
+  # One of the contact page's profiles clicked (trackSocialClick). GA4's own
+  # outbound clicks, below, still count every other link that leaves the site.
+  social_click:
+    description: A visitor clicked a profile on the contact page
+    parameters:
+      network: { type: string, dimension: true }
+    consent: { status: notNeeded }
+
 gtm:
   variables: {}
   triggers: {}

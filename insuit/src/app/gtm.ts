@@ -50,3 +50,12 @@ export function trackPageView(pathname: string) {
 export function trackContactEmail() {
   window.dataLayer?.push({ event: 'contact_email' })
 }
+
+/**
+ * A click on one of the contact page's profiles. GA4 would count it as an
+ * outbound click on its own; this names the network, which analytics.yaml
+ * reports as a dimension.
+ */
+export function trackSocialClick(network: string) {
+  window.dataLayer?.push({ event: 'social_click', network })
+}

@@ -40,7 +40,13 @@ gtm:
     network:
       type: regexTable
       input: '{{Click URL}}'
-      map: { 'linkedin\.com': linkedin, 'github\.com': github, 'x\.com': x, 'bsky\.app': bluesky }
+      # A list of { pattern, value }. validate also passes an object here, which
+      # then fails at plan: gtm-code does not check the shape.
+      map:
+        - { pattern: 'linkedin\.com', value: linkedin }
+        - { pattern: 'github\.com', value: github }
+        - { pattern: '(^|\.)x\.com', value: x }
+        - { pattern: 'bsky\.app', value: bluesky }
   triggers:
     profile_click:
       type: linkClick
@@ -59,4 +65,4 @@ Then `social_click` leaves `events:`, the page's `onClick` goes, and the e2e tes
 preview whether the tag fired instead of reading `dataLayer`. A selector is a contract with the
 markup that nothing compiles against, so the test is what keeps it.
 
-Upstream: no issue yet; trigger conditions are not in the package's own list of gaps.
+Upstream: [StackMade/gtm-as-code#14](https://github.com/StackMade/gtm-as-code/pull/14) adds `filter` to every trigger type, with these operator names.

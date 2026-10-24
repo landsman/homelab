@@ -5,7 +5,7 @@ A composite action, [`action.yml`](action.yml), that keeps a site's Google Tag M
 - `plan`, on a pull request: comments what would change. The comment names resources by their keys in the config, never by Google ids.
 - `deploy`, on `main`: applies and publishes, only when the plan has anything to do. `apply` alone only stages a draft in the workspace.
 
-Run it only when its config changes, with the shared [changes action](../changes/action.yml) and a feature in the repo's spec. Used by [insuit.cz](../../../insuit). Any other repo can call both, since this one is public.
+Run it only when its config changes, with the shared [changes action](../changes/action.yml) and a feature in the repo's spec. What gtm-code cannot declare yet, and what is done instead: [CAVEATS.md](CAVEATS.md). Used by [insuit.cz](../../../insuit). Any other repo can call both, since this one is public.
 
 ## What a site needs
 

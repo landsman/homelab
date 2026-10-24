@@ -41,3 +41,12 @@ export function trackPageView(pathname: string) {
     page_title: document.title,
   })
 }
+
+/**
+ * A click on the contact address: the one action on the site that means
+ * someone wants to talk. GA4 does not see a `mailto:` link on its own, and
+ * analytics.yaml marks this event a key event.
+ */
+export function trackContactEmail() {
+  window.dataLayer?.push({ event: 'contact_email' })
+}

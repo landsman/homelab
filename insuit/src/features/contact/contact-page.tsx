@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { trackContactEmail } from '@/app/gtm'
 import { m } from '@/paraglide/messages.js'
 
 // Names of the services, not words to translate. The title is the address
@@ -23,7 +24,13 @@ export function ContactPage() {
       <div className="content">
         {/* The address first and largest: it is what the page is for. The line
             is there before the address is, so nothing below it moves. */}
-        <p className="contact-email">{email && <a href={`mailto:${email}`}>{email}</a>}</p>
+        <p className="contact-email">
+          {email && (
+            <a href={`mailto:${email}`} onClick={trackContactEmail}>
+              {email}
+            </a>
+          )}
+        </p>
 
         <p className="label" id="elsewhere">
           {m.contact_elsewhere()}

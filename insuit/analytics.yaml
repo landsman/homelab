@@ -18,7 +18,13 @@ google:
     # Public, like the GTM id: it is in every page the tag loads on.
     measurementId: &measurement G-49CTM3MK36
 
-events: {}
+events:
+  # The contact page's address clicked (trackContactEmail in src/app/gtm.ts):
+  # the one action that means someone wants to talk.
+  contact_email:
+    description: A visitor clicked the contact address
+    keyEvent: true
+    consent: { status: notNeeded }
 
 gtm:
   variables: {}
@@ -35,6 +41,20 @@ gtm:
       consent: { status: notNeeded }
 
 ga4:
+  # GA4's default keeps detailed event data for two months, too short to set a
+  # month against the same one a year before.
+  dataRetention: FOURTEEN_MONTHS
+  # The stream the settings below apply to.
+  streamWebsiteUrl: https://www.insuit.cz
+  # What GA4 measures by itself. The site has no search and no form; the blog's
+  # YouTube embeds load no player API, so video engagement has nothing to see.
+  enhancedMeasurement:
+    scrollsEnabled: true
+    outboundClicksEnabled: true
+    fileDownloadsEnabled: true
+    siteSearchEnabled: false
+    formInteractionsEnabled: false
+    videoEngagementEnabled: false
   dimensions: {}
   metrics: {}
   keyEvents: {}

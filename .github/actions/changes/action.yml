@@ -35,4 +35,4 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.token }}
         SITE: ${{ inputs.working-directory }}
-      run: bun "$GITHUB_ACTION_PATH/detect.ts" >>"$GITHUB_OUTPUT"
+      run: bun "$GITHUB_ACTION_PATH/detect.ts" | tee -a "$GITHUB_OUTPUT"

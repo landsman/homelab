@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { trackContactEmail, trackSocialClick } from '@/app/gtm'
+import { track } from '@/app/analytics.gen'
 import { m } from '@/paraglide/messages.js'
 
 // Names of the services, not words to translate. The title is the address
@@ -27,7 +27,7 @@ export function ContactPage() {
             is there before the address is, so nothing below it moves. */}
         <p className="contact-email">
           {email && (
-            <a href={`mailto:${email}`} onClick={trackContactEmail}>
+            <a href={`mailto:${email}`} onClick={() => track('generate_lead', {})}>
               {email}
             </a>
           )}
@@ -44,7 +44,7 @@ export function ContactPage() {
               title={url.replace(/^https:\/\/(www\.)?/, '')}
               target="_blank"
               rel="noopener"
-              onClick={() => trackSocialClick(network)}
+              onClick={() => track('social_click', { network })}
             >
               {name}
               <span className="visually-hidden"> {m.common_opens_new_tab()}</span>

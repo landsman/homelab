@@ -19,14 +19,18 @@ google:
     measurementId: &measurement G-49CTM3MK36
 
 events:
-  # The contact page's address clicked (trackContactEmail in src/app/gtm.ts):
-  # the one action that means someone wants to talk.
-  contact_email:
+  # The site sends these with track() from src/app/analytics.gen.ts, which
+  # `make analytics` generates from this list.
+
+  # The contact page's address clicked: the one action that means someone
+  # wants to talk. GA4's recommended name for a lead, so its lead reports
+  # count it.
+  generate_lead:
     description: A visitor clicked the contact address
     keyEvent: true
     consent: { status: notNeeded }
 
-  # One of the contact page's profiles clicked (trackSocialClick). GA4's own
+  # One of the contact page's profiles clicked. GA4's own
   # outbound clicks, below, still count every other link that leaves the site.
   social_click:
     description: A visitor clicked a profile on the contact page

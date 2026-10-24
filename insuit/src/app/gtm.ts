@@ -1,3 +1,7 @@
+// window.dataLayer is declared by analytics.gen.ts, which pushes the site's own
+// events through it.
+import type {} from '@/app/analytics.gen'
+
 /**
  * Google Tag Manager. The container is written into every page's <head> at
  * build time (routes/__root.tsx), so a visitor is measured even while the
@@ -21,12 +25,6 @@ export function gtmNoscript(id: string): string {
   return `<iframe src="https://www.googletagmanager.com/ns.html?id=${id}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
 }
 
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[]
-  }
-}
-
 /**
  * A link swaps the page without loading a document, so the container sees no
  * page view of its own. Push one for the new page; the first page is the one
@@ -40,22 +38,4 @@ export function trackPageView(pathname: string) {
     page_location: window.location.href,
     page_title: document.title,
   })
-}
-
-/**
- * A click on the contact address: the one action on the site that means
- * someone wants to talk. GA4 does not see a `mailto:` link on its own, and
- * analytics.yaml marks this event a key event.
- */
-export function trackContactEmail() {
-  window.dataLayer?.push({ event: 'contact_email' })
-}
-
-/**
- * A click on one of the contact page's profiles. GA4 would count it as an
- * outbound click on its own; this names the network, which analytics.yaml
- * reports as a dimension.
- */
-export function trackSocialClick(network: string) {
-  window.dataLayer?.push({ event: 'social_click', network })
 }

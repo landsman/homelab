@@ -147,9 +147,33 @@ jobs:
         working-directory: insuit
         run: make smoke ARGS=--project=links
 
+  # Whether the push touches GTM, by the same paths as the PR plan in
+  # insuit-ci.yml. A manual run has no "before", so it always applies.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      gtm: ${{ steps.diff.outputs.gtm }}
+    steps:
+      - name: "Detect GTM changes"
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+          GTM_PATHS: '^(insuit/analytics/|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
+        run: |
+          [ -n "$BEFORE" ] || { echo gtm=true >>"$GITHUB_OUTPUT"; exit 0; }
+          gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA" --jq '.files[].filename' >"$RUNNER_TEMP/changed.txt"
+          echo "gtm=$(grep -qE "$GTM_PATHS" "$RUNNER_TEMP/changed.txt" && echo true || echo false)" >>"$GITHUB_OUTPUT"
+
   # analytics/analytics.yaml onto the live GTM container and GA4 property.
+  # Only when the push touches it, so an edit made in the GTM UI stays until
+  # the next change to the config.
   gtm:
-    needs: [content]
+    needs: [content, changes]
+    if: needs.changes.outputs.gtm == 'true'
     uses: ./.github/workflows/gtm.yml
     permissions:
       contents: read

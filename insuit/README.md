@@ -421,7 +421,7 @@ GTM and GA4 configuration live in `analytics/analytics.yaml`. `gtm-as-code` diff
 - `bun run gtm:plan` previews changes (needs Google credentials).
 - `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish -c analytics/analytics.yaml` makes them live.
 
-A pull request posts the plan as a comment. On `main`, after the site deploy, the `gtm` job applies and publishes, only when the plan has changes. Both run [`.github/workflows/gtm.yml`](../.github/workflows/gtm.yml), which any other site's repo can call too; its header says how. Both jobs skip while the three variables below are unset.
+Both jobs run only when a change touches `analytics/`, `.analytics/`, `package.json` (the gtm-code version) or the shared workflow, so an edit made in the GTM UI stays until the config next changes. A pull request posts the plan as a comment. On `main`, after the site deploy, the `gtm` job applies and publishes, only when the plan has changes. Both run [`.github/workflows/gtm.yml`](../.github/workflows/gtm.yml), which any other site's repo can call too; its header says how. Both jobs skip while the three variables below are unset.
 
 `.analytics/state.json` is the only record of which GA4 resources are ours, so it is committed. When an apply changes it, the deploy fails and keeps the new file as the `gtm-state` artifact: commit that, or the next run creates the same resources again.
 

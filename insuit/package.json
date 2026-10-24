@@ -20,8 +20,7 @@
     "test:smoke": "playwright test -c playwright.smoke.config.ts",
     "gtm:validate": "gtm-code validate -c analytics/analytics.yaml",
     "gtm:plan": "gtm-code plan -c analytics/analytics.yaml",
-    "gtm:apply": "gtm-code apply -c analytics/analytics.yaml",
-    "gtm:publish": "gtm-code publish -c analytics/analytics.yaml"
+    "gtm:apply": "gtm-code apply -c analytics/analytics.yaml"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.44",

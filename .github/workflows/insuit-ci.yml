@@ -5,6 +5,7 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
+      - '.github/workflows/gtm.yml'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.
@@ -14,6 +15,7 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-ci.yml'
+      - '.github/workflows/gtm.yml'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.
@@ -280,45 +282,20 @@ jobs:
 
 
   # analytics/analytics.yaml against the live GTM container and GA4 property,
-  # posted on the PR. Skipped until the repo variables are set. Signs in as a
-  # read-only account: a PR can change what runs here.
+  # posted on the PR, as a read-only account.
   gtm:
-    if: github.event_name == 'pull_request' && vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/gtm.yml
     permissions:
       contents: read
       id-token: write
       pull-requests: write
-    defaults:
-      run:
-        working-directory: insuit
-    env:
-      GTM_ACCOUNT_ID: ${{ vars.GTM_ACCOUNT_ID }}
-      GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
-      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
-    steps:
-      - name: "Check out"
-        uses: actions/checkout@v7
-      - name: "Set up Bun"
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: insuit/package.json
-      - name: "Install"
-        run: make install
-      - name: "Authenticate to Google Cloud"
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}
-      - name: "Validate GTM config"
-        run: bun run gtm:validate
-      # Markdown names the resources by their keys in analytics.yaml, not by
-      # their Google ids, so the comment on this public repo carries no ids.
-      - name: "Plan GTM changes"
-        run: scripts/gtm.sh plan "$RUNNER_TEMP/gtm-plan.md"
-      - name: "Comment GTM plan"
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: gtm-plan
-          path: ${{ runner.temp }}/gtm-plan.md
+    with:
+      command: plan
+      working-directory: insuit
+      gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
+      gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
+      ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
+    secrets:
+      workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+      service-account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}

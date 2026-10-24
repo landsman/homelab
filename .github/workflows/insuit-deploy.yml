@@ -6,6 +6,7 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-deploy.yml'
+      - '.github/workflows/gtm.yml'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.
@@ -147,50 +148,20 @@ jobs:
         run: make smoke ARGS=--project=links
 
   # analytics/analytics.yaml onto the live GTM container and GA4 property.
-  # Skipped until the repo variables are set (insuit/README.md, GTM as code).
   gtm:
     needs: [content]
-    if: vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment: production
-    # gtm-code's lock is a file on the runner, so two pushes in a row would
-    # apply to the same workspace at once without this.
-    concurrency:
-      group: insuit-gtm
-      cancel-in-progress: false
+    uses: ./.github/workflows/gtm.yml
     permissions:
       contents: read
       id-token: write
-    defaults:
-      run:
-        working-directory: insuit
-    env:
-      GTM_ACCOUNT_ID: ${{ vars.GTM_ACCOUNT_ID }}
-      GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
-      GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
-    steps:
-      - name: "Check out"
-        uses: actions/checkout@v7
-      - name: "Set up Bun"
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: insuit/package.json
-      - name: "Install"
-        run: make install
-      - name: "Authenticate to Google Cloud"
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_GTM_SA_EMAIL }}
-      - name: "Validate GTM config"
-        run: bun run gtm:validate
-      - name: "Apply and publish GTM changes"
-        run: scripts/gtm.sh deploy
-      - name: "Keep the GA4 state"
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: gtm-state
-          path: insuit/.analytics/state.json
-          if-no-files-found: ignore
+      pull-requests: write
+    with:
+      command: deploy
+      environment: production
+      working-directory: insuit
+      gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
+      gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
+      ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
+    secrets:
+      workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+      service-account: ${{ secrets.GCP_GTM_SA_EMAIL }}

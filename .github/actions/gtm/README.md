@@ -69,15 +69,16 @@ Set them at repo level: the PR job has no environment. The OIDC token names the 
 
 ## Setting it up, once
 
-`<project>` is a Google Cloud project, `<number>` its project number (`gcloud projects describe <project> --format='value(projectNumber)'`), `<owner>/<repo>` the repo that calls this.
+`<project>` is the Google Cloud project that holds the accounts, `<number>` its project number, `<owner>/<repo>` the repo that calls this.
 
 1. Write the site's ids into its `analytics.yaml`, quoted, as `google.gtm.accountId`, `google.gtm.containerId`, `google.ga4.propertyId` and `google.ga4.measurementId`. None is secret.
    - GTM account and container: the container's URL, `tagmanager.google.com/#/container/accounts/<accountId>/containers/<containerId>/…`.
    - GA4 property: any report's URL, `analytics.google.com/analytics/web/#/a<account>p<propertyId>/…`. The web stream's id is a different number.
    - GA4 measurement id (`G-…`): Admin → Data streams → the site's stream.
-2. Enable the APIs: `gcloud services enable tagmanager.googleapis.com analyticsadmin.googleapis.com iamcredentials.googleapis.com sts.googleapis.com --project <project>`.
-3. Create the pool: `gcloud iam workload-identity-pools create github --location global --project <project>`.
-4. Create its GitHub provider, open to your repos only:
+2. Pick or create the project: `gcloud projects list`, or `gcloud projects create <project>`. One serves every site, and it needs no billing account: none of this costs anything. Its number: `gcloud projects describe <project> --format='value(projectNumber)'`.
+3. Enable the APIs: `gcloud services enable tagmanager.googleapis.com analyticsadmin.googleapis.com iamcredentials.googleapis.com sts.googleapis.com --project <project>`.
+4. Create the pool: `gcloud iam workload-identity-pools create github --location global --project <project>`.
+5. Create its GitHub provider, open to your repos only:
    ```sh
    gcloud iam workload-identity-pools providers create-oidc github \
      --location global --workload-identity-pool github --project <project> \
@@ -85,22 +86,22 @@ Set them at repo level: the PR job has no environment. The OIDC token names the 
      --attribute-mapping google.subject=assertion.sub,attribute.repository=assertion.repository \
      --attribute-condition "assertion.repository_owner == '<owner>'"
    ```
-5. Create the two accounts: `gcloud iam service-accounts create gtm-plan --project <project>`, and the same for `gtm-deploy`.
-6. Let any job of the repo sign in as `gtm-plan`:
+6. Create the two accounts: `gcloud iam service-accounts create gtm-plan --project <project>`, and the same for `gtm-deploy`.
+7. Let any job of the repo sign in as `gtm-plan`:
    ```sh
    gcloud iam service-accounts add-iam-policy-binding gtm-plan@<project>.iam.gserviceaccount.com --project <project> \
      --role roles/iam.workloadIdentityUser \
      --member 'principalSet://iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/github/attribute.repository/<owner>/<repo>'
    ```
-7. Let only its `production` jobs sign in as `gtm-deploy`: the same command for `gtm-deploy@…`, with the member `principal://iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/github/subject/repo:<owner>/<repo>:environment:production`. That is the token's `sub` for a job with that environment, and no other job has it.
-8. In GTM, Admin → User Management on the account: add `gtm-plan@…` with **Read** on the container, and `gtm-deploy@…` with **Publish**.
-9. In GA4, Admin → Property access management: add `gtm-plan@…` as **Viewer**, `gtm-deploy@…` as **Editor**.
-10. Set the secrets on the repo:
+8. Let only its `production` jobs sign in as `gtm-deploy`: the same command for `gtm-deploy@…`, with the member `principal://iam.googleapis.com/projects/<number>/locations/global/workloadIdentityPools/github/subject/repo:<owner>/<repo>:environment:production`. That is the token's `sub` for a job with that environment, and no other job has it.
+9. In GTM, Admin → User Management on the account: add `gtm-plan@…` with **Read** on the container, and `gtm-deploy@…` with **Publish**.
+10. In GA4, Admin → Property access management: add `gtm-plan@…` as **Viewer**, `gtm-deploy@…` as **Editor**.
+11. Set the secrets on the repo:
    ```sh
    gh secret set GCP_GTM_WIF_PROVIDER --body projects/<number>/locations/global/workloadIdentityPools/github/providers/github
    gh secret set GCP_GTM_PLAN_SA_EMAIL --body gtm-plan@<project>.iam.gserviceaccount.com
    gh secret set GCP_GTM_SA_EMAIL --body gtm-deploy@<project>.iam.gserviceaccount.com
    ```
-11. Open a PR that touches `analytics.yaml`. Its plan comment says the sign-in and the read access work, and the first merge proves the deploy account.
+12. Open a PR that touches `analytics.yaml`. Its plan comment says the sign-in and the read access work, and the first merge proves the deploy account.
 
-For a second repo, step 1, then steps 6, 7 and 10 again with its `<owner>/<repo>`, and steps 8 and 9 for its own container and property.
+For a second repo, step 1, then steps 7, 8 and 11 again with its `<owner>/<repo>`, and steps 9 and 10 for its own container and property.

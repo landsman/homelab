@@ -20,7 +20,9 @@
     "test:smoke": "playwright test -c playwright.smoke.config.ts",
     "gtm:validate": "gtm-code validate",
     "gtm:plan": "gtm-code plan",
-    "gtm:apply": "gtm-code apply"
+    "gtm:apply": "gtm-code apply",
+    "gtm:publish": "gtm-code publish",
+    "gtm:generate": "gtm-code generate"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.170.44",

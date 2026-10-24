@@ -52,7 +52,7 @@ clean: ## Remove everything a build or an install wrote
 # analytics.yaml's events:, so a misspelt event or a missing parameter fails
 # the typecheck. Committed; `make qa` fails when it has drifted from the config.
 analytics: ## Regenerate src/app/analytics.gen.ts from analytics.yaml
-	bunx gtm-code generate --out src/app/analytics.gen.ts
+	bun run gtm:generate --out src/app/analytics.gen.ts
 
 ##@ Quality assurance
 
@@ -113,7 +113,7 @@ smoke: ## Ask the live sites, short links and their targets what a visitor would
 	bun run test:smoke $(ARGS)
 
 qa: images ## Run all quality checks (images, typecheck, format, lint, test, shell, analytics)
-	@fresh=$$(mktemp) && bunx gtm-code generate --out "$$fresh" >/dev/null && diff -u src/app/analytics.gen.ts "$$fresh" \
+	@fresh=$$(mktemp) && bun run --silent gtm:generate --out "$$fresh" >/dev/null && diff -u src/app/analytics.gen.ts "$$fresh" \
 	  || { echo "src/app/analytics.gen.ts is stale: make analytics"; exit 1; }
 	bun run typecheck
 	bun run format

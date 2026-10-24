@@ -419,6 +419,6 @@ GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by
 - `make analytics` regenerates `src/app/analytics.gen.ts`, the typed `track()` the site sends its events with, from the config's `events:`. `make qa` fails when it is stale.
 - `bun run gtm:validate` checks the config, no credentials.
 - `bun run gtm:plan` previews changes against the live container and property.
-- `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish` makes them live.
+- `bun run gtm:apply` stages them in the GTM workspace; `bun run gtm:publish` makes them live.
 
 Locally, sign in with `gcloud auth application-default login` first. In GitHub the secrets are the ones the GTM action's README lists, at repo level.

@@ -12,13 +12,24 @@ google:
 
   ga4:
     propertyId: '${GA4_PROPERTY_ID}'
+    # Public, like the GTM id: it is in every page the tag loads on.
+    measurementId: &measurement G-49CTM3MK36
 
 events: {}
 
 gtm:
   variables: {}
   triggers: {}
-  tags: {}
+  tags:
+    # Counts every page view, an in-app navigation included: GA4's enhanced
+    # measurement sees the router's history change itself. So no page_view
+    # event tag on the app's dataLayer push as well, which would count those
+    # twice. No cookie banner yet, so no consent to wait for.
+    GA4:
+      type: googleTag
+      measurementId: *measurement
+      trigger: ['All Pages']
+      consent: { status: notNeeded }
 
 ga4:
   dimensions: {}

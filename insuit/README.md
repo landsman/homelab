@@ -272,13 +272,12 @@ optional locally:
   for themselves (`og:url`, the link-preview picture). `https://www.insuit.cz`
   without it; CI sets it to the preview's address for a PR.
 
-With Tag Manager on and a page-view tag in the container, a page load is one
-page view. A link inside the site swaps the page without loading a document, so
-the app pushes a `page_view` event to `dataLayer` with `page_path`,
-`page_location` and `page_title` (`src/app/gtm.ts`). In GTM, trigger the
-page-view tag on **All Pages** plus a **Custom Event** trigger named
-`page_view` for those. Do not use the **History Change** trigger as well: it
-would count an in-app navigation twice.
+The GA4 tag in [`analytics.yaml`](analytics.yaml) fires on **All Pages** and
+counts a link inside the site too: GA4's enhanced measurement sees the router's
+history change. The app also pushes a `page_view` event to `dataLayer` with
+`page_path`, `page_location` and `page_title` (`src/app/gtm.ts`), for a tag
+that needs it. Do not point a GA4 page-view tag at that event as well, or at a
+**History Change** trigger: either would count an in-app navigation twice.
 
 ## Bootstrap (once)
 

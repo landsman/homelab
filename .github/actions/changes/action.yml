@@ -1,0 +1,38 @@
+name: "Changes"
+description: "What a run changed, per feature: outputs gtm (none, config, state, toolchain, action or manual)"
+
+# Needs no checkout: it asks GitHub for the changed files. Calling it as
+# ./.github/actions/changes, from this repo, does. detect.ts says how a feature
+# adds its own output.
+
+inputs:
+  working-directory:
+    description: "The site's folder"
+    default: "."
+  token:
+    description: "Reads the PR's files, or the pushed commits"
+    default: ${{ github.token }}
+
+outputs:
+  gtm:
+    description: "A GtmChange (../gtm/changes.ts); `none` means the gtm jobs can skip"
+    value: ${{ steps.detect.outputs.gtm }}
+
+runs:
+  using: composite
+  steps:
+    - name: "Set up Bun"
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version-file: ${{ github.action_path }}/../package.json
+    - name: "Install"
+      shell: bash
+      working-directory: ${{ github.action_path }}/..
+      run: bun install --frozen-lockfile --production
+    - name: "Detect changes"
+      id: detect
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        SITE: ${{ inputs.working-directory }}
+      run: bun "$GITHUB_ACTION_PATH/detect.ts" >>"$GITHUB_OUTPUT"

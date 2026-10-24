@@ -6,7 +6,7 @@ on:
     paths:
       - 'insuit/**'
       - '.github/workflows/insuit-deploy.yml'
-      - '.github/workflows/gtm.yml'
+      - '.github/actions/**'
       - '!**/*.md'
       # content/ is what the site says, not docs — the CV's cv.md and the
       # blog's posts. Re-included after the skip.
@@ -147,45 +147,51 @@ jobs:
         working-directory: insuit
         run: make smoke ARGS=--project=links
 
-  # Whether the push touches GTM, by the same paths as the PR plan in
-  # insuit-ci.yml. A manual run has no "before", so it always applies.
+  # What the push changed, per feature (.github/actions/changes). A manual run
+  # applies everything.
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
     outputs:
-      gtm: ${{ steps.diff.outputs.gtm }}
+      gtm: ${{ steps.features.outputs.gtm }}
     steps:
-      - name: "Detect GTM changes"
-        id: diff
-        env:
-          GH_TOKEN: ${{ github.token }}
-          BEFORE: ${{ github.event.before }}
-          GTM_PATHS: '^(insuit/analytics\.yaml$|insuit/\.analytics/|insuit/package\.json$|\.github/workflows/gtm\.yml$)'
-        run: |
-          [ -n "$BEFORE" ] || { echo gtm=true >>"$GITHUB_OUTPUT"; exit 0; }
-          gh api "repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA" --jq '.files[].filename' >"$RUNNER_TEMP/changed.txt"
-          echo "gtm=$(grep -qE "$GTM_PATHS" "$RUNNER_TEMP/changed.txt" && echo true || echo false)" >>"$GITHUB_OUTPUT"
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Detect feature changes"
+        id: features
+        uses: ./.github/actions/changes
+        with:
+          working-directory: insuit
 
   # insuit/analytics.yaml onto the live GTM container and GA4 property.
   # Only when the push touches it, so an edit made in the GTM UI stays until
-  # the next change to the config.
+  # the next change to the config. Skipped until the repo variables are set.
   gtm:
     needs: [content, changes]
-    if: needs.changes.outputs.gtm == 'true'
-    uses: ./.github/workflows/gtm.yml
+    if: needs.changes.outputs.gtm != 'none' && vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    # gtm-code's lock is a file on the runner, so two pushes in a row would
+    # apply to the same workspace at once without this.
+    concurrency:
+      group: insuit-gtm
+      cancel-in-progress: false
     permissions:
       contents: read
       id-token: write
-      pull-requests: write
-    with:
-      command: deploy
-      environment: production
-      working-directory: insuit
-      gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
-      gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
-      ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
-    secrets:
-      workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
-      service-account: ${{ secrets.GCP_GTM_SA_EMAIL }}
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Apply and publish GTM"
+        uses: ./.github/actions/gtm
+        with:
+          command: deploy
+          working-directory: insuit
+          gtm-account-id: ${{ vars.GTM_ACCOUNT_ID }}
+          gtm-container-id: ${{ vars.GTM_CONTAINER_ID }}
+          ga4-property-id: ${{ vars.GA4_PROPERTY_ID }}
+          workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+          service-account: ${{ secrets.GCP_GTM_SA_EMAIL }}

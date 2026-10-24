@@ -1,0 +1,107 @@
+name: "GTM as code"
+description: "Plan a site's analytics.yaml on a PR, or apply and publish it, against its live GTM container and GA4 property"
+
+# How to call it, the accounts it needs, and which changes it should run on:
+# README.md beside this file.
+
+inputs:
+  command:
+    description: "plan (comment on the PR) or deploy (apply and publish)"
+    required: true
+  working-directory:
+    description: "The site's folder: package.json, bun.lock, the config"
+    default: "."
+  config:
+    description: "The config, relative to working-directory"
+    default: analytics.yaml
+  gtm-account-id:
+    required: true
+  gtm-container-id:
+    required: true
+  ga4-property-id:
+    required: true
+  workload-identity-provider:
+    required: true
+  service-account:
+    description: "Read-only for plan: a PR can change what its job runs"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Point gtm-code at the site"
+      shell: bash
+      env:
+        GTM_ACCOUNT_ID: ${{ inputs.gtm-account-id }}
+        GTM_CONTAINER_ID: ${{ inputs.gtm-container-id }}
+        GA4_PROPERTY_ID: ${{ inputs.ga4-property-id }}
+        CONFIG: ${{ inputs.config }}
+      run: printf '%s\n' "GTM_ACCOUNT_ID=$GTM_ACCOUNT_ID" "GTM_CONTAINER_ID=$GTM_CONTAINER_ID" "GA4_PROPERTY_ID=$GA4_PROPERTY_ID" "CONFIG=$CONFIG" >>"$GITHUB_ENV"
+    - name: "Set up Bun"
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version-file: ${{ inputs.working-directory }}/package.json
+    - name: "Install"
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: bun install --frozen-lockfile
+    - name: "Authenticate to Google Cloud"
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.workload-identity-provider }}
+        service_account: ${{ inputs.service-account }}
+    # --bun: the CLI wants Node 22, and the runner's Node may be older.
+    - name: "Validate"
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: bunx --bun gtm-code validate -c "$CONFIG"
+
+    # gtm-code plan exits 2 when there is something to apply, the way
+    # `terraform plan -detailed-exitcode` does. Only 1 is a failure. Markdown
+    # names resources by their keys in the config, not by Google ids, so the
+    # comment carries none.
+    - name: "Plan"
+      if: inputs.command == 'plan'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: bunx --bun gtm-code plan -c "$CONFIG" --format markdown >"$RUNNER_TEMP/gtm-plan.md" || [ $? -eq 2 ]
+    - name: "Comment the plan"
+      if: inputs.command == 'plan'
+      uses: marocchino/sticky-pull-request-comment@v2
+      with:
+        header: gtm-plan-${{ inputs.working-directory }}
+        path: ${{ runner.temp }}/gtm-plan.md
+
+    - name: "Check for changes"
+      id: changes
+      if: inputs.command == 'deploy'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        code=0; bunx --bun gtm-code plan -c "$CONFIG" || code=$?
+        case $code in 0) echo any=false ;; 2) echo any=true ;; *) exit 1 ;; esac >>"$GITHUB_OUTPUT"
+    # apply only stages into the workspace; nothing is live until a publish.
+    - name: "Apply and publish"
+      if: steps.changes.outputs.any == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        bunx --bun gtm-code apply -c "$CONFIG" --auto-approve
+        bunx --bun gtm-code publish -c "$CONFIG"
+    # apply records the GA4 resources it creates in .analytics/state.json, the
+    # only record that they are ours. Uncommitted, the next run creates them
+    # again.
+    - name: "Check the GA4 state is committed"
+      if: steps.changes.outputs.any == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        test -z "$(git status --porcelain .analytics)" ||
+          { echo "::error::.analytics/state.json changed, commit it from the gtm-state artifact"; exit 1; }
+    - name: "Keep the GA4 state"
+      if: failure() && steps.changes.outputs.any == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: gtm-state
+        path: ${{ inputs.working-directory }}/.analytics/state.json
+        if-no-files-found: ignore

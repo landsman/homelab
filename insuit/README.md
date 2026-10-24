@@ -415,10 +415,10 @@ claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.
 
 ## GTM as code
 
-GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by the shared [GTM workflow](../gtm/README.md), which says what CI does with it and which accounts it needs.
+GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by the shared [GTM action](../.github/actions/gtm/README.md), which says what CI does with it and which accounts it needs.
 
 - `bun run gtm:validate` checks the config, no credentials.
 - `bun run gtm:plan` previews changes against the live container and property.
 - `bun run gtm:apply` stages them in the GTM workspace; `bunx gtm-code publish` makes them live.
 
-Locally, copy `.env.analytics.example` to `.env.analytics` and sign in with `gcloud auth application-default login`. In GitHub the variables and secrets are the ones the GTM workflow's README lists, at repo level.
+Locally, copy `.env.analytics.example` to `.env.analytics` and sign in with `gcloud auth application-default login`. In GitHub the variables and secrets are the ones the GTM action's README lists, at repo level.

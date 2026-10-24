@@ -132,11 +132,33 @@ jobs:
         env:
           SMOKE_COMMIT: ${{ github.sha }}
         run: make smoke ARGS=--project=site
+      # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
+      # at (insuit/links/).
+      - name: "Deploy link.insuit.cz"
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
+          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+          command: pages deploy insuit/links --project-name=insuit-links --branch=main
+      # The file can be right while the domain is not, so every code is asked of
+      # link.insuit.cz itself.
+      - name: "Check the short links"
+        working-directory: insuit
+        run: make smoke ARGS=--project=links
+
+  # analytics/analytics.yaml onto the live GTM container and GA4 property.
+  # Skipped until the repo variables are set (insuit/README.md, GTM as code).
   gtm:
     needs: [content]
+    if: vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production
+    # gtm-code's lock is a file on the runner, so two pushes in a row would
+    # apply to the same workspace at once without this.
+    concurrency:
+      group: insuit-gtm
+      cancel-in-progress: false
     permissions:
       contents: read
       id-token: write
@@ -155,34 +177,20 @@ jobs:
         with:
           bun-version-file: insuit/package.json
       - name: "Install"
-        run: bun install --frozen-lockfile
-      - name: "Set up Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+        run: make install
       - name: "Authenticate to Google Cloud"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_GTM_SA_EMAIL }}
       - name: "Validate GTM config"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
         run: bun run gtm:validate
-      - name: "Apply GTM changes"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
-        run: bun run gtm:apply -- --auto-approve
-
-      # link.insuit.cz: the hand-kept redirects the printed CV's QR codes point
-      # at (insuit/links/).
-      - name: "Deploy link.insuit.cz"
-        uses: cloudflare/wrangler-action@v4
+      - name: "Apply and publish GTM changes"
+        run: scripts/gtm.sh deploy
+      - name: "Keep the GA4 state"
+        if: failure()
+        uses: actions/upload-artifact@v7
         with:
-          apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
-          accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
-          command: pages deploy insuit/links --project-name=insuit-links --branch=main
-      # The file can be right while the domain is not, so every code is asked of
-      # link.insuit.cz itself.
-      - name: "Check the short links"
-        working-directory: insuit
-        run: make smoke ARGS=--project=links
+          name: gtm-state
+          path: insuit/.analytics/state.json
+          if-no-files-found: ignore

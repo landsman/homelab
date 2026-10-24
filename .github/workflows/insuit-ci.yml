@@ -278,8 +278,12 @@ jobs:
       packs: p/secrets p/typescript p/terraform
       path: insuit
 
+
+  # analytics/analytics.yaml against the live GTM container and GA4 property,
+  # posted on the PR. Skipped until the repo variables are set. Signs in as a
+  # read-only account: a PR can change what runs here.
   gtm:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -301,35 +305,20 @@ jobs:
         with:
           bun-version-file: insuit/package.json
       - name: "Install"
-        run: bun install --frozen-lockfile
-      - name: "Set up Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
+        run: make install
       - name: "Authenticate to Google Cloud"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_GTM_SA_EMAIL }}
+          service_account: ${{ secrets.GCP_GTM_PLAN_SA_EMAIL }}
       - name: "Validate GTM config"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
         run: bun run gtm:validate
+      # Markdown names the resources by their keys in analytics.yaml, not by
+      # their Google ids, so the comment on this public repo carries no ids.
       - name: "Plan GTM changes"
-        id: gtm-plan
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' }}
-        shell: bash
-        run: |
-          set -o pipefail
-          bun run gtm:plan 2>&1 | tee "$RUNNER_TEMP/gtm-plan.txt"
+        run: scripts/gtm.sh plan "$RUNNER_TEMP/gtm-plan.md"
       - name: "Comment GTM plan"
-        if: ${{ vars.GTM_ACCOUNT_ID != '' && vars.GTM_CONTAINER_ID != '' && vars.GA4_PROPERTY_ID != '' && steps.gtm-plan.outcome == 'success' }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: gtm-plan
-          message: |
-            ## GTM plan
-
-            ```text
-            $(cat "$RUNNER_TEMP/gtm-plan.txt")
-            ```
+          path: ${{ runner.temp }}/gtm-plan.md

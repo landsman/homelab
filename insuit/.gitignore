@@ -31,3 +31,5 @@ reports/
 # gtm-as-code
 analytics/.env.analytics
 analytics/.env.analytics.*.local
+# apply's lock; state.json beside it is committed.
+.analytics/state.json.lock

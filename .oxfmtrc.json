@@ -8,6 +8,7 @@
   "arrowParens": "avoid",
   "sortPackageJson": false,
   "ignorePatterns": [
-    "**/routeTree.gen.ts"
+    "**/routeTree.gen.ts",
+    "**/analytics.gen.ts"
   ]
 }

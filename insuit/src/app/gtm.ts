@@ -1,3 +1,7 @@
+// window.dataLayer is declared by analytics.gen.ts, which pushes the site's own
+// events through it.
+import type {} from '@/app/analytics.gen'
+
 /**
  * Google Tag Manager. The container is written into every page's <head> at
  * build time (routes/__root.tsx), so a visitor is measured even while the
@@ -19,12 +23,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 /** The fallback for a visitor with no JavaScript: the container in an iframe. */
 export function gtmNoscript(id: string): string {
   return `<iframe src="https://www.googletagmanager.com/ns.html?id=${id}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`
-}
-
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[]
-  }
 }
 
 /**

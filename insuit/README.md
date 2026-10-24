@@ -272,13 +272,12 @@ optional locally:
   for themselves (`og:url`, the link-preview picture). `https://www.insuit.cz`
   without it; CI sets it to the preview's address for a PR.
 
-With Tag Manager on and a page-view tag in the container, a page load is one
-page view. A link inside the site swaps the page without loading a document, so
-the app pushes a `page_view` event to `dataLayer` with `page_path`,
-`page_location` and `page_title` (`src/app/gtm.ts`). In GTM, trigger the
-page-view tag on **All Pages** plus a **Custom Event** trigger named
-`page_view` for those. Do not use the **History Change** trigger as well: it
-would count an in-app navigation twice.
+The GA4 tag in [`analytics.yaml`](analytics.yaml) fires on **All Pages** and
+counts a link inside the site too: GA4's enhanced measurement sees the router's
+history change. The app also pushes a `page_view` event to `dataLayer` with
+`page_path`, `page_location` and `page_title` (`src/app/gtm.ts`), for a tag
+that needs it. Do not point a GA4 page-view tag at that event as well, or at a
+**History Change** trigger: either would count an in-app navigation twice.
 
 ## Bootstrap (once)
 
@@ -412,3 +411,14 @@ needs Node: Cloudflare's local server does not answer under Bun.
 None — not self-hosted. If it ever moves onto the Pi, `dist/client` goes into
 `nginx:alpine` with `try_files $uri $uri.html` and `404.html` as the error page;
 claim a port in [`.docs/PORTS.md`](../.docs/PORTS.md) then.
+
+## GTM as code
+
+GTM and GA4 configuration live in [`analytics.yaml`](analytics.yaml), applied by the shared [GTM action](../.github/actions/gtm/README.md), which says what CI does with it and which accounts it needs.
+
+- `make analytics` regenerates `src/app/analytics.gen.ts`, the typed `track()` the site sends its events with, from the config's `events:`. `make qa` fails when it is stale.
+- `bun run gtm:validate` checks the config, no credentials.
+- `bun run gtm:plan` previews changes against the live container and property.
+- `bun run gtm:apply` stages them in the GTM workspace; `bun run gtm:publish` makes them live.
+
+Locally, sign in with `gcloud auth application-default login` first. In GitHub the secrets are the ones the GTM action's README lists, at repo level.

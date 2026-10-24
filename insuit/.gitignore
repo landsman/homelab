@@ -27,3 +27,6 @@ src/paraglide/
 test-results/
 playwright-report/
 reports/
+
+# gtm-as-code: apply's lock; state.json beside it is committed.
+.analytics/state.json.lock

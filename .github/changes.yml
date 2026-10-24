@@ -1,0 +1,34 @@
+# What a change touches, per feature, for .github/actions/changes. A feature's
+# value is that of its first rule one of the changed paths matches, `none` when
+# no rule does, and `all` on a hand-started run. Paths are globs read the way a
+# workflow's `paths:` filter reads them: in order, a later `!pattern` taking a
+# path back out. Pinned by .github/actions/changes/spec.test.ts.
+
+# Whether insuit's PR has anything new to preview: the site, not what is around
+# it. content/ is what the site says, the CV's cv.md included, so only the
+# top-level *.md is docs.
+insuit-site:
+  - value: changed
+    paths:
+      - 'insuit/**'
+      - '!insuit/infra/**'
+      - '!insuit/links/**'
+      - '!insuit/tests/**'
+      - '!insuit/scripts/**'
+      - '!insuit/*.md'
+      - '!insuit/Makefile'
+      - '!insuit/cucumber.mjs'
+      - '!insuit/playwright.config.ts'
+      - '!insuit/analytics.yaml'
+      - '!insuit/.analytics/**'
+      - '!insuit/.env.analytics.example'
+
+# insuit's GTM jobs (.github/actions/gtm).
+insuit-gtm:
+  - value: config
+    paths: ['insuit/analytics.yaml']
+  - value: state
+    paths: ['insuit/.analytics/**']
+  # The gtm-code version.
+  - value: toolchain
+    paths: ['insuit/package.json']

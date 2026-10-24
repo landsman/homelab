@@ -166,7 +166,7 @@ jobs:
   # The job only uploads: the build comes from the `site` job, which holds no
   # token, so nothing a PR installs or runs executes beside the Cloudflare one.
   # That build has no analytics token and the placeholder contact address.
-  # Whether the PR touches what the site serves. One that only changes
+  # What the PR touches, by .github/changes.yml. One that only changes
   # Terraform, tests, scripts or docs gets no preview: there is nothing new to
   # look at, and its URL would only repeat main.
   changes:
@@ -177,27 +177,19 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      app: ${{ steps.diff.outputs.app }}
-      gtm: ${{ steps.features.outputs.gtm }}
+      site: ${{ fromJSON(steps.changes.outputs.changes)['insuit-site'] }}
+      gtm: ${{ fromJSON(steps.changes.outputs.changes)['insuit-gtm'] }}
     steps:
       - name: "Check out"
         uses: actions/checkout@v7
-      - name: "Detect site changes"
-        id: diff
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: echo "app=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only | insuit/scripts/app-changed.sh)" >> "$GITHUB_OUTPUT"
-      - name: "Detect feature changes"
-        id: features
+      - name: "Detect changes"
+        id: changes
         uses: ./.github/actions/changes
-        with:
-          working-directory: insuit
 
   preview:
     needs: [site, changes]
     if: |
-      needs.changes.outputs.app == 'true' &&
+      needs.changes.outputs.site != 'none' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]' &&

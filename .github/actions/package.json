@@ -2,10 +2,6 @@
   "name": "homelab-actions",
   "private": true,
   "type": "module",
-  "imports": {
-    "#changes/*": "./changes/*",
-    "#gtm/*": "./gtm/*"
-  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "bun test"

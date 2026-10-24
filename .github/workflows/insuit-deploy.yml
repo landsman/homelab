@@ -146,23 +146,21 @@ jobs:
         working-directory: insuit
         run: make smoke ARGS=--project=links
 
-  # What the push changed, per feature (.github/actions/changes). A manual run
-  # applies everything.
+  # What the push changed, by .github/changes.yml. A manual run applies
+  # everything.
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
     outputs:
-      gtm: ${{ steps.features.outputs.gtm }}
+      gtm: ${{ fromJSON(steps.changes.outputs.changes)['insuit-gtm'] }}
     steps:
       - name: "Check out"
         uses: actions/checkout@v7
-      - name: "Detect feature changes"
-        id: features
+      - name: "Detect changes"
+        id: changes
         uses: ./.github/actions/changes
-        with:
-          working-directory: insuit
 
   # insuit/analytics.yaml onto the live GTM container and GA4 property.
   # Only when the push touches it, so an edit made in the GTM UI stays until

@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - '.github/actions/**'
+      - '.github/changes.yml'
       - '.github/workflows/actions-ci.yml'
       - '!**/*.md'
 

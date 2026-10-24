@@ -1,22 +1,25 @@
 name: "Changes"
-description: "What a run changed, per feature: outputs gtm (none, config, state, toolchain or manual)"
+description: "What a run changed, per feature of the repo's own spec, as JSON: {\"<feature>\": \"<value>\"}"
 
-# Needs no checkout: it asks GitHub for the changed files. Calling it as
-# ./.github/actions/changes, from this repo, does. detect.ts says how a feature
-# adds its own output.
+# The features and their rules are the calling repo's spec, .github/changes.yml
+# by default, so this checks out nothing of its own: the job's checkout is
+# where the spec is read from. How a spec matches: parseSpec in detect.ts.
+#
+#   outputs:
+#     gtm: ${{ fromJSON(steps.changes.outputs.changes)['site-gtm'] }}
 
 inputs:
-  working-directory:
-    description: "The site's folder"
-    default: "."
+  spec:
+    description: "The spec, relative to the repo root"
+    default: .github/changes.yml
   token:
     description: "Reads the PR's files, or the pushed commits"
     default: ${{ github.token }}
 
 outputs:
-  gtm:
-    description: "A GtmChange (../gtm/changes.ts); `none` means the gtm jobs can skip"
-    value: ${{ steps.detect.outputs.gtm }}
+  changes:
+    description: "Each feature's value, `none` when nothing it watches changed, `all` on a hand-started run"
+    value: ${{ steps.detect.outputs.changes }}
 
 runs:
   using: composite
@@ -34,5 +37,5 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.token }}
-        SITE: ${{ inputs.working-directory }}
+        SPEC: ${{ inputs.spec }}
       run: bun "$GITHUB_ACTION_PATH/detect.ts" | tee -a "$GITHUB_OUTPUT"

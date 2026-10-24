@@ -5,7 +5,7 @@ A composite action, [`action.yml`](action.yml), that keeps a site's Google Tag M
 - `plan`, on a pull request: comments what would change. The comment names resources by their keys in the config, never by Google ids.
 - `deploy`, on `main`: applies and publishes, only when the plan has anything to do. `apply` alone only stages a draft in the workspace.
 
-Which changes it acts on is [`changes.ts`](changes.ts), read by the shared [changes action](../changes/detect.ts). Used by [insuit.cz](../../../insuit). Any other repo can call both, since this one is public.
+Run it only when its config changes, with the shared [changes action](../changes/action.yml) and a feature in the repo's spec. Used by [insuit.cz](../../../insuit). Any other repo can call both, since this one is public.
 
 ## What a site needs
 
@@ -15,16 +15,26 @@ Which changes it acts on is [`changes.ts`](changes.ts), read by the shared [chan
 
 ## Calling it
 
+A feature in the repo's `.github/changes.yml` (homelab's own: [`changes.yml`](../../changes.yml)):
+
+```yaml
+site-gtm:
+  - { value: config, paths: ['site/analytics.yaml'] }
+  - { value: state, paths: ['site/.analytics/**'] }
+  - { value: toolchain, paths: ['site/package.json'] }   # the gtm-code version
+```
+
+And the jobs:
+
 ```yaml
   changes:
     runs-on: ubuntu-latest
     outputs:
-      gtm: ${{ steps.changes.outputs.gtm }}
+      gtm: ${{ fromJSON(steps.changes.outputs.changes)['site-gtm'] }}
     steps:
+      - uses: actions/checkout@v7       # the spec is read from it
       - id: changes
         uses: landsman/homelab/.github/actions/changes@<sha>
-        with:
-          working-directory: site      # where package.json and analytics.yaml are
 
   gtm:
     needs: [changes]
@@ -47,7 +57,7 @@ Which changes it acts on is [`changes.ts`](changes.ts), read by the shared [chan
 ```
 
 - **Pin a commit**, not `@main`: a change here then cannot change what runs with another site's credentials.
-- **The `changes` output** is `none` when the change touches neither the config, `.analytics/` nor `package.json` (the gtm-code version), and `manual` on a hand-started run. An edit made in the GTM UI stays until the config next changes.
+- **The feature** is `none` when nothing it lists changed, and `all` on a hand-started run. An edit made in the GTM UI stays until the config next changes.
 - **Check the ids in `if:`**, so a repo can carry the jobs before the accounts exist.
 
 ## Accounts

@@ -1,21 +1,66 @@
-// What a CI run changed, one `<feature>=<value>` line per feature for
-// $GITHUB_OUTPUT. Each feature keeps its own rules beside its own action;
-// `none` lets its jobs skip. Reads the run from GitHub's own environment:
+// What a CI run changed, per feature, as one `changes=<json>` line for
+// $GITHUB_OUTPUT: {"insuit-site":"changed","insuit-gtm":"none"}. The features
+// and their rules are the repo's own spec (.github/changes.yml by default);
+// how they match is in parseSpec below. Reads the run from GitHub's own
+// environment:
 //
 //   pull_request   the PR's files               gh pr diff
 //   push           its before...after commits   the compare API
 //   anything else  all: a hand-started run applies everything
 //
-//   SITE=insuit bun detect.ts      needs GH_TOKEN; SITE defaults to the root
+//   SPEC=.github/changes.yml bun detect.ts      needs GH_TOKEN
 
 import { $ } from 'bun'
 import { match } from 'ts-pattern'
-import { gtmChange } from '#gtm/changes.ts'
 
-if (import.meta.main) console.log(outputs(await changedPaths(process.env), process.env.SITE ?? '.'))
+if (import.meta.main) {
+  const spec = parseSpec(await Bun.file(process.env.SPEC ?? '.github/changes.yml').text())
+  console.log(`changes=${JSON.stringify(detect(spec, await changedPaths(process.env)))}`)
+}
 
-export function outputs(changed: Changed, site: string): string {
-  return `gtm=${gtmChange(changed, site)}`
+/** Each feature's value: its first rule a changed path matches, else `none`. */
+export function detect(spec: Spec, changed: Changed): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(spec).map(([feature, rules]) => [
+      feature,
+      match(changed)
+        .with({ kind: 'all' }, () => 'all')
+        .with({ kind: 'paths' }, ({ paths }) => rules.find(rule => paths.some(path => matches(rule.paths, path)))?.value ?? 'none')
+        .exhaustive(),
+    ]),
+  )
+}
+
+/** A workflow's `paths:` filter: the last pattern that matches decides, a `!` one against. */
+function matches(patterns: string[], path: string): boolean {
+  let included = false
+  for (const pattern of patterns) {
+    const negated = pattern.startsWith('!')
+    if (new Bun.Glob(negated ? pattern.slice(1) : pattern).match(path)) included = !negated
+  }
+  return included
+}
+
+export type Spec = Record<string, Rule[]>
+type Rule = { value: string; paths: string[] }
+
+/** The YAML spec: `<feature>: [{ value, paths: [glob, '!glob', …] }, …]`. */
+export function parseSpec(text: string): Spec {
+  const spec = Bun.YAML.parse(text)
+  if (typeof spec !== 'object' || spec === null || Array.isArray(spec)) throw new Error('changes spec: a map of features')
+  for (const [feature, rules] of Object.entries(spec)) {
+    const valid =
+      Array.isArray(rules) &&
+      rules.every(
+        rule =>
+          typeof rule?.value === 'string' &&
+          !['none', 'all'].includes(rule.value) &&
+          Array.isArray(rule.paths) &&
+          rule.paths.every((path: unknown) => typeof path === 'string'),
+      )
+    if (!valid) throw new Error(`changes spec: ${feature} needs a list of { value, paths }, and none and all are taken`)
+  }
+  return spec as Spec
 }
 
 export type Changed = { kind: 'all' } | { kind: 'paths'; paths: string[] }

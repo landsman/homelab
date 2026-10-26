@@ -146,11 +146,13 @@ case "${1:-install}" in
     [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
     install_cloudflared
     # a unit keeps the binary it started with until it restarts
+    failed=0
     for u in cloudflared "$UNIT"; do
-      if systemctl is-active -q "$u"; then systemctl restart "$u" && echo "restarted ${u}.service"; fi
+      systemctl is-active -q "$u" || continue
+      if systemctl restart "$u"; then echo "restarted ${u}.service"; else echo "${u}.service failed to restart"; failed=1; fi
     done
     /usr/bin/cloudflared --version
-    exit 0
+    exit "$failed"
     ;;
   install) ;;
   *)

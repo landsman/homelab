@@ -6,6 +6,13 @@ Feature: Reading about a project on the CV
   Background:
     Given I am on the CV
 
+  Scenario: Taking the CV away as a PDF
+    A recruiter forwards the CV, or reads it offline, as one file. Its name
+    carries the day the CV last changed, so two saved copies can be told apart.
+
+    When I download the CV
+    Then I have the CV as a PDF dated by its last change
+
   Scenario: Opening a project
     When I open the project "The Police of the Czech Republic"
     Then I read "New website for the Police of the Czech Republic."

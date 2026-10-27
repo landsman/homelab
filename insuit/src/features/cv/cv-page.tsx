@@ -6,6 +6,12 @@ import { ProjectDialog } from '@/features/cv/project-dialog'
 import { Prose } from '@/features/cv/prose'
 import { m } from '@/paraglide/messages.js'
 
+// The CV as a PDF: this page's print layout, which scripts/cv-pdf.ts saves
+// under this name after the build. Named after its owner and dated by the CV's
+// last change, so a saved copy says whose it is and which version — whether the
+// link's `download` is honoured or the PDF is opened in a tab.
+const CV_PDF = `/Michal-Landsman-CV-${__CV_DATE__}.pdf`
+
 export function CvPage() {
   const [project, setProject] = useState<CvProject | null>(null)
   const [zoom, setZoom] = useState<{ photos: CvImage[]; index: number } | null>(null)
@@ -19,6 +25,14 @@ export function CvPage() {
           <Projects key={index} projects={block.projects} onOpen={setProject} />
         )
       )}
+
+      {/* Floats over the page, so a recruiter finds it wherever they are in the
+          CV. A plain link: it works before the app runs, and GA4's file
+          downloads count it. */}
+      <a className="cv-download" href={CV_PDF} download>
+        <span className="icon-download" aria-hidden="true" />
+        {m.cv_download_pdf()}
+      </a>
 
       <ProjectDialog
         project={project}

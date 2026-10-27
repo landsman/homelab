@@ -35,8 +35,9 @@ dev: ## Start the dev server on http://localhost:4321 (hot reload, cv.md include
 # Every page is rendered to an HTML file here. The CV is built here too:
 # content/cv/cv.md becomes the page's data and the printed QR codes
 # (vite/cv.ts), and a CV link with no short link in links/_redirects stops the
-# build.
-build: ## Build the site into dist/client — what gets deployed
+# build. Then the CV page is printed to a PDF beside it (scripts/cv-pdf.ts),
+# which is why the build needs the browser.
+build: browser ## Build the site into dist/client — what gets deployed
 	bun run build
 
 # Not a plain static server: scripts/preview.ts follows Pages' rules, which is

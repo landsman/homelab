@@ -7,6 +7,7 @@
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --strategy baseLocale --silent",
     "prebuild": "bun run messages",
     "build": "tsc -b && vite build",
+    "postbuild": "bun scripts/cv-pdf.ts",
     "preview": "bun scripts/preview.ts",
     "pretypecheck": "bun run messages",
     "typecheck": "tsc -b --noEmit",

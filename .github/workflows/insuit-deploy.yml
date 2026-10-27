@@ -89,6 +89,10 @@ jobs:
     steps:
       - name: "Check out"
         uses: actions/checkout@v7
+        with:
+          # The whole history: the build dates the CV's PDF by the last commit
+          # to content/cv (vite.config.ts), and refuses a shallow clone.
+          fetch-depth: 0
       # The version in package.json's packageManager, the one the lockfile was
       # written by.
       - name: "Set up Bun"

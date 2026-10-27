@@ -4,7 +4,6 @@ import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, configDefaults } from 'vitest/config'
-import { CV_PDF } from './src/app/assets.ts'
 import { ROUTES } from './src/app/routes.ts'
 import { blogPlugin, readPosts } from './vite/blog.ts'
 import { cvPlugin } from './vite/cv.ts'
@@ -21,6 +20,17 @@ function commit(): string {
   } catch {
     return 'unknown'
   }
+}
+
+// The day the CV last changed, put into its PDF's name so a saved copy says
+// which version it is. Read from git, so it moves only with content/cv, not
+// with every deploy. That needs the history: a shallow clone dates every file
+// to its one commit, so it is refused rather than dated wrong.
+function cvDate(): string {
+  const git = (command: string) => execSync(`git ${command}`, { encoding: 'utf8' }).trim()
+  if (git('rev-parse --is-shallow-repository') === 'true')
+    throw new Error('the CV is dated from git history: check out with fetch-depth: 0')
+  return git('log -1 --format=%cs -- content/cv')
 }
 
 export default defineConfig({
@@ -46,7 +56,7 @@ export default defineConfig({
         autoSubfolderIndex: false,
         // The CV's PDF is a link to a file written after the build
         // (scripts/cv-pdf.ts), not a page to render.
-        filter: ({ path }) => path !== CV_PDF,
+        filter: ({ path }) => !path.endsWith('.pdf'),
       },
       // No menu links to the blog yet, so it is named here; the crawl finds
       // each post from its list. The 404 is linked from nowhere either. It is what the router shows for no route (src/server.ts), written as the
@@ -83,6 +93,7 @@ export default defineConfig({
     // it is not in the deployed files as text a scraper can grep either.
     __CONTACT_EMAIL__: JSON.stringify(btoa(process.env.CONTACT_EMAIL || 'hello@example.com')),
     __COMMIT__: JSON.stringify(commit()),
+    __CV_DATE__: JSON.stringify(cvDate()),
     // The year of the build, for what a page counts from it (/work-with-me); the
     // browser recounts once the page runs.
     __BUILD_YEAR__: new Date().getFullYear(),

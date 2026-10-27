@@ -3,7 +3,6 @@
 // (package.json's postbuild) against the built site served by Pages' rules,
 // so the PDF is what printing the live page gives.
 import { chromium } from '@playwright/test'
-import { CV_PDF } from '../src/app/assets.ts'
 import { ROUTES } from '../src/app/routes.ts'
 import { createHandler } from './preview.ts'
 
@@ -20,10 +19,20 @@ try {
     url => url.origin !== server.url.origin,
     route => route.abort()
   )
+  // Laid out for paper from the start: a font face the screen layout does not
+  // need (the Czech letters are in the projects only print spells out) is
+  // otherwise asked for during the print itself, too late to be in it.
+  await page.emulateMedia({ media: 'print' })
   // The fonts, the portrait and the QR codes all load before the print.
   await page.goto(new URL(ROUTES.cv, server.url).href, { waitUntil: 'networkidle' })
+  // A string: this script is typed without the DOM.
+  await page.evaluate('document.fonts.ready')
+  // Saved where the page's button points, so the name — dated by the build
+  // (vite.config.ts) — has one source.
+  const path = await page.locator('a.cv-download').getAttribute('href')
+  if (!path?.endsWith('.pdf')) throw new Error(`the CV's download button points at ${path}`)
   await page.pdf({
-    path: `${dir}${CV_PDF}`,
+    path: `${dir}${path}`,
     // The size and margins are @page's, so the PDF and Ctrl+P agree.
     preferCSSPageSize: true,
     // Tagged, so the text reads in order to a screen reader and to the parsers
@@ -31,7 +40,7 @@ try {
     tagged: true,
     outline: true,
   })
-  console.log(`wrote ${dir}${CV_PDF}`)
+  console.log(`wrote ${dir}${path}`)
 } finally {
   await browser.close()
   server.stop()

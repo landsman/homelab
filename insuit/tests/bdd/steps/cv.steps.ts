@@ -16,8 +16,8 @@ When('I download the CV', async function (this: AppWorld) {
   ])
 })
 
-Then('I have a PDF named {string}', async function (this: AppWorld, name: string) {
-  expect(this.download?.suggestedFilename()).toBe(name)
+Then('I have the CV as a PDF dated by its last change', async function (this: AppWorld) {
+  expect(this.download?.suggestedFilename()).toMatch(/^Michal-Landsman-CV-\d{4}-\d{2}-\d{2}\.pdf$/)
   const file = await readFile(await this.download!.path())
   expect(file.subarray(0, 5).toString()).toBe('%PDF-')
 })

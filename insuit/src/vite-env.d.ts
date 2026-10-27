@@ -11,6 +11,8 @@ interface ImportMetaEnv {
 
 /** The commit the site was built from (vite.config.ts). */
 declare const __COMMIT__: string
+/** The day content/cv last changed, YYYY-MM-DD (vite.config.ts). */
+declare const __CV_DATE__: string
 
 /** The year the site was built in (vite.config.ts). */
 declare const __BUILD_YEAR__: number

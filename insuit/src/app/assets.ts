@@ -13,11 +13,6 @@ export const ICONS = {
   share: '/assets/icons/og-image.png',
 } as const
 
-/** The CV as a PDF: the page's print layout, rendered after the build by
-    scripts/cv-pdf.ts. Named after its owner, so it is saved under that name
-    whether the link's `download` is honoured or the PDF is opened in a tab. */
-export const CV_PDF = '/Michal-Landsman-CV.pdf'
-
 // The same two files styles/fonts.css declares; named here to preload them.
 export const FONTS = {
   regular: '/assets/fonts/fira-mono-latin-400-normal.woff2',

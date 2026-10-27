@@ -1,11 +1,16 @@
 import { Fragment, useState } from 'react'
 import cv from 'virtual:cv'
 import type { CvImage, CvProject } from '@/features/cv/cv.types'
-import { CV_PDF } from '@/app/assets'
 import { PhotoDialog } from '@/app/components/photo-dialog'
 import { ProjectDialog } from '@/features/cv/project-dialog'
 import { Prose } from '@/features/cv/prose'
 import { m } from '@/paraglide/messages.js'
+
+// The CV as a PDF: this page's print layout, which scripts/cv-pdf.ts saves
+// under this name after the build. Named after its owner and dated by the CV's
+// last change, so a saved copy says whose it is and which version — whether the
+// link's `download` is honoured or the PDF is opened in a tab.
+const CV_PDF = `/Michal-Landsman-CV-${__CV_DATE__}.pdf`
 
 export function CvPage() {
   const [project, setProject] = useState<CvProject | null>(null)

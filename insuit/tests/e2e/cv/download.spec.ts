@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises'
 import { test, expect } from '../fixture'
-import { CV_PDF } from '@/app/assets'
 import { ROUTES } from '@/app/routes'
 
 test.beforeEach(async ({ page }) => {
@@ -12,7 +11,8 @@ test('the download button saves the CV as a named PDF', async ({ page }) => {
     page.waitForEvent('download'),
     page.getByRole('link', { name: 'Download PDF' }).click(),
   ])
-  expect(`/${download.suggestedFilename()}`).toBe(CV_PDF)
+  // Dated by the CV's last change, so a saved copy says which version it is.
+  expect(download.suggestedFilename()).toMatch(/^Michal-Landsman-CV-\d{4}-\d{2}-\d{2}\.pdf$/)
   // A PDF, not the 404 page under a .pdf name.
   const file = await readFile(await download.path())
   expect(file.subarray(0, 5).toString()).toBe('%PDF-')

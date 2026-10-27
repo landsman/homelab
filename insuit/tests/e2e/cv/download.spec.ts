@@ -18,6 +18,12 @@ test('the download button saves the CV as a named PDF', async ({ page }) => {
   expect(file.subarray(0, 5).toString()).toBe('%PDF-')
 })
 
+test('the PDF stays out of search engines, like the CV page', async ({ page, request }) => {
+  const path = await page.getByRole('link', { name: 'Download PDF' }).getAttribute('href')
+  const response = await request.get(path!)
+  expect(response.headers()['x-robots-tag']).toBe('noindex, nofollow')
+})
+
 test('the download button stays in view while scrolling, and out of print', async ({ page }) => {
   const button = page.getByRole('link', { name: 'Download PDF' })
   await page.evaluate(() => scrollTo(0, document.body.scrollHeight / 2))

@@ -8,10 +8,18 @@ import { ROUTES } from '../src/app/routes.ts'
 import { createHandler } from './preview.ts'
 
 const dir = 'dist/client'
-const server = Bun.serve({ port: 0, fetch: await createHandler(dir) })
+// Loopback only: nothing else on the network may ask it for files.
+const server = Bun.serve({ hostname: '127.0.0.1', port: 0, fetch: await createHandler(dir) })
 const browser = await chromium.launch()
 try {
   const page = await browser.newPage()
+  // Nothing leaves the machine. The deploy's build carries the GTM and Web
+  // Analytics tokens, so the page would otherwise count every deploy as a
+  // visit and wait on Google's scripts before printing.
+  await page.route(
+    url => url.origin !== server.url.origin,
+    route => route.abort()
+  )
   // The fonts, the portrait and the QR codes all load before the print.
   await page.goto(new URL(ROUTES.cv, server.url).href, { waitUntil: 'networkidle' })
   await page.pdf({

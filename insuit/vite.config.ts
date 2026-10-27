@@ -4,6 +4,7 @@ import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, configDefaults } from 'vitest/config'
+import { CV_PDF } from './src/app/assets.ts'
 import { ROUTES } from './src/app/routes.ts'
 import { blogPlugin, readPosts } from './vite/blog.ts'
 import { cvPlugin } from './vite/cv.ts'
@@ -43,6 +44,9 @@ export default defineConfig({
         // `contact.html`, which Pages serves at `/contact` — flat URLs, no
         // trailing slash.
         autoSubfolderIndex: false,
+        // The CV's PDF is a link to a file written after the build
+        // (scripts/cv-pdf.ts), not a page to render.
+        filter: ({ path }) => path !== CV_PDF,
       },
       // No menu links to the blog yet, so it is named here; the crawl finds
       // each post from its list. The 404 is linked from nowhere either. It is what the router shows for no route (src/server.ts), written as the

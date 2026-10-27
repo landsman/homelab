@@ -6,6 +6,12 @@ Feature: Reading about a project on the CV
   Background:
     Given I am on the CV
 
+  Scenario: Taking the CV away as a PDF
+    A recruiter forwards the CV, or reads it offline, as one file.
+
+    When I download the CV
+    Then I have a PDF named "Michal-Landsman-CV.pdf"
+
   Scenario: Opening a project
     When I open the project "The Police of the Czech Republic"
     Then I read "New website for the Police of the Czech Republic."

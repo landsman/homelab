@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
 import cv from 'virtual:cv'
 import type { CvImage, CvProject } from '@/features/cv/cv.types'
+import { CV_PDF } from '@/app/assets'
 import { PhotoDialog } from '@/app/components/photo-dialog'
 import { ProjectDialog } from '@/features/cv/project-dialog'
 import { Prose } from '@/features/cv/prose'
@@ -19,6 +20,14 @@ export function CvPage() {
           <Projects key={index} projects={block.projects} onOpen={setProject} />
         )
       )}
+
+      {/* Floats over the page, so a recruiter finds it wherever they are in the
+          CV. A plain link: it works before the app runs, and GA4's file
+          downloads count it. */}
+      <a className="cv-download" href={CV_PDF} download>
+        <span className="icon-download" aria-hidden="true" />
+        {m.cv_download_pdf()}
+      </a>
 
       <ProjectDialog
         project={project}

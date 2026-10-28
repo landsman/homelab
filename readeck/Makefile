@@ -1,5 +1,4 @@
-# todo: rename volume
-VOLUME := readeck_readeck-data
+VOLUME := readeck_data
 BACKUP_DIR := /home/containers/backup/readeck
 
 .PHONY: up down logs backup restore cron-install

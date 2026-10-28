@@ -23,16 +23,17 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 
 ## HW
 
-- 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz)
-- 4x SATA SSD Kingston 240GB
-- 32GB DDR4 SO-DIMM per node (2x 16GB), running at 2133 MHz:
+- 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz), SATA SSD Kingston 240GB
+- 1x Dell OptiPlex 3070 i5-9500T (6 cores / 6 threads, 2.2–3.7 GHz), NVMe SSD SK hynix BC501 256GB (saul)
+- 32GB DDR4 SO-DIMM per node (2x 16GB), clocked down to what the CPU supports:
 
-| Node   | DIMM1 / DIMM3       | Part              | Rank | ECC         | Speed |
+| Node   | DIMMs               | Part              | Rank | ECC         | Speed |
 |--------|---------------------|-------------------|------|-------------|-------|
 | gus    | Kingston / Kingston | KF3200C20S4/16G   | 1    | no          | 2133  |
 | mike   | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 | walter | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
 | jesse  | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
+| saul   | SK hynix / SK hynix | HMA82GS6DJR8N-XN  | 2    | no          | 2666  |
 
 gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [skyhawk-ai-8tb-hdd.md](skyhawk-ai-8tb-hdd.md).
 
@@ -54,7 +55,7 @@ gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test
 #  cafe — it can succeed against a stranger's box and trip host-key verification.
 #  If Tailscale is ever off, the boxes are still reachable on the home LAN by raw
 #  IP: gus 192.168.0.115, mike 192.168.0.113, walter 192.168.0.116,
-#  jesse 192.168.0.117.)
+#  jesse 192.168.0.117, saul 192.168.0.114.)
 
 Host gus.pollos
   HostName gus

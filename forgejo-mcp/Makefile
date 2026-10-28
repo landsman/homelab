@@ -2,6 +2,8 @@
 
 LOCAL_PORT ?= 8005
 SERVE_PATH ?= /forgejo-mcp
+BOT_USER ?= landsman-mcp
+SCOPES ?= read:user,write:repository,write:issue
 
 .PHONY: help
 help: ## show this help
@@ -22,6 +24,20 @@ logs: ## follow the logs
 
 build: ## rebuild, after bumping FORGEJO_MCP_VERSION in .env
 	docker compose build --pull
+
+##@ Account
+# Run on the Pi: both go through Forgejo's CLI inside its container, the only way
+# to make an account and a token without a password. The token is written into .env
+# and printed nowhere, so it never leaves this box.
+.PHONY: bot token
+bot: ## create the bot account if it is missing
+	BOT_USER=$(BOT_USER) ../forgejo/registry-bot.sh account
+
+# Named by date: Forgejo refuses a token name twice, so a rotation needs a new one.
+token: ## make a token for the bot and write it into .env
+	@t=$$(docker exec -u git forgejo forgejo admin user generate-access-token --raw \
+		--username $(BOT_USER) --token-name forgejo-mcp-$$(date +%F) --scopes $(SCOPES)) \
+		&& sed -i "s|^FORGEJO_ACCESS_TOKEN=.*|FORGEJO_ACCESS_TOKEN=$$t|" .env && echo "token in .env"
 
 ##@ Tailnet
 # Requires one-time `sudo tailscale set --operator=containers` so this user

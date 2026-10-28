@@ -1,6 +1,6 @@
 services:
   app:
-    image: gotenberg/gotenberg:8.37.0
+    image: gotenberg/gotenberg:8.38.1
     container_name: gotenberg
     restart: unless-stopped
     ports:

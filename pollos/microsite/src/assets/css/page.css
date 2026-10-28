@@ -12,8 +12,17 @@ body {
   inset: 10px;
   overflow: auto;
   background: var(--pollos-yellow);
-  border-radius: 24px;
+  border-radius: 20px;
   color: var(--pollos-ink);
+}
+
+/* A macOS window's corner is a continuous curve, not a circle: about 16pt at the apex, easing
+   into the edges 24pt out. A squircle follows both; a circle can only sit between them. */
+@supports (corner-shape: squircle) {
+  body {
+    border-radius: 28px;
+    corner-shape: squircle;
+  }
 }
 
 @media (max-width: 768px) {

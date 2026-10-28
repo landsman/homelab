@@ -68,6 +68,9 @@ Host walter.pollos
 Host jesse.pollos
   HostName jesse
 
+Host saul.pollos
+  HostName saul
+
 Host *.pollos
    User ansible
    # stored in 1password

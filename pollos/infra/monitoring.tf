@@ -13,7 +13,7 @@
 # Endpoint per node:  https://<node>-health.pollos.cz
 
 locals {
-  monitor_nodes = toset(["gus", "mike", "walter", "jesse", "nas"])
+  monitor_nodes = toset(["gus", "mike", "walter", "jesse", "saul", "nas"])
 
   # Name on the BetterStack dashboard and the public status page. nas is not a
   # pollos box, so it goes by its own name.
@@ -24,7 +24,7 @@ locals {
   # running yet and would alert on the first poll. Take a node out of this set
   # once its connector is up. Unpause here, not in the BetterStack UI: the next
   # apply would pause it again.
-  paused_nodes = toset([])
+  paused_nodes = toset(["saul"])
   # single label under the zone (gus-health.pollos.cz) so Universal SSL's
   # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
   zone_domain = "pollos.cz"

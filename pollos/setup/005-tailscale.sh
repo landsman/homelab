@@ -14,7 +14,7 @@ set -eu
 #     its own MagicDNS name, so there is no 192.168.x.x dependency and no
 #     subnet routes to maintain.
 #
-# The node's MagicDNS name = its hostname, so gus/mike/walter/jesse map 1:1.
+# The node's MagicDNS name = its hostname, so gus/mike/walter/jesse/saul map 1:1.
 # On the home LAN Tailscale connects directly (full LAN speed); elsewhere it
 # falls back to the encrypted tunnel. One ~/.ssh/config works everywhere.
 #

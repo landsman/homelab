@@ -31,20 +31,39 @@ the endpoint acts as that token.** Two layers keep that to your own devices:
   [`pollos/infra/tailscale.tf`](../pollos/infra/tailscale.tf) lets `tag:pollos`
   reach only other pollos boxes.
 
+## Whose token
+
+A bot account's, `landsman-mcp`, not mine. Two reasons:
+
+- **Reach.** My account is the instance's only site admin, so its token
+  reaches every repository there. The bot reaches only the repositories it is a
+  collaborator on, and branch protection keeps it off `main` like anyone else.
+- **Revocation.** Its token goes without touching mine, and what it wrote is
+  told apart from what I wrote by the author alone.
+
+Its password is random and known to nobody: it exists to hold the token, like
+the registry bots in [../forgejo](../forgejo/README.md#accounts-that-are-not-people).
+
 Not behind a Cloudflare tunnel, unlike the other services: the endpoint has no
 authentication of its own.
 
 ## Setup
 
 ```bash
-cp .env.example .env   # set the tailnet name and the token
+cp .env.example .env   # set the tailnet name
+make bot               # the account, if it is missing
+make token             # its token, straight into .env
 make up                # builds the image on first run
 make serve             # publish on the tailnet
 ```
 
-Create the token at `https://git.insuit.cz/user/settings/applications` with only
-`read:user`, `write:repository` and `write:issue`. Widen it when a tool actually
-fails, not in advance.
+Then add `landsman-mcp` as a collaborator, with write, on the repositories agents
+should work in — by hand, because which ones they are is mine to decide, not this
+file's.
+
+The token's scopes are `read:user`, `write:repository` and `write:issue`. Widen
+them (`make token SCOPES=…`) when a tool actually fails, not in advance. Rotating
+is `make token` again; the old token stays valid until it is removed.
 
 Clients use `https://nas.<tailnet>.ts.net/forgejo-mcp` as a streamable-HTTP MCP
 server. The Claude Code and opencode entries are in `landsman/config`.

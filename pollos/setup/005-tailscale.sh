@@ -64,9 +64,12 @@ else
   # when piped (wget | sh), where a prompt would read the script itself.
   if [ -z "${TS_AUTHKEY:-}" ] && [ -t 0 ]; then
     printf 'Paste the Tailscale auth key (tag:pollos, reusable, pre-approved): '
+    # Ctrl-C at the prompt would otherwise exit with echo still off.
+    trap 'stty echo 2>/dev/null; exit 1' INT TERM HUP
     stty -echo 2>/dev/null || true
     read -r TS_AUTHKEY || true
     stty echo 2>/dev/null || true
+    trap - INT TERM HUP
     printf '\n'
   fi
   : "${TS_AUTHKEY:?no auth key. run it in a terminal to be asked, or: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"

@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every fresh box at the console, as root, after 002-users.sh.
+# MANUAL STEP: run on every fresh box as root, over SSH from the laptop, after 002-users.sh.
 #
 # What it does:
 #   - installs Docker via the official get.docker.com script

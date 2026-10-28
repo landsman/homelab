@@ -38,23 +38,53 @@
   </section>
 
   <section class="usage">
-    <h2>Download &amp; run</h2>
+    <h2>Steps</h2>
     <p>
-      Minimal Debian ships with <code>wget</code> but not <code>curl</code>, so use
-      <code>wget</code> for the first bootstrap. Examples below use <code>{{EXAMPLE_ALIAS}}</code>;
-      swap in any short URL from the listing.
+      Only the first two happen at the box. Everything after runs over SSH from the laptop, so the
+      long tokens and keys are pasted from the clipboard, never typed.
     </p>
 
-    <p>Download to disk (saves as <code>{{EXAMPLE_ALIAS}}</code>):</p>
-    <pre class="copyable"><code>wget https://pollos.cz/{{EXAMPLE_ALIAS}}</code></pre>
+    <p>
+      <strong>1. Install Debian 13.</strong> Name the host after the character, and in
+      <em>Software selection</em> tick <strong>SSH server</strong>. The user the installer asks for
+      is <code>containers</code>.
+    </p>
 
-    <p>Run directly as root on a fresh Debian box:</p>
-    <pre class="copyable"><code>wget -qO- https://pollos.cz/{{EXAMPLE_ALIAS}} | sudo sh</code></pre>
+    <p><strong>2. At the box, read its address</strong> — the one thing copied off the screen:</p>
+    <pre class="copyable"><code>ip -4 a</code></pre>
 
     <p>
-      Once a node is provisioned and your local <code>~/.ssh/config</code> is updated, log in by:
+      <strong>3. From the laptop, log in</strong> with the installer's password and become root:
     </p>
-    <pre class="copyable"><code>ssh gus.pollos</code></pre>
+    <pre class="copyable"><code>ssh containers@192.168.0.x
+su -</code></pre>
+
+    <p>
+      <strong>4. Run the scripts in order.</strong> Minimal Debian ships <code>wget</code>, not
+      <code>curl</code>. The ones that ask nothing can be piped:
+    </p>
+    <pre class="copyable"><code>wget -qO- https://pollos.cz/init.sh | sh
+wget -qO- https://pollos.cz/users.sh | sh</code></pre>
+
+    <p>From here on, log in as <code>ansible</code> with the key and use <code>sudo</code>:</p>
+    <pre class="copyable"><code>ssh -i ~/.ssh/id_ed25519_homelab ansible@192.168.0.x</code></pre>
+    <pre class="copyable"><code>wget -qO- https://pollos.cz/docker.sh | sudo sh
+wget -qO- https://pollos.cz/typescript.sh | sudo sh</code></pre>
+
+    <p>
+      The two that need a secret ask for it, so download them and run them in the terminal — a pipe
+      has no terminal to ask on. Paste the tunnel token from Cloudflare → Networking → Tunnels →
+      <code>health-&lt;host&gt;</code>, and an auth key from Tailscale → Settings → Keys tagged
+      <code>tag:pollos</code>:
+    </p>
+    <pre
+      class="copyable"
+    ><code>wget https://pollos.cz/monitoring.sh &amp;&amp; sudo sh monitoring.sh
+wget https://pollos.cz/tailscale.sh &amp;&amp; sudo sh tailscale.sh
+rm monitoring.sh tailscale.sh</code></pre>
+
+    <p><strong>5. Done.</strong> The box is on the tailnet, reachable by name from anywhere:</p>
+    <pre class="copyable"><code>ssh saul.pollos</code></pre>
   </section>
 
   <section class="status">

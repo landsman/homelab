@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every fresh box at the console, as root, after 003-docker.sh.
+# MANUAL STEP: run on every fresh box as root, over SSH from the laptop, after 003-docker.sh.
 #
 # What it does:
 #   - installs Bun globally to /usr/local/bin from the GitHub release zip

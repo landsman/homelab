@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every box at the console, as root, after 001-init.sh.
+# MANUAL STEP: run on every box as root, over SSH from the laptop, after 001-init.sh.
 #
 # What it does:
 #   - installs Tailscale via the official install script (adds apt repo,

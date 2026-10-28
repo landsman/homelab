@@ -49,13 +49,13 @@ resource "betteruptime_status_page_resource" "node" {
 }
 
 # insuit.cz apps shown in the "apps" section. Each gets its own monitor.
+# BetterStack's free plan caps the account at 10 monitors, nodes included, and
+# refuses the 11th mid-apply. Count both lists before adding to either.
 locals {
   status_services = {
-    welcome = { url = "https://welcome.insuit.cz", public_name = "welcome.insuit.cz", check_frequency = 1800 }
-    eat     = { url = "https://eat.insuit.cz", public_name = "eat.insuit.cz", check_frequency = 300 }
-    git     = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300 }
-    read    = { url = "https://read.insuit.cz", public_name = "read.insuit.cz", check_frequency = 300 }
-    music   = { url = "https://music.insuit.cz", public_name = "music.insuit.cz", check_frequency = 1800 }
+    git   = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300 }
+    read  = { url = "https://read.insuit.cz", public_name = "read.insuit.cz", check_frequency = 300 }
+    music = { url = "https://music.insuit.cz", public_name = "music.insuit.cz", check_frequency = 1800 }
   }
 }
 

@@ -72,7 +72,8 @@ The server checks the token against Forgejo at startup and exits if it is reject
 a bad or revoked token shows up in `make logs` as a restart loop, not as tools that
 fail one by one.
 
-Upgrade: bump `FORGEJO_MCP_VERSION` in `.env`, then `make build up`.
+Upgrade: Renovate opens the bump; after merging, copy `compose.yml` to the Pi and
+run `make build up`. What to know before that is in [CAVEATS.md](CAVEATS.md).
 
 `FORGEJO_MCP_ALLOW_FILE_PATH_UPLOAD` stays unset. It lets attachment tools upload
 files from the server's filesystem, and here that is the Pi.

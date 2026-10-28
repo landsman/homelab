@@ -33,7 +33,6 @@ Five mini PCs, each with 32 GB of DDR4 SO-DIMM (2x 16 GB) running at the most it
 | jesse  | HP ProDesk 600 G3 Mini | i5-6500T, 4C/4T, 2.5–3.1 GHz | DDR4-2133, Micron   | 240 GB SATA SSD, Kingston A400  |
 | saul   | Dell OptiPlex 3070     | i5-9500T, 6C/6T, 2.2–3.7 GHz | DDR4-2666, SK hynix | 256 GB NVMe SSD, SK hynix BC501 |
 
-Part numbers, rank and rated speed of the memory are in [memory.md](memory.md).
 
 gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [skyhawk-ai-8tb-hdd.md](skyhawk-ai-8tb-hdd.md).
 

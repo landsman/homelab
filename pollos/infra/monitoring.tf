@@ -13,6 +13,9 @@
 # Endpoint per node:  https://<node>-health.pollos.cz
 
 locals {
+  # nas is to be renamed hank. The name keys every resource here, so the rename
+  # replaces its tunnel, DNS record and monitor: the box needs a new token, and
+  # the status badge a new id.
   monitor_nodes = toset(["gus", "mike", "walter", "jesse", "saul", "nas"])
 
   # Name on the BetterStack dashboard and the public status page. nas is not a

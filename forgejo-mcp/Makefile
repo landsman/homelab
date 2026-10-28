@@ -22,7 +22,7 @@ down: ## stop
 logs: ## follow the logs
 	docker compose logs -f
 
-build: ## rebuild, after bumping FORGEJO_MCP_VERSION in .env
+build: ## rebuild, after a version bump in compose.yml
 	docker compose build --pull
 
 ##@ Account

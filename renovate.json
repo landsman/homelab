@@ -1,13 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Only what Dependabot cannot see. forgejo-mcp is built from a git tag on a Forgejo, not pulled as an image, so no Dependabot ecosystem reads it.",
-  "extends": [":disableDependencyDashboard"],
-  "enabledManagers": ["custom.regex"],
+  "description": "Only forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. Its Tailscale sidecar comes along, so the folder has one bot.",
+  "extends": [
+    ":disableDependencyDashboard"
+  ],
+  "enabledManagers": [
+    "custom.regex",
+    "docker-compose"
+  ],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^forgejo-mcp/compose\\.yml$/"],
-      "matchStrings": ["(?:forgejo-mcp\\.git#|VERSION: |forgejo-mcp:)(?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "managerFilePatterns": [
+        "/^forgejo-mcp/compose\\.yml$/"
+      ],
+      "matchStrings": [
+        "(?:forgejo-mcp\\.git#|VERSION: |forgejo-mcp:)(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
       "datasourceTemplate": "forgejo-tags",
       "registryUrlTemplate": "https://git.b4mad.industries",
       "depNameTemplate": "agentic-forges/forgejo-mcp"
@@ -15,9 +24,17 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["custom.regex"],
+      "matchFileNames": [
+        "forgejo-mcp/**"
+      ],
       "minimumReleaseAge": "7 days",
       "commitMessagePrefix": "deps(forgejo-mcp):"
     }
+  ],
+  "includePaths": [
+    "forgejo-mcp/**"
+  ],
+  "ignoreDeps": [
+    "forgejo-mcp"
   ]
 }

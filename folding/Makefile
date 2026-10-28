@@ -1,6 +1,11 @@
 .DEFAULT_GOAL := help
 .PHONY: help rsync up down logs status
 
+# compose.yml requires these, so every target that loads it needs them, not just up.
+export PUID := $(shell id -u)
+export PGID := $(shell id -g)
+export MACHINE_NAME := $(shell hostname)
+
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
@@ -10,7 +15,7 @@ rsync: ## Copy this dir to a box (HOST=saul.pollos)
 
 up: ## Start folding (run on the box)
 	mkdir -p data
-	PUID=$$(id -u) PGID=$$(id -g) MACHINE_NAME=$$(hostname) docker compose up -d
+	docker compose up -d
 
 down: ## Stop folding
 	docker compose down

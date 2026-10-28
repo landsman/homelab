@@ -5,11 +5,12 @@
 # takes ownership of the whole tailnet policy file (overwrite_existing_content),
 # so keep every rule your tailnet needs in here.
 #
-# The acls block lets my own devices reach everything, and the tagged boxes
-# reach only each other. The boxes must not reach the Pi: forgejo-mcp serves
-# Forgejo there with my token to any caller, and jesse runs arbitrary CI jobs.
-# Audited 2026-09-28 before narrowing: no box held a tailnet connection to the
-# Pi, and the runner reaches git.insuit.cz by its public name.
+# The acls block lets my own devices reach everything. The tagged boxes reach
+# each other, and the Pi on 443 only: the runner fetches mirrored actions and
+# images there (../../forgejo-runner). They must not reach tag:forgejo-mcp,
+# which acts on Forgejo as its bot for any caller, while jesse runs arbitrary
+# CI jobs. That is why forgejo-mcp is a node of its own and not a path on the
+# Pi's 443: an ACL cannot tell `tailscale serve` paths apart.
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
 
@@ -19,8 +20,14 @@ resource "tailscale_acl" "this" {
       # It must own tag:pollos so the provider can mint the tag:pollos enrollment
       # key below. The boxes carry tag:pollos but are NOT owners, so a box can't
       # mint new tag:pollos keys — only the Terraform automation can.
-      "tag:terraform" = ["autogroup:admin"]
-      "tag:pollos"    = ["autogroup:admin", "tag:terraform"]
+      "tag:terraform"   = ["autogroup:admin"]
+      "tag:pollos"      = ["autogroup:admin", "tag:terraform"]
+      "tag:forgejo-mcp" = ["autogroup:admin", "tag:terraform"]
+    }
+
+    # Looked up, not written down: this repository is public.
+    hosts = {
+      nas = data.tailscale_device.nas.addresses[0]
     }
 
     acls = [
@@ -34,7 +41,7 @@ resource "tailscale_acl" "this" {
       {
         action = "accept"
         src    = ["tag:pollos"]
-        dst    = ["tag:pollos:*"]
+        dst    = ["tag:pollos:*", "nas:443"]
       },
     ]
 
@@ -72,6 +79,27 @@ resource "tailscale_tailnet_key" "pollos" {
   expiry        = 7776000 # 90 days (max), in seconds
 
   depends_on = [tailscale_acl.this] # tag must exist before the key references it
+}
+
+# The forgejo-mcp sidecar's one login; its state volume keeps the node after.
+resource "tailscale_tailnet_key" "forgejo_mcp" {
+  reusable      = false
+  ephemeral     = false
+  preauthorized = true
+  description   = "forgejo mcp sidecar"
+  tags          = ["tag:forgejo-mcp"]
+  expiry        = 7776000
+
+  depends_on = [tailscale_acl.this]
+}
+
+output "forgejo_mcp_authkey" {
+  value     = tailscale_tailnet_key.forgejo_mcp.key
+  sensitive = true
+}
+
+data "tailscale_device" "nas" {
+  hostname = "nas"
 }
 
 # Read with: terraform output -raw tailscale_authkey

@@ -25,11 +25,14 @@ If Tailscale is off, the server is absent. That is accepted.
 `Authorization` header run with this server's token. **So anything that can reach
 the endpoint acts as that token.** Two layers keep that to your own devices:
 
-- The port is published on `127.0.0.1` only. The pollos boxes share this LAN, and
-  jesse runs arbitrary CI jobs.
-- `tailscale serve` is the only way in. The tailnet ACL in
-  [`pollos/infra/tailscale.tf`](../pollos/infra/tailscale.tf) lets `tag:pollos`
-  reach only other pollos boxes.
+- No port is published on the Pi. The server listens on the loopback of a
+  Tailscale sidecar, which is its own tailnet node, `forgejo-mcp`, tagged
+  `tag:forgejo-mcp`. The pollos boxes share the Pi's LAN, and jesse runs
+  arbitrary CI jobs.
+- The tailnet ACL in [`pollos/infra/tailscale.tf`](../pollos/infra/tailscale.tf)
+  lets `tag:pollos` reach the Pi's 443, where the runner fetches mirrored actions
+  and images, but not `tag:forgejo-mcp`. A path on the Pi's own `tailscale serve`
+  could not be split off like that: an ACL does not see paths.
 
 ## Whose token
 
@@ -54,8 +57,11 @@ cp .env.example .env   # set the tailnet name
 make bot               # the account, if it is missing
 make token             # its token, straight into .env
 make up                # builds the image on first run
-make serve             # publish on the tailnet
 ```
+
+`TS_AUTHKEY` is needed for the first `make up` only, from
+`make -s forgejo-mcp-authkey` in `pollos/infra`; the sidecar's state volume keeps
+the node after that, so the key can be removed from `.env`.
 
 Then add `michal` as a collaborator, with write, on the repositories agents
 should work in — by hand, because which ones they are is mine to decide, not this
@@ -65,7 +71,7 @@ The token's scopes are `read:user`, `write:repository` and `write:issue`. Widen
 them (`make token SCOPES=…`) when a tool actually fails, not in advance. Rotating
 is `make token` again; the old token stays valid until it is removed.
 
-Clients use `https://nas.<tailnet>.ts.net/forgejo-mcp` as a streamable-HTTP MCP
+Clients use `https://forgejo-mcp.<tailnet>.ts.net/mcp` as a streamable-HTTP MCP
 server. The Claude Code and opencode entries are in `landsman/config`.
 
 The server checks the token against Forgejo at startup and exits if it is rejected, so
@@ -80,7 +86,5 @@ files from the server's filesystem, and here that is the Pi.
 
 ## Ports
 
-| Port          | Container | Notes                                    |
-|---------------|-----------|------------------------------------------|
-| 8005          | 8080      | streamable HTTP, `127.0.0.1` only        |
-| 443 (tailnet) | —         | `tailscale serve` `/forgejo-mcp` → 8005  |
+None on the Pi. The server listens on 8080 inside the sidecar's network
+namespace, and the sidecar serves it on 443 of its own tailnet node.

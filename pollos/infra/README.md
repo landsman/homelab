@@ -121,7 +121,7 @@ anywhere. Script: [`../setup/005-tailscale.sh`](../setup/005-tailscale.sh).
 ```sh
 TS_AUTHKEY=$(make -s authkey)
 
-# on the box (gus/mike/walter/jesse), as root:
+# on the box (gus/mike/walter/jesse/saul), as root:
 TS_AUTHKEY="$TS_AUTHKEY" wget -qO- https://pollos.cz/tailscale.sh | sh
 ```
 

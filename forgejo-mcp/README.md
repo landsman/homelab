@@ -33,7 +33,7 @@ the endpoint acts as that token.** Two layers keep that to your own devices:
 
 ## Whose token
 
-A bot account's, `landsman-mcp`, not mine. Two reasons:
+A bot account's, `michal`, not mine. Two reasons:
 
 - **Reach.** My account is the instance's only site admin, so its token
   reaches every repository there. The bot reaches only the repositories it is a
@@ -57,7 +57,7 @@ make up                # builds the image on first run
 make serve             # publish on the tailnet
 ```
 
-Then add `landsman-mcp` as a collaborator, with write, on the repositories agents
+Then add `michal` as a collaborator, with write, on the repositories agents
 should work in — by hand, because which ones they are is mine to decide, not this
 file's.
 

@@ -2,7 +2,7 @@
 
 LOCAL_PORT ?= 8005
 SERVE_PATH ?= /forgejo-mcp
-BOT_USER ?= landsman-mcp
+BOT_USER ?= michal
 SCOPES ?= read:user,write:repository,write:issue
 
 .PHONY: help

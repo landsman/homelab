@@ -66,7 +66,10 @@ su -</code></pre>
     <pre class="copyable"><code>wget -qO- https://pollos.cz/init.sh | sh
 wget -qO- https://pollos.cz/users.sh | sh</code></pre>
 
-    <p>From here on, log in as <code>ansible</code> with the key and use <code>sudo</code>:</p>
+    <p>
+      From here on, log in as <code>ansible</code> with the key and use <code>sudo</code>.
+      <code>docker.sh</code> asks whether the box should run a Docker Swarm stack; Enter means no.
+    </p>
     <pre class="copyable"><code>ssh -i ~/.ssh/id_ed25519_homelab ansible@192.168.0.x</code></pre>
     <pre class="copyable"><code>wget -qO- https://pollos.cz/docker.sh | sudo sh
 wget -qO- https://pollos.cz/typescript.sh | sudo sh</code></pre>
@@ -83,7 +86,16 @@ wget -qO- https://pollos.cz/typescript.sh | sudo sh</code></pre>
 wget https://pollos.cz/tailscale.sh &amp;&amp; sudo sh tailscale.sh
 rm monitoring.sh tailscale.sh</code></pre>
 
-    <p><strong>5. Done.</strong> The box is on the tailnet, reachable by name from anywhere:</p>
+    <p>
+      <strong>5. Done.</strong> The box is on the tailnet, reachable by name from anywhere once the
+      laptop's <code>~/.ssh/config</code> has
+      <a
+        href="https://github.com/landsman/homelab/tree/main/pollos#ssh"
+        target="_blank"
+        rel="noopener"
+        >the <code>*.pollos</code> block</a
+      >:
+    </p>
     <pre class="copyable"><code>ssh saul.pollos</code></pre>
   </section>
 

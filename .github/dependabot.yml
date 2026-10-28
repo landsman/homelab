@@ -177,6 +177,20 @@ updates:
       prefix: deps(forgejo-runner)
 
   - package-ecosystem: docker-compose
+    directory: /folding
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps(folding)
+
+  - package-ecosystem: docker-compose
     directory: /archivebox
     schedule:
       interval: weekly

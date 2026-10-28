@@ -22,7 +22,9 @@ set -eu
 # to tag:pollos via TS_AUTHKEY. Mint it in pollos/infra Terraform (tailscale
 # provider) — do NOT hardcode it here.
 #
-# Usage (first join), as root:
+# Usage (first join), as root — it asks for the key:
+#   sudo sh 005-tailscale.sh
+# or, piped or unattended:
 #   sudo TS_AUTHKEY=tskey-auth-xxxx ./005-tailscale.sh
 #
 # The assignment goes AFTER sudo. `export TS_AUTHKEY=... ; sudo ./005-...` looks
@@ -58,7 +60,16 @@ TS_TAGS="${TS_TAGS:-tag:pollos}"
 if command -v tailscale >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
   echo "tailscale already authenticated; reconciling without an auth key."
 else
-  : "${TS_AUTHKEY:?no auth key. first join needs: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"
+  # key: from $TS_AUTHKEY if set, else prompt — only on a real terminal, never
+  # when piped (wget | sh), where a prompt would read the script itself.
+  if [ -z "${TS_AUTHKEY:-}" ] && [ -t 0 ]; then
+    printf 'Paste the Tailscale auth key (tag:pollos, reusable, pre-approved): '
+    stty -echo 2>/dev/null || true
+    read -r TS_AUTHKEY || true
+    stty echo 2>/dev/null || true
+    printf '\n'
+  fi
+  : "${TS_AUTHKEY:?no auth key. run it in a terminal to be asked, or: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"
 fi
 
 # tailscale engine — skip if already installed. download then run instead of

@@ -149,3 +149,47 @@ jobs:
       - name: "Check the short links"
         working-directory: insuit
         run: make smoke ARGS=--project=links
+
+  # What the push changed, by .github/changes.yml. A manual run applies
+  # everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      gtm: ${{ fromJSON(steps.changes.outputs.changes)['insuit-gtm'] }}
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Detect changes"
+        id: changes
+        uses: ./.github/actions/changes
+
+  # insuit/analytics.yaml onto the live GTM container and GA4 property.
+  # Only when the push touches it, so an edit made in the GTM UI stays until
+  # the next change to the config.
+  gtm:
+    needs: [content, changes]
+    if: needs.changes.outputs.gtm != 'none'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    # gtm-code's lock is a file on the runner, so two pushes in a row would
+    # apply to the same workspace at once without this.
+    concurrency:
+      group: insuit-gtm
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Apply and publish GTM"
+        uses: ./.github/actions/gtm
+        with:
+          command: deploy
+          working-directory: insuit
+          workload-identity-provider: ${{ secrets.GCP_GTM_WIF_PROVIDER }}
+          service-account: ${{ secrets.GCP_GTM_SA_EMAIL }}

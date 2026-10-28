@@ -1,0 +1,17 @@
+{
+  "name": "homelab-actions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "ts-pattern": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.3",
+    "typescript": "^7.0.2"
+  },
+  "packageManager": "bun@1.4.2"
+}

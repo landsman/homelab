@@ -1,0 +1,72 @@
+# GTM and GA4 for insuit.cz, as code. How CI plans and applies it, and the
+# accounts it needs: ../.github/actions/gtm/README.md
+version: 1
+
+project:
+  name: insuit-cz
+
+google:
+  # The ids the APIs address the container and the property by, from their
+  # URLs in GTM and GA4. Not secret: they open nothing without a Google account
+  # that has access. The container's public id, GTM-T8PF56TV, is the site's.
+  gtm:
+    accountId: '6399466088'
+    containerId: '283285006'
+
+  ga4:
+    propertyId: '560662899'
+    # Public, like the GTM id: it is in every page the tag loads on.
+    measurementId: &measurement G-49CTM3MK36
+
+events:
+  # The site sends these with track() from src/app/analytics.gen.ts, which
+  # `make analytics` generates from this list.
+
+  # The contact page's address clicked: the one action that means someone
+  # wants to talk. GA4's recommended name for a lead, so its lead reports
+  # count it.
+  generate_lead:
+    description: A visitor clicked the contact address
+    keyEvent: true
+    consent: { status: notNeeded }
+
+  # One of the contact page's profiles clicked. GA4's own
+  # outbound clicks, below, still count every other link that leaves the site.
+  social_click:
+    description: A visitor clicked a profile on the contact page
+    parameters:
+      network: { type: string, dimension: true }
+    consent: { status: notNeeded }
+
+gtm:
+  variables: {}
+  triggers: {}
+  tags:
+    # Counts every page view, an in-app navigation included: GA4's enhanced
+    # measurement sees the router's history change itself. So no page_view
+    # event tag on the app's dataLayer push as well, which would count those
+    # twice. No cookie banner yet, so no consent to wait for.
+    GA4:
+      type: googleTag
+      measurementId: *measurement
+      trigger: ['All Pages']
+      consent: { status: notNeeded }
+
+ga4:
+  # GA4's default keeps detailed event data for two months, too short to set a
+  # month against the same one a year before.
+  dataRetention: FOURTEEN_MONTHS
+  # The stream the settings below apply to.
+  streamWebsiteUrl: https://www.insuit.cz
+  # What GA4 measures by itself. The site has no search and no form; the blog's
+  # YouTube embeds load no player API, so video engagement has nothing to see.
+  enhancedMeasurement:
+    scrollsEnabled: true
+    outboundClicksEnabled: true
+    fileDownloadsEnabled: true
+    siteSearchEnabled: false
+    formInteractionsEnabled: false
+    videoEngagementEnabled: false
+  dimensions: {}
+  metrics: {}
+  keyEvents: {}

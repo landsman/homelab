@@ -21,5 +21,11 @@
       }
     }
   ],
-  "ignorePatterns": ["dist/", "node_modules/", "src/paraglide/", "src/routeTree.gen.ts"]
+  "ignorePatterns": [
+    "dist/",
+    "node_modules/",
+    "src/paraglide/",
+    "src/routeTree.gen.ts",
+    "src/app/analytics.gen.ts"
+  ]
 }

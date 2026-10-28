@@ -1,6 +1,6 @@
 .PHONY: help install dev build preview clean
 .PHONY: typecheck lint lint-fix format format-check images test browser e2e-deps e2e e2e-head bdd smoke qa
-.PHONY: og bucket
+.PHONY: og bucket analytics
 
 # Bare `make` lists the targets. Each one's `##` comment is its description,
 # each `##@` line opens a section — there is no second list to keep in sync.
@@ -49,6 +49,12 @@ preview: build ## Build, then serve it the way Pages does, http://localhost:8788
 clean: ## Remove everything a build or an install wrote
 	rm -rf dist node_modules src/paraglide public/assets/cv-qr.svg public/assets/cv-thumbs .tanstack
 
+# The typed track() the site sends its GA4 events with, generated from
+# analytics.yaml's events:, so a misspelt event or a missing parameter fails
+# the typecheck. Committed; `make qa` fails when it has drifted from the config.
+analytics: ## Regenerate src/app/analytics.gen.ts from analytics.yaml
+	bun run gtm:generate --out src/app/analytics.gen.ts
+
 ##@ Quality assurance
 
 typecheck: ## Run the TypeScript type checker
@@ -80,7 +86,6 @@ test: ## Run unit tests
 shell: ## shellcheck the scripts, and test the decisions CI makes with them
 	shellcheck scripts/*.sh
 	scripts/preview-comment.test.sh
-	scripts/app-changed.test.sh
 
 browser: ## Install the Playwright browser if it is missing
 	bunx playwright install chromium
@@ -108,7 +113,9 @@ bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch th
 smoke: ## Ask the live sites, short links and their targets what a visitor would
 	bun run test:smoke $(ARGS)
 
-qa: images ## Run all quality checks (images, typecheck, format, lint, test, shell)
+qa: images ## Run all quality checks (images, typecheck, format, lint, test, shell, analytics)
+	@fresh=$$(mktemp) && bun run --silent gtm:generate --out "$$fresh" >/dev/null && diff -u src/app/analytics.gen.ts "$$fresh" \
+	  || { echo "src/app/analytics.gen.ts is stale: make analytics"; exit 1; }
 	bun run typecheck
 	bun run format
 	bun run lint

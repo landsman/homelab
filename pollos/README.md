@@ -23,17 +23,17 @@ The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/gove
 
 ## HW
 
-- 4x HP ProDesk 600 G3 Mini i5-6500T (4 cores / 4 threads, 2.5–3.1 GHz), SATA SSD Kingston 240GB
-- 1x Dell OptiPlex 3070 i5-9500T (6 cores / 6 threads, 2.2–3.7 GHz), NVMe SSD SK hynix BC501 256GB (saul)
-- 32GB DDR4 SO-DIMM per node (2x 16GB), clocked down to what the CPU supports:
+Five mini PCs, each with 32 GB of DDR4 SO-DIMM (2x 16 GB) running at the most its CPU takes.
 
-| Node   | DIMMs               | Part              | Rank | ECC         | Speed |
-|--------|---------------------|-------------------|------|-------------|-------|
-| gus    | Kingston / Kingston | KF3200C20S4/16G   | 1    | no          | 2133  |
-| mike   | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
-| walter | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
-| jesse  | Micron / Micron     | 18ASF2G72HZ-2G3B1 | 2    | yes (inert) | 2133  |
-| saul   | SK hynix / SK hynix | HMA82GS6DJR8N-XN  | 2    | no          | 2666  |
+| Node   | Machine                | CPU                          | RAM                    | Disk                            |
+|--------|------------------------|------------------------------|------------------------|---------------------------------|
+| gus    | HP ProDesk 600 G3 Mini | i5-6500T, 4C/4T, 2.5–3.1 GHz | DDR4-2133, Kingston    | 240 GB SATA SSD, Kingston A400  |
+| mike   | HP ProDesk 600 G3 Mini | i5-6500T, 4C/4T, 2.5–3.1 GHz | DDR4-2133, Micron ECC¹ | 240 GB SATA SSD, Kingston A400  |
+| walter | HP ProDesk 600 G3 Mini | i5-6500T, 4C/4T, 2.5–3.1 GHz | DDR4-2133, Micron ECC¹ | 240 GB SATA SSD, Kingston A400  |
+| jesse  | HP ProDesk 600 G3 Mini | i5-6500T, 4C/4T, 2.5–3.1 GHz | DDR4-2133, Micron ECC¹ | 240 GB SATA SSD, Kingston A400  |
+| saul   | Dell OptiPlex 3070     | i5-9500T, 6C/6T, 2.2–3.7 GHz | DDR4-2666, SK hynix    | 256 GB NVMe SSD, SK hynix BC501 |
+
+¹ ECC modules, but inert: neither the CPU nor the board uses ECC.
 
 gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test are in [skyhawk-ai-8tb-hdd.md](skyhawk-ai-8tb-hdd.md).
 

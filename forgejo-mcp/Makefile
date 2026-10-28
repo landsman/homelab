@@ -1,7 +1,5 @@
 .DEFAULT_GOAL := help
 
-LOCAL_PORT ?= 8005
-SERVE_PATH ?= /forgejo-mcp
 BOT_USER ?= michal
 SCOPES ?= read:user,write:repository,write:issue
 
@@ -38,16 +36,3 @@ token: ## make a token for the bot and write it into .env
 	@t=$$(docker exec -u git forgejo forgejo admin user generate-access-token --raw \
 		--username $(BOT_USER) --token-name forgejo-mcp-$$(date +%F) --scopes $(SCOPES)) \
 		&& sed -i "s|^FORGEJO_ACCESS_TOKEN=.*|FORGEJO_ACCESS_TOKEN=$$t|" .env && echo "token in .env"
-
-##@ Tailnet
-# Requires one-time `sudo tailscale set --operator=containers` so this user
-# can run `tailscale serve` without sudo.
-.PHONY: serve unserve serve-status
-serve: ## publish on https://<pi>.<tailnet>.ts.net/forgejo-mcp
-	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)/mcp
-
-unserve: ## stop publishing
-	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
-
-serve-status: ## show what tailscale serve publishes
-	tailscale serve status

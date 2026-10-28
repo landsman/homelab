@@ -9,11 +9,12 @@ do — resolving a review thread, replying in one — is in
 `FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK=true` runs every request without an
 `Authorization` header as the bot. So:
 
-- **Never publish the port on `0.0.0.0`.** The pollos boxes share the LAN, and jesse runs
-  arbitrary CI jobs.
+- **Never publish a port.** The pollos boxes share the Pi's LAN, and jesse runs arbitrary
+  CI jobs.
 - **Never put it behind a Cloudflare tunnel.** It has no authentication of its own.
-- **Never widen the tailnet ACL back to `* → *:*`.** `tag:pollos` reaching the Pi's 443
-  reaches this too — the ACL cannot filter by `tailscale serve` path.
+- **Never move it back to a path on the Pi's `tailscale serve`.** The runner needs the
+  Pi's 443, and an ACL cannot filter by path — that is why it is a node of its own.
+- **Never let `tag:pollos` reach `tag:forgejo-mcp`**, nor widen the ACL back to `* → *:*`.
 
 ## A bad token is a restart loop
 
@@ -21,12 +22,20 @@ The server checks the token against Forgejo at startup and exits 1 if it is reje
 revoked or mistyped token shows in `make logs` as the container restarting, not as tools
 failing one by one.
 
-## Renaming the box breaks every client
+## The node name is in every client
 
 `FORGEJO_MCP_ALLOWED_HOSTS` must be the tailnet name clients use: the server refuses any
-other `Host`, against DNS rebinding. Renaming the Pi
-([homelab#392](https://github.com/landsman/homelab/issues/392)) means a new value here and
-a new URL in every client entry in `landsman/config`.
+other `Host`, against DNS rebinding. Renaming the `forgejo-mcp` node means a new value here
+and a new URL in every client entry in `landsman/config`. Renaming the Pi
+([homelab#392](https://github.com/landsman/homelab/issues/392)) does not touch this, but
+does the `nas` lookup in `pollos/infra/tailscale.tf`, which then fails the plan.
+
+## A sidecar that lost its state needs a new key
+
+The auth key is single-use. Deleting the `tailscale` volume, or removing the node in the
+admin console, leaves the sidecar unable to log in again: apply a new key
+(`terraform apply -replace=tailscale_tailnet_key.forgejo_mcp` in `pollos/infra`), put it in
+`.env`, `make up`.
 
 ## An upgrade builds from the mirror, not from upstream
 

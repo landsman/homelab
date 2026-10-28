@@ -1,4 +1,26 @@
 services:
+  # The server's own tailnet node, tag:forgejo-mcp, so the ACL can keep the
+  # pollos boxes off it while they still reach the Pi. Userspace networking:
+  # Docker is rootless here, so there is no /dev/net/tun to hand it.
+  tailscale:
+    image: tailscale/tailscale:v1.104.2
+    container_name: forgejo-mcp-tailscale
+    hostname: forgejo-mcp
+    restart: unless-stopped
+    environment:
+      # One-time: `make -s forgejo-mcp-authkey` in pollos/infra. The state
+      # volume keeps the node after the first login.
+      TS_AUTHKEY: ${TS_AUTHKEY:-}
+      TS_HOSTNAME: forgejo-mcp
+      TS_USERSPACE: 'true'
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_SERVE_CONFIG: /config/serve.json
+    volumes:
+      - tailscale:/var/lib/tailscale
+      - ./serve.json:/config/serve.json:ro
+    networks:
+      - forgejo
+
   forgejo-mcp:
     # Built here rather than pulled: upstream's image is linux/amd64 only, and
     # this runs on the Pi. The Containerfile's base images are multi-arch, so a
@@ -14,7 +36,7 @@ services:
     restart: unless-stopped
     # Straight to the forgejo container, not the public name: an agent's call
     # should not take a round trip through Cloudflare to reach the next container.
-    command: --transport http --url http://forgejo:3000 --host 0.0.0.0 --http-port 8080
+    command: --transport http --url http://forgejo:3000 --host 127.0.0.1 --http-port 8080
     environment:
       FORGEJO_ACCESS_TOKEN: ${FORGEJO_ACCESS_TOKEN:?copy .env.example to .env and set the token}
       # The tailnet name clients use. tailscale serve passes it through as Host,
@@ -23,14 +45,16 @@ services:
       # Serve a request with no Authorization header using the token above.
       # That is the point of this service: clients hold no credential. It also
       # means anything that reaches the port acts as that token, which is why
-      # the port is on loopback and the tailnet ACL decides who reaches serve.
+      # nothing is published and the tailnet ACL decides who reaches serve.
       FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK: 'true'
-    ports:
-      # Loopback only. The pollos boxes share this LAN and jesse runs arbitrary
-      # CI jobs; published on 0.0.0.0 they would bypass the tailnet ACL entirely.
-      - '127.0.0.1:8005:8080'
-    networks:
-      - forgejo
+    # The sidecar's network namespace: its loopback is the only way in, and
+    # no port is published on the Pi, where the pollos boxes share the LAN.
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+
+volumes:
+  tailscale:
 
 networks:
   forgejo:

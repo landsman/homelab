@@ -7,7 +7,15 @@
 // No Authelia, Forgejo or docker: `docker` is a stub on PATH that records its calls and
 // answers with what the real containers print.
 import { afterAll, beforeEach, expect, test } from "bun:test";
-import { chmodSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+	chmodSync,
+	linkSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -37,19 +45,42 @@ async function user(args: string[], { stdin = "", ids = "", fj = "", fjExit = 0 
 		stdout: "pipe",
 		stderr: "pipe",
 		env: {
-			...process.env, PATH: `${join(dir, "bin")}:${process.env.PATH}`, CALLS: calls,
-			USERS_FILE: users, COMPOSE_FILE: join(import.meta.dir, "compose.yml"), FORGEJO_MCP_HOST: "mcp.example",
-			IDS: ids, FJ_OUT: fj, FJ_RC: String(fjExit),
+			...process.env,
+			PATH: `${join(dir, "bin")}:${process.env.PATH}`,
+			CALLS: calls,
+			USERS_FILE: users,
+			COMPOSE_FILE: join(import.meta.dir, "compose.yml"),
+			FORGEJO_MCP_HOST: "mcp.example",
+			IDS: ids,
+			FJ_OUT: fj,
+			FJ_RC: String(fjExit),
 		},
 	});
 	const code = await proc.exited;
-	return { code, out: `${await new Response(proc.stdout).text()}${await new Response(proc.stderr).text()}` };
+	const stdout = await new Response(proc.stdout).text();
+	const stderr = await new Response(proc.stderr).text();
+	return { code, out: stdout + stderr };
 }
 
-const parsed = () => (Bun.YAML.parse(readFileSync(users, "utf8")) as { users: Record<string, { password: string; extra: { forgejo_aud: string } }> }).users;
-const idsFor = (name: string, id: string) =>
-	`identifiers:\n    - service: openid\n      sector_id: ""\n      username: ${name}\n      identifier: ${id}\n`;
-const created = JSON.stringify({ message: "Authorized integration was successfully created.", name: "forgejo-mcp", audience: "u:7:1111", claim_rules: [] }, null, 2);
+type Users = Record<string, { password: string; extra: { forgejo_aud: string } }>;
+const parsed = () => (Bun.YAML.parse(readFileSync(users, "utf8")) as { users: Users }).users;
+
+/** What `authelia storage user identifiers export` writes for one user. */
+const idsFor = (name: string, id: string) => [
+	"identifiers:",
+	"    - service: openid",
+	'      sector_id: ""',
+	`      username: ${name}`,
+	`      identifier: ${id}`,
+].join("\n");
+
+/** What `forgejo admin user create-authorized-integration` prints. */
+const created = JSON.stringify({
+	message: "Authorized integration was successfully created.",
+	name: "forgejo-mcp",
+	audience: "u:7:1111",
+	claim_rules: [],
+}, null, 2);
 
 test("login adds a user with a hash and an empty forgejo_aud", async () => {
 	expect((await user(["login", "alice", "a@example.org"], { stdin: "pw\n" })).code).toBe(0);
@@ -86,10 +117,19 @@ test("integration ties the rule to the subject already pinned, and pins no secon
 
 test("integration fails when Forgejo refuses it, and writes nothing", async () => {
 	await user(["login", "dave", "d@example.org"], { stdin: "pw\n" });
-	const r = await user(["integration", "dave"], { ids: idsFor("dave", "4444"), fj: "Command error: invalid issuer", fjExit: 1 });
+	const r = await user(["integration", "dave"], {
+		ids: idsFor("dave", "4444"),
+		fj: "Command error: invalid issuer",
+		fjExit: 1,
+	});
 	expect(r.code).not.toBe(0);
 	expect(parsed().dave.extra.forgejo_aud).toBe("");
 });
 
-test("integration fails when the answer has no audience", async () =>
-	expect((await user(["integration", "dave"], { ids: idsFor("dave", "4444"), fj: '{ "audience_v2": "x" }' })).code).not.toBe(0));
+test("integration fails when the answer has no audience", async () => {
+	const r = await user(["integration", "dave"], {
+		ids: idsFor("dave", "4444"),
+		fj: '{ "audience_v2": "x" }',
+	});
+	expect(r.code).not.toBe(0);
+});

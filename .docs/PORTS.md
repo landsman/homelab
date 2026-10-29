@@ -14,6 +14,7 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 8002 | [archivebox](../archivebox)           |                                            |
 | 8003 | [yt-archive](../yt-archive)           | MeTube web UI (also tailscale serve → 443) |
 | 8004 | [whisper-server](../whisper) | speech-to-text API; pollos nodes (not the Pi), 127.0.0.1 only — SSH tunnel |
+| —    | [authelia](../authelia)               | no host port; 443 on its own tailnet node, 9091 inside the sidecar |
 | —    | [forgejo-mcp](../forgejo-mcp)         | no host port; 443 on its own tailnet node, 8080 inside the sidecar |
 | 8080 | [dashboard](../dashboard)             | nginx (also tailscale serve → 443 at /dashboard)    |
 | 9925 | [mealie](../mealie)                   |                                            |

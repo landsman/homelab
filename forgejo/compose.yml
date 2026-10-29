@@ -14,6 +14,10 @@ services:
       # variable name cannot carry. Read when a repository is created only: merge-style.sh does the
       # existing ones, and turns the merge commit off, which no setting here can.
       FORGEJO__repository_0X2E_pull_0X2D_request__DEFAULT_MERGE_STYLE: squash
+      # forgejo-mcp's issuer is a tailnet name, 100.64/10, which Forgejo refuses by default.
+      # Listing it replaces that default for every Authorized Integration on the instance:
+      # only issuers named here are allowed. Empty keeps the default (public addresses only).
+      FORGEJO__authorized_integration__ALLOWED_DOMAINS: ${FORGEJO_MCP_HOST:-}
     networks:
       - forgejo
     ports:

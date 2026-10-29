@@ -2,33 +2,45 @@
 
 What bites when running, upgrading or using this server. What Forgejo's API itself cannot
 do — resolving a review thread, replying in one — is in
-[forgejo/CAVEATS.md](../forgejo/CAVEATS.md); no MCP server can add it.
+[forgejo/CAVEATS.md](../forgejo/CAVEATS.md); no MCP server can add it. The login side is
+in [authelia/CAVEATS.md](../authelia/CAVEATS.md).
 
-## Reaching the endpoint is the credential
+## The signing key
 
-`FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK=true` runs every request without an
-`Authorization` header as the bot. So:
+Whoever holds `secrets/signing.pem` signs JWTs Forgejo accepts for every person whose
+integration trusts this server. Upstream logs a warning about it at every start.
 
-- **Never publish a port.** The pollos boxes share the Pi's LAN, and jesse runs arbitrary
-  CI jobs.
-- **Never put it behind a Cloudflare tunnel.** It has no authentication of its own.
-- **Never move it back to a path on the Pi's `tailscale serve`.** The runner needs the
-  Pi's 443, and an ACL cannot filter by path — that is why it is a node of its own.
-- **Never let `tag:pollos` reach `tag:forgejo-mcp`**, nor widen the ACL back to `* → *:*`.
+- **Rotation without downtime** takes two restarts and a wait: Forgejo caches the key set
+  for ten minutes and does not refetch on an unknown key. The steps are upstream's,
+  [Keys and rotation](https://git.b4mad.industries/agentic-forges/forgejo-mcp/src/branch/main/docs/oauth-resource-server/operator.md#keys-and-rotation).
+- **After a suspected leak**, replace it and restart at once. Every call fails for up to
+  ten minutes, until Forgejo's cache expires. Deleting the integrations stops the leaked
+  key sooner.
 
-## A bad token is a restart loop
+## Forgejo has to reach it, and is told it may
 
-The server checks the token against Forgejo at startup and exits 1 if it is rejected. A
-revoked or mistyped token shows in `make logs` as the container restarting, not as tools
-failing one by one.
+Forgejo fetches `/issuer/…` when an integration is saved and when its key cache expires.
+Two things must hold, or saving fails with "Issuer validation failed":
 
-## The node name is in every client
+- `FORGEJO_MCP_HOST` in `../forgejo/.env`. The tailnet name resolves to 100.64/10, which
+  Forgejo refuses by default, and listing it replaces that default for every integration
+  on the instance.
+- The forgejo container resolves and routes to the tailnet name. It goes through the
+  Pi's own tailscaled; check with the `docker exec forgejo wget …` line in the README.
 
-`FORGEJO_MCP_ALLOWED_HOSTS` must be the tailnet name clients use: the server refuses any
-other `Host`, against DNS rebinding. Renaming the `forgejo-mcp` node means a new value here
-and a new URL in every client entry in `landsman/config`. Renaming the Pi
-([homelab#392](https://github.com/landsman/homelab/issues/392)) does not touch this, but
-does the `nas` lookup in `pollos/infra/tailscale.tf`, which then fails the plan.
+## The issuer URL is in every integration
+
+`FORGEJO_MCP_FORGEJO_JWT_ISSUER` is derived from `FORGEJO_MCP_HOST`. Renaming the node
+breaks every integration, and every client entry in `landsman/config`, and Forgejo's
+allowed domain. Renaming the Pi ([homelab#392](https://github.com/landsman/homelab/issues/392))
+does not touch this, but does the `nas` lookup in `pollos/infra/tailscale.tf`, which then
+fails the plan.
+
+## It will not start without Authelia
+
+At startup the server fetches Authelia's discovery document and refuses to start if it
+does not answer or names another issuer — byte for byte, trailing slash included. A
+stopped Authelia shows in `make logs` as a restart loop. Start Authelia first.
 
 ## A sidecar that lost its state needs a new key
 
@@ -48,12 +60,6 @@ sync the mirror (its settings page, or `POST /repos/tools-mirror/forgejo-mcp/mir
 
 A merged bump is not deployed: there is no checkout on the Pi. Copy `compose.yml` to
 `~/containers/apps/forgejo-mcp/` and run `make build up`.
-
-## A token name is used once
-
-Forgejo refuses a token name the account already has and can never print a token again.
-`make token` names it by date, so a second run on the same day fails — remove that day's
-token under the bot first. A new token does not revoke the old one.
 
 ## A run number is not a run id
 

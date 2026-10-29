@@ -15,6 +15,9 @@ services:
       TS_USERSPACE: 'true'
       TS_STATE_DIR: /var/lib/tailscale
       TS_SERVE_CONFIG: /config/serve.json
+      # Userspace networking reaches the tailnet only through a proxy: this is
+      # how forgejo-mcp fetches Authelia's discovery document and key set.
+      TS_OUTBOUND_HTTP_PROXY_LISTEN: 127.0.0.1:1055
     volumes:
       - tailscale:/var/lib/tailscale
       - ./serve.json:/config/serve.json:ro
@@ -27,26 +30,38 @@ services:
     # build from the mirrored tag produces arm64 without touching it.
     # The tag is written three times below; renovate.json bumps all three.
     build:
-      context: https://git.insuit.cz/tools-mirror/forgejo-mcp.git#v3.2.0
+      context: https://git.insuit.cz/tools-mirror/forgejo-mcp.git#v3.3.0
       dockerfile: Containerfile
       args:
-        VERSION: v3.2.0
-    image: forgejo-mcp:v3.2.0
+        VERSION: v3.3.0
+    image: forgejo-mcp:v3.3.0
     container_name: forgejo-mcp
     restart: unless-stopped
+    # Root in the container is this box's unprivileged user under rootless
+    # Docker, and the only uid that can read the 0600 signing key.
+    user: '0'
     # Straight to the forgejo container, not the public name: an agent's call
     # should not take a round trip through Cloudflare to reach the next container.
     command: --transport http --url http://forgejo:3000 --host 127.0.0.1 --http-port 8080
     environment:
-      FORGEJO_ACCESS_TOKEN: ${FORGEJO_ACCESS_TOKEN:?copy .env.example to .env and set the token}
       # The tailnet name clients use. tailscale serve passes it through as Host,
       # and the server refuses any Host it was not told about.
-      FORGEJO_MCP_ALLOWED_HOSTS: ${FORGEJO_MCP_ALLOWED_HOSTS}
-      # Serve a request with no Authorization header using the token above.
-      # That is the point of this service: clients hold no credential. It also
-      # means anything that reaches the port acts as that token, which is why
-      # nothing is published and the tailnet ACL decides who reaches serve.
-      FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK: 'true'
+      FORGEJO_MCP_ALLOWED_HOSTS: ${FORGEJO_MCP_HOST:?copy .env.example to .env}
+      # No token here: each caller logs in at Authelia, and the server acts as
+      # that person through their Forgejo Authorized Integration.
+      FORGEJO_MCP_AUTH_MODE: resource-server
+      FORGEJO_MCP_AUTHORIZATION_SERVER: https://${AUTH_HOST:?copy .env.example to .env}
+      FORGEJO_MCP_RESOURCE: https://${FORGEJO_MCP_HOST}/mcp
+      # Published, not enforced: the integration's scopes are the boundary.
+      # offline_access is what gets a client a refresh token.
+      FORGEJO_MCP_SCOPES_SUPPORTED: openid offline_access forgejo_mcp
+      FORGEJO_MCP_FORGEJO_JWT_ISSUER: https://${FORGEJO_MCP_HOST}/issuer
+      FORGEJO_MCP_FORGEJO_JWT_SIGNING_KEY_FILE: /secrets/signing.pem
+      # Authelia through the sidecar's proxy; Forgejo directly, by container name.
+      HTTPS_PROXY: http://127.0.0.1:1055
+      NO_PROXY: forgejo
+    volumes:
+      - ./secrets:/secrets:ro
     # The sidecar's network namespace: its loopback is the only way in, and
     # no port is published on the Pi, where the pollos boxes share the LAN.
     network_mode: service:tailscale

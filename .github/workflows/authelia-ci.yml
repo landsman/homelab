@@ -1,0 +1,29 @@
+name: "authelia ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'authelia/**'
+      - '!**/*.md'
+
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: authelia
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # user.sh talks to the Authelia and Forgejo containers; the test stubs
+      # docker on PATH, so this runs on a cloud runner.
+      - name: "shellcheck + user.sh tests"
+        run: make test

@@ -7,3 +7,6 @@
 # pollos/infra/.claude/.
 **/.claude/settings.local.json
 **/.claude/scheduled_tasks.lock
+
+# The root package.json's Bun types; the apps ignore their own.
+/node_modules/

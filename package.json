@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "description": "The Bun types for `bun check` over the scripts that are not an app of their own (authelia/user.ts). The apps (dashboard, insuit, ip-service) keep their own package.json and lockfile, since each is built and deployed on its own.",
+  "packageManager": "bun@1.4.3",
+  "devDependencies": {
+    "@types/bun": "1.4.3"
+  }
+}

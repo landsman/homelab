@@ -7,10 +7,11 @@
 #
 # The acls block lets my own devices reach everything. The tagged boxes reach
 # each other, and the Pi on 443 only: the runner fetches mirrored actions and
-# images there (../../forgejo-runner). They must not reach tag:forgejo-mcp,
-# which acts on Forgejo as its bot for any caller, while jesse runs arbitrary
-# CI jobs. That is why forgejo-mcp is a node of its own and not a path on the
-# Pi's 443: an ACL cannot tell `tailscale serve` paths apart.
+# images there (../../forgejo-runner). They reach neither tag:forgejo-mcp nor
+# tag:authelia: both ask for a login, but jesse runs arbitrary CI jobs, and a
+# login page it cannot reach is one it cannot attack. That is why each is a node
+# of its own and not a path on the Pi's 443: an ACL cannot tell `tailscale
+# serve` paths apart.
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
 
@@ -23,6 +24,7 @@ resource "tailscale_acl" "this" {
       "tag:terraform"   = ["autogroup:admin"]
       "tag:pollos"      = ["autogroup:admin", "tag:terraform"]
       "tag:forgejo-mcp" = ["autogroup:admin", "tag:terraform"]
+      "tag:authelia"    = ["autogroup:admin", "tag:terraform"]
     }
 
     # Looked up, not written down: this repository is public.
@@ -44,6 +46,13 @@ resource "tailscale_acl" "this" {
         action = "accept"
         src    = ["tag:pollos"]
         dst    = ["tag:pollos:*", "nas:443", "nas-v6:443"]
+      },
+      {
+        # forgejo-mcp fetches Authelia's discovery document and key set. Nothing
+        # else is tagged to reach Authelia; my devices sign in through the rule above.
+        action = "accept"
+        src    = ["tag:forgejo-mcp"]
+        dst    = ["tag:authelia:443"]
       },
     ]
 
@@ -97,6 +106,23 @@ resource "tailscale_tailnet_key" "forgejo_mcp" {
 
 output "forgejo_mcp_authkey" {
   value     = tailscale_tailnet_key.forgejo_mcp.key
+  sensitive = true
+}
+
+# The Authelia sidecar's one login (../../authelia), the same way.
+resource "tailscale_tailnet_key" "authelia" {
+  reusable      = false
+  ephemeral     = false
+  preauthorized = true
+  description   = "authelia sidecar"
+  tags          = ["tag:authelia"]
+  expiry        = 7776000
+
+  depends_on = [tailscale_acl.this]
+}
+
+output "authelia_authkey" {
+  value     = tailscale_tailnet_key.authelia.key
   sensitive = true
 }
 

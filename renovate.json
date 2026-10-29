@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Only forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. Its Tailscale sidecar comes along, so the folder has one bot.",
+  "description": "Only forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. Its Tailscale sidecar comes along, so the folder has one bot. ignoreDeps keeps the docker-compose manager from looking up the locally built forgejo-mcp image on a registry.",
   "extends": [
     ":disableDependencyDashboard"
   ],

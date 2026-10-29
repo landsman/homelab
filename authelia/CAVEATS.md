@@ -30,7 +30,9 @@ expires, at most an hour, and only from the tailnet.
   every Forgejo integration's rule, and the registered passkeys.
 - `oidc.pem` lost: every token stops validating; every device logs in again.
 
-Keep a copy of `secrets/` in 1Password. Back up the `data` volume with it.
+Keep a copy of `secrets/` in 1Password. The nightly `make backup` holds the database and
+`users.yml` but not `secrets/`, on purpose: the storage key beside the database it encrypts
+would undo the encryption.
 
 ## users.yml is edited in place
 

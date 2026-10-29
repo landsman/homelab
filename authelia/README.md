@@ -41,6 +41,7 @@ cp .env.example .env    # the tailnet names; TS_AUTHKEY from `make -s authelia-a
 make secrets            # made here, printed nowhere; then copy secrets/ into 1Password
 op read 'op://<vault>/<item>/password' | make user USER=<name> EMAIL=<address>
 make up
+make cron-install       # the nightly backup
 ```
 
 Then, in a browser on a device, `https://auth.<tailnet>.ts.net`: sign in and register a
@@ -56,6 +57,13 @@ Authelia picks the new `forgejo_aud` up by itself; tokens issued after that carr
 
 The integration gets `read:user`, `write:repository` and `write:issue` on all the user's
 repositories. Widen it (`SCOPES=…`) when a tool actually fails, not in advance.
+
+## Backup
+
+As readeck's: `make cron-install` once, and `make backup` runs every night at 3:30. It tars
+the database and `users.yml` into `/home/containers/backup/authelia`, keeps 14 days, and
+pauses Authelia for the second it takes. Copy that folder off the box from there.
+`make restore FILE=…` puts one back. `secrets/` is not in it; see [CAVEATS.md](CAVEATS.md).
 
 ## Checks
 

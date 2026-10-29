@@ -23,7 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # user.sh talks to the Authelia and Forgejo containers; the test stubs
+      # The version in package.json's packageManager, the one the Pi runs.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: authelia/package.json
+
+      # user.ts talks to the Authelia and Forgejo containers; the test stubs
       # docker on PATH, so this runs on a cloud runner.
-      - name: "shellcheck + user.sh tests"
+      - name: "Type-check and test user.ts"
         run: make test

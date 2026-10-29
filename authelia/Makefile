@@ -41,7 +41,8 @@ integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo
 code: ## print the last one-time code Authelia sent
 	docker exec authelia tail -n 20 /data/notification.txt
 
+# The Bun types and tsconfig are the repository's, one level up.
 test: ## type-check and test user.ts
-	@bun install --frozen-lockfile --ignore-scripts >/dev/null
-	@bun check --no-pretty
+	@cd .. && bun install --frozen-lockfile --ignore-scripts >/dev/null
+	@cd .. && bun check --no-pretty authelia
 	@bun test

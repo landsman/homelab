@@ -1,4 +1,3 @@
 .env
 users.yml
 secrets/
-node_modules/

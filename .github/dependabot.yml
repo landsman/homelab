@@ -120,8 +120,9 @@ updates:
     commit-message:
       prefix: deps(forgejo)
 
+  # The root package.json: the Bun types for the scripts outside the apps.
   - package-ecosystem: bun
-    directory: /authelia
+    directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -132,7 +133,7 @@ updates:
     cooldown:
       default-days: 7
     commit-message:
-      prefix: deps(authelia)
+      prefix: deps
 
   - package-ecosystem: docker-compose
     directory: /authelia

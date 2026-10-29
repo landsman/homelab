@@ -31,7 +31,6 @@ writeFileSync(
   `#!/bin/sh
 echo "docker $*" >>"$CALLS"
 case "$*" in
-*"crypto hash"*) cat >/dev/null; echo 'Digest: $argon2id$v=19$m=65536,t=3,p=4$c2FsdA$aGFzaA' ;;
 *"identifiers export"*) printf '%s\\n' "$IDS" ;;
 *create-authorized-integration*) printf '%s\\n' "$FJ_OUT"; exit "\${FJ_RC:-0}" ;;
 esac
@@ -52,7 +51,6 @@ async function user(args: string[], { stdin = '', ids = '', fj = '', fjExit = 0 
       PATH: `${join(dir, 'bin')}:${process.env.PATH}`,
       CALLS: calls,
       USERS_FILE: users,
-      COMPOSE_FILE: join(import.meta.dir, '..', 'compose.yml'),
       FORGEJO_MCP_HOST: 'mcp.example',
       IDS: ids,
       FJ_OUT: fj,
@@ -93,9 +91,8 @@ const created = JSON.stringify(
 test('login adds a user with a hash and an empty forgejo_aud', async () => {
   expect((await user(['login', 'alice', 'a@example.org'], { stdin: 'pw\n' })).code).toBe(0)
   await user(['login', 'bob', 'b@example.org'], { stdin: 'pw\n' })
-  expect(parsed().alice.password).toStartWith('$argon2id$')
+  expect(await Bun.password.verify('pw', parsed().alice.password)).toBe(true)
   expect(parsed().alice.extra.forgejo_aud).toBe('')
-  expect(readFileSync(calls, 'utf8')).toContain('docker run --rm -i ghcr.io/authelia/authelia:')
 })
 
 test('login leaves a user who is already there alone', async () => {

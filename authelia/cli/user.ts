@@ -23,7 +23,6 @@ import { $ } from 'bun'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 
 const usersFile = process.env.USERS_FILE ?? 'users.yml'
-const composeFile = process.env.COMPOSE_FILE ?? 'compose.yml'
 const scopes = (process.env.SCOPES ?? 'read:user,write:repository,write:issue').split(',')
 
 const commands: Record<string, (args: string[]) => Promise<void>> = {
@@ -76,21 +75,10 @@ type User = {
   extra?: { forgejo_aud?: string }
 }
 
-/** An argon2 digest from a throwaway container of the image compose.yml runs: Authelia
- *  itself will not start before users.yml exists. The password goes in on stdin. */
-async function hash(password: string) {
-  type Compose = { services: { authelia: { image: string } } }
-  const compose = Bun.YAML.parse(readFileSync(composeFile, 'utf8')) as Compose
-  const image = compose.services.authelia.image
-  const generate = 'authelia crypto hash generate argon2 --password "$(cat)"'
-  const out =
-    await $`docker run --rm -i ${image} sh -c ${generate} < ${new Response(password)}`.text()
-
-  const digest = out.match(/^Digest: (\S+)$/m)?.[1]
-  if (!digest) {
-    throw new Error(`no digest from authelia crypto hash:\n${out}`)
-  }
-  return digest
+/** Authelia's own argon2id time cost; Bun's defaults are otherwise the same. In process,
+ *  so the password never reaches a command line `ps` could read. */
+function hash(password: string) {
+  return Bun.password.hash(password, { algorithm: 'argon2id', timeCost: 3 })
 }
 
 async function integration([user]: string[]) {

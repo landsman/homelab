@@ -3,9 +3,17 @@ name: "authelia ci"
 on:
   workflow_dispatch:
   pull_request:
-    # Only the scripts themselves: config, compose and docs changes have nothing here to break.
+    # The scripts and the tooling make test runs them with, so a Dependabot bump of oxlint,
+    # oxfmt or the Bun types is checked too. Config, compose and docs have nothing here to break.
     paths:
       - 'authelia/cli/**'
+      - 'package.json'
+      - 'bun.lock'
+      - 'tsconfig.json'
+      - '.oxlintrc.json'
+      - '.oxfmtrc.json'
+      - 'Makefile'
+      - '.github/workflows/authelia-ci.yml'
 
 # A new push to the same PR cancels the run still going for the previous one.
 # Everything else runs to the end.

@@ -1,0 +1,12 @@
+{
+  // For the scripts outside the apps (authelia/cli/user.ts): Bun reads this at run time,
+  // editors and `bun check` for types. An app's own tsconfig.json wins inside its folder.
+  "compilerOptions": {
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "strict": true,
+    "noEmit": true,
+    "types": ["bun"]
+  }
+}

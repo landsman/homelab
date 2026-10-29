@@ -26,8 +26,10 @@ resource "tailscale_acl" "this" {
     }
 
     # Looked up, not written down: this repository is public.
+    # Both families: a client that resolves the Pi to IPv6 would be dropped.
     hosts = {
-      nas = data.tailscale_device.nas.addresses[0]
+      nas    = one([for a in data.tailscale_device.nas.addresses : a if !strcontains(a, ":")])
+      nas-v6 = one([for a in data.tailscale_device.nas.addresses : a if strcontains(a, ":")])
     }
 
     acls = [
@@ -41,7 +43,7 @@ resource "tailscale_acl" "this" {
       {
         action = "accept"
         src    = ["tag:pollos"]
-        dst    = ["tag:pollos:*", "nas:443"]
+        dst    = ["tag:pollos:*", "nas:443", "nas-v6:443"]
       },
     ]
 

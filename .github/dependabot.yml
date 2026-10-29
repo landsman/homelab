@@ -121,6 +121,20 @@ updates:
       prefix: deps(forgejo)
 
   - package-ecosystem: docker-compose
+    directory: /authelia
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      all:
+        patterns:
+          - "*"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: deps(authelia)
+
+  - package-ecosystem: docker-compose
     directory: /readeck
     schedule:
       interval: weekly

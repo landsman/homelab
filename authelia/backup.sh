@@ -1,5 +1,7 @@
 #!/bin/sh
 set -e
+# The tar holds users.yml's password hashes.
+umask 077
 
 BACKUP_DIR="/backup"
 KEEP_DAYS=14

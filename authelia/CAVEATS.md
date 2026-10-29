@@ -36,7 +36,7 @@ Keep a copy of `secrets/` in 1Password. Back up the `data` volume with it.
 
 The container mounts that one file, and a mount of a file keeps its inode: an editor that
 saves by writing a new file and renaming it over the old one leaves Authelia reading the
-old one. `user.ts` writes in place; by hand, use `cat >` or restart Authelia after saving.
+old one. `cli/user.ts` writes in place; by hand, use `cat >` or restart Authelia after saving.
 
 ## An env variable named AUTHELIA_… is configuration
 

@@ -52,7 +52,7 @@ async function user(args: string[], { stdin = '', ids = '', fj = '', fjExit = 0 
       PATH: `${join(dir, 'bin')}:${process.env.PATH}`,
       CALLS: calls,
       USERS_FILE: users,
-      COMPOSE_FILE: join(import.meta.dir, 'compose.yml'),
+      COMPOSE_FILE: join(import.meta.dir, '..', 'compose.yml'),
       FORGEJO_MCP_HOST: 'mcp.example',
       IDS: ids,
       FJ_OUT: fj,

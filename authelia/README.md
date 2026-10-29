@@ -33,7 +33,7 @@ A new device: add a client in `configuration.yml`, `make up`, and its entry in
 ## Setup
 
 On the Pi, in `~/containers/apps/authelia/`. `make user` and `make integration` run
-`user.ts` with Bun, installed the way the pollos boxes get it
+`cli/user.ts` with Bun, installed the way the pollos boxes get it
 ([`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh)).
 
 ```bash
@@ -59,11 +59,11 @@ repositories. Widen it (`SCOPES=…`) when a tool actually fails, not in advance
 
 ## Checks
 
-`make test` type-checks `user.ts` and runs its tests with docker stubbed out; CI runs it on every change here.
+`make test` type-checks `cli/user.ts` and runs its tests with docker stubbed out; CI runs it when a script in `cli/` changes.
 
 The configuration was checked against the 4.39.28 image on 2026-10-29: `validate-config`,
 then a local run with a login, the code exchange and a refresh for two clients, and one
-client deleted, and a login with a `users.yml` written by `user.ts`. Not yet against
+client deleted, and a login with a `users.yml` written by `cli/user.ts`. Not yet against
 forgejo-mcp itself or over the tailnet.
 
 ## Ports

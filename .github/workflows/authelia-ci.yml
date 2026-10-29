@@ -3,15 +3,9 @@ name: "authelia ci"
 on:
   workflow_dispatch:
   pull_request:
+    # Only the scripts themselves: config, compose and docs changes have nothing here to break.
     paths:
-      - 'authelia/**'
-      - 'package.json'
-      - 'bun.lock'
-      - 'tsconfig.json'
-      - '.oxfmtrc.json'
-      - '.oxlintrc.json'
-      - 'Makefile'
-      - '!**/*.md'
+      - 'authelia/*.ts'
 
 # A new push to the same PR cancels the run still going for the previous one.
 # Everything else runs to the end.

@@ -32,7 +32,8 @@ does the `nas` lookup in `pollos/infra/tailscale.tf`, which then fails the plan.
 
 ## A sidecar that lost its state needs a new key
 
-The auth key is single-use. Deleting the `tailscale` volume, or removing the node in the
+The auth key is single-use, and expires after 90 days unused; the node itself does not
+expire, because a tagged node's key expiry is off. Deleting the `tailscale` volume, or removing the node in the
 admin console, leaves the sidecar unable to log in again: apply a new key
 (`terraform apply -replace=tailscale_tailnet_key.forgejo_mcp` in `pollos/infra`), put it in
 `.env`, `make up`.

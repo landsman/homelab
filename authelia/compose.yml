@@ -40,4 +40,6 @@ services:
 
 volumes:
   tailscale:
+  # Named, so `make backup` finds it whatever folder the stack runs from.
   data:
+    name: authelia_data

@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := help
 
+VOLUME := authelia_data
+BACKUP_DIR := /home/containers/backup/authelia
+
 # FORGEJO_MCP_HOST for cli/user.ts: the same .env the containers read.
 -include .env
 export FORGEJO_MCP_HOST
@@ -35,6 +38,40 @@ user: ## add USER with EMAIL; the password comes on stdin: op read … | make us
 
 integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo-mcp must be up
 	bun cli/user.ts integration $(USER)
+
+##@ Backup
+.PHONY: backup restore cron-install
+# As readeck's: a tar in BACKUP_DIR each night, to be copied off the box from there.
+# The database and users.yml, not secrets/: the storage key next to the database it
+# encrypts would undo the encryption. secrets/ goes to 1Password once.
+# Authelia is paused for the copy, so SQLite sees a crash-consistent file it can recover.
+backup: ## tar the database and users.yml into BACKUP_DIR, keep 14 days
+	@mkdir -p $(BACKUP_DIR)
+	docker pause authelia >/dev/null; docker run --rm \
+		-v $(VOLUME):/data:ro \
+		-v $(PWD)/users.yml:/users.yml:ro \
+		-v $(BACKUP_DIR):/backup \
+		-v $(PWD)/backup.sh:/backup.sh:ro \
+		alpine sh /backup.sh; rc=$$?; docker unpause authelia >/dev/null; exit $$rc
+
+# users.yml is written into, not replaced: the container mounts that one file.
+restore: ## restore one: make restore FILE=authelia-backup-YYYYMMDD_HHMMSS.tar.gz
+	@test -n "$(FILE)" || (echo "Usage: make restore FILE=authelia-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
+	@docker volume inspect $(VOLUME) > /dev/null 2>&1 || (echo "Error: volume $(VOLUME) does not exist. Run 'make up' first." && exit 1)
+	docker compose stop authelia
+	docker run --rm \
+		-v $(VOLUME):/data \
+		-v $(BACKUP_DIR):/backup \
+		alpine tar xzf /backup/$(FILE) -C / data
+	tar xzf $(BACKUP_DIR)/$(FILE) -O users.yml >users.yml
+	docker compose start authelia
+
+cron-install: ## run make backup every night at 3:30
+	@mkdir -p $(BACKUP_DIR)
+	@crontab -l 2>/dev/null | grep -q "authelia.*make backup" \
+		&& (echo "Cron job already exists. To view: crontab -l | grep authelia" && exit 1) \
+		|| (crontab -l 2>/dev/null; echo "30 3 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -
+	@echo "Cron job installed."
 
 # Authelia sends the one-time code for registering a passkey or TOTP by "mail", which here
 # is a file in its volume.

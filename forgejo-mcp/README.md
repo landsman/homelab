@@ -5,78 +5,100 @@ agents Forgejo's issues, pull requests, files and Actions runs as tools. It runs
 next to [Forgejo](../forgejo), and agents reach it over the tailnet. Built from the
 mirror at `git.insuit.cz/tools-mirror/forgejo-mcp`.
 
-## Why it runs on the Pi and not on each laptop
+It holds no Forgejo token. Each agent logs in at [Authelia](../authelia) as a person,
+and the server acts on Forgejo as that person, through a Forgejo *Authorized
+Integration* that only accepts JWTs this server signed for them. That is upstream's
+`resource-server` mode; its guide is
+[operator.md](https://git.b4mad.industries/agentic-forges/forgejo-mcp/src/branch/main/docs/oauth-resource-server/operator.md).
 
-The server needs a Forgejo token. When it ran as a local stdio process, that token
-was exported into every shell, so any agent with a shell could print it. Moving it to
-another user or into the Keychain on the same machine does not help: a process
-running as that user can still read it.
+## How a call is authorised
 
-Here, the token is in `.env` on the Pi and nowhere else. Clients connect to a URL and
-send no credential. An agent can use what the token allows, through the tools, but
-cannot read the token. It also covers every machine, Windows included, with no local
-build.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Coding agent<br/>(Claude Code, on a device)
+    participant M as forgejo-mcp<br/>(tailnet node)
+    participant I as Authelia<br/>(tailnet node)
+    participant F as Forgejo
 
-If Tailscale is off, the server is absent. That is accepted.
+    A->>M: /mcp, no token
+    M-->>A: 401: log in at Authelia, for this resource
+    A->>I: browser login: password + passkey or TOTP<br/>(PKCE, the device's own client ID)
+    I-->>A: access token: JWT, 1 h, aud = /mcp, sub, forgejo_aud<br/>refresh token: 90 days
+    A->>M: /mcp, Bearer access token
+    M->>I: key set (cached)
+    Note over M: checks signature, iss, aud, exp<br/>refuses ID tokens
+    M->>F: API call, JWT signed by forgejo-mcp:<br/>5 min, sub, aud = forgejo_aud
+    Note over F: finds the integration by issuer + audience,<br/>checks sub = that person, applies its scopes
+    F-->>M: answer
+    M-->>A: tool result
+    Note over A,I: every hour: refresh token → new access token, no browser
+```
 
-## Who can reach it, and why that matters
+What each piece holds, and what it takes to steal it:
 
-`FORGEJO_MCP_ALLOW_OPERATOR_TOKEN_FALLBACK=true` makes a request with no
-`Authorization` header run with this server's token. **So anything that can reach
-the endpoint acts as that token.** Two layers keep that to your own devices:
+| Piece | Holds | Leaked means |
+|---|---|---|
+| A device | refresh token (90 days), access token (1 h) | acting as me until that device's client is deleted, and only from the tailnet |
+| forgejo-mcp | the signing key, `secrets/signing.pem` | acting as everyone whose integration trusts it — guard it like an admin token |
+| Authelia | users, password hashes, `forgejo_aud`, its own signing key | minting tokens for anyone in `users.yml` |
+| Forgejo | each person's integration: issuer, audience, `sub` rule, scopes | — the integration is the permission boundary |
 
-- No port is published on the Pi. The server listens on the loopback of a
-  Tailscale sidecar, which is its own tailnet node, `forgejo-mcp`, tagged
-  `tag:forgejo-mcp`. The pollos boxes share the Pi's LAN, and jesse runs
-  arbitrary CI jobs.
-- The tailnet ACL in [`pollos/infra/tailscale.tf`](../pollos/infra/tailscale.tf)
-  lets `tag:pollos` reach the Pi's 443, where the runner fetches mirrored actions
-  and images, but not `tag:forgejo-mcp`. A path on the Pi's own `tailscale serve`
-  could not be split off like that: an ACL does not see paths.
+Cutting access off:
 
-## Whose token
+- **One device** — delete its client in [`../authelia/configuration.yml`](../authelia/configuration.yml)
+  and restart Authelia. Its refresh token stops at once; its access token lasts at most
+  an hour. Removing the device from the tailnet stops even that.
+- **Everything of mine** — delete my Authorized Integration in Forgejo (Settings →
+  Applications). Forgejo then refuses every JWT for it, now.
+- **The signing key** — see [CAVEATS.md](CAVEATS.md#the-signing-key).
 
-A bot account's, `michal`, not mine. Two reasons:
+## Who can reach it
 
-- **Reach.** My account is the instance's only site admin, so its token
-  reaches every repository there. The bot reaches only the repositories it is a
-  collaborator on, and branch protection keeps it off `main` like anyone else.
-- **Revocation.** Its token goes without touching mine, and what it wrote is
-  told apart from what I wrote by the author alone.
+No port is published on the Pi. The server listens on the loopback of a Tailscale
+sidecar, its own tailnet node `forgejo-mcp`, tagged `tag:forgejo-mcp`. The ACL in
+[`pollos/infra/tailscale.tf`](../pollos/infra/tailscale.tf) lets my devices in and keeps
+the pollos boxes out — jesse runs arbitrary CI jobs. The login makes reaching it no
+longer enough, but there is no reason to hand CI a door to try.
 
-Its password is random and known to nobody: it exists to hold the token, like
-the registry bots in [../forgejo](../forgejo/README.md#accounts-that-are-not-people).
-
-Not behind a Cloudflare tunnel, unlike the other services: the endpoint has no
-authentication of its own.
+The sidecar also runs an HTTP proxy on its loopback: with userspace networking it is
+the only way forgejo-mcp reaches Authelia's node.
 
 ## Setup
 
+Authelia first, see [../authelia](../authelia/README.md#setup). Then, on the Pi:
+
 ```bash
-cp .env.example .env   # set the tailnet name
-make bot               # the account, if it is missing
-make token             # its token, straight into .env
+cp .env.example .env   # set the tailnet names
+make key               # the signing key, made here and printed nowhere
 make up                # builds the image on first run
 ```
 
 `TS_AUTHKEY` is needed for the first `make up` only, from
 `make -s forgejo-mcp-authkey` in `pollos/infra`; the sidecar's state volume keeps
-the node after that, so the key can be removed from `.env`.
+the node after that.
 
-Then add `michal` as a collaborator, with write, on the repositories agents
-should work in — by hand, because which ones they are is mine to decide, not this
-file's.
+Forgejo must allow this issuer: set `FORGEJO_MCP_HOST` in `../forgejo/.env` and run
+`make up` there. Then check the documents Forgejo will fetch:
 
-The token's scopes are `read:user`, `write:repository` and `write:issue`. Widen
-them (`make token SCOPES=…`) when a tool actually fails, not in advance. Rotating
-is `make token` again; the old token stays valid until it is removed.
+```bash
+curl -sS https://forgejo-mcp.<tailnet>.ts.net/issuer/.well-known/openid-configuration
+curl -sS https://forgejo-mcp.<tailnet>.ts.net/issuer/jwks.json
+curl -sS -o /dev/null -w '%{http_code}\n' -X POST https://forgejo-mcp.<tailnet>.ts.net/mcp   # 401
+docker exec forgejo wget -qO- https://forgejo-mcp.<tailnet>.ts.net/issuer/jwks.json  # Forgejo reaches it too
+```
+
+Then each person's integration: `make integration USER=<name>` in `../authelia`.
 
 Clients use `https://forgejo-mcp.<tailnet>.ts.net/mcp` as a streamable-HTTP MCP
-server. The Claude Code and opencode entries are in `landsman/config`.
+server, with their device's client ID:
 
-The server checks the token against Forgejo at startup and exits if it is rejected, so
-a bad or revoked token shows up in `make logs` as a restart loop, not as tools that
-fail one by one.
+```bash
+claude mcp add --transport http --client-id forgejo-mcp-<device> --callback-port 53682 \
+  forgejo https://forgejo-mcp.<tailnet>.ts.net/mcp
+```
+
+The entries are in `landsman/config`.
 
 Upgrade: Renovate opens the bump; after merging, copy `compose.yml` to the Pi and
 run `make build up`. What to know before that is in [CAVEATS.md](CAVEATS.md).
@@ -86,5 +108,5 @@ files from the server's filesystem, and here that is the Pi.
 
 ## Ports
 
-None on the Pi. The server listens on 8080 inside the sidecar's network
-namespace, and the sidecar serves it on 443 of its own tailnet node.
+None on the Pi. The server listens on 8080 and the proxy on 1055, both inside the
+sidecar's network namespace; the sidecar serves 8080 on 443 of its own tailnet node.

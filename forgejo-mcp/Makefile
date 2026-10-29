@@ -1,8 +1,5 @@
 .DEFAULT_GOAL := help
 
-BOT_USER ?= michal
-SCOPES ?= read:user,write:repository,write:issue
-
 .PHONY: help
 help: ## show this help
 	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
@@ -23,19 +20,10 @@ logs: ## follow the logs
 build: ## rebuild, after a version bump in compose.yml
 	docker compose build --pull
 
-##@ Account
-# Run on the Pi: both go through Forgejo's CLI inside its container, the only way
-# to make an account and a token without a password. The token is written into .env
-# and printed nowhere, so it never leaves this box.
-.PHONY: bot token
-bot: ## create the bot account if it is missing
-	BOT_USER=$(BOT_USER) ../forgejo/registry-bot.sh account
-
-# Named by date: Forgejo refuses a token name twice, so a rotation needs a new one.
-# The line is rewritten rather than edited in place, so a .env without it still gets
-# it, and printf is a builtin, so the token never shows in another process's argv.
-token: ## make a token for the bot and write it into .env
-	@t=$$(docker exec -u git forgejo forgejo admin user generate-access-token --raw \
-		--username $(BOT_USER) --token-name forgejo-mcp-$$(date +%F) --scopes $(SCOPES)) && umask 077 \
-		&& { grep -v '^FORGEJO_ACCESS_TOKEN=' .env 2>/dev/null; printf 'FORGEJO_ACCESS_TOKEN=%s\n' "$$t"; } >.env.new \
-		&& mv .env.new .env && echo "token in .env"
+##@ Setup, on the Pi
+.PHONY: key
+# The key forgejo-mcp signs its JWTs to Forgejo with. Whoever holds it acts as every user
+# whose integration trusts this server, so it is made here and printed nowhere.
+key: ## generate the signing key, if it is missing
+	@[ -s secrets/signing.pem ] || (umask 077 && mkdir -p secrets && openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out secrets/signing.pem)
+	@echo "secrets/signing.pem present"

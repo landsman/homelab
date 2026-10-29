@@ -32,7 +32,10 @@ bot: ## create the bot account if it is missing
 	BOT_USER=$(BOT_USER) ../forgejo/registry-bot.sh account
 
 # Named by date: Forgejo refuses a token name twice, so a rotation needs a new one.
+# The line is rewritten rather than edited in place, so a .env without it still gets
+# it, and printf is a builtin, so the token never shows in another process's argv.
 token: ## make a token for the bot and write it into .env
 	@t=$$(docker exec -u git forgejo forgejo admin user generate-access-token --raw \
-		--username $(BOT_USER) --token-name forgejo-mcp-$$(date +%F) --scopes $(SCOPES)) \
-		&& sed -i "s|^FORGEJO_ACCESS_TOKEN=.*|FORGEJO_ACCESS_TOKEN=$$t|" .env && echo "token in .env"
+		--username $(BOT_USER) --token-name forgejo-mcp-$$(date +%F) --scopes $(SCOPES)) && umask 077 \
+		&& { grep -v '^FORGEJO_ACCESS_TOKEN=' .env 2>/dev/null; printf 'FORGEJO_ACCESS_TOKEN=%s\n' "$$t"; } >.env.new \
+		&& mv .env.new .env && echo "token in .env"

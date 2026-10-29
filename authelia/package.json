@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "description": "The Bun types for `bun check` over user.ts. Nothing here runs at run time; user.ts needs only Bun itself.",
+  "packageManager": "bun@1.4.3",
+  "devDependencies": {
+    "@types/bun": "1.4.3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  // For user.ts: Bun reads this at run time, editors and `bun check` (make test) for types.
+  "compilerOptions": {
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "strict": true,
+    "noEmit": true,
+    "types": ["bun"]
+  }
+}

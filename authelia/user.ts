@@ -26,11 +26,16 @@ const usersFile = process.env.USERS_FILE ?? "users.yml";
 const composeFile = process.env.COMPOSE_FILE ?? "compose.yml";
 const scopes = (process.env.SCOPES ?? "read:user,write:repository,write:issue").split(",");
 
-const commands: Record<string, (args: string[]) => Promise<void>> = { login, integration };
+const commands: Record<string, (args: string[]) => Promise<void>> = {
+	login,
+	integration,
+};
 const [command = "", ...args] = process.argv.slice(2);
 const run = commands[command];
 if (!run) {
-	const usage = readFileSync(import.meta.path, "utf8").match(/^\/\/ usage:[\s\S]*?(?=^(?!\/\/))/m)?.[0] ?? "";
+	const usage = readFileSync(import.meta.path, "utf8")
+		.match(/^\/\/ usage:[\s\S]*?(?=^(?!\/\/))/m)
+		?.[0] ?? "";
 	process.stderr.write(usage.replace(/^\/\/ ?/gm, ""));
 	process.exit(2);
 }
@@ -42,50 +47,93 @@ try {
 }
 
 async function login([user, email]: string[]) {
-	if (!user || !email) throw new Error("usage: user.ts login <username> <email>");
+	if (!user || !email) {
+		throw new Error("usage: user.ts login <username> <email>");
+	}
 	const users = readUsers();
-	if (users[user]) return console.log(`${user} is in ${usersFile}`);
+	if (users[user]) {
+		return console.log(`${user} is in ${usersFile}`);
+	}
 
 	// As `$(cat)` would: a password piped from `op read` ends in a newline that is not its.
 	const password = (await Bun.stdin.text()).replace(/\n+$/, "");
-	if (!password) throw new Error("no password on stdin");
-	users[user] = { displayname: user, email, password: await hash(password), extra: { forgejo_aud: "" } };
+	if (!password) {
+		throw new Error("no password on stdin");
+	}
+	users[user] = {
+		displayname: user,
+		email,
+		password: await hash(password),
+		extra: { forgejo_aud: "" },
+	};
 	writeUsers(users);
 	console.log(`added ${user}`);
 }
 
-type User = { displayname: string; email: string; password: string; extra?: { forgejo_aud?: string } };
+type User = {
+	displayname: string;
+	email: string;
+	password: string;
+	extra?: { forgejo_aud?: string };
+};
 
 /** An argon2 digest from a throwaway container of the image compose.yml runs: Authelia
  *  itself will not start before users.yml exists. The password goes in on stdin. */
 async function hash(password: string) {
-	const compose = Bun.YAML.parse(readFileSync(composeFile, "utf8")) as { services: { authelia: { image: string } } };
+	type Compose = { services: { authelia: { image: string } } };
+	const compose = Bun.YAML.parse(readFileSync(composeFile, "utf8")) as Compose;
 	const image = compose.services.authelia.image;
-	const out = await $`docker run --rm -i ${image} sh -c ${'authelia crypto hash generate argon2 --password "$(cat)"'} < ${new Response(password)}`.text();
+	const generate = 'authelia crypto hash generate argon2 --password "$(cat)"';
+	const out = await $`docker run --rm -i ${image} sh -c ${generate} < ${new Response(password)}`.text();
+
 	const digest = out.match(/^Digest: (\S+)$/m)?.[1];
-	if (!digest) throw new Error(`no digest from authelia crypto hash:\n${out}`);
+	if (!digest) {
+		throw new Error(`no digest from authelia crypto hash:\n${out}`);
+	}
 	return digest;
 }
 
 async function integration([user]: string[]) {
-	if (!user) throw new Error("usage: user.ts integration <username>");
+	if (!user) {
+		throw new Error("usage: user.ts integration <username>");
+	}
 	const host = process.env.FORGEJO_MCP_HOST;
-	if (!host) throw new Error("set FORGEJO_MCP_HOST, see .env.example");
+	if (!host) {
+		throw new Error("set FORGEJO_MCP_HOST, see .env.example");
+	}
 	const users = readUsers();
 	const entry = users[user];
-	if (!entry) throw new Error(`${user} is not in ${usersFile} — run login first`);
-	if (entry.extra?.forgejo_aud) return console.log(`${user} has a forgejo_aud`);
+	if (!entry) {
+		throw new Error(`${user} is not in ${usersFile} — run login first`);
+	}
+	if (entry.extra?.forgejo_aud) {
+		return console.log(`${user} has a forgejo_aud`);
+	}
 
 	const sub = await subject(user);
-	const flags = ["--username", user, "--name", "forgejo-mcp", "--issuer", `https://${host}/issuer`,
-		"--claim-eq", `sub=${sub}`, ...scopes.flatMap((s) => ["--scope", s])];
-	const result = await $`docker exec -u git forgejo forgejo admin user create-authorized-integration ${flags}`.nothrow().quiet();
+	const flags = [
+		"--username", user,
+		"--name", "forgejo-mcp",
+		"--issuer", `https://${host}/issuer`,
+		"--claim-eq", `sub=${sub}`,
+		...scopes.flatMap((scope) => ["--scope", scope]),
+	];
+	const result = await $`docker exec -u git forgejo forgejo admin user create-authorized-integration ${flags}`
+		.nothrow()
+		.quiet();
 	const out = `${result.stdout}${result.stderr}`;
-	if (result.exitCode !== 0) throw new Error(out);
+	if (result.exitCode !== 0) {
+		throw new Error(out);
+	}
 
 	const audience = audienceIn(result.stdout.toString());
-	if (!audience) throw new Error(`no audience in Forgejo's answer — did its output change?\n${out}`);
-	entry.extra = { ...entry.extra, forgejo_aud: audience };
+	if (!audience) {
+		throw new Error(`no audience in Forgejo's answer — did its output change?\n${out}`);
+	}
+	entry.extra = {
+		...entry.extra,
+		forgejo_aud: audience,
+	};
 	writeUsers(users);
 	console.log(`${user}: integration created, forgejo_aud written (sub ${sub})`);
 }
@@ -94,32 +142,48 @@ async function integration([user]: string[]) {
  *  so it is known before the first login. */
 async function subject(user: string) {
 	const pinned = await subjectOf(user);
-	if (pinned) return pinned;
+	if (pinned) {
+		return pinned;
+	}
 	await $`docker exec authelia authelia storage user identifiers add ${user}`.quiet();
+
 	const added = await subjectOf(user);
-	if (!added) throw new Error(`no openid subject for ${user} in Authelia's database`);
+	if (!added) {
+		throw new Error(`no openid subject for ${user} in Authelia's database`);
+	}
 	return added;
 }
 
 async function subjectOf(user: string) {
-	const out = await $`docker exec authelia sh -c ${"authelia storage user identifiers export --file /tmp/ids.yml >/dev/null && cat /tmp/ids.yml && rm /tmp/ids.yml"}`.text();
+	const exportIds = [
+		"authelia storage user identifiers export --file /tmp/ids.yml >/dev/null",
+		"cat /tmp/ids.yml",
+		"rm /tmp/ids.yml",
+	].join(" && ");
+	const out = await $`docker exec authelia sh -c ${exportIds}`.text();
+
 	type Identifier = { username: string; service: string; identifier: string };
-	const ids = (Bun.YAML.parse(out) as { identifiers?: Identifier[] } | null)?.identifiers ?? [];
-	return ids.find((i) => i.username === user && i.service === "openid")?.identifier;
+	const parsed = Bun.YAML.parse(out) as { identifiers?: Identifier[] } | null;
+	const ids = parsed?.identifiers ?? [];
+	return ids.find((id) => id.username === user && id.service === "openid")?.identifier;
 }
 
 /** forgejo admin user create-authorized-integration prints indented JSON. */
 function audienceIn(out: string): string | undefined {
 	try {
-		return (JSON.parse(out) as { audience?: string }).audience || undefined;
+		const answer = JSON.parse(out) as { audience?: string };
+		return answer.audience || undefined;
 	} catch {
 		return undefined;
 	}
 }
 
 function readUsers(): Record<string, User> {
-	if (!existsSync(usersFile)) return {};
-	return (Bun.YAML.parse(readFileSync(usersFile, "utf8")) as { users?: Record<string, User> } | null)?.users ?? {};
+	if (!existsSync(usersFile)) {
+		return {};
+	}
+	const parsed = Bun.YAML.parse(readFileSync(usersFile, "utf8")) as { users?: Record<string, User> } | null;
+	return parsed?.users ?? {};
 }
 
 /** Truncated and rewritten, never replaced: the container mounts this one file, and a

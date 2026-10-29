@@ -5,7 +5,7 @@ agents sign in here in a browser, and get the access token forgejo-mcp checks. I
 nothing else — no site is protected through it. How a call is authorised, end to end, is
 the diagram in [forgejo-mcp's README](../forgejo-mcp/README.md#how-a-call-is-authorised).
 
-Why Authelia, and what else was weighed: the brain's *OIDC provider for the Forgejo MCP*.
+Why Authelia, and what else was weighed: the brain's _OIDC provider for the Forgejo MCP_.
 In short, forgejo-mcp needs JWT access tokens carrying a per-user claim only an admin can
 set, and of the light providers Authelia is the one that issues them. Its own image runs on
 arm64.

@@ -1,12 +1,12 @@
 #!/usr/bin/env bun
 // A person who may use forgejo-mcp: their Authelia login, and the Forgejo Authorized
-// Integration that lets forgejo-mcp act as them. Run on the Pi, in this folder, once per
+// Integration that lets forgejo-mcp act as them. Run on the Pi, in the authelia folder, once per
 // person: `make user`, then `make integration` once forgejo-mcp is up.
 //
 // usage:
-//   op read op://<vault>/<item>/password | bun user.ts login <username> <email>
+//   op read op://<vault>/<item>/password | bun cli/user.ts login <username> <email>
 //       add the user to users.yml, the password from stdin
-//   bun user.ts integration <username>
+//   bun cli/user.ts integration <username>
 //       create their integration in Forgejo, write its audience into users.yml as forgejo_aud
 //
 // Two steps because of the order things start in: Authelia needs the user to exist,
@@ -47,7 +47,7 @@ try {
 
 async function login([user, email]: string[]) {
   if (!user || !email) {
-    throw new Error('usage: user.ts login <username> <email>')
+    throw new Error('usage: cli/user.ts login <username> <email>')
   }
   const users = readUsers()
   if (users[user]) {
@@ -95,7 +95,7 @@ async function hash(password: string) {
 
 async function integration([user]: string[]) {
   if (!user) {
-    throw new Error('usage: user.ts integration <username>')
+    throw new Error('usage: cli/user.ts integration <username>')
   }
   const host = process.env.FORGEJO_MCP_HOST
   if (!host) {

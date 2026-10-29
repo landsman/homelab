@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-# FORGEJO_MCP_HOST for user.ts: the same .env the containers read.
+# FORGEJO_MCP_HOST for cli/user.ts: the same .env the containers read.
 -include .env
 export FORGEJO_MCP_HOST
 
@@ -31,10 +31,10 @@ secrets: ## generate the secrets Authelia needs, the ones missing
 	@echo "secrets/ complete"
 
 user: ## add USER with EMAIL; the password comes on stdin: op read … | make user USER=… EMAIL=…
-	bun user.ts login $(USER) $(EMAIL)
+	bun cli/user.ts login $(USER) $(EMAIL)
 
 integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo-mcp must be up
-	bun user.ts integration $(USER)
+	bun cli/user.ts integration $(USER)
 
 # Authelia sends the one-time code for registering a passkey or TOTP by "mail", which here
 # is a file in its volume.
@@ -42,5 +42,5 @@ code: ## print the last one-time code Authelia sent
 	docker exec authelia tail -n 20 /data/notification.txt
 
 # The tooling (Bun types, oxfmt, oxlint) is the repository's, one level up.
-test: ## format-check, lint, type-check and test user.ts
+test: ## format-check, lint, type-check and test cli/
 	@$(MAKE) -s -C .. qa

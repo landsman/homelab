@@ -5,7 +5,7 @@ on:
   pull_request:
     # Only the scripts themselves: config, compose and docs changes have nothing here to break.
     paths:
-      - 'authelia/*.ts'
+      - 'authelia/cli/**'
 
 # A new push to the same PR cancels the run still going for the previous one.
 # Everything else runs to the end.
@@ -29,7 +29,7 @@ jobs:
         with:
           bun-version-file: package.json
 
-      # user.ts talks to the Authelia and Forgejo containers; the test stubs
+      # cli/user.ts talks to the Authelia and Forgejo containers; the test stubs
       # docker on PATH, so this runs on a cloud runner.
-      - name: "Format-check, lint, type-check and test user.ts"
+      - name: "Format-check, lint, type-check and test the cli scripts"
         run: make test

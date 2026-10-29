@@ -221,6 +221,9 @@ jobs:
         uses: cloudflare/wrangler-action@v4
         id: deploy
         with:
+          # The root bun.lock is the repo scripts', not Wrangler's: without this the action
+          # picks bun from it, which this job does not have.
+          packageManager: npm
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy insuit/dist/client --project-name=insuit-preview --branch=${{ github.head_ref }}

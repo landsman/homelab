@@ -85,6 +85,9 @@ jobs:
       - name: "Deploy pollos.cz"
         uses: cloudflare/wrangler-action@v4
         with:
+          # The root bun.lock is the repo scripts', not Wrangler's: without this the action
+          # picks bun from it, which this job does not have.
+          packageManager: npm
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
           command: pages deploy pollos/microsite/public --project-name=pollos-cz --branch=main
@@ -107,6 +110,9 @@ jobs:
       - name: "Deploy the worker"
         uses: cloudflare/wrangler-action@v4
         with:
+          # The root bun.lock is the repo scripts', not Wrangler's: without this the action
+          # picks bun from it, which this job does not have.
+          packageManager: npm
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
           workingDirectory: pollos/microsite-ws

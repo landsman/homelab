@@ -35,13 +35,15 @@ locals {
   # Daily maintenance window — the homelab network/router reboots in this hour,
   # taking every monitored target (nodes, nas AND apps) offline. Shared so the node
   # and service monitors can't drift; applied to both (see status_page.tf).
+  # In UTC because the router reboots at 03:00 UTC and ignores daylight saving:
+  # 05:00 Prague in summer, 04:00 in winter.
   daily_maintenance = {
-    maintenance_from = "04:55:00"
-    maintenance_to   = "05:20:00"
+    maintenance_from = "02:55:00"
+    maintenance_to   = "03:20:00"
     # BetterStack wants a Rails ActiveSupport::TimeZone friendly name (e.g.
     # "Prague", "Amsterdam") — NOT an IANA id like "Europe/Prague"; days are the
     # abbreviated forms. See https://betterstack.com/docs/uptime/api/create-a-new-monitor/
-    maintenance_timezone = "Prague"
+    maintenance_timezone = "UTC"
     maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
   }
 }

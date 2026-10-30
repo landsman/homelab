@@ -39,7 +39,7 @@ locals {
   # 05:00 Prague in summer, 04:00 in winter.
   daily_maintenance = {
     maintenance_from = "02:55:00"
-    maintenance_to   = "03:20:00"
+    maintenance_to   = "03:10:00"
     # BetterStack wants a Rails ActiveSupport::TimeZone friendly name (e.g.
     # "Prague", "Amsterdam") — NOT an IANA id like "Europe/Prague"; days are the
     # abbreviated forms. See https://betterstack.com/docs/uptime/api/create-a-new-monitor/

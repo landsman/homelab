@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "description": "Bun types, oxfmt and oxlint for the scripts that are not an app of their own (authelia/cli/user.ts); `make` at the root runs them. The apps (dashboard, insuit, ip-service) keep their own package.json and lockfile, since each is built and deployed on its own.",
+  "packageManager": "bun@1.4.3",
+  "devDependencies": {
+    "@types/bun": "1.4.3",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0"
+  }
+}

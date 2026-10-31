@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every fresh box at the console, as root, after 001-init.sh.
+# MANUAL STEP: run on every fresh box as root, over SSH from the laptop, after 001-init.sh.
 #
 # What it does:
 #   - creates the 'ansible' user with passwordless sudo (used for remote admin)

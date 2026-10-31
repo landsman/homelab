@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every box at the console, as root, after 001-init.sh.
+# MANUAL STEP: run on every box as root, over SSH from the laptop, after 001-init.sh.
 #
 # What it does:
 #   - installs Tailscale via the official install script (adds apt repo,
@@ -14,7 +14,7 @@ set -eu
 #     its own MagicDNS name, so there is no 192.168.x.x dependency and no
 #     subnet routes to maintain.
 #
-# The node's MagicDNS name = its hostname, so gus/mike/walter/jesse map 1:1.
+# The node's MagicDNS name = its hostname, so gus/mike/walter/jesse/saul map 1:1.
 # On the home LAN Tailscale connects directly (full LAN speed); elsewhere it
 # falls back to the encrypted tunnel. One ~/.ssh/config works everywhere.
 #
@@ -22,7 +22,9 @@ set -eu
 # to tag:pollos via TS_AUTHKEY. Mint it in pollos/infra Terraform (tailscale
 # provider) — do NOT hardcode it here.
 #
-# Usage (first join), as root:
+# Usage (first join), as root — it asks for the key:
+#   sudo sh 005-tailscale.sh
+# or, piped or unattended:
 #   sudo TS_AUTHKEY=tskey-auth-xxxx ./005-tailscale.sh
 #
 # The assignment goes AFTER sudo. `export TS_AUTHKEY=... ; sudo ./005-...` looks
@@ -58,7 +60,19 @@ TS_TAGS="${TS_TAGS:-tag:pollos}"
 if command -v tailscale >/dev/null 2>&1 && tailscale status >/dev/null 2>&1; then
   echo "tailscale already authenticated; reconciling without an auth key."
 else
-  : "${TS_AUTHKEY:?no auth key. first join needs: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"
+  # key: from $TS_AUTHKEY if set, else prompt — only on a real terminal, never
+  # when piped (wget | sh), where a prompt would read the script itself.
+  if [ -z "${TS_AUTHKEY:-}" ] && [ -t 0 ]; then
+    printf 'Paste the Tailscale auth key (tag:pollos, reusable, pre-approved): '
+    # Ctrl-C at the prompt would otherwise exit with echo still off.
+    trap 'stty echo 2>/dev/null; exit 1' INT TERM HUP
+    stty -echo 2>/dev/null || true
+    read -r TS_AUTHKEY || true
+    stty echo 2>/dev/null || true
+    trap - INT TERM HUP
+    printf '\n'
+  fi
+  : "${TS_AUTHKEY:?no auth key. run it in a terminal to be asked, or: sudo TS_AUTHKEY=tskey-auth-xxxx $0 (after sudo, not exported before it — sudo drops it)}"
 fi
 
 # tailscale engine — skip if already installed. download then run instead of

@@ -309,6 +309,64 @@ html:has(.cv) {
 .project-dialog-content > .video-play img {
   max-width: none;
 }
+/* The PDF download (cv-page.tsx): a pill in the corner, in the inverted
+   palette so it reads as the one action on the page. On a phone the browser's
+   own bar can float over the bottom ~90px (iOS Safari), so it sits above that
+   strip. The page ends with as much room under the footer, so scrolled to the
+   end the pill covers neither the CV nor the footer's links. */
+body:has(.cv-download) {
+  --cv-download-bottom: max(var(--page-padding), env(safe-area-inset-bottom));
+}
+@media (max-width: 600px) {
+  body:has(.cv-download) {
+    --cv-download-bottom: 112px;
+  }
+}
+/* Screen only: paper keeps print.css's body without padding. */
+@media screen {
+  body:has(.cv-download) {
+    padding-bottom: calc(var(--cv-download-bottom) + 44px + var(--space));
+  }
+}
+.cv-download {
+  position: fixed;
+  right: max(var(--page-padding), env(safe-area-inset-right));
+  bottom: var(--cv-download-bottom);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0 1.1em 0 0.9em;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-bg);
+  background: var(--color-fg);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px var(--color-backdrop);
+  text-decoration: none;
+  transition: transform var(--speed);
+}
+/* No underline: the pill is the link. */
+.cv-download::before,
+.cv-download::after {
+  display: none;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .cv-download:hover {
+    transform: translateY(-2px);
+  }
+}
+.cv-download:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-glow);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cv-download {
+    transition: none;
+  }
+}
+
 /* Screen shows the cards; print shows every project in full instead, and a
    contact line under the header, which the site's contact page does on screen. */
 .projects-print,
@@ -418,7 +476,8 @@ html:has(.cv) {
   }
   .projects,
   .project-dialog,
-  .photo-dialog {
+  .photo-dialog,
+  .cv-download {
     display: none;
   }
   .projects-print {

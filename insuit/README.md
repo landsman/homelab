@@ -260,15 +260,25 @@ make bdd       # Cucumber, likewise
 make build     # dist/client — what gets deployed
 ```
 
-`make dev` and `make build` take three values from the environment, all
+`make dev` and `make build` take four values from the environment, all
 optional locally:
 
 - `CONTACT_EMAIL` — the address on /contact; a placeholder without it.
 - `VITE_CF_BEACON_TOKEN` — Web Analytics; no beacon without it, so a local visit
   is never counted.
+- `VITE_GTM_ID` — the Google Tag Manager container (`GTM-…`); no container
+  without it, so a local visit is never counted either. The deploy sets it.
 - `VITE_SITE_URL` — where the build will live, for the addresses its pages give
   for themselves (`og:url`, the link-preview picture). `https://www.insuit.cz`
   without it; CI sets it to the preview's address for a PR.
+
+With Tag Manager on and a page-view tag in the container, a page load is one
+page view. A link inside the site swaps the page without loading a document, so
+the app pushes a `page_view` event to `dataLayer` with `page_path`,
+`page_location` and `page_title` (`src/app/gtm.ts`). In GTM, trigger the
+page-view tag on **All Pages** plus a **Custom Event** trigger named
+`page_view` for those. Do not use the **History Change** trigger as well: it
+would count an in-app navigation twice.
 
 ## Bootstrap (once)
 
@@ -336,7 +346,7 @@ repo is also uploaded to Pages under its branch name, and the preview's address
 is posted on the PR: the project is fed by direct upload, so Cloudflare builds
 no previews of its own. A preview is the build the tests ran against: its
 pages name the preview's own address, link-preview card included, and it has no
-analytics token and the placeholder contact address.
+analytics token, no Tag Manager container and the placeholder contact address.
 
 ## DNS cutover (manual, deliberate)
 

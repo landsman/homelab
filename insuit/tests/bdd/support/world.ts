@@ -1,5 +1,5 @@
 import { World, setWorldConstructor, setDefaultTimeout } from '@cucumber/cucumber'
-import type { BrowserContext, Page } from '@playwright/test'
+import type { BrowserContext, Download, Page } from '@playwright/test'
 
 setDefaultTimeout(30_000)
 
@@ -11,6 +11,8 @@ export class AppWorld extends World {
   page!: Page
   /** Where the heading started, to compare the next page against. */
   headingTop?: number
+  /** The last file the page handed over. */
+  download?: Download
 }
 
 setWorldConstructor(AppWorld)

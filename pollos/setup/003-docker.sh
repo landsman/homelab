@@ -2,7 +2,7 @@
 set -eu
 
 #
-# MANUAL STEP: run on every fresh box at the console, as root, after 002-users.sh.
+# MANUAL STEP: run on every fresh box as root, over SSH from the laptop, after 002-users.sh.
 #
 # What it does:
 #   - installs Docker via the official get.docker.com script
@@ -70,8 +70,9 @@ if swarm_wanted; then
 		# The address is computed, not given. `--advertise-addr eno1` is refused here: the interface
 		# carries two IPv6 addresses (SLAAC and privacy) and the daemon will not choose between them,
 		# and a box has a LAN address and a tailnet one, so swarm will not either. Writing the IPv4
-		# in would be a lie the first time DHCP hands out another.
-		IFACE=${IFACE:-eno1}
+		# in would be a lie the first time DHCP hands out another. The interface is the default
+		# route's, since boxes differ (eno1, enp1s0, …).
+		IFACE=${IFACE:-$(ip -4 route show default | awk '{print $5; exit}')}
 		addr=$(ip -4 -o addr show "$IFACE" | awk '{print $4}' | cut -d/ -f1)
 		[ -n "$addr" ] || {
 			echo "no IPv4 on $IFACE — set IFACE to the interface to advertise" >&2

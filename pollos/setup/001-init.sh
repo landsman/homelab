@@ -2,7 +2,9 @@
 set -eu
 
 #
-# MANUAL STEP: run on every fresh Debian 13 box at the console, as root.
+# MANUAL STEP: run on every fresh Debian 13 box as root, over SSH from the laptop
+# (pollos.cz/setup has the steps) — at the console only if the installer left
+# out the SSH server.
 #
 # What it does:
 #   - installs base packages incl. openssh-server + chrony

@@ -49,6 +49,7 @@ set -eu
 #   sh monitoring.sh version-ok 2026.7.1        # exit 0 if it has --token-file
 #   sh monitoring.sh same-tunnel UNIT TOKEN     # exit 0 if UNIT runs TOKEN's tunnel
 #   sudo sh monitoring.sh uninstall             # remove this unit and its token
+#   sudo sh monitoring.sh update                # latest cloudflared, running units restarted
 #
 # Safe to re-run: rewrites the token and the unit, then restarts the unit.
 #
@@ -106,6 +107,21 @@ same_tunnel() {
   [ -n "$new" ] && [ "$new" = "$old" ]
 }
 
+# install_cloudflared — the latest GitHub .deb, unless Cloudflare's apt
+# repository owns it, in which case apt upgrades just that package.
+install_cloudflared() {
+  if [ -x /usr/bin/cloudflared ] && grep -rqs 'pkg.cloudflare.com' /etc/apt/sources.list /etc/apt/sources.list.d/; then
+    apt-get update -qq && apt-get install -y --only-upgrade cloudflared
+    return
+  fi
+  ARCH="$(dpkg --print-architecture)"
+  TMP_DEB="$(mktemp --suffix=.deb)"
+  curl -fsSL -o "$TMP_DEB" \
+    "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}.deb"
+  apt-get install -y "$TMP_DEB" # local .deb: apt resolves deps in one step
+  rm -f "$TMP_DEB"
+}
+
 case "${1:-install}" in
   version-ok)
     [ -n "${2:-}" ] || { echo "usage: $0 version-ok <version>"; exit 2; }
@@ -126,9 +142,21 @@ case "${1:-install}" in
     echo "removed ${UNIT}.service and ${CONF_DIR}; cloudflared.service untouched."
     exit 0
     ;;
+  update)
+    [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
+    install_cloudflared
+    # a unit keeps the binary it started with until it restarts
+    failed=0
+    for u in cloudflared "$UNIT"; do
+      systemctl is-active -q "$u" || continue
+      if systemctl restart "$u"; then echo "restarted ${u}.service"; else echo "${u}.service failed to restart"; failed=1; fi
+    done
+    /usr/bin/cloudflared --version
+    exit "$failed"
+    ;;
   install) ;;
   *)
-    echo "usage: $0 [install|uninstall|version-ok <version>|same-tunnel <unit file> <token>]"
+    echo "usage: $0 [install|update|uninstall|version-ok <version>|same-tunnel <unit file> <token>]"
     exit 2
     ;;
 esac
@@ -147,15 +175,7 @@ fi
 [ -n "${TUNNEL_TOKEN:-}" ] || { echo "no token — run interactively, or see the header"; exit 1; }
 [ -n "$(tunnel_id "$TUNNEL_TOKEN")" ] || { echo "that is not a tunnel token — copy it again"; exit 1; }
 
-# cloudflared: the latest GitHub .deb, unless Cloudflare's apt repository owns it
-if [ ! -x /usr/bin/cloudflared ] || ! grep -rqs 'pkg.cloudflare.com' /etc/apt/sources.list /etc/apt/sources.list.d/; then
-  ARCH="$(dpkg --print-architecture)"
-  TMP_DEB="$(mktemp --suffix=.deb)"
-  curl -fsSL -o "$TMP_DEB" \
-    "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}.deb"
-  apt-get install -y "$TMP_DEB" # local .deb: apt resolves deps in one step
-  rm -f "$TMP_DEB"
-fi
+install_cloudflared
 BIN=/usr/bin/cloudflared
 VERSION="$("$BIN" --version | awk '{print $3}')"
 version_ok "$VERSION" || { echo "cloudflared ${VERSION} is older than ${MIN_VERSION} (no --token-file) — update it first"; exit 1; }

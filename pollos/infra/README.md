@@ -121,7 +121,7 @@ anywhere. Script: [`../setup/005-tailscale.sh`](../setup/005-tailscale.sh).
 ```sh
 TS_AUTHKEY=$(make -s authkey)
 
-# on the box (gus/mike/walter/jesse), as root:
+# on the box (gus/mike/walter/jesse/saul), as root:
 TS_AUTHKEY="$TS_AUTHKEY" wget -qO- https://pollos.cz/tailscale.sh | sh
 ```
 
@@ -164,7 +164,14 @@ cloudflared comes from the latest GitHub `.deb` wherever Cloudflare's apt
 repository is not set up (the pollos boxes; a re-run updates it); on nas, apt
 owns it. Either way the unit keeps the binary it started with until it restarts:
 after `apt upgrade`, run `systemctl restart cloudflared-health` (a reboot does
-too). `sudo sh monitoring.sh uninstall` removes the unit and its token and
+too). `sudo sh monitoring.sh update` does both — the latest cloudflared, then
+every running connector restarted — and needs no token:
+
+```sh
+ssh <node>.pollos 'sudo sh -s update' < pollos/setup/003-monitoring.sh
+```
+
+`sudo sh monitoring.sh uninstall` removes the unit and its token and
 nothing else.
 
 ## Adding a node

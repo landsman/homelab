@@ -8,7 +8,8 @@
 
 .icon-theme,
 .icon-external,
-.icon-play {
+.icon-play,
+.icon-download {
   flex: none;
   width: var(--icon-size);
   height: var(--icon-size);
@@ -34,4 +35,9 @@
 .icon-play {
   -webkit-mask-image: url('/assets/icons/play.svg');
   mask-image: url('/assets/icons/play.svg');
+}
+
+.icon-download {
+  -webkit-mask-image: url('/assets/icons/download.svg');
+  mask-image: url('/assets/icons/download.svg');
 }

@@ -199,8 +199,8 @@ export const SERVICES: Service[] = [
   },
   {
     name: 'YT Archive',
-    url: 'https://nas.dog-macaroni.ts.net/yt-archive/',
-    healthCheckUrl: 'https://nas.dog-macaroni.ts.net/yt-archive/version',
+    url: 'https://yt-archive.dog-macaroni.ts.net/',
+    healthCheckUrl: 'https://yt-archive.dog-macaroni.ts.net/version',
     versionPath: 'version',
     type: SERVICE_TYPE.SIMPLE_CHECK,
     section: SERVICE_SECTION.HOMELAB,

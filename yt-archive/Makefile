@@ -1,7 +1,7 @@
 .PHONY: up down logs pull restart serve unserve serve-status backup restore cron-install
 
 LOCAL_PORT ?= 8003
-SERVE_PATH ?= /yt-archive
+SERVICE ?= svc:yt-archive
 DATA_DIR := $(PWD)/downloads/.metube
 BACKUP_DIR := /home/containers/backup/yt-archive
 
@@ -21,12 +21,12 @@ restart:
 	docker compose restart
 
 # Requires one-time `sudo tailscale set --operator=containers` so this user
-# can run `tailscale serve` without sudo.
+# can run `tailscale serve` without sudo, and the NAS tagged tag:nas, see README.
 serve:
-	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)$(SERVE_PATH)
+	tailscale serve --service=$(SERVICE) --bg --https=443 http://localhost:$(LOCAL_PORT)
 
 unserve:
-	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
+	tailscale serve --service=$(SERVICE) --https=443 off
 
 serve-status:
 	tailscale serve status

@@ -243,7 +243,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
       },
       {
         name: 'YT Archive',
-        url: 'https://nas.dog-macaroni.ts.net/yt-archive/',
+        url: 'https://yt-archive.dog-macaroni.ts.net/',
         icon: ServiceIcon.METUBE,
       },
       {

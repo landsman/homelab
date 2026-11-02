@@ -104,6 +104,21 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
   auth. The wrapper only touches calls that start with `--no-replace-objects`,
   which is how the runner invokes git and a checkout does not.
 
+- **The instance is read, not written down.** The wrapper rewrites
+  `<instance>/tools-mirror/`, the instance being the `url` under
+  `server.connections.forgejo` in `runner/config.yml`, so the address lives in
+  one place. With none found it rewrites nothing and says why on stderr, which
+  the job's log shows only when that call fails.
+- **A lock left behind.** A cancelled job's fetch is killed with SIGKILL (the
+  runner kills the whole process group), so git cannot remove its lock, and
+  every later job using that action failed on `Unable to create
+  '…/shallow.lock': File exists` (walter, 2026-11-02: a lock from 11:59 still
+  there at 15:08, no git running). The runner fetches one action from one job
+  at a time, so only a killed git or git's own background gc can hold it. The
+  wrapper waits on a lock a second at a time and removes it once it is older
+  than `GIT_LOCK_STALE` (2) minutes; any other failure is passed on at once.
+  `make test` runs `runner/git.test.sh`.
+
 The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
 to the tailnet name either — which is why a mirror has to be public. If a runner
 upgrade changes how it calls git, the fetches go back through Cloudflare without
@@ -224,13 +239,37 @@ for `runs-on: deploy`: until then the job waits in the queue and does not fail.
 
 ## Operations
 
-`runner/config.yml` is read once at startup, so a change to it needs `make
-restart` — `make up` will say `Running` and do nothing.
+**A change in this folder reaches the boxes by `make deploy`**, which asks for
+them (or `HOSTS="jesse.pollos walter.pollos"`) and per box:
+
+1. copies the files git tracks here, and nothing else: `runner/config.yml` with
+   its token, `.env`, `data/` and `cache/` are the box's own and never leave a
+   checkout, whatever it holds;
+2. waits until no job container runs (up to 30 minutes), then recreates the
+   runner, so it mounts the files just copied;
+3. compares the git wrapper inside the container with this checkout's, and
+   fails that box when they differ.
+
+A box that fails does not stop the others; the run names it at the end.
+
+What it does not do:
+
+- **Delete.** A file taken out of git stays on the box until someone removes
+  it; copying never deletes, so a mistake in the list cannot take a box's own
+  file with it. A file deleted in the checkout but not yet in git is skipped.
+- **Close the race with a new job.** A job can still start between the "no job
+  running" check and the recreate, and that one job fails. Waiting for idle
+  makes the window seconds wide, not gone.
+`deploy.sh` is the logic, `deploy.test.sh` its test, `make test` runs both.
+
+`runner/config.yml` lives on the box only, so it is edited there, and read once
+at startup: a change to it needs `make restart` on the box — `make up` will say
+`Running` and do nothing.
 
 ```sh
-make rsync        # push changes to the box (after editing config, eg. capacity)
-ssh jesse.pollos 'cd forgejo-runner && make restart'   # apply a config change
-ssh jesse.pollos 'cd forgejo-runner && make logs'    # follow runner logs
+make deploy                                            # this folder to the boxes, asks which
+ssh jesse.pollos 'cd forgejo-runner && make restart'   # after editing that box's config
+ssh jesse.pollos 'cd forgejo-runner && make logs'      # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'
 ```
 

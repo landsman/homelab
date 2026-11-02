@@ -1,8 +1,9 @@
 #!/bin/sh
 # Mounted over `git` in the runner container, in front of /usr/bin/git.
 #
-# Sends the runner's own action fetches for https://git.insuit.cz/tools-mirror/
-# to FORGEJO_INTERNAL_URL instead of out through Cloudflare. Those are the calls
+# Sends the runner's own action fetches for <instance>/tools-mirror/ to
+# FORGEJO_INTERNAL_URL instead of out through Cloudflare, the instance being the
+# one runner/config.yml connects to. Those are the calls
 # that start with --no-replace-objects. A `self-hosted:host` job runs its steps
 # in this container too, and its checkout is left alone.
 #
@@ -13,15 +14,62 @@
 # Not for `remote get-url`: the runner reuses its cached clone of an action only
 # while that equals the `uses:` URL, and get-url applies insteadOf.
 #
-# The runner scopes the job token to https://git.insuit.cz/, so it is not sent
+# The runner scopes the job token to the instance, so it is not sent
 # to the tailnet name either. An action fetched this way has to be public.
 #
 # ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
 # sending --no-replace-objects first, fetches quietly go back through Cloudflare.
-if [ -n "$FORGEJO_INTERNAL_URL" ] && [ "$1" = --no-replace-objects ]; then
+#
+# The runner's calls also get past a lock git left behind. A cancelled job's
+# fetch is killed with SIGKILL (the runner kills the whole process group), so
+# git cannot remove its lock, and every later job using that action failed on
+# "Unable to create '…/shallow.lock': File exists" until someone deleted it.
+# The runner fetches one action from one job at a time (a mutex per clone), so
+# only something else holds that lock: a killed fetch, or git's own background
+# gc. A lock is waited on, a second at a time, and removed once it is older than
+# GIT_LOCK_STALE minutes; an action fetch takes seconds. Any other failure is
+# passed on at once.
+set -u
+git=${GIT_REAL:-/usr/bin/git}
+# The organisation the actions are mirrored under: workflows name it in `uses:`, so it is the same on both sides.
+MIRRORS=tools-mirror
+
+[ "${1:-}" = --no-replace-objects ] || exec "$git" "$@"
+
+# The instance is the one the runner connects to, read from its config rather than written here a second time.
+# Not found: nothing is rewritten, and the job's log says why its fetches went the long way.
+if [ -n "${FORGEJO_INTERNAL_URL:-}" ]; then
   case " $* " in
     *" remote get-url "*) ;;
-    *) set -- -c "url.$FORGEJO_INTERNAL_URL/tools-mirror/.insteadOf=https://git.insuit.cz/tools-mirror/" "$@" ;;
+    *)
+      forgejo=$(sed -n "s/^ *url: *['\"]\{0,1\}\(https\{0,1\}:[^'\" ]*\).*/\1/p" "${RUNNER_CONFIG:-/data/config.yml}" 2>/dev/null | head -n 1)
+      if [ -n "$forgejo" ]; then
+        set -- -c "url.${FORGEJO_INTERNAL_URL%/}/$MIRRORS/.insteadOf=${forgejo%/}/$MIRRORS/" "$@"
+      else
+        echo "runner git wrapper: no forgejo url in ${RUNNER_CONFIG:-/data/config.yml}, fetching $MIRRORS without the tailnet" >&2
+      fi
+      ;;
   esac
 fi
-exec /usr/bin/git "$@"
+
+tries=${GIT_LOCK_TRIES:-200}
+err=$(mktemp) || exec "$git" "$@"
+trap 'rm -f "$err"' EXIT
+attempt=1
+while :; do
+  status=0
+  "$git" "$@" 2>"$err" || status=$?
+  lock=$(sed -n "s/.*Unable to create '\(.*\.lock\)': File exists.*/\1/p" "$err" | head -n 1)
+  if [ "$status" -ne 0 ] && [ -n "$lock" ] && [ "$attempt" -lt "$tries" ]; then
+    attempt=$((attempt + 1))
+    if [ -n "$(find "$lock" -mmin +"${GIT_LOCK_STALE:-2}" 2>/dev/null)" ]; then
+      echo "runner git wrapper: removing $lock, left by a git that is gone" >&2
+      rm -f "$lock"
+    else
+      sleep "${GIT_LOCK_WAIT:-1}"
+    fi
+    continue
+  fi
+  cat "$err" >&2
+  exit "$status"
+done

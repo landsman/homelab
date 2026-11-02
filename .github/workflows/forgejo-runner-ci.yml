@@ -1,0 +1,29 @@
+name: "forgejo-runner ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'forgejo-runner/**'
+      - '!**/*.md'
+
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: forgejo-runner
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # The git wrapper's test stubs git on PATH, so it needs no runner, no box
+      # and no network.
+      - name: "shellcheck + git wrapper test"
+        run: make test

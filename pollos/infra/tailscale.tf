@@ -75,6 +75,13 @@ locals {
       # can be someone else's device.
       reach = ["autogroup:admin"]
     }
+    # Swarmpit, the swarm's web UI on a pollos box, on https://swarmpit.<tailnet>/ instead of the box's own name.
+    swarmpit = {
+      comment = "Swarmpit on a pollos box"
+      ports   = [443]
+      hosts   = ["tag:pollos"]
+      reach   = ["autogroup:admin"]
+    }
   }
 }
 

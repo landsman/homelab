@@ -19,6 +19,8 @@ resource "tailscale_acl" "this" {
       # mint new tag:pollos keys — only the Terraform automation can.
       "tag:terraform" = ["autogroup:admin"]
       "tag:pollos"    = ["autogroup:admin", "tag:terraform"]
+      # The NAS, tagged only because a Tailscale Service is hosted by a tagged device and never by a user's.
+      "tag:nas" = ["autogroup:admin"]
     }
 
     acls = [
@@ -81,6 +83,14 @@ locals {
       ports   = [443]
       hosts   = ["tag:pollos"]
       reach   = ["autogroup:admin"]
+    }
+    # MeTube on the NAS, on https://yt-archive.<tailnet>/ instead of a path under the NAS's name.
+    yt-archive = {
+      comment = "MeTube on the NAS"
+      ports   = [443]
+      hosts   = ["tag:nas"]
+      # Every member, as the path on the NAS reached before; it downloads videos, it deploys nothing.
+      reach = ["autogroup:member"]
     }
   }
 }

@@ -29,10 +29,9 @@ resource "tailscale_acl" "this" {
       },
     ]
 
-    # Tailscale Services: a name and a tailnet address of their own, served by a box. A box tagged tag:pollos may host
-    # these without an admin approving each one; the service itself is defined once in the admin console
-    # (Services). The docs do not say whether the allow-all rule above reaches a svc: destination, so each service
-    # gets a grant of its own.
+    # Tailscale Services (tailscale_service below): a name and a tailnet address of their own, served by a box. A box
+    # tagged tag:pollos may host these without an admin approving each one. The docs do not say whether the allow-all
+    # rule above reaches a svc: destination, so each service gets a grant of its own.
     #   svc:deploy  a deploy console, on its own https://deploy.<tailnet>/ instead of a box's name and a port
     autoApprovers = {
       services = {
@@ -64,6 +63,17 @@ resource "tailscale_acl" "this" {
       },
     ]
   })
+}
+
+# A deploy console on a pollos box, on https://deploy.<tailnet>/ instead of the box's name and a port. The box
+# advertises it with `tailscale serve --service=svc:deploy`; this defines it, so the advertisement has something to
+# attach to, and the policy above approves the host.
+resource "tailscale_service" "deploy" {
+  name    = "svc:deploy"
+  comment = "Deploy console on a pollos box"
+  ports   = ["tcp:443"]
+
+  depends_on = [tailscale_acl.this]
 }
 
 # Reusable, pre-authorized auth key scoped to tag:pollos. Feed it to

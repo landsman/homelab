@@ -40,6 +40,12 @@ check() {
 		status=$(curl -sS -o "$body" -w '%{http_code}' "$api/oauth/token" \
 			-d "client_id=$TS_OAUTH_CLIENT_ID" -d "client_secret=$TS_OAUTH_CLIENT_SECRET" -d "scope=$scope")
 		line "$status" "oauth/token scope=$scope" <"$body"
+		# A token of only that scope, against the services list: does it reach the API at all?
+		local scoped
+		scoped=$(jq -r '.access_token // empty' <"$body")
+		[ -n "$scoped" ] || continue
+		status=$(curl -sS -o "$body" -w '%{http_code}' -H "Authorization: Bearer $scoped" "$api/tailnet/-/vip-services")
+		line "$status" "vip-services with only $scope" <"$body"
 	done
 	rm -f "$body"
 }

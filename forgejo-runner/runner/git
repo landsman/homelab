@@ -51,10 +51,17 @@ fi
 tries=${GIT_LOCK_TRIES:-15}
 err=$(mktemp)
 trap 'rm -f "$err"' EXIT
+# git runs as a child here, no longer exec'd, so a cancelled job's TERM is handed on: a git left running would keep
+# holding the very lock the next job waits on. stdin is passed on explicitly, as a background job would get none.
+pid=''
+trap '[ -n "$pid" ] && kill "$pid" 2>/dev/null; exit 143' TERM INT
 attempt=1
 while :; do
   status=0
-  "$git" "$@" 2>"$err" || status=$?
+  "$git" "$@" 2>"$err" <&0 &
+  pid=$!
+  wait "$pid" || status=$?
+  pid=''
   if [ "$status" -ne 0 ] && [ "$attempt" -lt "$tries" ] && grep -q "\.lock': File exists" "$err"; then
     attempt=$((attempt + 1))
     sleep "${GIT_LOCK_WAIT:-1}"

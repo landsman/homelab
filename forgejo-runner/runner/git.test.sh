@@ -13,6 +13,7 @@ rc=0
 cat >"$t/git" <<'STUB'
 #!/usr/bin/env bash
 echo "$*" >>"$STUB_LOG"
+if [ -n "${STUB_HANG:-}" ]; then echo $$ >"$STUB_HANG"; exec sleep 30; fi
 if [ -n "${STUB_FAIL:-}" ]; then echo "fatal: $STUB_FAIL" >&2; exit 128; fi
 left=$(cat "$STUB_LOCKED" 2>/dev/null || echo 0)
 if [ "$left" -gt 0 ]; then
@@ -40,38 +41,52 @@ run() {
   calls=$(wc -l <"$t/log" | tr -d ' ')
 }
 
-# One line per behaviour: ok when the condition before it held, FAIL with what the wrapper did otherwise.
-verdict() {
-  if [ "$2" = 0 ]; then echo "ok   $1"; else echo "FAIL $1 (status $status, calls $calls, out '$out')"; rc=1; fi
+# One line per behaviour, the one named in $it: ok, or FAIL with what the wrapper did.
+it=''
+pass() { echo "ok   $it"; }
+fail() {
+  echo "FAIL $it (status $status, calls $calls, out '$out')"
+  rc=1
 }
 
 LOCKED=2 run --no-replace-objects fetch origin
-[ "$status" = 0 ] && [ "$calls" = 3 ] && [ "$out" = fetched ]
-verdict "an action fetch waits out another job's lock and succeeds" $?
+it="an action fetch waits out another job's lock and succeeds"
+if [ "$status" = 0 ] && [ "$calls" = 3 ] && [ "$out" = fetched ]; then pass; else fail; fi
 
 LOCKED=9 run --no-replace-objects fetch origin
-[ "$status" = 128 ] && [ "$calls" = 5 ] && grep -q shallow.lock "$t/err"
-verdict "it gives up after GIT_LOCK_TRIES and shows git's own error" $?
+it="it gives up after GIT_LOCK_TRIES and shows git's own error"
+if [ "$status" = 128 ] && [ "$calls" = 5 ] && grep -q shallow.lock "$t/err"; then pass; else fail; fi
 
 FAIL="repository not found" run --no-replace-objects fetch origin
-[ "$status" = 128 ] && [ "$calls" = 1 ] && grep -q "repository not found" "$t/err"
-verdict "any other failure is passed on at once, not retried" $?
+it="any other failure is passed on at once, not retried"
+if [ "$status" = 128 ] && [ "$calls" = 1 ] && grep -q "repository not found" "$t/err"; then pass; else fail; fi
 
 LOCKED=2 run checkout main
-[ "$status" = 128 ] && [ "$calls" = 1 ] && grep -qx "checkout main" "$t/log"
-verdict "a job's own git call is neither retried nor rewritten" $?
+it="a job's own git call is neither retried nor rewritten"
+if [ "$status" = 128 ] && [ "$calls" = 1 ] && grep -qx "checkout main" "$t/log"; then pass; else fail; fi
 
 INTERNAL=https://nas.test run --no-replace-objects fetch origin
-grep -q "url.https://nas.test/tools-mirror/.insteadOf=https://forge.test/tools-mirror/" "$t/log"
-verdict "an action fetch goes to the tailnet mirror, for the instance the runner's config names" $?
+it="an action fetch goes to the tailnet mirror, for the instance the runner's config names"
+if grep -q "url.https://nas.test/tools-mirror/.insteadOf=https://forge.test/tools-mirror/" "$t/log"; then pass; else fail; fi
 
 INTERNAL=https://nas.test CONFIG="$t/missing.yml" run --no-replace-objects fetch origin
-[ "$status" = 0 ] && ! grep -q insteadOf "$t/log" && grep -q "no forgejo url" "$t/err"
-verdict "with no instance in the config it rewrites nothing and says so" $?
+it="with no instance in the config it rewrites nothing and says so"
+if [ "$status" = 0 ] && ! grep -q insteadOf "$t/log" && grep -q "no forgejo url" "$t/err"; then pass; else fail; fi
 
 INTERNAL=https://nas.test run --no-replace-objects remote get-url origin
-grep -q insteadOf "$t/log"
-[ $? = 1 ]
-verdict "remote get-url is not rewritten, so the cached clone is reused" $?
+it="remote get-url is not rewritten, so the cached clone is reused"
+if ! grep -q insteadOf "$t/log"; then pass; else fail; fi
+
+# A cancelled job: the runner sends TERM to the wrapper while git hangs. git must go with it.
+: >"$t/log"
+GIT_REAL="$t/git" STUB_LOG="$t/log" STUB_HANG="$t/hang.pid" "$wrapper" --no-replace-objects fetch origin 2>/dev/null &
+wrapper_pid=$!
+for _ in 1 2 3 4 5 6 7 8 9 10; do [ -s "$t/hang.pid" ] && break; sleep 0.2; done
+kill -TERM "$wrapper_pid"
+wait "$wrapper_pid" 2>/dev/null
+sleep 0.3
+status=0 calls=1 out=''
+it="a cancelled job's git is stopped with it, and holds no lock afterwards"
+if ! kill -0 "$(cat "$t/hang.pid")" 2>/dev/null; then pass; else fail; fi
 
 exit "$rc"

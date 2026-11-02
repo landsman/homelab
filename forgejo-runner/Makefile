@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu test
+.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu test deploy
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -10,7 +10,7 @@ rsync: ## Copy this dir to a box (asks for it, or HOST=walter.pollos)
 	@host="$(HOST)"; \
 	[ -n "$$host" ] || { printf 'Host (jesse.pollos, walter.pollos, saul.pollos): '; read -r host; }; \
 	[ -n "$$host" ] || { echo "No host given."; exit 1; }; \
-	rsync -av --exclude data --exclude .env ./ "$$host":forgejo-runner/
+	git ls-files -z . | rsync -av --from0 --files-from=- ./ "$$host":forgejo-runner/
 
 config: ## Copy the example config to runner/config.yml (run on the box, first time)
 	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
@@ -86,6 +86,13 @@ register: ## Print registration steps (config-based, Forgejo 16)
 qemu: ## Register multiarch binfmt once (for cross-arch image builds)
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-test: ## shellcheck the git wrapper and run its test (no box needed)
-	@shellcheck runner/git runner/git.test.sh
+test: ## shellcheck the scripts and run their tests (no box needed)
+	@shellcheck runner/git runner/git.test.sh deploy.sh deploy.test.sh
 	@./runner/git.test.sh
+	@./deploy.test.sh
+
+deploy: ## Roll this folder out to boxes: copy, restart once idle, check (asks, or HOSTS="jesse.pollos walter.pollos")
+	@hosts="$(HOSTS)"; \
+	[ -n "$$hosts" ] || { printf 'Hosts (jesse.pollos walter.pollos saul.pollos): '; read -r hosts; }; \
+	[ -n "$$hosts" ] || { echo "No host given."; exit 1; }; \
+	./deploy.sh $$hosts

@@ -236,13 +236,28 @@ for `runs-on: deploy`: until then the job waits in the queue and does not fail.
 
 ## Operations
 
-`runner/config.yml` is read once at startup, so a change to it needs `make
-restart` — `make up` will say `Running` and do nothing.
+**A change in this folder reaches the boxes by `make deploy`**, which asks for
+them (or `HOSTS="jesse.pollos walter.pollos"`) and per box:
+
+1. copies the files git tracks here, and nothing else: `runner/config.yml` with
+   its token, `.env`, `data/` and `cache/` are the box's own and never leave a
+   checkout, whatever it holds;
+2. waits until no job container runs (up to 30 minutes), then recreates the
+   runner, so it mounts the files just copied;
+3. compares the git wrapper inside the container with this checkout's, and
+   fails that box when they differ.
+
+A box that fails does not stop the others; the run names it at the end.
+`deploy.sh` is the logic, `deploy.test.sh` its test, `make test` runs both.
+
+`runner/config.yml` lives on the box only, so it is edited there, and read once
+at startup: a change to it needs `make restart` on the box — `make up` will say
+`Running` and do nothing.
 
 ```sh
-make rsync        # push changes to the box (after editing config, eg. capacity)
-ssh jesse.pollos 'cd forgejo-runner && make restart'   # apply a config change
-ssh jesse.pollos 'cd forgejo-runner && make logs'    # follow runner logs
+make deploy                                            # this folder to the boxes, asks which
+ssh jesse.pollos 'cd forgejo-runner && make restart'   # after editing that box's config
+ssh jesse.pollos 'cd forgejo-runner && make logs'      # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'
 ```
 

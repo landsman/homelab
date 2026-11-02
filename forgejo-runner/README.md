@@ -248,6 +248,15 @@ them (or `HOSTS="jesse.pollos walter.pollos"`) and per box:
    fails that box when they differ.
 
 A box that fails does not stop the others; the run names it at the end.
+
+What it does not do:
+
+- **Delete.** A file taken out of git stays on the box until someone removes
+  it; copying never deletes, so a mistake in the list cannot take a box's own
+  file with it. A file deleted in the checkout but not yet in git is skipped.
+- **Close the race with a new job.** A job can still start between the "no job
+  running" check and the recreate, and that one job fails. Waiting for idle
+  makes the window seconds wide, not gone.
 `deploy.sh` is the logic, `deploy.test.sh` its test, `make test` runs both.
 
 `runner/config.yml` lives on the box only, so it is edited there, and read once

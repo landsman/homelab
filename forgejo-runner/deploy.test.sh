@@ -15,7 +15,7 @@ mkdir "$t/bin"
 cat >"$t/bin/rsync" <<'STUB'
 #!/usr/bin/env bash
 echo "rsync $*" >>"$LOG"
-tr '\0' '\n' >>"$LOG.files"
+cat >>"$LOG.files"
 STUB
 cat >"$t/bin/ssh" <<'STUB'
 #!/usr/bin/env bash
@@ -48,8 +48,13 @@ run() {
   set -e
 }
 
-verdict() {
-  if [ "$2" = 0 ]; then echo "ok   $1"; else echo "FAIL $1 (status $status)"; printf '%s\n' "$out" | sed 's/^/  /'; rc=1; fi
+# One line per behaviour, the one named in $it: ok, or FAIL with what the script printed.
+it=''
+pass() { echo "ok   $it"; }
+fail() {
+  echo "FAIL $it (status $status)"
+  printf '%s\n' "$out" | sed 's/^/  /'
+  rc=1
 }
 
 # A checkout holding a box's files, as one used to set a box up might: none of them may leave it.
@@ -59,37 +64,34 @@ for f in runner/config.yml .env data/x; do [ -e "$here/$f" ] || { : >"$here/$f";
 run a.test b.test
 for f in ${made:-}; do rm -f "$here/$f"; done
 rmdir "$here/data" 2>/dev/null || true
-set +e
-[ "$status" = 0 ] && grep -q "rsync -a --from0 --files-from=- .*/ a.test:forgejo-runner/" "$t/log" &&
+it="a box gets the tracked files only, never a config, .env or data from the checkout"
+if [ "$status" = 0 ] && grep -q "rsync -a --files-from=- .*/ a.test:forgejo-runner/" "$t/log" &&
   grep -qx deploy.sh "$t/log.files" && grep -qx runner/git "$t/log.files" &&
-  ! grep -qE '^(runner/config.yml|\.env|data/.*)$' "$t/log.files"
-verdict "a box gets the tracked files only, never a config, .env or data from the checkout" $?
-[ "$(grep -c 'force-recreate runner' "$t/log")" = 2 ]
-verdict "each box's runner is recreated, so it mounts the new files" $?
-set -e
+  ! grep -qE '^(runner/config.yml|\.env|data/.*)$' "$t/log.files"; then pass; else fail; fi
+it="each box's runner is recreated, so it mounts the new files"
+if [ "$(grep -c 'force-recreate runner' "$t/log")" = 2 ]; then pass; else fail; fi
+
+# A tracked file deleted in the checkout but not yet in git: listed, rsync would fail the box on it.
+mv "$(dirname "$script")/CAVEATS.md" "$t/CAVEATS.md"
+run a.test
+mv "$t/CAVEATS.md" "$(dirname "$script")/CAVEATS.md"
+it="a file deleted in the checkout is left out, not a failed box"
+if [ "$status" = 0 ] && ! grep -qx CAVEATS.md "$t/log.files" && grep -qx deploy.sh "$t/log.files"; then pass; else fail; fi
 
 JOBS=2 run a.test
-set +e
-[ "$status" = 0 ] && [ "$(grep -c 'docker ps' "$t/log")" = 3 ] && grep -q force-recreate "$t/log"
-verdict "a box running jobs is restarted only once they are done" $?
-set -e
+it="a box running jobs is restarted only once they are done"
+if [ "$status" = 0 ] && [ "$(grep -c 'docker ps' "$t/log")" = 3 ] && grep -q force-recreate "$t/log"; then pass; else fail; fi
 
 JOBS=9 TIMEOUT=0 run a.test
-set +e
-[ "$status" = 1 ] && ! grep -q force-recreate "$t/log" && grep -q "FAIL a.test" <<<"$out"
-verdict "a box that stays busy is left alone and reported" $?
-set -e
+it="a box that stays busy is left alone and reported"
+if [ "$status" = 1 ] && ! grep -q force-recreate "$t/log" && grep -q "FAIL a.test" <<<"$out"; then pass; else fail; fi
 
 STALE=a.test run a.test b.test
-set +e
-[ "$status" = 1 ] && grep -q "FAIL a.test" <<<"$out" && grep -q "ok   b.test" <<<"$out"
-verdict "a box left on another wrapper fails the run, and the next box is still deployed" $?
-set -e
+it="a box left on another wrapper fails the run, and the next box is still deployed"
+if [ "$status" = 1 ] && grep -q "FAIL a.test" <<<"$out" && grep -q "ok   b.test" <<<"$out"; then pass; else fail; fi
 
 run
-set +e
-[ "$status" = 2 ] && [ ! -s "$t/log" ]
-verdict "no host named, nothing touched" $?
-set -e
+it="no host named, nothing touched"
+if [ "$status" = 2 ] && [ ! -s "$t/log" ]; then pass; else fail; fi
 
 exit "$rc"

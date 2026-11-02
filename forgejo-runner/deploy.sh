@@ -36,8 +36,11 @@ restart_when_idle() {
 deploy() {
   host=$1
   # The files git tracks here, and nothing else: runner/config.yml (its token), .env, data/ and cache/ are the box's
-  # own and are never in that list, whatever this checkout happens to hold.
-  git -C "$here" ls-files -z . | rsync -a --from0 --files-from=- "$here/" "$host":forgejo-runner/ || return 1
+  # own and are never in that list, whatever this checkout happens to hold. One deleted in this checkout but not yet
+  # in git is left out, or rsync would fail the box on it. Nothing is deleted on the box (no --delete): a file taken
+  # out of git stays there until someone removes it.
+  git -C "$here" ls-files . | while IFS= read -r f; do [ -e "$here/$f" ] && printf '%s\n' "$f"; done |
+    rsync -a --files-from=- "$here/" "$host":forgejo-runner/ || return 1
   ssh "$host" 'cd forgejo-runner && ./deploy.sh restart-when-idle' </dev/null || return 1
   want=$(cksum <"$here/runner/git")
   got=$(ssh "$host" "docker exec forgejo-runner sh -c 'cksum < /usr/local/bin/git'" </dev/null) || return 1

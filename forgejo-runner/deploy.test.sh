@@ -12,7 +12,7 @@ made=''
 # back on any exit, Ctrl-C included, as left behind they are the files the deploy must never copy.
 cleanup() {
   for f in $made; do rm -f "$here/$f"; done
-  rmdir "$here/data" 2>/dev/null || true
+  [ -z "${made_data:-}" ] || rmdir "$here/data"
   [ ! -e "$t/CAVEATS.md" ] || mv "$t/CAVEATS.md" "$here/CAVEATS.md"
   rm -rf "$t"
 }
@@ -76,12 +76,13 @@ fail() {
 }
 
 # A checkout holding a box's files, as one used to set a box up might: none of them may leave it.
-mkdir -p "$here/data"
+[ -d "$here/data" ] || { mkdir "$here/data"; made_data=1; }
 for f in runner/config.yml .env data/x; do [ -e "$here/$f" ] || { : >"$here/$f"; made="$made $f"; }; done
 run a.test b.test
 for f in $made; do rm -f "$here/$f"; done
 made=''
-rmdir "$here/data" 2>/dev/null || true
+[ -z "${made_data:-}" ] || rmdir "$here/data"
+made_data=
 it="a box gets the tracked files only, never a config, .env or data from the checkout"
 if [ "$status" = 0 ] && grep -q "rsync -a --files-from=- .*/ a.test:forgejo-runner/" "$t/log" &&
   grep -qx deploy.sh "$t/log.files" && grep -qx runner/git "$t/log.files" &&

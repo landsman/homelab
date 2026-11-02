@@ -13,7 +13,8 @@ rc=0
 cat >"$t/git" <<'STUB'
 #!/usr/bin/env bash
 echo "$*" >>"$STUB_LOG"
-if [ -n "${STUB_HANG:-}" ]; then echo $$ >"$STUB_HANG"; exec sleep 30; fi
+# Hanging, it starts a helper first, the way a fetch starts git-remote-https, and records both.
+if [ -n "${STUB_HANG:-}" ]; then sleep 30 & echo $! >"$STUB_HANG.helper"; echo $$ >"$STUB_HANG"; exec sleep 30; fi
 if [ -n "${STUB_FAIL:-}" ]; then echo "fatal: $STUB_FAIL" >&2; exit 128; fi
 left=$(cat "$STUB_LOCKED" 2>/dev/null || echo 0)
 if [ "$left" -gt 0 ]; then
@@ -88,5 +89,7 @@ sleep 0.3
 status=0 calls=1 out=''
 it="a cancelled job's git is stopped with it, and holds no lock afterwards"
 if ! kill -0 "$(cat "$t/hang.pid")" 2>/dev/null; then pass; else fail; fi
+it="a helper git started is stopped too, not left running"
+if ! kill -0 "$(cat "$t/hang.pid.helper")" 2>/dev/null; then pass; else fail; fi
 
 exit "$rc"

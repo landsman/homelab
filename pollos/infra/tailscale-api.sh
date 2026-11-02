@@ -12,7 +12,8 @@ api=https://api.tailscale.com/api/v2
 # One result line from a status, a path and the response body on stdin.
 line() {
 	local message
-	message=$(jq -r 'if type == "object" then (.message // empty) else empty end' 2>/dev/null || true)
+	message=$(jq -r 'if type == "object" then (.message // .error_description // .error // empty) else empty end' \
+		2>/dev/null || true)
 	case "$1" in
 	2??) echo "$1 $2: ok" ;;
 	*) echo "$1 $2: ${message:-no message}" ;;
@@ -32,6 +33,13 @@ check() {
 	for path in acl vip-services vip-services/svc:deploy services services/svc:deploy; do
 		status=$(curl -sS -o "$body" -w '%{http_code}' -H "Authorization: Bearer $token" "$api/tailnet/-/$path")
 		line "$status" "$path" <"$body"
+	done
+	# Whether this client holds the services scope: a token asked for a scope the client lacks is refused, with a
+	# reason. The names are tried as Tailscale has spelled scopes (`policy_file`, `devices:core`).
+	for scope in services services:read services:write; do
+		status=$(curl -sS -o "$body" -w '%{http_code}' "$api/oauth/token" \
+			-d "client_id=$TS_OAUTH_CLIENT_ID" -d "client_secret=$TS_OAUTH_CLIENT_SECRET" -d "scope=$scope")
+		line "$status" "oauth/token scope=$scope" <"$body"
 	done
 	rm -f "$body"
 }

@@ -46,5 +46,5 @@ Ruled out on 2026-11-02:
 The real cause is not known. Finding it needs the API's own answer, and a `TF_LOG=DEBUG` apply would put the
 OAuth exchange into a public Actions log.
 
-**Instead:** services are defined by hand (above), and Terraform keeps only who may host them and who may
-reach them. To try the resource again, run a debug apply locally, never in Actions.
+Being investigated: the apply cannot create the services, so for now they exist because they were defined by hand,
+and the next apply will fail on the same 404 until the cause is found.

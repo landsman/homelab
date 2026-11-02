@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help rsync prepare cache config up restart down logs status register qemu
+.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -8,12 +8,16 @@ help: ## Show this help
 # one is silent.
 rsync: ## Copy this dir to a box (asks for it, or HOST=walter.pollos)
 	@host="$(HOST)"; \
-	[ -n "$$host" ] || { printf 'Host (jesse.pollos, walter.pollos): '; read -r host; }; \
+	[ -n "$$host" ] || { printf 'Host (jesse.pollos, walter.pollos, saul.pollos): '; read -r host; }; \
 	[ -n "$$host" ] || { echo "No host given."; exit 1; }; \
 	rsync -av --exclude data --exclude .env ./ "$$host":forgejo-runner/
 
 config: ## Copy the example config to runner/config.yml (run on the box, first time)
 	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
+	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
+
+config-deploy: ## Same, for a box that takes deploy jobs and nothing else (README: Deploy runner)
+	@[ -f runner/config.yml ] || sed -e 's/capacity: 2/capacity: 1/' -e '/"ubuntu-latest:/d' -e '/"self-hosted:host"/d' -e 's|^\( *\)- "<box>:\(.*\)"|\1- "deploy:\2"\n\1- "<box>:\2"|' runner/config.example.yml > runner/config.yml
 	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
 
 prepare: ## chown data + set DOCKER_GID in .env, keeping its other keys (run on the box)

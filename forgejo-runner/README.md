@@ -210,6 +210,18 @@ image CI on this instance.
 `runner/config.yml`, `.env` and `data/` are gitignored — the token and socket
 gid never land in the public `homelab` repo.
 
+## Deploy runner
+
+Forgejo has no setting that lets a started run finish first: a job released by
+`needs` goes behind everything already queued, so a burst of pull request runs
+can hold a deploy between its jobs. `saul` therefore carries only `deploy` and
+`saul`, with `capacity: 1`. A job matches a runner only if the runner has its
+label, so nothing on `ubuntu-latest` can take this slot.
+
+Setup is the same as above, with `make config-deploy` in step 2. Register it for
+the organisation whose deploys it runs, and bring it online before a workflow asks
+for `runs-on: deploy`: until then the job waits in the queue and does not fail.
+
 ## Operations
 
 `runner/config.yml` is read once at startup, so a change to it needs `make
@@ -227,7 +239,8 @@ ssh jesse.pollos 'cd forgejo-runner && make status'
 | Label           | Execution              | Where a step actually runs                    |
 |-----------------|------------------------|-----------------------------------------------|
 | `ubuntu-latest` | Docker via host socket | `docker.gitea.com/runner-images:ubuntu-22.04` |
-| `jesse`, `walter` | Docker via host socket | the same image, on that box only            |
+| `jesse`, `walter`, `saul` | Docker via host socket | the same image, on that box only  |
+| `deploy`        | Docker via host socket | the same image, on `saul` only                |
 | `self-hosted`   | `:host`                | *inside the runner container* — see below     |
 
 **Use `ubuntu-latest` for everything.** The label image is the Gitea project's

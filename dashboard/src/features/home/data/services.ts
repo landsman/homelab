@@ -284,7 +284,7 @@ export const HOME_CATEGORIES: HomeCategory[] = [
       },
       {
         name: 'Toggl',
-        url: 'https://toggl.com',
+        url: 'https://track.toggl.com/timer',
         icon: ServiceIcon.TOGGL,
         shortcut: Hotkey.SHIFT_T,
       },

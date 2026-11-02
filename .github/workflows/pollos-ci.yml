@@ -97,6 +97,8 @@ jobs:
       - uses: hashicorp/setup-terraform@v4
       - name: "Format check + validate"
         run: make ci
+      - name: "Script tests"
+        run: shellcheck tailscale-api.sh tailscale-api.test.sh && ./tailscale-api.test.sh
 
   worker:
     runs-on: ubuntu-latest

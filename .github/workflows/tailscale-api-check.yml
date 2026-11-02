@@ -1,0 +1,19 @@
+name: "tailscale api check"
+
+# Run by hand when a Tailscale resource fails to apply with nothing but a status: asks the API as the same OAuth
+# client the apply uses and prints each call's status and Tailscale's own message. No body on success, no token.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    environment: pollos
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Ask the API"
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.POLLOS_TAILSCALE_OAUTH_CLIENT_ID }}
+          TS_OAUTH_CLIENT_SECRET: ${{ secrets.POLLOS_TAILSCALE_OAUTH_CLIENT_SECRET }}
+        run: pollos/infra/tailscale-api.sh check

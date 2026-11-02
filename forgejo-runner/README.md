@@ -107,14 +107,17 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
 - **The instance is read, not written down.** The wrapper rewrites
   `<instance>/tools-mirror/`, the instance being the `url` under
   `server.connections.forgejo` in `runner/config.yml`, so the address lives in
-  one place. With none found it rewrites nothing and prints why into the job's
-  log, instead of quietly fetching through Cloudflare.
-- **Another job's lock.** Jobs that start together fetch the same action into
-  that one shared clone, and the second met `Unable to create '…/shallow.lock':
-  File exists` and failed in two seconds, before its checkout (2026-11-02, on
-  every pull request of one repository that hour). The wrapper tries such a call
-  again a second later, up to `GIT_LOCK_TRIES` (15) times, and passes any other
-  failure on at once. `make test` runs `runner/git.test.sh`.
+  one place. With none found it rewrites nothing and says why on stderr, which
+  the job's log shows only when that call fails.
+- **A lock left behind.** A cancelled job's fetch is killed with SIGKILL (the
+  runner kills the whole process group), so git cannot remove its lock, and
+  every later job using that action failed on `Unable to create
+  '…/shallow.lock': File exists` (walter, 2026-11-02: a lock from 11:59 still
+  there at 15:08, no git running). The runner fetches one action from one job
+  at a time, so only a killed git or git's own background gc can hold it. The
+  wrapper waits on a lock a second at a time and removes it once it is older
+  than `GIT_LOCK_STALE` (2) minutes; any other failure is passed on at once.
+  `make test` runs `runner/git.test.sh`.
 
 The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
 to the tailnet name either — which is why a mirror has to be public. If a runner

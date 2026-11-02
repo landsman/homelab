@@ -20,11 +20,15 @@
 # ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
 # sending --no-replace-objects first, fetches quietly go back through Cloudflare.
 #
-# The runner's calls also wait out another job's lock. Jobs that start together
-# fetch the same action into one shared clone under data/.cache/act, and the
-# second one met "Unable to create '…/shallow.lock': File exists" and failed in
-# two seconds, before its checkout. Such a call is tried again, a second apart,
-# up to GIT_LOCK_TRIES times; any other failure is passed on at once.
+# The runner's calls also get past a lock git left behind. A cancelled job's
+# fetch is killed with SIGKILL (the runner kills the whole process group), so
+# git cannot remove its lock, and every later job using that action failed on
+# "Unable to create '…/shallow.lock': File exists" until someone deleted it.
+# The runner fetches one action from one job at a time (a mutex per clone), so
+# only something else holds that lock: a killed fetch, or git's own background
+# gc. A lock is waited on, a second at a time, and removed once it is older than
+# GIT_LOCK_STALE minutes; an action fetch takes seconds. Any other failure is
+# passed on at once.
 set -u
 git=${GIT_REAL:-/usr/bin/git}
 # The organisation the actions are mirrored under: workflows name it in `uses:`, so it is the same on both sides.
@@ -48,25 +52,22 @@ if [ -n "${FORGEJO_INTERNAL_URL:-}" ]; then
   esac
 fi
 
-tries=${GIT_LOCK_TRIES:-15}
-err=$(mktemp)
+tries=${GIT_LOCK_TRIES:-200}
+err=$(mktemp) || exec "$git" "$@"
 trap 'rm -f "$err"' EXIT
-# git runs as a child here, no longer exec'd, so a cancelled job's TERM is handed on: a git left running would keep
-# holding the very lock the next job waits on. Its helpers (git-remote-https, ssh) go first, or they outlive it.
-# stdin is passed on explicitly, as a background job would get none; a retry gets what is left of it, which is all of
-# it for the runner's calls, since none reads stdin.
-pid=''
-trap '[ -n "$pid" ] && { pkill -TERM -P "$pid" 2>/dev/null; kill "$pid" 2>/dev/null; }; exit 143' TERM INT
 attempt=1
 while :; do
   status=0
-  "$git" "$@" 2>"$err" <&0 &
-  pid=$!
-  wait "$pid" || status=$?
-  pid=''
-  if [ "$status" -ne 0 ] && [ "$attempt" -lt "$tries" ] && grep -q "\.lock': File exists" "$err"; then
+  "$git" "$@" 2>"$err" || status=$?
+  lock=$(sed -n "s/.*Unable to create '\(.*\.lock\)': File exists.*/\1/p" "$err" | head -n 1)
+  if [ "$status" -ne 0 ] && [ -n "$lock" ] && [ "$attempt" -lt "$tries" ]; then
     attempt=$((attempt + 1))
-    sleep "${GIT_LOCK_WAIT:-1}"
+    if [ -n "$(find "$lock" -mmin +"${GIT_LOCK_STALE:-2}" 2>/dev/null)" ]; then
+      echo "runner git wrapper: removing $lock, left by a git that is gone" >&2
+      rm -f "$lock"
+    else
+      sleep "${GIT_LOCK_WAIT:-1}"
+    fi
     continue
   fi
   cat "$err" >&2

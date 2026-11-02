@@ -32,20 +32,15 @@ resource "tailscale_acl" "this" {
     # Tailscale Services (tailscale_service below): a name and a tailnet address of their own, served by a box. A box
     # tagged tag:pollos may host these without an admin approving each one. The docs do not say whether the allow-all
     # rule above reaches a svc: destination, so each service gets a grant of its own.
-    #   svc:deploy  a deploy console, on its own https://deploy.<tailnet>/ instead of a box's name and a port
     autoApprovers = {
-      services = {
-        "svc:deploy" = ["tag:pollos"]
-      }
+      services = { for name, service in local.tailnet_services : "svc:${name}" => service.hosts }
     }
 
-    grants = [
-      {
-        src = ["autogroup:member"]
-        dst = ["svc:deploy"]
-        ip  = ["443"]
-      },
-    ]
+    grants = [for name, service in local.tailnet_services : {
+      src = service.reach
+      dst = ["svc:${name}"]
+      ip  = [for port in service.ports : tostring(port)]
+    }]
 
     # Tailscale SSH — only takes effect on nodes started with
     # `tailscale up --ssh` (TS_SSH=1). Harmless otherwise.
@@ -65,15 +60,37 @@ resource "tailscale_acl" "this" {
   })
 }
 
-# A deploy console on a pollos box, on https://deploy.<tailnet>/ instead of the box's name and a port. The box
-# advertises it with `tailscale serve --service=svc:deploy`; this defines it, so the advertisement has something to
-# attach to, and the policy above approves the host.
-resource "tailscale_service" "deploy" {
-  name    = "svc:deploy"
-  comment = "Deploy console on a pollos box"
-  ports   = ["tcp:443"]
+# Tailscale Services, one entry each: the service, which boxes may host it without an admin approving them, and who
+# may reach it on which ports. The policy above and tailscale_service below are both built from this map, so a
+# service is added or removed here and nowhere else. A box still advertises it itself, with
+# `tailscale serve --service=svc:<name>`, from whatever deploys the thing behind it.
+locals {
+  tailnet_services = {
+    # A deploy console on a pollos box, on https://deploy.<tailnet>/ instead of the box's name and a port.
+    deploy = {
+      comment = "Deploy console on a pollos box"
+      ports   = [443]
+      hosts   = ["tag:pollos"]
+      # Admins only: the page shows what runs and starts deploys. Every member was the first draft, and a member
+      # can be someone else's device.
+      reach = ["autogroup:admin"]
+    }
+  }
+}
+
+resource "tailscale_service" "this" {
+  for_each = local.tailnet_services
+
+  name    = "svc:${each.key}"
+  comment = each.value.comment
+  ports   = [for port in each.value.ports : "tcp:${port}"]
 
   depends_on = [tailscale_acl.this]
+}
+
+moved {
+  from = tailscale_service.deploy
+  to   = tailscale_service.this["deploy"]
 }
 
 # Reusable, pre-authorized auth key scoped to tag:pollos. Feed it to

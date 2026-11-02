@@ -56,8 +56,8 @@ one always means re-entering it from 1Password.
 ### Tailscale OAuth client
 
 [Trust credentials](https://login.tailscale.com/admin/settings/trust-credentials)
-→ **Credential** → **OAuth**, scopes **Policy File → Write** and **Auth Keys →
-Write**, tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
+→ **Credential** → **OAuth**, scopes **Policy File → Write**, **Auth Keys →
+Write** and **Services → Write** (for `tailscale_service`), tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
 page with this one.)
 
 Chicken-and-egg on first setup: the client can't be tagged `tag:terraform` until

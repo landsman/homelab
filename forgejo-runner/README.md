@@ -104,6 +104,13 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
   auth. The wrapper only touches calls that start with `--no-replace-objects`,
   which is how the runner invokes git and a checkout does not.
 
+- **Another job's lock.** Jobs that start together fetch the same action into
+  that one shared clone, and the second met `Unable to create '…/shallow.lock':
+  File exists` and failed in two seconds, before its checkout (2026-11-02, on
+  every pull request of one repository that hour). The wrapper tries such a call
+  again a second later, up to `GIT_LOCK_TRIES` (15) times, and passes any other
+  failure on at once. `make test` runs `runner/git.test.sh`.
+
 The runner scopes its job token to `https://git.insuit.cz/`, so it is not sent
 to the tailnet name either — which is why a mirror has to be public. If a runner
 upgrade changes how it calls git, the fetches go back through Cloudflare without

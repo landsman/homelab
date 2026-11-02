@@ -18,10 +18,36 @@
 #
 # ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
 # sending --no-replace-objects first, fetches quietly go back through Cloudflare.
-if [ -n "$FORGEJO_INTERNAL_URL" ] && [ "$1" = --no-replace-objects ]; then
+#
+# The runner's calls also wait out another job's lock. Jobs that start together
+# fetch the same action into one shared clone under data/.cache/act, and the
+# second one met "Unable to create '…/shallow.lock': File exists" and failed in
+# two seconds, before its checkout. Such a call is tried again, a second apart,
+# up to GIT_LOCK_TRIES times; any other failure is passed on at once.
+set -u
+git=${GIT_REAL:-/usr/bin/git}
+
+[ "${1:-}" = --no-replace-objects ] || exec "$git" "$@"
+
+if [ -n "${FORGEJO_INTERNAL_URL:-}" ]; then
   case " $* " in
     *" remote get-url "*) ;;
     *) set -- -c "url.$FORGEJO_INTERNAL_URL/tools-mirror/.insteadOf=https://git.insuit.cz/tools-mirror/" "$@" ;;
   esac
 fi
-exec /usr/bin/git "$@"
+
+tries=${GIT_LOCK_TRIES:-15}
+err=$(mktemp)
+trap 'rm -f "$err"' EXIT
+attempt=1
+while :; do
+  status=0
+  "$git" "$@" 2>"$err" || status=$?
+  if [ "$status" -ne 0 ] && [ "$attempt" -lt "$tries" ] && grep -q "\.lock': File exists" "$err"; then
+    attempt=$((attempt + 1))
+    sleep "${GIT_LOCK_WAIT:-1}"
+    continue
+  fi
+  cat "$err" >&2
+  exit "$status"
+done

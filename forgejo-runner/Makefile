@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu
+.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu test
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -85,3 +85,7 @@ register: ## Print registration steps (config-based, Forgejo 16)
 
 qemu: ## Register multiarch binfmt once (for cross-arch image builds)
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+test: ## shellcheck the git wrapper and run its test (no box needed)
+	@shellcheck runner/git runner/git.test.sh
+	@./runner/git.test.sh

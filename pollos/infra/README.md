@@ -1,5 +1,7 @@
 # infra
 
+What Tailscale and its provider cannot do here is in [CAVEATS.md](CAVEATS.md).
+
 Terraform for everything around [pollos](../README.md) that isn't the site
 itself: Cloudflare DNS and Pages domains, the Worker's custom domain, per-node
 health tunnels, BetterStack monitors and status page, and the Tailscale tailnet
@@ -57,7 +59,7 @@ one always means re-entering it from 1Password.
 
 [Trust credentials](https://login.tailscale.com/admin/settings/trust-credentials)
 → **Credential** → **OAuth**, scopes **Policy File → Write**, **Auth Keys →
-Write** and **Services → Write** (for `tailscale_service`), tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
+Write**, tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
 page with this one.)
 
 Chicken-and-egg on first setup: the client can't be tagged `tag:terraform` until

@@ -60,10 +60,10 @@ resource "tailscale_acl" "this" {
   })
 }
 
-# Tailscale Services, one entry each: the service, which boxes may host it without an admin approving them, and who
-# may reach it on which ports. The policy above and tailscale_service below are both built from this map, so a
-# service is added or removed here and nowhere else. A box still advertises it itself, with
-# `tailscale serve --service=svc:<name>`, from whatever deploys the thing behind it.
+# Tailscale Services, one entry each: which boxes may host it without an admin approving them, and who may reach it
+# on which ports; the policy above is built from this map. The service itself is defined by hand in the admin
+# console, BEFORE any box advertises it (`tailscale serve --service=svc:<name>`): tailscale_service fails with a 404
+# here, and a box that advertised first is never taken as a host until tailscaled restarts. Both in CAVEATS.md.
 locals {
   tailnet_services = {
     # A deploy console on a pollos box, on https://deploy.<tailnet>/ instead of the box's name and a port.
@@ -83,21 +83,6 @@ locals {
       reach   = ["autogroup:admin"]
     }
   }
-}
-
-resource "tailscale_service" "this" {
-  for_each = local.tailnet_services
-
-  name    = "svc:${each.key}"
-  comment = each.value.comment
-  ports   = [for port in each.value.ports : "tcp:${port}"]
-
-  depends_on = [tailscale_acl.this]
-}
-
-moved {
-  from = tailscale_service.deploy
-  to   = tailscale_service.this["deploy"]
 }
 
 # Reusable, pre-authorized auth key scoped to tag:pollos. Feed it to

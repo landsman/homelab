@@ -6,7 +6,18 @@ set -euo pipefail
 
 script="$(cd "$(dirname "$0")" && pwd)/deploy.sh"
 t=$(mktemp -d)
-trap 'rm -rf "$t"' EXIT
+here=$(dirname "$script")
+made=''
+# Two checks put files into this very checkout: a box's config, .env and data, and a file moved away. They are taken
+# back on any exit, Ctrl-C included, as left behind they are the files the deploy must never copy.
+cleanup() {
+  for f in $made; do rm -f "$here/$f"; done
+  rmdir "$here/data" 2>/dev/null || true
+  [ ! -e "$t/CAVEATS.md" ] || mv "$t/CAVEATS.md" "$here/CAVEATS.md"
+  rm -rf "$t"
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM
 rc=0
 
 # ssh runs its command here, the way the box would: `deploy.sh restart-when-idle` with the stubbed docker, or the
@@ -58,11 +69,11 @@ fail() {
 }
 
 # A checkout holding a box's files, as one used to set a box up might: none of them may leave it.
-here=$(dirname "$script")
 mkdir -p "$here/data"
-for f in runner/config.yml .env data/x; do [ -e "$here/$f" ] || { : >"$here/$f"; made="${made:-} $f"; }; done
+for f in runner/config.yml .env data/x; do [ -e "$here/$f" ] || { : >"$here/$f"; made="$made $f"; }; done
 run a.test b.test
-for f in ${made:-}; do rm -f "$here/$f"; done
+for f in $made; do rm -f "$here/$f"; done
+made=''
 rmdir "$here/data" 2>/dev/null || true
 it="a box gets the tracked files only, never a config, .env or data from the checkout"
 if [ "$status" = 0 ] && grep -q "rsync -a --files-from=- .*/ a.test:forgejo-runner/" "$t/log" &&
@@ -72,9 +83,9 @@ it="each box's runner is recreated, so it mounts the new files"
 if [ "$(grep -c 'force-recreate runner' "$t/log")" = 2 ]; then pass; else fail; fi
 
 # A tracked file deleted in the checkout but not yet in git: listed, rsync would fail the box on it.
-mv "$(dirname "$script")/CAVEATS.md" "$t/CAVEATS.md"
+mv "$here/CAVEATS.md" "$t/CAVEATS.md"
 run a.test
-mv "$t/CAVEATS.md" "$(dirname "$script")/CAVEATS.md"
+mv "$t/CAVEATS.md" "$here/CAVEATS.md"
 it="a file deleted in the checkout is left out, not a failed box"
 if [ "$status" = 0 ] && ! grep -qx CAVEATS.md "$t/log.files" && grep -qx deploy.sh "$t/log.files"; then pass; else fail; fi
 
@@ -94,4 +105,6 @@ run
 it="no host named, nothing touched"
 if [ "$status" = 2 ] && [ ! -s "$t/log" ]; then pass; else fail; fi
 
+cleanup
+trap - EXIT
 exit "$rc"

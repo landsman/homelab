@@ -19,7 +19,9 @@ here=$(cd "$(dirname "$0")" && pwd)
 restart_when_idle() {
   waited=0
   while :; do
-    jobs=$(docker ps --filter name=WORKFLOW -q | wc -l | tr -d ' ')
+    # A docker that fails is not an idle box.
+    jobs=$(docker ps --filter name=WORKFLOW -q) || return 1
+    jobs=$(printf '%s' "$jobs" | grep -c . || true)
     [ "$jobs" = 0 ] && break
     if [ "$waited" -ge "${IDLE_TIMEOUT:-1800}" ]; then
       echo "still $jobs job(s) running after ${waited}s; nothing restarted" >&2

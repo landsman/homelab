@@ -41,6 +41,7 @@ STUB
 cat >"$t/bin/docker" <<'STUB'
 #!/usr/bin/env bash
 echo "docker $*" >>"$LOG"
+[ -z "${DOCKER_DOWN:-}" ] || exit 1
 if [ "$1" = ps ]; then
   left=$(cat "$JOBS")
   [ "$left" -gt 0 ] && { echo job; echo $((left - 1)) >"$JOBS"; }
@@ -60,7 +61,7 @@ run() {
   : >"$t/log.files"
   echo "${JOBS:-0}" >"$t/jobs"
   set +e
-  out=$(REAL_GIT="$real_git" BROKEN="${BROKEN:-}" PATH="$t/bin:$PATH" LOG="$t/log" JOBS="$t/jobs" SCRIPT="$script" WRAPPER="$(dirname "$script")/runner/git" \
+  out=$(REAL_GIT="$real_git" BROKEN="${BROKEN:-}" DOCKER_DOWN="${DOCKER_DOWN:-}" PATH="$t/bin:$PATH" LOG="$t/log" JOBS="$t/jobs" SCRIPT="$script" WRAPPER="$(dirname "$script")/runner/git" \
     STALE="${STALE:-}" IDLE_TIMEOUT="${TIMEOUT:-5}" "$script" "$@" 2>&1)
   status=$?
   set -e
@@ -100,6 +101,10 @@ if [ "$status" = 0 ] && ! grep -qx CAVEATS.md "$t/log.files" && grep -qx deploy.
 BROKEN=1 run a.test
 it="a box whose file list git cannot give fails before anything is copied or restarted"
 if [ "$status" != 0 ] && ! grep -q '^rsync\|force-recreate' "$t/log"; then pass; else fail; fi
+
+DOCKER_DOWN=1 run a.test
+it="a box whose docker does not answer is not taken for idle, and is not restarted"
+if [ "$status" != 0 ] && ! grep -q force-recreate "$t/log"; then pass; else fail; fi
 
 JOBS=2 run a.test
 it="a box running jobs is restarted only once they are done"

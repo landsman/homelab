@@ -24,6 +24,9 @@ echo fetched
 STUB
 chmod +x "$t/git"
 
+# The runner's config, as runner/config.example.yml shapes it: the instance it connects to.
+printf "server:\n  connections:\n    forgejo:\n      url: 'https://forge.test/'\n" >"$t/config.yml"
+
 # From here a failing command is a finding, not an error: the wrapper is meant to fail in some of these.
 set +e
 
@@ -31,7 +34,8 @@ run() {
   : >"$t/log"
   echo "${LOCKED:-0}" >"$t/locked"
   out=$(GIT_REAL="$t/git" GIT_LOCK_WAIT=0 GIT_LOCK_TRIES=5 STUB_LOG="$t/log" STUB_LOCKED="$t/locked" \
-    STUB_FAIL="${FAIL:-}" FORGEJO_INTERNAL_URL="${INTERNAL:-}" "$wrapper" "$@" 2>"$t/err")
+    STUB_FAIL="${FAIL:-}" FORGEJO_INTERNAL_URL="${INTERNAL:-}" RUNNER_CONFIG="${CONFIG:-$t/config.yml}" \
+    "$wrapper" "$@" 2>"$t/err")
   status=$?
   calls=$(wc -l <"$t/log" | tr -d ' ')
 }
@@ -58,8 +62,12 @@ LOCKED=2 run checkout main
 verdict "a job's own git call is neither retried nor rewritten" $?
 
 INTERNAL=https://nas.test run --no-replace-objects fetch origin
-grep -q "url.https://nas.test/tools-mirror/.insteadOf=https://git.insuit.cz/tools-mirror/" "$t/log"
-verdict "an action fetch goes to the tailnet mirror when it is set" $?
+grep -q "url.https://nas.test/tools-mirror/.insteadOf=https://forge.test/tools-mirror/" "$t/log"
+verdict "an action fetch goes to the tailnet mirror, for the instance the runner's config names" $?
+
+INTERNAL=https://nas.test CONFIG="$t/missing.yml" run --no-replace-objects fetch origin
+[ "$status" = 0 ] && ! grep -q insteadOf "$t/log" && grep -q "no forgejo url" "$t/err"
+verdict "with no instance in the config it rewrites nothing and says so" $?
 
 INTERNAL=https://nas.test run --no-replace-objects remote get-url origin
 grep -q insteadOf "$t/log"

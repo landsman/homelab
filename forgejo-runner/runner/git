@@ -1,8 +1,9 @@
 #!/bin/sh
 # Mounted over `git` in the runner container, in front of /usr/bin/git.
 #
-# Sends the runner's own action fetches for https://git.insuit.cz/tools-mirror/
-# to FORGEJO_INTERNAL_URL instead of out through Cloudflare. Those are the calls
+# Sends the runner's own action fetches for <instance>/tools-mirror/ to
+# FORGEJO_INTERNAL_URL instead of out through Cloudflare, the instance being the
+# one runner/config.yml connects to. Those are the calls
 # that start with --no-replace-objects. A `self-hosted:host` job runs its steps
 # in this container too, and its checkout is left alone.
 #
@@ -13,7 +14,7 @@
 # Not for `remote get-url`: the runner reuses its cached clone of an action only
 # while that equals the `uses:` URL, and get-url applies insteadOf.
 #
-# The runner scopes the job token to https://git.insuit.cz/, so it is not sent
+# The runner scopes the job token to the instance, so it is not sent
 # to the tailnet name either. An action fetched this way has to be public.
 #
 # ponytail: matches forgejo-runner 13's argument shape. If an upgrade stops
@@ -26,13 +27,24 @@
 # up to GIT_LOCK_TRIES times; any other failure is passed on at once.
 set -u
 git=${GIT_REAL:-/usr/bin/git}
+# The organisation the actions are mirrored under: workflows name it in `uses:`, so it is the same on both sides.
+MIRRORS=tools-mirror
 
 [ "${1:-}" = --no-replace-objects ] || exec "$git" "$@"
 
+# The instance is the one the runner connects to, read from its config rather than written here a second time.
+# Not found: nothing is rewritten, and the job's log says why its fetches went the long way.
 if [ -n "${FORGEJO_INTERNAL_URL:-}" ]; then
   case " $* " in
     *" remote get-url "*) ;;
-    *) set -- -c "url.$FORGEJO_INTERNAL_URL/tools-mirror/.insteadOf=https://git.insuit.cz/tools-mirror/" "$@" ;;
+    *)
+      forgejo=$(sed -n "s/^ *url: *['\"]\{0,1\}\(https\{0,1\}:[^'\" ]*\).*/\1/p" "${RUNNER_CONFIG:-/data/config.yml}" 2>/dev/null | head -n 1)
+      if [ -n "$forgejo" ]; then
+        set -- -c "url.${FORGEJO_INTERNAL_URL%/}/$MIRRORS/.insteadOf=${forgejo%/}/$MIRRORS/" "$@"
+      else
+        echo "runner git wrapper: no forgejo url in ${RUNNER_CONFIG:-/data/config.yml}, fetching $MIRRORS without the tailnet" >&2
+      fi
+      ;;
   esac
 fi
 

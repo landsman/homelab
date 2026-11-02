@@ -104,6 +104,11 @@ Why a wrapper and not `GIT_CONFIG_*` in `compose.yml`, which would need no file:
   auth. The wrapper only touches calls that start with `--no-replace-objects`,
   which is how the runner invokes git and a checkout does not.
 
+- **The instance is read, not written down.** The wrapper rewrites
+  `<instance>/tools-mirror/`, the instance being the `url` under
+  `server.connections.forgejo` in `runner/config.yml`, so the address lives in
+  one place. With none found it rewrites nothing and prints why into the job's
+  log, instead of quietly fetching through Cloudflare.
 - **Another job's lock.** Jobs that start together fetch the same action into
   that one shared clone, and the second met `Unable to create '…/shallow.lock':
   File exists` and failed in two seconds, before its checkout (2026-11-02, on

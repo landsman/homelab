@@ -29,6 +29,25 @@ resource "tailscale_acl" "this" {
       },
     ]
 
+    # Tailscale Services: a name and a tailnet address of their own, served by a box. A box tagged tag:pollos may host
+    # these without an admin approving each one; the service itself is defined once in the admin console
+    # (Services). The docs do not say whether the allow-all rule above reaches a svc: destination, so each service
+    # gets a grant of its own.
+    #   svc:deploy  a deploy console, on its own https://deploy.<tailnet>/ instead of a box's name and a port
+    autoApprovers = {
+      services = {
+        "svc:deploy" = ["tag:pollos"]
+      }
+    }
+
+    grants = [
+      {
+        src = ["autogroup:member"]
+        dst = ["svc:deploy"]
+        ip  = ["443"]
+      },
+    ]
+
     # Tailscale SSH — only takes effect on nodes started with
     # `tailscale up --ssh` (TS_SSH=1). Harmless otherwise.
     #

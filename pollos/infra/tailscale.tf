@@ -100,6 +100,16 @@ moved {
   to   = tailscale_service.this["deploy"]
 }
 
+# These two were defined by hand before Terraform could reach the Services API, and the API answers a create of an
+# existing service with "addrs must contain 2 elements (400)". So they are taken over instead. Only these two: an
+# import of a service that does not exist fails, so a new one in the map is created as usual. Once both are in the
+# state the import is a no-op; the block can go then.
+import {
+  for_each = toset(["deploy", "swarmpit"])
+  to       = tailscale_service.this[each.key]
+  id       = "svc:${each.key}"
+}
+
 # Reusable, pre-authorized auth key scoped to tag:pollos. Feed it to
 # setup/005-tailscale.sh via TS_AUTHKEY; nodes come up already tagged and
 # approved, no manual click in the admin console.

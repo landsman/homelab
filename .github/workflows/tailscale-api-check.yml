@@ -4,9 +4,17 @@ name: "tailscale api check"
 # client the apply uses and prints each call's status and Tailscale's own message. No body on success, no token.
 on:
   workflow_dispatch:
+  # Also on a pull request that changes the check, so a change to it is seen working before it reaches main,
+  # where alone it can be run by hand.
+  pull_request:
+    paths:
+      - 'pollos/infra/tailscale-api.sh'
+      - '.github/workflows/tailscale-api-check.yml'
 
 jobs:
   check:
+    # Secrets are not given to a fork's pull request; skip rather than fail there.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment: pollos
     timeout-minutes: 5

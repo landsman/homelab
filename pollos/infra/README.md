@@ -1,5 +1,7 @@
 # infra
 
+What Tailscale and its provider cannot do here is in [CAVEATS.md](CAVEATS.md).
+
 Terraform for everything around [pollos](../README.md) that isn't the site
 itself: Cloudflare DNS and Pages domains, the Worker's custom domain, per-node
 health tunnels, BetterStack monitors and status page, and the Tailscale tailnet
@@ -57,7 +59,7 @@ one always means re-entering it from 1Password.
 
 [Trust credentials](https://login.tailscale.com/admin/settings/trust-credentials)
 → **Credential** → **OAuth**, scopes **Policy File → Write**, **Auth Keys →
-Write** and **Services → Write** (for `tailscale_service`), tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
+Write** and **Services → Read and Write** (for `tailscale_service`; Read is not implied, and without it every Services call is a 404), tagged `tag:terraform`. (Tailscale replaced the old *OAuth clients*
 page with this one.)
 
 Chicken-and-egg on first setup: the client can't be tagged `tag:terraform` until
@@ -173,6 +175,26 @@ ssh <node>.pollos 'sudo sh -s update' < pollos/setup/003-monitoring.sh
 
 `sudo sh monitoring.sh uninstall` removes the unit and its token and
 nothing else.
+
+## Adding a tailnet service
+
+A Tailscale Service gives a thing on a box a name of its own, `https://<name>.<tailnet>/`, and its own port 443,
+reachable only by whom the policy says. One entry in `local.tailnet_services` (`tailscale.tf`) holds all of it:
+the service, the boxes allowed to host it, and who may reach it on which ports.
+
+The order matters. A box that advertises a service before it exists is never served, see
+[CAVEATS.md](CAVEATS.md#a-service-a-box-advertised-before-it-existed-is-never-served).
+
+1. Add the entry and merge. The apply creates the service and writes the policy that approves the hosts and the
+   grant.
+2. Then deploy whatever advertises it. On the box that is
+   `sudo tailscale serve --service=svc:<name> --https=443 http://127.0.0.1:<port>`, from that thing's own deploy
+   script.
+3. Check it on the box: `tailscale status --json` lists the service under `Self.CapMap."service-host"`. Then check
+   the name from a device of someone the grant covers.
+
+The OAuth client needs Services **Read** as well as Write, see
+[CAVEATS.md](CAVEATS.md#every-services-call-is-not-found-404-the-oauth-client-lacks-services-read).
 
 ## Adding a node
 

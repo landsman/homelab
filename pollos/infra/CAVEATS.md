@@ -21,9 +21,11 @@ Why: the box's prefs did not change after the first advertisement, so the box ne
 plane again. Defining the service afterwards does not reach the box.
 
 **Instead:**
-1. Define the service in the admin console (**Services → Add service**, its ports) before anything
-   advertises it.
-2. If a box advertised first, restart its daemon:
+1. Let the apply create the service (`tailscale_service` in `tailscale.tf`) before anything advertises it, then
+   deploy whatever advertises it.
+2. If a box advertised first, take the advertisement off and put it back, which sends the box's prefs again:
+   `tailscale serve --service=svc:<name> --https=443 off`, then the same `tailscale serve --service=…` as
+   before. Or restart its daemon:
 
    ```sh
    sudo systemctl restart tailscaled
@@ -32,19 +34,19 @@ plane again. Defining the service afterwards does not reach the box.
    Within seconds `service-host` lists the service, the console shows the host, and the name answers.
    Approving the host is the policy's job (`autoApprovers.services` in `tailscale.tf`).
 
-## `tailscale_service` fails with `not found (404)`
+## `tailscale_service` fails with `not found (404)`: the OAuth client lacks Services Read
 
-The provider (0.29.2) creates a service with `PUT /api/v2/tailnet/-/vip-services/<name>` and gets a 404. It
-does the same for a service that already exists, while the policy in the same apply goes through.
+Every Services call answers `not found (404)` without the **Read** half of the Services scope: listing, reading
+and the provider's create alike. The policy goes through in the same apply, so it looks like a wrong path or a
+missing service. In the trust credential's editor, Read showed as ticked (greyed out) next to Write, but it
+had not been stored: the token endpoint refused `scope=services:read` ("OAuth client cannot grant scopes"), while
+`policy_file:read` was granted. Ticking Read explicitly and saving fixed it (2026-11-02).
 
-Ruled out on 2026-11-02:
-- **A missing scope:** *Services → Write* on the OAuth client did not change the 404.
-- **A wrong tailnet:** the provider uses `-`.
-- **An old API path:** the newest Go client calls the same path.
-- **The plan:** the Free plan states no limit on Services, and the admin console defines them.
+**Check it** with the **tailscale api check** workflow (`pollos/infra/tailscale-api.sh check`). It prints each
+call's status and Tailscale's message, and which scopes the client can grant, and never prints a token.
 
-The real cause is not known. Finding it needs the API's own answer, and a `TF_LOG=DEBUG` apply would put the
-OAuth exchange into a public Actions log.
+## A service that already exists cannot be created again
 
-Being investigated: the apply cannot create the services, so for now they exist because they were defined by hand,
-and the next apply will fail on the same 404 until the cause is found.
+`addrs must contain 2 elements (400)`: the provider's create is a `PUT`, and on an existing service the API reads
+it as an update, which has to carry the service's addresses. A service defined by hand is taken over with an
+`import` block instead, or deleted first and created by the apply.

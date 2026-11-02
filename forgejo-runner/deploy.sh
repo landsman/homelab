@@ -38,8 +38,10 @@ deploy() {
   # The files git tracks here, and nothing else: runner/config.yml (its token), .env, data/ and cache/ are the box's
   # own and are never in that list, whatever this checkout happens to hold. One deleted in this checkout but not yet
   # in git is left out, or rsync would fail the box on it. Nothing is deleted on the box (no --delete): a file taken
-  # out of git stays there until someone removes it.
-  git -C "$here" ls-files . | while IFS= read -r f; do [ -e "$here/$f" ] && printf '%s\n' "$f"; done |
+  # out of git stays there until someone removes it. Listed first, so a git that fails stops the box here rather than
+  # handing rsync an empty list it would copy without complaint.
+  files=$(git -C "$here" ls-files .) || return 1
+  printf '%s\n' "$files" | while IFS= read -r f; do [ -e "$here/$f" ] && printf '%s\n' "$f"; done |
     rsync -a --files-from=- "$here/" "$host":forgejo-runner/ || return 1
   ssh "$host" 'cd forgejo-runner && ./deploy.sh restart-when-idle' </dev/null || return 1
   want=$(cksum <"$here/runner/git")

@@ -22,6 +22,7 @@ rc=0
 
 # ssh runs its command here, the way the box would: `deploy.sh restart-when-idle` with the stubbed docker, or the
 # wrapper's checksum, which is this checkout's unless STALE names the host.
+real_git=$(command -v git)
 mkdir "$t/bin"
 cat >"$t/bin/rsync" <<'STUB'
 #!/usr/bin/env bash
@@ -46,6 +47,12 @@ if [ "$1" = ps ]; then
 fi
 exit 0
 STUB
+# git as it is, unless BROKEN names it failing the way an unsafe checkout does.
+cat >"$t/bin/git" <<'STUB'
+#!/usr/bin/env bash
+[ -z "${BROKEN:-}" ] || { echo "fatal: detected dubious ownership" >&2; exit 128; }
+exec "$REAL_GIT" "$@"
+STUB
 chmod +x "$t/bin/"*
 
 run() {
@@ -53,7 +60,7 @@ run() {
   : >"$t/log.files"
   echo "${JOBS:-0}" >"$t/jobs"
   set +e
-  out=$(PATH="$t/bin:$PATH" LOG="$t/log" JOBS="$t/jobs" SCRIPT="$script" WRAPPER="$(dirname "$script")/runner/git" \
+  out=$(REAL_GIT="$real_git" BROKEN="${BROKEN:-}" PATH="$t/bin:$PATH" LOG="$t/log" JOBS="$t/jobs" SCRIPT="$script" WRAPPER="$(dirname "$script")/runner/git" \
     STALE="${STALE:-}" IDLE_TIMEOUT="${TIMEOUT:-5}" "$script" "$@" 2>&1)
   status=$?
   set -e
@@ -88,6 +95,10 @@ run a.test
 mv "$t/CAVEATS.md" "$here/CAVEATS.md"
 it="a file deleted in the checkout is left out, not a failed box"
 if [ "$status" = 0 ] && ! grep -qx CAVEATS.md "$t/log.files" && grep -qx deploy.sh "$t/log.files"; then pass; else fail; fi
+
+BROKEN=1 run a.test
+it="a box whose file list git cannot give fails before anything is copied or restarted"
+if [ "$status" != 0 ] && ! grep -q '^rsync\|force-recreate' "$t/log"; then pass; else fail; fi
 
 JOBS=2 run a.test
 it="a box running jobs is restarted only once they are done"

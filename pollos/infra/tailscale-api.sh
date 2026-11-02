@@ -36,16 +36,18 @@ check() {
 	done
 	# Whether this client holds the services scope: a token asked for a scope the client lacks is refused, with a
 	# reason. The names are tried as Tailscale has spelled scopes (`policy_file`, `devices:core`).
-	for scope in services services:read services:write; do
+	for scope in services services:read services:write policy_file policy_file:read; do
 		status=$(curl -sS -o "$body" -w '%{http_code}' "$api/oauth/token" \
 			-d "client_id=$TS_OAUTH_CLIENT_ID" -d "client_secret=$TS_OAUTH_CLIENT_SECRET" -d "scope=$scope")
 		line "$status" "oauth/token scope=$scope" <"$body"
 		# A token of only that scope, against the services list: does it reach the API at all?
-		local scoped
+		local scoped target
 		scoped=$(jq -r '.access_token // empty' <"$body")
 		[ -n "$scoped" ] || continue
-		status=$(curl -sS -o "$body" -w '%{http_code}' -H "Authorization: Bearer $scoped" "$api/tailnet/-/vip-services")
-		line "$status" "vip-services with only $scope" <"$body"
+		target=vip-services
+		case "$scope" in policy_file*) target=acl ;; esac
+		status=$(curl -sS -o "$body" -w '%{http_code}' -H "Authorization: Bearer $scoped" "$api/tailnet/-/$target")
+		line "$status" "$target with only $scope" <"$body"
 	done
 	rm -f "$body"
 }

@@ -31,14 +31,22 @@ expires, at most an hour, and only from the tailnet.
 - `oidc.pem` lost: every token stops validating; every device logs in again.
 
 Keep a copy of `secrets/` in 1Password. The nightly `make backup` holds the database and
-`users.yml` but not `secrets/`, on purpose: the storage key beside the database it encrypts
+`users/` but not `secrets/`, on purpose: the storage key beside the database it encrypts
 would undo the encryption.
 
-## users.yml is edited in place
+## users.yml is mounted as a folder
 
-The container mounts that one file, and a mount of a file keeps its inode: an editor that
-saves by writing a new file and renaming it over the old one leaves Authelia reading the
-old one. `cli/user.ts` writes in place; by hand, use `cat >` or restart Authelia after saving.
+The container mounts `users/`, not `users/users.yml`. Authelia's watcher watches the
+file's folder and filters by name; with the file mounted alone, that folder is the
+container's own `/config`, which never hears of a write from the Pi, so a change waited
+for a restart. With the folder mounted, an edit in place and a save by rename both reload.
+
+Moving from the single-file mount, on the Pi, once:
+
+```bash
+cd ~/dev/apps/authelia && [ -e users/users.yml ] || { mkdir -m 700 -p users && mv users.yml users/; }
+make up
+```
 
 ## An env variable named AUTHELIA_… is configuration
 

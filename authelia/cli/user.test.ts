@@ -1,28 +1,19 @@
 // What user.ts would get wrong silently: a refused integration or a reworded answer leaving
 // an empty forgejo_aud behind, the audience written under the wrong user, a second subject
 // pinned for a user who has one (their integration rule then names a subject their tokens
-// never carry), a user added twice, and users.yml replaced rather than rewritten, which the
-// container's mount of that one file would never see.
+// never carry), and a user added twice.
 //
 // No Authelia, Forgejo or docker: `docker` is a stub on PATH that records its calls and
 // answers with what the real containers print.
 import { afterAll, beforeEach, expect, test } from 'bun:test'
-import {
-  chmodSync,
-  linkSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const script = join(import.meta.dir, 'user.ts')
 const dir = mkdtempSync(join(tmpdir(), 'authelia-user-'))
 afterAll(() => rmSync(dir, { recursive: true }))
-const users = join(dir, 'users.yml')
+const users = join(dir, 'users', 'users.yml') // its folder made by the first login
 const calls = join(dir, 'calls')
 
 mkdirSync(join(dir, 'bin'))
@@ -118,13 +109,11 @@ test('login leaves a user who is already there alone', async () => {
 test('login refuses an empty password', async () =>
   expect((await user(['login', 'carol', 'c@example.org'], { stdin: '\n' })).code).not.toBe(0))
 
-test('integration writes the audience under that user only, in place', async () => {
-  linkSync(users, join(dir, 'mounted.yml')) // what the container sees: the same inode
+test('integration writes the audience under that user only', async () => {
   const r = await user(['integration', 'bob'], { ids: idsFor('bob', '2222'), fj: created })
   expect(r.code).toBe(0)
   expect(parsed().bob.extra.forgejo_aud).toBe('u:7:1111')
   expect(parsed().alice.extra.forgejo_aud).toBe('')
-  expect(readFileSync(join(dir, 'mounted.yml'), 'utf8')).toContain('u:7:1111')
 })
 
 test('integration ties the rule to the subject already pinned, and pins no second one', async () => {

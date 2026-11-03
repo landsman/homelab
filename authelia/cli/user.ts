@@ -20,9 +20,10 @@
 // Both steps are idempotent: a user already in users.yml, or one with a forgejo_aud, is
 // left alone.
 import { $ } from 'bun'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
 
-const usersFile = process.env.USERS_FILE ?? 'users.yml'
+const usersFile = process.env.USERS_FILE ?? 'users/users.yml'
 const scopes = (process.env.SCOPES ?? 'read:user,write:repository,write:issue').split(',')
 
 const commands: Record<string, (args: string[]) => Promise<void>> = {
@@ -186,9 +187,9 @@ function readUsers(): Record<string, User> {
   return parsed?.users ?? {}
 }
 
-/** Truncated and rewritten, never replaced: the container mounts this one file, and a
- *  mount of a file keeps the inode it started with, so a rename would never reach
- *  Authelia. 0600 when created: it holds password hashes. */
+/** Authelia watches the folder and reloads on its own. 0700 and 0600 when created: the
+ *  file holds password hashes. */
 function writeUsers(users: Record<string, User>) {
+  mkdirSync(dirname(usersFile), { recursive: true, mode: 0o700 })
   writeFileSync(usersFile, Bun.YAML.stringify({ users }, null, 2), { mode: 0o600 })
 }

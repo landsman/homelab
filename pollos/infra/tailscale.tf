@@ -25,19 +25,14 @@ resource "tailscale_acl" "this" {
       "tag:pollos"      = ["autogroup:admin", "tag:terraform"]
       "tag:forgejo-mcp" = ["autogroup:admin", "tag:terraform"]
       "tag:authelia"    = ["autogroup:admin", "tag:terraform"]
-    }
-
-    # Looked up, not written down: this repository is public.
-    # Both families: a client that resolves the Pi to IPv6 would be dropped.
-    hosts = {
-      nas    = one([for a in data.tailscale_device.nas.addresses : a if !strcontains(a, ":")])
-      nas-v6 = one([for a in data.tailscale_device.nas.addresses : a if strcontains(a, ":")])
+      # The NAS, tagged only because a Tailscale Service is hosted by a tagged device and never by a user's.
+      "tag:nas" = ["autogroup:admin"]
     }
 
     acls = [
       {
-        # Every device I own — Macs, phones, Apple TVs, the Pi. `*:*` also
-        # covers autogroup:internet, so the exit nodes keep working.
+        # Every device I own — Macs, phones, Apple TVs. `*:*` also covers
+        # autogroup:internet, so the exit nodes keep working.
         action = "accept"
         src    = ["autogroup:member"]
         dst    = ["*:*"]
@@ -45,7 +40,14 @@ resource "tailscale_acl" "this" {
       {
         action = "accept"
         src    = ["tag:pollos"]
-        dst    = ["tag:pollos:*", "nas:443", "nas-v6:443"]
+        dst    = ["tag:pollos:*", "tag:nas:443"]
+      },
+      {
+        # The Pi, tagged and so no member any more, keeps what it had: Forgejo on it
+        # checks forgejo-mcp's issuer when an integration is created, among others.
+        action = "accept"
+        src    = ["tag:nas"]
+        dst    = ["*:*"]
       },
       {
         # forgejo-mcp fetches Authelia's discovery document and key set. Nothing
@@ -185,10 +187,6 @@ resource "tailscale_tailnet_key" "authelia" {
 output "authelia_authkey" {
   value     = tailscale_tailnet_key.authelia.key
   sensitive = true
-}
-
-data "tailscale_device" "nas" {
-  hostname = "nas"
 }
 
 # Read with: terraform output -raw tailscale_authkey

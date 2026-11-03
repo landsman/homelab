@@ -101,4 +101,4 @@ code: ## print the last one-time code Authelia sent
 test: ## format-check, lint, type-check and test cli/
 	@$(MAKE) -s -C .. qa
 
-include ../pi.mk
+-include ../pi.mk

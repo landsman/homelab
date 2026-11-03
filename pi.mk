@@ -1,4 +1,5 @@
-# `include ../pi.mk` in an app's Makefile: the targets that reach the Pi from the laptop.
+# `-include ../pi.mk` in an app's Makefile: the targets that reach the Pi from the laptop.
+# Optional, since the Pi gets the app's folder without this file next to it.
 # Last in the file, since make help lists an included file after the one including it.
 
 ##@ From the laptop

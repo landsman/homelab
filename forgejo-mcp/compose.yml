@@ -18,6 +18,13 @@ services:
       # Userspace networking reaches the tailnet only through a proxy: this is
       # how forgejo-mcp fetches Authelia's discovery document and key set.
       TS_OUTBOUND_HTTP_PROXY_LISTEN: 127.0.0.1:1055
+      # /healthz answers 200 once the node has its tailnet address.
+      TS_ENABLE_HEALTH_CHECK: 'true'
+      TS_LOCAL_ADDR_PORT: 127.0.0.1:9002
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:9002/healthz]
+      interval: 5s
+      start_period: 60s
     volumes:
       - tailscale:/var/lib/tailscale
       - ./serve.json:/config/serve.json:ro
@@ -65,8 +72,11 @@ services:
     # The sidecar's network namespace: its loopback is the only way in, and
     # no port is published on the Pi, where the pollos boxes share the LAN.
     network_mode: service:tailscale
+    # Started before the node is up, it fails to fetch Authelia's discovery
+    # document and restarts until it happens not to.
     depends_on:
-      - tailscale
+      tailscale:
+        condition: service_healthy
 
 volumes:
   tailscale:

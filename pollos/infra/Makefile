@@ -7,25 +7,12 @@ help: ## show this help
 		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
 ##@ Setup, once per laptop
-.PHONY: install backend init-remote
+.PHONY: install
 install: ## install the pinned terraform, from mise.toml at the repo root
 	mise install terraform
 
-# Backend settings can't come from variables — Terraform resolves the backend before variables
-# exist — so they go in backend.hcl, which is gitignored because it holds the R2 secret and the
-# account id. CI passes the same values inline instead.
-backend: ## make backend.hcl from the example, to fill from 1Password (README)
-	@test -e backend.hcl || (umask 077 && cp backend.hcl.example backend.hcl)
-	@grep -q '<' backend.hcl && echo "fill in backend.hcl: README, Reading state" || echo "backend.hcl is filled in"
-
-# -reconfigure because `validate` inits with -backend=false; without it
-# Terraform refuses to switch back with "Backend configuration changed".
-init-remote: ## init against the R2 state; the output targets run it themselves
-	@test -e backend.hcl || (echo "no backend.hcl; make backend first" >&2 && exit 1)
-	@terraform init -reconfigure -backend-config=backend.hcl >&2
-
 ##@ Checks
-.PHONY: fmt fmt-check validate ci
+.PHONY: fmt fmt-check validate test ci
 fmt: ## format every .tf file in place
 	terraform fmt
 
@@ -36,23 +23,31 @@ validate: ## validate without backend creds or remote state
 	terraform init -backend=false
 	terraform validate
 
+# CI has no mise and passes SHELLCHECK=shellcheck, the runner's own.
+SHELLCHECK ?= mise exec shellcheck -- shellcheck
+test: ## shellcheck state.sh and run its test, no state or credentials needed
+	$(SHELLCHECK) state.sh state.test.sh
+	./state.test.sh
+
 ci: fmt-check validate ## what CI runs on a PR
 
 ##@ Outputs, from the real state
+# Each asks for the R2 credentials it reads the state with, from 1Password, typed without echo and
+# kept nowhere (state.sh). Already in the environment, for instance under `op run`, they are not asked.
 .PHONY: authkey forgejo-mcp-authkey authelia-authkey tunnel-tokens
 # Never copy a key out of the terminal by eye: it is printed without a trailing newline, so zsh
 # marks the end of the line with an inverse `%` that gets selected along with the key and makes
 # it invalid. Capture it instead:
 #   TS_AUTHKEY=$(make -s authkey)     # command substitution, always exact
 #   make -s authkey | pbcopy          # straight to the clipboard
-authkey: init-remote ## print the pollos boxes' Tailscale enrollment key, for setup/005-tailscale.sh
-	@terraform output -raw tailscale_authkey
+authkey: ## print the pollos boxes' Tailscale enrollment key, for setup/005-tailscale.sh
+	@./state.sh output -raw tailscale_authkey
 
-forgejo-mcp-authkey: init-remote ## print the forgejo-mcp sidecar's one login on the Pi (../../forgejo-mcp)
-	@terraform output -raw forgejo_mcp_authkey
+forgejo-mcp-authkey: ## print the forgejo-mcp sidecar's one login on the Pi (../../forgejo-mcp)
+	@./state.sh output -raw forgejo_mcp_authkey
 
-authelia-authkey: init-remote ## print the Authelia sidecar's one login on the Pi (../../authelia)
-	@terraform output -raw authelia_authkey
+authelia-authkey: ## print the Authelia sidecar's one login on the Pi (../../authelia)
+	@./state.sh output -raw authelia_authkey
 
-tunnel-tokens: init-remote ## print the cloudflared tokens per node, for setup/003-monitoring.sh
-	@terraform output -json health_tunnel_tokens
+tunnel-tokens: ## print the cloudflared tokens per node, for setup/003-monitoring.sh
+	@./state.sh output -json health_tunnel_tokens

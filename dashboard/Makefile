@@ -1,57 +1,63 @@
+.DEFAULT_GOAL := help
+
 IMAGE          := homelab-dashboard
 REGISTRY_IMAGE ?= ghcr.io/landsman/homelab-dashboard
 TAG            ?= latest
 PLATFORM       := linux/arm64
 GIT_SHA        ?= $(shell git rev-parse --short HEAD)
 
-### DEV
-.PHONY: help dev install lock-regen build preview typecheck lint lint-fix shellcheck format format-check test browser e2e-deps e2e e2e-head bdd qa
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-help: ## Show this help
-	@awk 'BEGIN {FS = ":.*## "} /^### /{printf "\n\033[1m%s\033[0m\n", substr($$0, 5)} /^[a-zA-Z0-9_-]+:.*## /{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-install: ## Install deps
+##@ Development
+.PHONY: install lock-regen dev dev-docker build
+install: ## install deps
 	npm ci
 
-lock-regen: ## Regenerate package-lock.json with all-platform optional native deps (uses linux docker)
+lock-regen: ## regenerate package-lock.json with all-platform optional native deps (uses linux docker)
 	rm -f package-lock.json
 	docker run --rm -v "$$PWD":/app -w /app node:20-alpine \
 		sh -c "rm -rf node_modules && npm install --include=optional --no-audit"
 	@echo "✓ lockfile regenerated; run 'make install' to refresh local node_modules"
 
-dev: ## Start local dev server (hot reload)
+dev: ## start local dev server (hot reload)
 	npm run dev
 
-dev-docker: ## Build + start Docker container (IP endpoints) then launch dev server
+dev-docker: ## build + start Docker container (IP endpoints) then launch dev server
 	docker compose up -d --build
 	npm run dev
 
-build: ## Build static assets into dist/
+build: ## build static assets into dist/
 	npm run build
 
-typecheck: ## Run TypeScript type checker
+##@ Checks
+.PHONY: typecheck lint lint-fix shellcheck test browser e2e-deps e2e e2e-head bdd format format-check qa
+typecheck: ## run TypeScript type checker
 	npm run typecheck
 
-lint: ## Run oxlint (includes filename-case check)
+lint: ## run oxlint (includes filename-case check)
 	npm run lint
 
-lint-fix: ## Auto-fix oxlint issues
+lint-fix: ## auto-fix oxlint issues
 	npm run lint:fix
 
-shellcheck: ## Run ShellCheck on docker/ and tests/deploy/ shell scripts
+shellcheck: ## run ShellCheck on docker/ and tests/deploy/ shell scripts
 	shellcheck docker/*.sh tests/deploy/*.sh
 
-test: ## Run unit tests
+test: ## run unit tests
 	npm test
 	sh tests/deploy/run.sh
 
-browser: ## Install the Playwright browser if it is missing
+browser: ## install the Playwright browser if it is missing
 	npx playwright install chromium
 
-e2e-deps: ## The browser plus its system libraries — what a fresh CI runner needs
+e2e-deps: ## the browser plus its system libraries — what a fresh CI runner needs
 	npx playwright install --with-deps chromium
 
-e2e: browser ## Run Playwright end-to-end tests (starts the dev server itself)
+e2e: browser ## run Playwright end-to-end tests (starts the dev server itself)
 	npm run test:e2e
 
 # One worker, one window, a pause between actions — otherwise it is six Chromes
@@ -59,38 +65,39 @@ e2e: browser ## Run Playwright end-to-end tests (starts the dev server itself)
 # naming the running test (see tests/e2e/fixture.ts).
 SLOW_MO ?= 900
 
-e2e-head: browser ## Same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
+e2e-head: browser ## same in one visible browser at watchable speed (SLOW_MO=ms, ARGS="--debug")
 	SLOW_MO=$(SLOW_MO) npm run test:e2e -- --headed --workers=1 $(ARGS)
 
-bdd: browser ## Run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
+bdd: browser ## run the Cucumber feature files (HEADED=1 SLOW_MO=500 to watch them)
 	npm run test:bdd
 
-format: ## Format all files with oxfmt (config in the repo root .oxfmtrc.json)
+format: ## format all files with oxfmt (config in the repo root .oxfmtrc.json)
 	npm run format:fix
 
-format-check: ## Check formatting without writing
+format-check: ## check formatting without writing
 	npm run format
 
-qa: shellcheck ## Run all quality checks (typecheck, format, lint, shellcheck, test)
+qa: shellcheck ## run all quality checks (typecheck, format, lint, shellcheck, test)
 	npm run typecheck
 	npm run format
 	npm run lint
 	npm test
 	sh tests/deploy/run.sh
 
-preview: build ## Build then preview the production build locally
+##@ Preview and cleanup
+.PHONY: preview clean
+preview: build ## build then preview the production build locally
 	npm run preview -- --port 4173
 
-clean: ## Remove dist/ and node_modules/
+clean: ## remove dist/ and node_modules/
 	rm -rf dist node_modules
 
-### RELEASE
+##@ Release
 .PHONY: docker-build ci-release
-
-docker-build: ## Build Docker image for Raspberry Pi (linux/arm64)
+docker-build: ## build Docker image for Raspberry Pi (linux/arm64)
 	docker compose build
 
-ci-release: ## Build linux/arm64 image and push to registry (set REGISTRY_IMAGE and GIT_SHA)
+ci-release: ## build linux/arm64 image and push to registry (set REGISTRY_IMAGE and GIT_SHA)
 	docker buildx build \
 		--platform $(PLATFORM) \
 		--file docker/Dockerfile \
@@ -99,37 +106,35 @@ ci-release: ## Build linux/arm64 image and push to registry (set REGISTRY_IMAGE 
 		--push \
 		.
 
-### DOCKER
+##@ Container
 .PHONY: run stop up down logs
-
-run: ## Build and start via Docker Compose
+run: ## build and start via Docker Compose
 	docker compose up -d --build
 
-stop: ## Stop the running container
+stop: ## stop the running container
 	docker compose stop
 
-up: ## Run the container locally on PORT (default: 8080)
+up: ## run the container locally on PORT (default: 8080)
 	REGISTRY_IMAGE=$(REGISTRY_IMAGE) TAG=$(TAG) docker compose up -d
 
-down: ## Stop and remove Compose containers
+down: ## stop and remove Compose containers
 	docker compose down
 
-logs: ## Follow Compose logs
+logs: ## follow Compose logs
 	docker compose logs -f
 
-### TAILSCALE
+##@ Tailnet
 .PHONY: serve unserve serve-status
-
 LOCAL_PORT ?= 8080
 SERVE_PATH ?= /dashboard
 
 # Requires one-time `sudo tailscale set --operator=containers` so this user
 # can run `tailscale serve` without sudo.
-serve: ## Publish over tailnet HTTPS at $(SERVE_PATH)
+serve: ## publish over tailnet HTTPS at $(SERVE_PATH)
 	tailscale serve --bg --https=443 --set-path=$(SERVE_PATH) http://localhost:$(LOCAL_PORT)
 
-unserve: ## Stop publishing over tailnet
+unserve: ## stop publishing over tailnet
 	tailscale serve --https=443 --set-path=$(SERVE_PATH) off
 
-serve-status: ## Show current tailscale serve config
+serve-status: ## show current tailscale serve config
 	tailscale serve status

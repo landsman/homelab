@@ -1,25 +1,35 @@
+.DEFAULT_GOAL := help
+
 VOLUME := mealie_mealie-data
 BACKUP_DIR := /home/containers/backup/mealie
 
-.PHONY: up down logs backup restore cron-install
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-up:
+##@ Container
+.PHONY: up down logs
+up: ## start
 	docker compose up -d
 
-down:
+down: ## stop
 	docker compose down
 
-logs:
+logs: ## follow the logs
 	docker compose logs -f
 
-backup:
+##@ Backup
+.PHONY: backup restore cron-install
+backup: ## tar the data volume into BACKUP_DIR
 	docker run --rm \
 		-v $(VOLUME):/data:ro \
 		-v $(BACKUP_DIR):/backup \
 		-v $(PWD)/backup.sh:/backup.sh:ro \
 		alpine sh /backup.sh
 
-restore:
+restore: ## restore one: make restore FILE=mealie-backup-YYYYMMDD_HHMMSS.tar.gz
 	@test -n "$(FILE)" || (echo "Usage: make restore FILE=mealie-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
 	@docker volume inspect $(VOLUME) > /dev/null 2>&1 || (echo "Error: volume $(VOLUME) does not exist. Run 'make up' first." && exit 1)
 	docker run --rm \
@@ -27,7 +37,7 @@ restore:
 		-v $(BACKUP_DIR):/backup \
 		alpine tar xzf /backup/$(FILE) -C /data
 
-cron-install:
+cron-install: ## run make backup every day at 5:00
 	@mkdir -p $(BACKUP_DIR)
 	@crontab -l 2>/dev/null | grep -q "mealie.*make backup" \
 		&& (echo "Cron job already exists. To view: crontab -l | grep mealie" && exit 1) \

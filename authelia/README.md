@@ -33,25 +33,27 @@ A new device: add a client in `configuration.yml`, `make up`, and its entry in
 ## Setup
 
 On the Pi, in `~/containers/apps/authelia/`, after
-[the tailnet change](../pollos/infra/TAILNET.md) is applied. `op` (the 1Password CLI) must be
-signed in there.
+[the tailnet change](../pollos/infra/TAILNET.md) is applied. The steps marked _laptop_ need
+1Password, which is signed in there and not on the Pi; they reach the Pi over ssh, `<pi>` being
+its ssh host.
 
 1. **Bun**, for `make user` and `make integration`, installed the way the pollos boxes get it:
    [`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh).
 2. **`.env`**: `cp .env.example .env`, then fill it in. `TS_AUTHKEY` is printed by
    `make -s authelia-authkey` in `pollos/infra`, on a laptop; it is used once.
-3. **Secrets**, made here and printed nowhere, then straight into 1Password. The nightly backup
-   leaves them out on purpose, so this copy is the only one:
+3. **Secrets**, made on the Pi and printed nowhere, then straight into 1Password from the
+   laptop. The nightly backup leaves them out on purpose, so this copy is the only one:
 
    ```bash
-   make secrets
-   make secrets-backup VAULT=<vault>
+   make secrets                                      # Pi
+   make secrets-backup PI=<pi> VAULT=<vault>          # laptop, in authelia/
    ```
 
-4. **Your login**, the password read from 1Password:
+4. **Your login**, _laptop_: the password goes from 1Password to the Pi on ssh's stdin.
 
    ```bash
-   op read 'op://<vault>/<item>/password' | make user USER=<name> EMAIL=<address>
+   op read 'op://<vault>/<item>/password' \
+     | ssh <pi> 'cd containers/apps/authelia && make user USER=<name> EMAIL=<address>'
    ```
 
 5. **Start it**, and the nightly backup:
@@ -83,7 +85,7 @@ As readeck's: `make cron-install` once, and `make backup` runs every night at 3:
 the database and `users.yml` into `/home/containers/backup/authelia`, keeps 14 days, and
 pauses Authelia for the second it takes. Copy that folder off the box from there.
 `make restore FILE=…` puts one back. `secrets/` is not in it, it is in 1Password (step 3);
-on a rebuilt Pi, `make secrets-restore VAULT=<vault>` first. See [CAVEATS.md](CAVEATS.md).
+on a rebuilt Pi, `make secrets-restore PI=<pi> VAULT=<vault>` from the laptop first. See [CAVEATS.md](CAVEATS.md).
 
 ## Checks
 

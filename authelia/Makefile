@@ -25,31 +25,39 @@ logs: ## follow the logs
 	docker compose logs -f
 
 ##@ Setup, on the Pi
-.PHONY: secrets secrets-backup secrets-restore user integration code test
+.PHONY: secrets user integration code test
 # Made here and printed nowhere. Copy the folder into 1Password right after: losing `storage`
 # makes the database unreadable. They never change, so one copy is enough.
 secrets: ## generate the secrets Authelia needs, the ones missing
 	@umask 077 && mkdir -p secrets && for f in jwt session storage oidc-hmac; do [ -s secrets/$$f ] || openssl rand -hex 32 >secrets/$$f; done
 	@[ -s secrets/oidc.pem ] || (umask 077 && openssl genrsa -out secrets/oidc.pem 2048 2>/dev/null)
-	@echo "secrets/ complete; now make secrets-backup VAULT=<vault>"
+	@echo "secrets/ complete; now, on the laptop, make secrets-backup PI=<ssh host> VAULT=<vault>"
 
-# One 1Password document holding the folder as a tar, never its contents on screen.
-secrets-backup: ## copy secrets/ into 1Password: make secrets-backup VAULT=<vault>
-	@test -n "$(VAULT)" || (echo "usage: make secrets-backup VAULT=<vault>" && exit 1)
-	@tar czf - secrets | op document create - --vault "$(VAULT)" --title "Authelia secrets" --file-name authelia-secrets.tar.gz >/dev/null
-	@echo "secrets/ is in 1Password as \"Authelia secrets\""
-
-secrets-restore: ## put secrets/ back from 1Password, on a rebuilt Pi: make secrets-restore VAULT=<vault>
-	@test -n "$(VAULT)" || (echo "usage: make secrets-restore VAULT=<vault>" && exit 1)
-	@test ! -e secrets || (echo "secrets/ exists; move it away first" && exit 1)
-	@umask 077 && op document get "Authelia secrets" --vault "$(VAULT)" --out-file .secrets.tar.gz \
-		&& tar xzf .secrets.tar.gz; rc=$$?; rm -f .secrets.tar.gz; exit $$rc
-
-user: ## add USER with EMAIL; the password comes on stdin: op read … | make user USER=… EMAIL=…
+user: ## add USER with EMAIL; the password comes on stdin, piped from the laptop (README)
 	bun cli/user.ts login $(USER) $(EMAIL)
 
 integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo-mcp must be up
 	bun cli/user.ts integration $(USER)
+
+##@ 1Password, from the laptop
+.PHONY: secrets-backup secrets-restore
+# 1Password is signed in on the laptop, not on the Pi, so the folder travels over ssh as one tar,
+# into a single document, never on screen. pipefail, so a failed ssh or op fails the target;
+# set in the recipe, since macOS's make 3.81 ignores .SHELLFLAGS.
+PI_DIR ?= containers/apps/authelia
+secrets-backup secrets-restore: SHELL := /bin/bash
+
+secrets-backup: ## copy the Pi's secrets/ into 1Password: make secrets-backup PI=<ssh host> VAULT=<vault>
+	@test -n "$(PI)" -a -n "$(VAULT)" || (echo "usage: make secrets-backup PI=<ssh host> VAULT=<vault>" && exit 1)
+	@ssh $(PI) 'test -s $(PI_DIR)/secrets/storage' || (echo "no secrets/ in $(PI):$(PI_DIR); make secrets there first" && exit 1)
+	@set -o pipefail; ssh $(PI) 'tar czf - -C $(PI_DIR) secrets' | op document create - --vault "$(VAULT)" --title "Authelia secrets" --file-name authelia-secrets.tar.gz >/dev/null
+	@echo "secrets/ is in 1Password as \"Authelia secrets\""
+
+secrets-restore: ## put secrets/ back on a rebuilt Pi: make secrets-restore PI=<ssh host> VAULT=<vault>
+	@test -n "$(PI)" -a -n "$(VAULT)" || (echo "usage: make secrets-restore PI=<ssh host> VAULT=<vault>" && exit 1)
+	@set -o pipefail; op document get "Authelia secrets" --vault "$(VAULT)" \
+		| ssh $(PI) 'cd $(PI_DIR) && test ! -e secrets && umask 077 && tar xzf -' \
+		|| (echo "not restored: op failed, or $(PI):$(PI_DIR)/secrets exists; move it away first" && exit 1)
 
 ##@ Backup
 .PHONY: backup restore cron-install

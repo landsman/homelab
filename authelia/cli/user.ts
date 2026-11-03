@@ -149,7 +149,16 @@ async function subjectOf(user: string) {
     'cat /tmp/ids.yml',
     'rm /tmp/ids.yml',
   ].join(' && ')
-  const out = await $`docker exec authelia sh -c ${exportIds}`.text()
+  const result = await $`docker exec authelia sh -c ${exportIds}`.nothrow().quiet()
+  if (result.exitCode !== 0) {
+    const out = `${result.stdout}${result.stderr}`
+    // An empty table is refused, not exported: nobody has a subject yet.
+    if (out.includes('no data to export')) {
+      return undefined
+    }
+    throw new Error(out)
+  }
+  const out = result.stdout.toString()
 
   type Identifier = { username: string; service: string; identifier: string }
   const parsed = Bun.YAML.parse(out) as { identifiers?: Identifier[] } | null

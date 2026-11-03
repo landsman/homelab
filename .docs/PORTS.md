@@ -12,6 +12,7 @@ Host ports exposed by containers on the Pi. Source of truth: each service's `com
 | 8000 | [database](../database) (adminer)     | DB admin UI                                |
 | 222  | [forgejo](../forgejo) SSH             | git over SSH                               |
 | 3000 | [forgejo](../forgejo)                 | web UI                                     |
+| —    | [forgejo-mcp](../forgejo-mcp)         | no host port; 443 on its own tailnet node, 8080 inside the sidecar |
 | 3031 | [gotenberg](../gotenberg)             | PDF conversion API                         |
 | 3001 | [ip-service](../ip-service)           |                                            |
 | 9925 | [mealie](../mealie)                   |                                            |

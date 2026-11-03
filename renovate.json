@@ -1,6 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. And authelia, so that one bot bumps both Tailscale sidecars in one PR and they never drift apart. ignoreDeps keeps the docker-compose manager from looking up the locally built forgejo-mcp image on a registry.",
+  "commitMessageAction": "bump",
   "extends": [
     ":disableDependencyDashboard"
   ],

@@ -1,0 +1,3 @@
+# The CLI tools the whole repo shares; a folder's own mise.toml adds what only it needs.
+[tools]
+terraform = "1.17.1"

@@ -3,7 +3,6 @@ experimental = true
 
 [tools]
 node = "22"
-terraform = "1.15"
 shellcheck = "0.11.0"
 "npm:wrangler" = "4.94.0"
 

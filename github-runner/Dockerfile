@@ -1,5 +1,4 @@
-ARG BASE_IMAGE=myoung34/github-runner:2.335.1
-FROM ${BASE_IMAGE}
+FROM myoung34/github-runner:2.335.1
 
 # Add Node.js 22 (for npx / sentry-cli) + postgresql-client (for psql vault upsert) + shellcheck (for shell linting in `make qa`)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \

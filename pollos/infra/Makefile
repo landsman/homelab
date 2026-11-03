@@ -21,7 +21,7 @@ backend: ## make backend.hcl from the example, to fill from 1Password (README)
 # -reconfigure because `validate` inits with -backend=false; without it
 # Terraform refuses to switch back with "Backend configuration changed".
 init-remote: ## init against the R2 state; the output targets run it themselves
-	@test -e backend.hcl || (echo "no backend.hcl; make backend first" && exit 1)
+	@test -e backend.hcl || (echo "no backend.hcl; make backend first" >&2 && exit 1)
 	@terraform init -reconfigure -backend-config=backend.hcl >&2
 
 ##@ Checks

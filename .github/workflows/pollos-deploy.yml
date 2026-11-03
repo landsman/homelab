@@ -82,6 +82,11 @@ jobs:
       - name: "Build"
         run: make build
         working-directory: pollos/microsite
+      # Wrangler is installed with Bun: the action picks it from the root bun.lock.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
       - name: "Deploy pollos.cz"
         uses: cloudflare/wrangler-action@v4
         with:

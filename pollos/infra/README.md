@@ -21,12 +21,17 @@ policy.
 
 **There is no local apply.** `.github/workflows/pollos-deploy.yml` runs
 `terraform apply -auto-approve` on push to `main` — merging is the deploy.
-Locally you only check:
 
-```sh
-make ci     # fmt -check + init -backend=false + validate — no credentials needed
-make fmt    # format in place
-```
+## On a laptop, from the start
+
+1. **Terraform**, the version pinned in [`mise.toml`](../../mise.toml) at the repo root, with
+   [mise](https://mise.jdx.dev) activated in the shell: `make install`.
+2. **Checks**, no credentials needed: `make ci` before pushing, `make fmt` to format.
+3. **The real state**, only to read a key or token Terraform minted: `make backend`, fill
+   `backend.hcl` from 1Password ([Reading state](#reading-state)). `make init-remote` connects to
+   it, and every output target runs that itself.
+4. **Outputs**: `make authkey`, `make forgejo-mcp-authkey`, `make authelia-authkey`,
+   `make tunnel-tokens`. Each prints a secret and nothing else.
 
 ## Credentials
 
@@ -85,7 +90,7 @@ not in the policy, so those survive.
 ## Reading state
 
 Both runbooks below read a value Terraform minted, which means initialising the
-R2 backend for real. Create `backend.hcl` here once — it's gitignored:
+R2 backend for real. `make backend` creates `backend.hcl` here once, gitignored; fill it in:
 
 ```hcl
 endpoints  = { s3 = "https://<POLLOS_CZ_CF_ACCOUNT_ID>.r2.cloudflarestorage.com" }

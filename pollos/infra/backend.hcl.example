@@ -1,0 +1,4 @@
+# make backend copies this to backend.hcl (gitignored); fill it from 1Password, as README says.
+endpoints  = { s3 = "https://<POLLOS_CZ_CF_ACCOUNT_ID>.r2.cloudflarestorage.com" }
+access_key = "<POLLOS_CZ_R2_ACCESS_KEY_ID>"
+secret_key = "<POLLOS_CZ_R2_SECRET_ACCESS_KEY>"

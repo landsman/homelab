@@ -52,7 +52,7 @@ admin console, leaves the sidecar unable to log in again: apply a new key
 
 ## An upgrade builds from the mirror, not from upstream
 
-Upstream's image is linux/amd64 only, so `compose.yml` builds from the tag on
+Upstream's image is linux/amd64 only, so `compose.yml` builds from the tag's commit on
 `git.insuit.cz/tools-mirror/forgejo-mcp`. Renovate watches upstream
 (`git.b4mad.industries`), so a bump can name a tag the mirror has not synced yet, and the
 build fails on a missing ref. The seven-day `minimumReleaseAge` usually covers it; if not,

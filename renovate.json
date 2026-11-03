@@ -16,7 +16,8 @@
         "/^forgejo-mcp/compose\\.yml$/"
       ],
       "matchStrings": [
-        "(?:forgejo-mcp\\.git#|VERSION: |forgejo-mcp:)(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+        "forgejo-mcp\\.git#(?<currentDigest>[0-9a-f]{40}) # (?<currentValue>v\\d+\\.\\d+\\.\\d+)",
+        "(?:VERSION: |forgejo-mcp:)(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "forgejo-tags",
       "registryUrlTemplate": "https://git.b4mad.industries",

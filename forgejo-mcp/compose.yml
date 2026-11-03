@@ -35,9 +35,12 @@ services:
     # Built here rather than pulled: upstream's image is linux/amd64 only, and
     # this runs on the Pi. The Containerfile's base images are multi-arch, so a
     # build from the mirrored tag produces arm64 without touching it.
-    # The tag is written three times below; renovate.json bumps all three.
+    # Built from the tag's commit, not the tag: a moved tag would reach the mirror
+    # at its next sync and ship with no diff here, in the image that holds the key
+    # acting as every user. The version is written three times below;
+    # renovate.json bumps the commit and all three.
     build:
-      context: https://git.insuit.cz/tools-mirror/forgejo-mcp.git#v3.3.0
+      context: https://git.insuit.cz/tools-mirror/forgejo-mcp.git#9c3fa38c6708a24918bd2e9ae2f171f211202155 # v3.3.0
       dockerfile: Containerfile
       args:
         VERSION: v3.3.0

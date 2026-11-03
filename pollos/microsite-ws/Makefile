@@ -1,32 +1,38 @@
-.PHONY: install install-ci dev deploy tail ci format
+.DEFAULT_GOAL := help
 
-# Install pinned tools (node + wrangler via mise) and npm dev deps.
-install:
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+##@ Setup
+.PHONY: install install-ci
+install: ## install the pinned tools (node, wrangler via mise) and the npm dev deps
 	mise install
 	npm install
 
-# Install npm deps from the lockfile (CI; runner provides node).
-install-ci:
+install-ci: ## install the npm deps from the lockfile, in CI where the runner provides node
 	npm ci --no-audit --no-fund
 
-# Run the Worker + Durable Object locally (ws://localhost:8787/cursors).
-dev:
+##@ Worker
+.PHONY: dev deploy tail
+dev: ## run the Worker and its Durable Object locally, ws://localhost:8787/cursors
 	mise exec -- wrangler dev
 
-# Deploy the Worker to Cloudflare. CI does this in the `worker` job; run by hand
-# for a manual push. Custom domain microsite-ws.pollos.cz lives in pollos/infra.
-deploy:
+# The custom domain microsite-ws.pollos.cz lives in pollos/infra.
+deploy: ## deploy the Worker to Cloudflare; CI does it, this is the manual push
 	mise exec -- wrangler deploy
 
-# Stream live logs from the deployed Worker.
-tail:
+tail: ## stream the deployed Worker's live logs
 	mise exec -- wrangler tail
 
-# Type-check without emitting.
-ci:
+##@ Checks
+.PHONY: ci format
+ci: ## type-check and check the formatting
 	npm run typecheck
 	npm run format:check
 
-# Format source with oxfmt (config in the repo root .oxfmtrc.json).
-format:
+# Config in the repo root .oxfmtrc.json.
+format: ## format the source with oxfmt
 	npm run format

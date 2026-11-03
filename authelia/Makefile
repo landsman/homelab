@@ -25,13 +25,25 @@ logs: ## follow the logs
 	docker compose logs -f
 
 ##@ Setup, on the Pi
-.PHONY: secrets user integration code test
-# Made here and printed nowhere. Copy the folder into 1Password once: losing `storage`
-# makes the database unreadable, losing `oidc.pem` signs every device out.
+.PHONY: secrets secrets-backup secrets-restore user integration code test
+# Made here and printed nowhere. Copy the folder into 1Password right after: losing `storage`
+# makes the database unreadable. They never change, so one copy is enough.
 secrets: ## generate the secrets Authelia needs, the ones missing
 	@umask 077 && mkdir -p secrets && for f in jwt session storage oidc-hmac; do [ -s secrets/$$f ] || openssl rand -hex 32 >secrets/$$f; done
 	@[ -s secrets/oidc.pem ] || (umask 077 && openssl genrsa -out secrets/oidc.pem 2048 2>/dev/null)
-	@echo "secrets/ complete"
+	@echo "secrets/ complete; now make secrets-backup VAULT=<vault>"
+
+# One 1Password document holding the folder as a tar, never its contents on screen.
+secrets-backup: ## copy secrets/ into 1Password: make secrets-backup VAULT=<vault>
+	@test -n "$(VAULT)" || (echo "usage: make secrets-backup VAULT=<vault>" && exit 1)
+	@tar czf - secrets | op document create - --vault "$(VAULT)" --title "Authelia secrets" --file-name authelia-secrets.tar.gz >/dev/null
+	@echo "secrets/ is in 1Password as \"Authelia secrets\""
+
+secrets-restore: ## put secrets/ back from 1Password, on a rebuilt Pi: make secrets-restore VAULT=<vault>
+	@test -n "$(VAULT)" || (echo "usage: make secrets-restore VAULT=<vault>" && exit 1)
+	@test ! -e secrets || (echo "secrets/ exists; move it away first" && exit 1)
+	@umask 077 && op document get "Authelia secrets" --vault "$(VAULT)" --out-file .secrets.tar.gz \
+		&& tar xzf .secrets.tar.gz; rc=$$?; rm -f .secrets.tar.gz; exit $$rc
 
 user: ## add USER with EMAIL; the password comes on stdin: op read … | make user USER=… EMAIL=…
 	bun cli/user.ts login $(USER) $(EMAIL)

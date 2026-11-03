@@ -58,8 +58,8 @@ Upstream's image is linux/amd64 only, so `compose.yml` builds from the tag on
 build fails on a missing ref. The seven-day `minimumReleaseAge` usually covers it; if not,
 sync the mirror (its settings page, or `POST /repos/tools-mirror/forgejo-mcp/mirror-sync`).
 
-A merged bump is not deployed: there is no checkout on the Pi. Copy `compose.yml` to
-`~/containers/apps/forgejo-mcp/` and run `make build up`.
+A merged bump is not deployed: there is no checkout on the Pi. `make rsync` from the laptop,
+then `make build up` on the Pi.
 
 ## A run number is not a run id
 

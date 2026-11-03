@@ -57,9 +57,9 @@ services:
       FORGEJO_MCP_SCOPES_SUPPORTED: openid offline_access forgejo_mcp
       FORGEJO_MCP_FORGEJO_JWT_ISSUER: https://${FORGEJO_MCP_HOST}/issuer
       FORGEJO_MCP_FORGEJO_JWT_SIGNING_KEY_FILE: /secrets/signing.pem
-      # Authelia through the sidecar's proxy; Forgejo directly, by container name.
+      # Authelia through the sidecar's proxy. Forgejo is http://, which this
+      # never touches.
       HTTPS_PROXY: http://127.0.0.1:1055
-      NO_PROXY: forgejo
     volumes:
       - ./secrets:/secrets:ro
     # The sidecar's network namespace: its loopback is the only way in, and

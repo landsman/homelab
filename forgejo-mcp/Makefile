@@ -8,8 +8,8 @@ help: ## show this help
 
 ##@ Container
 .PHONY: up down logs build
-up: ## build if needed and start
-	docker compose up -d --build
+up: ## start; builds the image only when it is missing
+	docker compose up -d
 
 down: ## stop
 	docker compose down

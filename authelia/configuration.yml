@@ -89,6 +89,3 @@ identity_providers:
       - <<: *client
         client_id: 'forgejo-mcp-t480'
         client_name: 'forgejo-mcp on t480'
-      - <<: *client
-        client_id: 'forgejo-mcp-hp-prodesk-600-g3'
-        client_name: 'forgejo-mcp on hp-prodesk-600-g3'

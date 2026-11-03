@@ -51,7 +51,9 @@ On the Pi, as the `containers` user, in `~/dev/apps/authelia/`, after
    make secrets-backup VAULT=<vault>                 # laptop, in authelia/
    ```
 
-4. **Your login**, _laptop_: the password goes from 1Password to the Pi on ssh's stdin.
+4. **Your login**, _laptop_: the password goes from 1Password to the Pi on ssh's stdin. `USER` is
+   your Forgejo username: `make integration` creates the integration for the Forgejo user of that
+   name.
 
    ```bash
    op read 'op://<vault>/<item>/password' \

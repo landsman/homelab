@@ -31,17 +31,28 @@ writeFileSync(
   `#!/bin/sh
 echo "docker $*" >>"$CALLS"
 case "$*" in
-*"identifiers export"*) printf '%s\\n' "$IDS" ;;
+*"identifiers add"*) touch "$CALLS.added" ;;
+*"identifiers export"*)
+  # Authelia's answer for an empty table, until a subject is added.
+  if [ -n "$IDS" ]; then printf '%s\\n' "$IDS"
+  elif [ -e "$CALLS.added" ]; then printf '%s\\n' "$IDS_ADDED"
+  else echo 'Error: no data to export' >&2; exit 1; fi ;;
 *create-authorized-integration*) printf '%s\\n' "$FJ_OUT"; exit "\${FJ_RC:-0}" ;;
 esac
 `
 )
 chmodSync(join(dir, 'bin', 'docker'), 0o755)
 
-beforeEach(() => writeFileSync(calls, ''))
+beforeEach(() => {
+  writeFileSync(calls, '')
+  rmSync(`${calls}.added`, { force: true })
+})
 
 /** Runs user.ts; ids and fj set what Authelia's identifiers and Forgejo's CLI answer. */
-async function user(args: string[], { stdin = '', ids = '', fj = '', fjExit = 0 } = {}) {
+async function user(
+  args: string[],
+  { stdin = '', ids = '', idsAdded = '', fj = '', fjExit = 0 } = {}
+) {
   const proc = Bun.spawn(['bun', script, ...args], {
     stdin: new Response(stdin),
     stdout: 'pipe',
@@ -53,6 +64,7 @@ async function user(args: string[], { stdin = '', ids = '', fj = '', fjExit = 0 
       USERS_FILE: users,
       FORGEJO_MCP_HOST: 'mcp.example',
       IDS: ids,
+      IDS_ADDED: idsAdded,
       FJ_OUT: fj,
       FJ_RC: String(fjExit),
     },
@@ -120,6 +132,14 @@ test('integration ties the rule to the subject already pinned, and pins no secon
   const log = readFileSync(calls, 'utf8')
   expect(log).toContain('--claim-eq sub=3333')
   expect(log).not.toContain('identifiers add')
+})
+
+test('integration pins a subject for the first user, when Authelia has none to export', async () => {
+  await user(['login', 'erin', 'e@example.org'], { stdin: 'pw\n' })
+  const r = await user(['integration', 'erin'], { idsAdded: idsFor('erin', '5555'), fj: created })
+  expect(r.code).toBe(0)
+  expect(readFileSync(calls, 'utf8')).toContain('--claim-eq sub=5555')
+  expect(parsed().erin.extra.forgejo_aud).toBe('u:7:1111')
 })
 
 test('integration fails when Forgejo refuses it, and writes nothing', async () => {

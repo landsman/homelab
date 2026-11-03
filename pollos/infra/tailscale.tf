@@ -5,9 +5,13 @@
 # takes ownership of the whole tailnet policy file (overwrite_existing_content),
 # so keep every rule your tailnet needs in here.
 #
-# The acls block below is left permissive (allow-all among your own devices) to
-# preserve the working Mac <-> boxes <-> Apple TV exit node setup. Tighten it to
-# explicit src/dst later once everything is on the tailnet.
+# The acls block lets my own devices reach everything. The tagged boxes reach
+# each other, and the Pi on 443 only: the runner fetches mirrored actions and
+# images there (../../forgejo-runner). They reach neither tag:forgejo-mcp nor
+# tag:authelia: both ask for a login, but jesse runs arbitrary CI jobs, and a
+# login page it cannot reach is one it cannot attack. That is why each is a node
+# of its own and not a path on the Pi's 443: an ACL cannot tell `tailscale
+# serve` paths apart.
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
 
@@ -17,17 +21,40 @@ resource "tailscale_acl" "this" {
       # It must own tag:pollos so the provider can mint the tag:pollos enrollment
       # key below. The boxes carry tag:pollos but are NOT owners, so a box can't
       # mint new tag:pollos keys — only the Terraform automation can.
-      "tag:terraform" = ["autogroup:admin"]
-      "tag:pollos"    = ["autogroup:admin", "tag:terraform"]
+      "tag:terraform"   = ["autogroup:admin"]
+      "tag:pollos"      = ["autogroup:admin", "tag:terraform"]
+      "tag:forgejo-mcp" = ["autogroup:admin", "tag:terraform"]
+      "tag:authelia"    = ["autogroup:admin", "tag:terraform"]
       # The NAS, tagged only because a Tailscale Service is hosted by a tagged device and never by a user's.
       "tag:nas" = ["autogroup:admin"]
     }
 
     acls = [
       {
+        # Every device I own — Macs, phones, Apple TVs. `*:*` also covers
+        # autogroup:internet, so the exit nodes keep working.
         action = "accept"
-        src    = ["*"]
+        src    = ["autogroup:member"]
         dst    = ["*:*"]
+      },
+      {
+        action = "accept"
+        src    = ["tag:pollos"]
+        dst    = ["tag:pollos:*", "tag:nas:443"]
+      },
+      {
+        # The Pi, tagged and so no member any more, keeps what it had: Forgejo on it
+        # checks forgejo-mcp's issuer when an integration is created, among others.
+        action = "accept"
+        src    = ["tag:nas"]
+        dst    = ["*:*"]
+      },
+      {
+        # forgejo-mcp fetches Authelia's discovery document and key set. Nothing
+        # else is tagged to reach Authelia; my devices sign in through the rule above.
+        action = "accept"
+        src    = ["tag:forgejo-mcp"]
+        dst    = ["tag:authelia:443"]
       },
     ]
 
@@ -126,6 +153,40 @@ resource "tailscale_tailnet_key" "pollos" {
   expiry        = 7776000 # 90 days (max), in seconds
 
   depends_on = [tailscale_acl.this] # tag must exist before the key references it
+}
+
+# The forgejo-mcp sidecar's one login; its state volume keeps the node after.
+resource "tailscale_tailnet_key" "forgejo_mcp" {
+  reusable      = false
+  ephemeral     = false
+  preauthorized = true
+  description   = "forgejo mcp sidecar"
+  tags          = ["tag:forgejo-mcp"]
+  expiry        = 7776000
+
+  depends_on = [tailscale_acl.this]
+}
+
+output "forgejo_mcp_authkey" {
+  value     = tailscale_tailnet_key.forgejo_mcp.key
+  sensitive = true
+}
+
+# The Authelia sidecar's one login (../../authelia), the same way.
+resource "tailscale_tailnet_key" "authelia" {
+  reusable      = false
+  ephemeral     = false
+  preauthorized = true
+  description   = "authelia sidecar"
+  tags          = ["tag:authelia"]
+  expiry        = 7776000
+
+  depends_on = [tailscale_acl.this]
+}
+
+output "authelia_authkey" {
+  value     = tailscale_tailnet_key.authelia.key
+  sensitive = true
 }
 
 # Read with: terraform output -raw tailscale_authkey

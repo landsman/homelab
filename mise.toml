@@ -1,3 +1,8 @@
 # The CLI tools the whole repo shares; a folder's own mise.toml adds what only it needs.
 [tools]
 terraform = "1.17.1"
+
+# Bun's version is read from `packageManager` in the nearest package.json, the pin CI's setup-bun
+# and Dependabot already use, so there is no second one to drift. insuit and ip-service keep their own.
+[settings]
+idiomatic_version_file_enable_tools = ["bun"]

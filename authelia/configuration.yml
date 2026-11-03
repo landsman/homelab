@@ -56,6 +56,8 @@ identity_providers:
     lifespans:
       access_token: '1h'
       refresh_token: '90d'
+    # Everything below is for forgejo-mcp, which checks these tokens:
+    # https://github.com/landsman/homelab/tree/main/forgejo-mcp
     claims_policies:
       forgejo_mcp:
         access_token: ['forgejo_aud']

@@ -1,22 +1,26 @@
 .DEFAULT_GOAL := help
-.PHONY: help rsync prepare cache config config-deploy up restart down logs status register qemu test deploy
 
-help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
+##@ Setup on a box
+.PHONY: rsync config config-deploy prepare cache
 # No default host: there is more than one runner box, and pushing to the wrong
 # one is silent.
-rsync: ## Copy this dir to a box (asks for it, or HOST=walter.pollos)
+rsync: ## copy this dir to a box (asks for it, or HOST=walter.pollos)
 	@host="$(HOST)"; \
 	[ -n "$$host" ] || { printf 'Host (jesse.pollos, walter.pollos, saul.pollos): '; read -r host; }; \
 	[ -n "$$host" ] || { echo "No host given."; exit 1; }; \
 	git ls-files -z . | rsync -av --from0 --files-from=- ./ "$$host":forgejo-runner/
 
-config: ## Copy the example config to runner/config.yml (run on the box, first time)
+config: ## copy the example config to runner/config.yml (run on the box, first time)
 	@[ -f runner/config.yml ] || cp runner/config.example.yml runner/config.yml
 	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
 
-config-deploy: ## Same, for a box that takes deploy jobs and nothing else (README: Deploy runner)
+config-deploy: ## same, for a box that takes deploy jobs and nothing else (README: Deploy runner)
 	@[ -f runner/config.yml ] || sed -e 's/capacity: 2/capacity: 1/' -e '/"ubuntu-latest:/d' -e '/"self-hosted:host"/d' -e 's|^\( *\)- "<box>:\(.*\)"|\1- "deploy:\2"\n\1- "<box>:\2"|' runner/config.example.yml > runner/config.yml
 	@echo "runner/config.yml ready — edit it and fill the UUID/Token"
 
@@ -35,7 +39,7 @@ prepare: ## chown data + set DOCKER_GID in .env, keeping its other keys (run on 
 # directory owned by two users for two reasons.
 CACHE_DIR = /home/ansible/forgejo-runner
 
-cache: ## Create the job caches (mise toolchains, Gradle) and check the path
+cache: ## create the job caches (mise toolchains, Gradle) and check the path
 	@mkdir -p cache/mise cache/gradle
 	@if [ "$(CURDIR)" != "$(CACHE_DIR)" ]; then \
 		echo; \
@@ -48,7 +52,9 @@ cache: ## Create the job caches (mise toolchains, Gradle) and check the path
 		echo "Job caches ready under $(CURDIR)/cache — matches the config."; \
 	fi
 
-up: ## Start the runner
+##@ Runner
+.PHONY: up restart down logs status register qemu
+up: ## start the runner
 	docker compose up -d
 
 # `make up` does not apply a runner/config.yml change. compose only recreates a
@@ -58,7 +64,7 @@ up: ## Start the runner
 # in flight, because a restart takes the job container with it and the workflow
 # then reports a failure that has nothing to do with the code.
 
-restart: ## Restart the runner to pick up runner/config.yml changes
+restart: ## restart the runner to pick up runner/config.yml changes
 	@n=$$(docker ps --filter name=WORKFLOW -q | wc -l | tr -d ' '); \
 	if [ "$$n" != "0" ]; then \
 		echo "$$n job container(s) running — a restart kills them mid-job:"; \
@@ -68,30 +74,34 @@ restart: ## Restart the runner to pick up runner/config.yml changes
 	fi
 	docker compose restart
 
-down: ## Stop the runner
+down: ## stop the runner
 	docker compose down
 
-logs: ## Follow runner logs
+logs: ## follow runner logs
 	docker compose logs -f
 
-status: ## Show runner container state
+status: ## show runner container state
 	docker compose ps
 
-register: ## Print registration steps (config-based, Forgejo 16)
+register: ## print registration steps (config-based, Forgejo 16)
 	@echo "1. Forgejo UI -> Settings -> Actions -> Runners -> Create new runner"
 	@echo "2. Fill the UUID and Token into runner/config.yml -> server.connections.forgejo"
 	@echo "3. make rsync && ssh <host> 'cd forgejo-runner && make prepare && make up'"
 	@echo "   (later config edits need 'make restart', not 'make up')"
 
-qemu: ## Register multiarch binfmt once (for cross-arch image builds)
+qemu: ## register multiarch binfmt once (for cross-arch image builds)
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
+##@ Checks
+.PHONY: test
 test: ## shellcheck the scripts and run their tests (no box needed)
 	@shellcheck runner/git runner/git.test.sh deploy.sh deploy.test.sh
 	@./runner/git.test.sh
 	@./deploy.test.sh
 
-deploy: ## Roll this folder out to boxes: copy, restart once idle, check (asks, or HOSTS="jesse.pollos walter.pollos")
+##@ Deploy
+.PHONY: deploy
+deploy: ## roll this folder out to boxes: copy, restart once idle, check (asks, or HOSTS="jesse.pollos walter.pollos")
 	@hosts="$(HOSTS)"; \
 	[ -n "$$hosts" ] || { printf 'Hosts (jesse.pollos walter.pollos saul.pollos): '; read -r hosts; }; \
 	[ -n "$$hosts" ] || { echo "No host given."; exit 1; }; \

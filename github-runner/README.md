@@ -83,7 +83,7 @@ not a hazard. If a job ever needs a guaranteed-clean tree, give it its own conta
 rather than turning ephemeral back on.
 
 Because the runner now lives for weeks rather than minutes, `DISABLE_AUTO_UPDATE=true` matters
-more: the runner version is pinned in the `Dockerfile` (`BASE_IMAGE`), so updating it means
+more: the runner version is pinned in the `Dockerfile`'s `FROM`, so updating it means
 bumping that pin and running `make restart`. GitHub eventually refuses connections from runners
 that are too far behind, so do not let the pin drift.
 

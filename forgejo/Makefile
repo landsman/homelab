@@ -1,7 +1,7 @@
+.DEFAULT_GOAL := help
+
 VOLUME := forgejo_forgejo
 BACKUP_DIR := /home/containers/backup/forgejo
-
-.PHONY: up down logs serve unserve serve-status test merge-style backup restore cron-install
 
 # Two paths published on this box's tailnet name, both to skip Cloudflare in front of git.insuit.cz:
 #
@@ -23,45 +23,61 @@ BACKUP_DIR := /home/containers/backup/forgejo
 # names it; ../forgejo-runner/.env and the deploy's REGISTRY variable are the two today.
 SERVE_PATHS ?= /v2 /tools-mirror
 
+.PHONY: help
+help: ## show this help
+	@awk 'BEGIN {FS = ":.*##"; print "usage: make <target>\n"} \
+		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
+
+##@ Container
+.PHONY: up down logs
 # `serve` too, so bringing the stack up is also what publishes it — a reinstall of the box then
 # needs no one to remember. It is idempotent, and a warning rather than a failure, because a box
 # where this user is not the tailscale operator should still be able to start Forgejo.
-up:
+up: ## start, and publish the tailnet paths
 	docker compose up -d
 	@$(MAKE) --no-print-directory serve || echo "warning: the tailnet paths are not published — see README"
 
-down:
+down: ## stop
 	docker compose down
 
-logs:
+logs: ## follow the logs
 	docker compose logs -f
 
-serve:
+##@ Tailnet
+.PHONY: serve unserve serve-status
+serve: ## publish SERVE_PATHS on this box's tailnet name
 	@for p in $(SERVE_PATHS); do \
 		tailscale serve --bg --https=443 --set-path=$$p http://127.0.0.1:3000$$p; \
 	done
 
-unserve:
+unserve: ## stop publishing them
 	@for p in $(SERVE_PATHS); do \
 		tailscale serve --https=443 --set-path=$$p off; \
 	done
 
-serve-status:
+serve-status: ## show what tailscale serves
 	tailscale serve status
 
+##@ Checks
+.PHONY: test
 # Stubs docker and curl, so it runs anywhere — no Forgejo, no network.
-test:
+test: ## shellcheck the scripts and run their tests, no Forgejo needed
 	@shellcheck registry-bot.sh registry-bot.test.sh merge-style.sh merge-style.test.sh
 	@bash registry-bot.test.sh
 	@bash merge-style.test.sh
 
+##@ Settings
+.PHONY: merge-style
 # Squash by default and no merge commits, on every repository; see the header of merge-style.sh.
-merge-style:
+merge-style: ## squash by default and no merge commits, on every repository
 	@./merge-style.sh apply
 
+##@ Backup
+.PHONY: backup restore cron-install
 # Forgejo is stopped for the copy: a tar of a live volume can catch the database mid-write, and
 # that is the copy an upgrade's rollback would restore. It starts again even when the copy fails.
-backup:
+backup: ## stop Forgejo, tar its volume into BACKUP_DIR, start it again
 	docker compose stop forgejo
 	docker run --rm \
 		-v $(VOLUME):/data:ro \
@@ -69,7 +85,7 @@ backup:
 		-v $(PWD)/backup.sh:/backup.sh:ro \
 		alpine sh /backup.sh; status=$$?; docker compose start forgejo; exit $$status
 
-restore:
+restore: ## restore one: make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz
 	@test -n "$(FILE)" || (echo "Usage: make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
 	@docker volume inspect $(VOLUME) > /dev/null 2>&1 || (echo "Error: volume $(VOLUME) does not exist. Run 'make up' first." && exit 1)
 	docker compose stop forgejo
@@ -79,7 +95,7 @@ restore:
 		alpine tar xzf /backup/$(FILE) -C /data
 	@echo "Restored. Start it with make up, which recreates the container from compose.yml's version."
 
-cron-install:
+cron-install: ## run make backup every day at 3:00
 	@mkdir -p $(BACKUP_DIR)
 	@crontab -l 2>/dev/null | grep -q "forgejo.*make backup" \
 		&& (echo "Cron job already exists. To view: crontab -l | grep forgejo" && exit 1) \

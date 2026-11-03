@@ -31,7 +31,7 @@ logs: ## follow the logs
 secrets: ## generate the secrets Authelia needs, the ones missing
 	@umask 077 && mkdir -p secrets && for f in jwt session storage oidc-hmac; do [ -s secrets/$$f ] || openssl rand -hex 32 >secrets/$$f; done
 	@[ -s secrets/oidc.pem ] || (umask 077 && openssl genrsa -out secrets/oidc.pem 2048 2>/dev/null)
-	@echo "secrets/ complete; now, on the laptop, make secrets-backup PI=<ssh host> VAULT=<vault>"
+	@echo "secrets/ complete; now, on the laptop, make secrets-backup VAULT=<vault>"
 
 user: ## add USER with EMAIL; the password comes on stdin, piped from the laptop (README)
 	bun cli/user.ts login $(USER) $(EMAIL)
@@ -39,32 +39,21 @@ user: ## add USER with EMAIL; the password comes on stdin, piped from the laptop
 integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo-mcp must be up
 	bun cli/user.ts integration $(USER)
 
-##@ From the laptop
-.PHONY: rsync secrets-backup secrets-restore
-# Where the Pi keeps its apps, from the home of the ssh user, containers: ~/dev is the RAID
-# (../docker/README.md).
-PI_DIR ?= dev/apps/authelia
-
-# The Pi has no checkout, so its copy is the tracked files only; .env, secrets/ and users.yml,
-# which live there alone, are never in the list and never overwritten.
-rsync: ## copy this folder to the Pi: make rsync PI=<ssh host>
-	@test -n "$(PI)" || (echo "usage: make rsync PI=<ssh host>" && exit 1)
-	@ssh $(PI) 'mkdir -p $(PI_DIR)'
-	git ls-files -z . | rsync -av --from0 --files-from=- ./ $(PI):$(PI_DIR)/
-
+##@ Secrets, from the laptop
+.PHONY: secrets-backup secrets-restore
 # 1Password is signed in on the laptop, not on the Pi, so the folder travels over ssh as one tar,
 # into a single document, never on screen. pipefail, so a failed ssh or op fails the target;
 # set in the recipe, since macOS's make 3.81 ignores .SHELLFLAGS.
 secrets-backup secrets-restore: SHELL := /bin/bash
 
-secrets-backup: ## copy the Pi's secrets/ into 1Password: make secrets-backup PI=<ssh host> VAULT=<vault>
-	@test -n "$(PI)" -a -n "$(VAULT)" || (echo "usage: make secrets-backup PI=<ssh host> VAULT=<vault>" && exit 1)
+secrets-backup: ## copy the Pi's secrets/ into 1Password: make secrets-backup VAULT=<vault>
+	@test -n "$(VAULT)" || (echo "usage: make secrets-backup VAULT=<vault>" && exit 1)
 	@ssh $(PI) 'test -s $(PI_DIR)/secrets/storage' || (echo "no secrets/ in $(PI):$(PI_DIR); make secrets there first" && exit 1)
 	@set -o pipefail; ssh $(PI) 'tar czf - -C $(PI_DIR) secrets' | op document create - --vault "$(VAULT)" --title "Authelia secrets" --file-name authelia-secrets.tar.gz >/dev/null
 	@echo "secrets/ is in 1Password as \"Authelia secrets\""
 
-secrets-restore: ## put secrets/ back on a rebuilt Pi: make secrets-restore PI=<ssh host> VAULT=<vault>
-	@test -n "$(PI)" -a -n "$(VAULT)" || (echo "usage: make secrets-restore PI=<ssh host> VAULT=<vault>" && exit 1)
+secrets-restore: ## put secrets/ back on a rebuilt Pi: make secrets-restore VAULT=<vault>
+	@test -n "$(VAULT)" || (echo "usage: make secrets-restore VAULT=<vault>" && exit 1)
 	@set -o pipefail; op document get "Authelia secrets" --vault "$(VAULT)" \
 		| ssh $(PI) 'cd $(PI_DIR) && test ! -e secrets && umask 077 && tar xzf -' \
 		|| (echo "not restored: op failed, or $(PI):$(PI_DIR)/secrets exists; move it away first" && exit 1)
@@ -111,3 +100,5 @@ code: ## print the last one-time code Authelia sent
 # The tooling (Bun types, oxfmt, oxlint) is the repository's, one level up.
 test: ## format-check, lint, type-check and test cli/
 	@$(MAKE) -s -C .. qa
+
+include ../pi.mk

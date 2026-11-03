@@ -1,4 +1,4 @@
-.PHONY: fmt fmt-check validate ci init-remote authkey tunnel-tokens
+.PHONY: fmt fmt-check validate ci init-remote authkey forgejo-mcp-authkey authelia-authkey tunnel-tokens
 
 # Format all .tf files in place.
 fmt:
@@ -34,6 +34,14 @@ init-remote:
 #   make -s authkey | pbcopy          # straight to the clipboard
 authkey: init-remote
 	@terraform output -raw tailscale_authkey
+
+# The forgejo-mcp sidecar's one login on the Pi (../../forgejo-mcp). Prints a secret.
+forgejo-mcp-authkey: init-remote
+	@terraform output -raw forgejo_mcp_authkey
+
+# The Authelia sidecar's one login on the Pi (../../authelia). Prints a secret.
+authelia-authkey: init-remote
+	@terraform output -raw authelia_authkey
 
 # Per-node cloudflared connector tokens for setup/003-monitoring.sh. Prints secrets.
 tunnel-tokens: init-remote

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "forgejo-mcp, which Dependabot cannot see: it is built from a git tag on a Forgejo, not pulled as an image. And authelia, so that one bot bumps both Tailscale sidecars in one PR and they never drift apart. ignoreDeps keeps the docker-compose manager from looking up the locally built forgejo-mcp image on a registry.",
+  "extends": [
+    ":disableDependencyDashboard"
+  ],
+  "enabledManagers": [
+    "custom.regex",
+    "docker-compose"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^forgejo-mcp/compose\\.yml$/"
+      ],
+      "matchStrings": [
+        "(?:forgejo-mcp\\.git#|VERSION: |forgejo-mcp:)(?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "forgejo-tags",
+      "registryUrlTemplate": "https://git.b4mad.industries",
+      "depNameTemplate": "agentic-forges/forgejo-mcp"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "forgejo-mcp/**"
+      ],
+      "minimumReleaseAge": "7 days",
+      "commitMessagePrefix": "deps(forgejo-mcp):"
+    },
+    {
+      "matchFileNames": [
+        "authelia/**"
+      ],
+      "minimumReleaseAge": "7 days",
+      "commitMessagePrefix": "deps(authelia):"
+    }
+  ],
+  "includePaths": [
+    "forgejo-mcp/**",
+    "authelia/**"
+  ],
+  "ignoreDeps": [
+    "forgejo-mcp"
+  ]
+}

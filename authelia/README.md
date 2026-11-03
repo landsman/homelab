@@ -32,26 +32,45 @@ A new device: add a client in `configuration.yml`, `make up`, and its entry in
 
 ## Setup
 
-On the Pi, in `~/containers/apps/authelia/`. `make user` and `make integration` run
-`cli/user.ts` with Bun, installed the way the pollos boxes get it
-([`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh)).
+On the Pi, in `~/containers/apps/authelia/`, after
+[the tailnet change](../pollos/infra/TAILNET.md) is applied. `op` (the 1Password CLI) must be
+signed in there.
 
-```bash
-cp .env.example .env    # the tailnet names; TS_AUTHKEY from `make -s authelia-authkey` in pollos/infra
-make secrets            # made here, printed nowhere; then copy secrets/ into 1Password
-op read 'op://<vault>/<item>/password' | make user USER=<name> EMAIL=<address>
-make up
-make cron-install       # the nightly backup
-```
+1. **Bun**, for `make user` and `make integration`, installed the way the pollos boxes get it:
+   [`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh).
+2. **`.env`**: `cp .env.example .env`, then fill it in. `TS_AUTHKEY` is printed by
+   `make -s authelia-authkey` in `pollos/infra`, on a laptop; it is used once.
+3. **Secrets**, made here and printed nowhere, then straight into 1Password. The nightly backup
+   leaves them out on purpose, so this copy is the only one:
 
-Then, in a browser on a device, `https://auth.<tailnet>.ts.net`: sign in and register a
-passkey. The one-time code it asks for is not mailed; `make code` prints it.
+   ```bash
+   make secrets
+   make secrets-backup VAULT=<vault>
+   ```
 
-Then [forgejo-mcp](../forgejo-mcp/README.md#setup), and once it answers:
+4. **Your login**, the password read from 1Password:
 
-```bash
-make integration USER=<name>   # creates the Forgejo integration, writes forgejo_aud
-```
+   ```bash
+   op read 'op://<vault>/<item>/password' | make user USER=<name> EMAIL=<address>
+   ```
+
+5. **Start it**, and the nightly backup:
+
+   ```bash
+   make up
+   make cron-install
+   ```
+
+6. **Check the name.** The node is `auth`, unless the tailnet already had one; then it is
+   `auth-1`. `tailscale status` or the admin console says which. If it differs from
+   `AUTH_HOST` in `.env`, fix that and `make up` again.
+7. **A passkey**: in a browser, `https://auth.<tailnet>.ts.net`, sign in, register one. The
+   one-time code it asks for is not mailed; `make code` prints it.
+8. **Once [forgejo-mcp](../forgejo-mcp/README.md#setup) answers**, its Forgejo integration:
+
+   ```bash
+   make integration USER=<name>   # creates the Forgejo integration, writes forgejo_aud
+   ```
 
 Authelia picks the new `forgejo_aud` up by itself; tokens issued after that carry it.
 
@@ -63,7 +82,8 @@ repositories. Widen it (`SCOPES=…`) when a tool actually fails, not in advance
 As readeck's: `make cron-install` once, and `make backup` runs every night at 3:30. It tars
 the database and `users.yml` into `/home/containers/backup/authelia`, keeps 14 days, and
 pauses Authelia for the second it takes. Copy that folder off the box from there.
-`make restore FILE=…` puts one back. `secrets/` is not in it; see [CAVEATS.md](CAVEATS.md).
+`make restore FILE=…` puts one back. `secrets/` is not in it, it is in 1Password (step 3);
+on a rebuilt Pi, `make secrets-restore VAULT=<vault>` first. See [CAVEATS.md](CAVEATS.md).
 
 ## Checks
 

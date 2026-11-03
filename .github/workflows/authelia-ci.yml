@@ -1,0 +1,35 @@
+name: "authelia ci"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # Only the scripts themselves: config, compose and docs changes have nothing here to break.
+    paths:
+      - 'authelia/cli/**'
+
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: authelia
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # The version in the root package.json's packageManager, the one the Pi runs.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      # cli/user.ts talks to the Authelia and Forgejo containers; the test stubs
+      # docker on PATH, so this runs on a cloud runner.
+      - name: "Format-check, lint, type-check and test the cli scripts"
+        run: make test

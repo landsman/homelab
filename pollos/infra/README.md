@@ -1,6 +1,7 @@
 # infra
 
 What Tailscale and its provider cannot do here is in [CAVEATS.md](CAVEATS.md).
+Who reaches what on the tailnet, and why: [TAILNET.md](TAILNET.md).
 
 Terraform for everything around [pollos](../README.md) that isn't the site
 itself: Cloudflare DNS and Pages domains, the Worker's custom domain, per-node

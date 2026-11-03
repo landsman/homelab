@@ -11,7 +11,7 @@
 # tag:authelia: both ask for a login, but jesse runs arbitrary CI jobs, and a
 # login page it cannot reach is one it cannot attack. That is why each is a node
 # of its own and not a path on the Pi's 443: an ACL cannot tell `tailscale
-# serve` paths apart.
+# serve` paths apart. Drawn, with the reason for each rule: TAILNET.md.
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
 

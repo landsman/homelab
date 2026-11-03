@@ -77,7 +77,7 @@ make up                # builds the image on first run
 
 `TS_AUTHKEY` is needed for the first `make up` only, from
 `make -s forgejo-mcp-authkey` in `pollos/infra`; the sidecar's state volume keeps
-the node after that.
+the node after that, so empty it in `.env` once the node is up.
 
 Forgejo must allow this issuer: `make rsync` in `../forgejo` from the laptop, set
 `FORGEJO_MCP_HOST` in its `.env` on the Pi and run `make up` there. Then check the documents Forgejo will fetch:

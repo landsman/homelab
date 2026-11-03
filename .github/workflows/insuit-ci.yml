@@ -217,13 +217,15 @@ jobs:
         with:
           name: site
           path: insuit/dist/client
+      # Wrangler is installed with Bun: the action picks it from the root bun.lock.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
       - name: "Deploy the preview"
         uses: cloudflare/wrangler-action@v4
         id: deploy
         with:
-          # The root bun.lock is the repo scripts', not Wrangler's: without this the action
-          # picks bun from it, which this job does not have.
-          packageManager: npm
           apiToken: ${{ secrets.INSUIT_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
           command: pages deploy insuit/dist/client --project-name=insuit-preview --branch=${{ github.head_ref }}

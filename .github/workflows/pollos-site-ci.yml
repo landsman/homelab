@@ -79,12 +79,14 @@ jobs:
       - name: "Build static site"
         run: make build
         working-directory: pollos/microsite
+      # Wrangler is installed with Bun: the action picks it from the root bun.lock.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
       - uses: cloudflare/wrangler-action@v4
         id: deploy
         with:
-          # The root bun.lock is the repo scripts', not Wrangler's: without this the action
-          # picks bun from it, which this job does not have.
-          packageManager: npm
           apiToken: ${{ secrets.POLLOS_CZ_CF_API_TOKEN }}
           accountId: ${{ vars.POLLOS_CZ_CF_ACCOUNT_ID }}
           command: pages deploy pollos/microsite/public --project-name=pollos-cz --branch=${{ github.head_ref }}

@@ -39,12 +39,22 @@ user: ## add USER with EMAIL; the password comes on stdin, piped from the laptop
 integration: ## create USER's Forgejo integration and write forgejo_aud; forgejo-mcp must be up
 	bun cli/user.ts integration $(USER)
 
-##@ 1Password, from the laptop
-.PHONY: secrets-backup secrets-restore
+##@ From the laptop
+.PHONY: rsync secrets-backup secrets-restore
+# Where the Pi keeps its apps, from the home of the ssh user, containers: ~/dev is the RAID
+# (../docker/README.md).
+PI_DIR ?= dev/apps/authelia
+
+# The Pi has no checkout, so its copy is the tracked files only; .env, secrets/ and users.yml,
+# which live there alone, are never in the list and never overwritten.
+rsync: ## copy this folder to the Pi: make rsync PI=<ssh host>
+	@test -n "$(PI)" || (echo "usage: make rsync PI=<ssh host>" && exit 1)
+	@ssh $(PI) 'mkdir -p $(PI_DIR)'
+	git ls-files -z . | rsync -av --from0 --files-from=- ./ $(PI):$(PI_DIR)/
+
 # 1Password is signed in on the laptop, not on the Pi, so the folder travels over ssh as one tar,
 # into a single document, never on screen. pipefail, so a failed ssh or op fails the target;
 # set in the recipe, since macOS's make 3.81 ignores .SHELLFLAGS.
-PI_DIR ?= containers/apps/authelia
 secrets-backup secrets-restore: SHELL := /bin/bash
 
 secrets-backup: ## copy the Pi's secrets/ into 1Password: make secrets-backup PI=<ssh host> VAULT=<vault>

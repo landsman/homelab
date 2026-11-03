@@ -32,11 +32,13 @@ A new device: add a client in `configuration.yml`, `make up`, and its entry in
 
 ## Setup
 
-On the Pi, in `~/containers/apps/authelia/`, after
+On the Pi, as the `containers` user, in `~/dev/apps/authelia/`, after
 [the tailnet change](../pollos/infra/TAILNET.md) is applied. The steps marked _laptop_ need
 1Password, which is signed in there and not on the Pi; they reach the Pi over ssh, `<pi>` being
 its ssh host.
 
+0. **The folder**, _laptop_, in `authelia/`: `make rsync PI=<pi>`. The Pi has no checkout; run it
+   again after every change here.
 1. **Bun**, for `make user` and `make integration`, installed the way the pollos boxes get it:
    [`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh).
 2. **`.env`**: `cp .env.example .env`, then fill it in. `TS_AUTHKEY` is printed by
@@ -53,7 +55,7 @@ its ssh host.
 
    ```bash
    op read 'op://<vault>/<item>/password' \
-     | ssh <pi> 'cd containers/apps/authelia && make user USER=<name> EMAIL=<address>'
+     | ssh <pi> 'cd dev/apps/authelia && make user USER=<name> EMAIL=<address>'
    ```
 
 5. **Start it**, and the nightly backup:

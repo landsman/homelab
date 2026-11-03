@@ -1,0 +1,90 @@
+# The OpenID Connect provider for forgejo-mcp, and nothing else: no forward-auth,
+# no protected sites. Names that carry the tailnet come from .env through the
+# template filter, because this repository is public.
+server:
+  address: 'tcp://127.0.0.1:9091/'
+
+theme: 'auto'
+
+totp:
+  issuer: '{{ env "AUTH_HOST" }}'
+
+authentication_backend:
+  password_reset:
+    disable: true
+  # Written on the box only (make user), never committed: it holds the password
+  # hash and the Forgejo audience. Users cannot change it, which is what keeps
+  # forgejo_aud admin-only.
+  file:
+    path: '/config/users.yml'
+    watch: true
+    extra_attributes:
+      forgejo_aud:
+        value_type: 'string'
+        multi_valued: false
+
+# OIDC only: no site is protected through Authelia. Authelia refuses 'deny' without rules.
+access_control:
+  default_policy: 'two_factor'
+
+session:
+  cookies:
+    - domain: '{{ env "AUTH_HOST" }}'
+      authelia_url: 'https://{{ env "AUTH_HOST" }}'
+
+storage:
+  local:
+    path: '/data/db.sqlite3'
+
+# One user, who is also the admin: the one-time codes for registering a passkey
+# or TOTP land in this file on the box (make code).
+notifier:
+  filesystem:
+    filename: '/data/notification.txt'
+
+identity_providers:
+  oidc:
+    jwks:
+      - key_id: 'main'
+        algorithm: 'RS256'
+        use: 'sig'
+        key: {{ secret "/secrets/oidc.pem" | mindent 10 "|" | msquote }}
+    # A stolen access token works until it expires; the refresh token is what
+    # keeps a device signed in, and deleting the device's client below kills it.
+    lifespans:
+      access_token: '1h'
+      refresh_token: '90d'
+    claims_policies:
+      forgejo_mcp:
+        access_token: ['forgejo_aud']
+        custom_claims:
+          forgejo_aud:
+            attribute: 'forgejo_aud'
+    scopes:
+      forgejo_mcp:
+        claims: ['forgejo_aud']
+    # One client per device, so one device can be cut off by deleting its entry.
+    # Claude Code: claude mcp add --client-id <id> --callback-port 53682.
+    clients:
+      - &client
+        client_id: 'forgejo-mcp-macbook-pro-m5-16'
+        client_name: 'forgejo-mcp on macbook-pro-m5-16'
+        public: true
+        authorization_policy: 'two_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris: ['http://localhost:53682/callback']
+        scopes: ['openid', 'offline_access', 'forgejo_mcp']
+        grant_types: ['authorization_code', 'refresh_token']
+        response_types: ['code']
+        audience: ['https://{{ env "FORGEJO_MCP_HOST" }}/mcp']
+        requested_audience_mode: 'implicit'
+        claims_policy: 'forgejo_mcp'
+        # Opaque by default; forgejo-mcp validates a JWT itself.
+        access_token_signed_response_alg: 'RS256'
+      - <<: *client
+        client_id: 'forgejo-mcp-t480'
+        client_name: 'forgejo-mcp on t480'
+      - <<: *client
+        client_id: 'forgejo-mcp-hp-prodesk-600-g3'
+        client_name: 'forgejo-mcp on hp-prodesk-600-g3'

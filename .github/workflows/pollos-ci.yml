@@ -31,6 +31,8 @@ jobs:
       - uses: hashicorp/setup-terraform@v4
       - name: "Format check + validate"
         run: make ci
+      - name: "state.sh test"
+        run: make test SHELLCHECK=shellcheck
 
   worker:
     runs-on: ubuntu-latest

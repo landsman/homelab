@@ -27,11 +27,9 @@ policy.
 1. **Terraform**, the version pinned in [`mise.toml`](../../mise.toml) at the repo root, with
    [mise](https://mise.jdx.dev) activated in the shell: `make install`.
 2. **Checks**, no credentials needed: `make ci` before pushing, `make fmt` to format.
-3. **The real state**, only to read a key or token Terraform minted: `make backend`, fill
-   `backend.hcl` from 1Password ([Reading state](#reading-state)). `make init-remote` connects to
-   it, and every output target runs that itself.
-4. **Outputs**: `make authkey`, `make forgejo-mcp-authkey`, `make authelia-authkey`,
-   `make tunnel-tokens`. Each prints a secret and nothing else.
+3. **Outputs**, read from the real state: `make authkey`, `make forgejo-mcp-authkey`,
+   `make authelia-authkey`, `make tunnel-tokens`. Each asks for the R2 credentials from 1Password
+   and prints a secret and nothing else ([Reading state](#reading-state)).
 
 ## Credentials
 
@@ -90,16 +88,14 @@ not in the policy, so those survive.
 ## Reading state
 
 Both runbooks below read a value Terraform minted, which means initialising the
-R2 backend for real. `make backend` creates `backend.hcl` here once, gitignored; fill it in:
+R2 backend for real. Every output target does that through [`state.sh`](state.sh), which asks
+for the three values it needs, the same ones the `pollos` environment holds: the account id
+(`POLLOS_CZ_CF_ACCOUNT_ID`), then the R2 token's key id and secret
+(`POLLOS_CZ_R2_ACCESS_KEY_ID`, `POLLOS_CZ_R2_SECRET_ACCESS_KEY`), these two typed without echo.
+Nothing is written to disk; they live as long as the one command. Already in the environment,
+for instance under `op run`, they are not asked for.
 
-```hcl
-endpoints  = { s3 = "https://<POLLOS_CZ_CF_ACCOUNT_ID>.r2.cloudflarestorage.com" }
-access_key = "<POLLOS_CZ_R2_ACCESS_KEY_ID>"
-secret_key = "<POLLOS_CZ_R2_SECRET_ACCESS_KEY>"
-```
-
-Then `make authkey` and `make tunnel-tokens` do the rest. Both print a secret on
-stdout and nothing else, so they compose:
+The prompts go to the terminal and the secret to stdout alone, so the targets compose:
 
 ```sh
 TS_AUTHKEY=$(make -s authkey)     # or: make -s authkey | pbcopy
@@ -111,11 +107,10 @@ select the key and you select the `%` with it, and Tailscale rejects it as
 `invalid key: unable to validate API key`, which reads like a broken key rather
 than a copy-paste artifact. Command substitution and `pbcopy` both avoid it.
 
-This is a `-backend-config` file rather than `.tfvars` on purpose: Terraform
+The endpoint goes in as `-backend-config` rather than a variable because Terraform
 resolves the backend **before** variables exist, so a `backend` block can't
-reference `var.*`. A partial backend config is the only native way to keep the
-account id and R2 secret out of a public repo. CI passes the same values inline
-from the `pollos` environment and never reads this file.
+reference `var.*`; the key pair as `AWS_*` in the environment. CI does the same from
+the `pollos` environment.
 
 Outputs are marked `sensitive`, which keeps them out of plan/apply logs but
 **not** out of the state file. Anyone with the R2 credentials can read every

@@ -8,7 +8,6 @@
   "arrowParens": "avoid",
   "sortPackageJson": false,
   "ignorePatterns": [
-    "**/routeTree.gen.ts",
-    "authelia/configuration.yml"
+    "**/routeTree.gen.ts"
   ]
 }

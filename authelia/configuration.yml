@@ -48,6 +48,8 @@ identity_providers:
       - key_id: 'main'
         algorithm: 'RS256'
         use: 'sig'
+        # An Authelia template, not YAML: formatted, it becomes `{ { … } }`.
+        # prettier-ignore
         key: {{ secret "/secrets/oidc.pem" | mindent 10 "|" | msquote }}
     # A stolen access token works until it expires; the refresh token is what
     # keeps a device signed in, and deleting the device's client below kills it.

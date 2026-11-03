@@ -8,7 +8,8 @@ PI ?= containers@nas.local
 PI_DIR ?= dev/apps/$(notdir $(CURDIR))
 
 # The Pi has no checkout, so its copy is the tracked files only; .env, secrets/ and whatever
-# else lives there alone are never in the list and never overwritten.
+# else lives there alone are never in the list and never overwritten. For the same reason
+# nothing is deleted: a file removed or renamed here stays on the Pi until removed there.
 rsync: ## copy this folder's tracked files to the Pi (PI=<ssh host> to override)
 	@ssh $(PI) 'mkdir -p $(PI_DIR)'
 	git ls-files -z . | rsync -av --from0 --files-from=- ./ $(PI):$(PI_DIR)/

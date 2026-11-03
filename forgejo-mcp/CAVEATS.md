@@ -50,6 +50,11 @@ admin console, leaves the sidecar unable to log in again: apply a new key
 (`terraform apply -replace=tailscale_tailnet_key.forgejo_mcp` in `pollos/infra`), put it in
 `.env`, `make up`.
 
+**Delete the old node in the admin console first** when only the volume was lost. Otherwise
+the new one is named `forgejo-mcp-1`, and that name is not the issuer Forgejo's integrations
+trust, not `ALLOWED_DOMAINS`, and not the URL every client has: every call fails with "Issuer
+validation failed". `tailscale status` shows the name it got.
+
 ## An upgrade builds from the mirror, not from upstream
 
 Upstream's image is linux/amd64 only, so `compose.yml` builds from the tag's commit on

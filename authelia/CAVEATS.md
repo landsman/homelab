@@ -57,4 +57,6 @@ names are `AUTH_HOST` and `FORGEJO_MCP_HOST`: `AUTHELIA_HOST` was taken as the d
 ## A sidecar that lost its state needs a new key
 
 As for forgejo-mcp: `terraform apply -replace=tailscale_tailnet_key.authelia` in
-`pollos/infra`, put the key in `.env`, `make up`.
+`pollos/infra`, put the key in `.env`, `make up`. Delete the old node in the admin console
+first, or the new one is `auth-1`: a different issuer than the one forgejo-mcp and every
+client expect, and no token Authelia issues is accepted.

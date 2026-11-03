@@ -27,3 +27,5 @@ build: ## rebuild, after a version bump in compose.yml
 key: ## generate the signing key, if it is missing
 	@[ -s secrets/signing.pem ] || (umask 077 && mkdir -p secrets && openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out secrets/signing.pem)
 	@echo "secrets/signing.pem present"
+
+include ../pi.mk

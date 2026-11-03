@@ -66,7 +66,8 @@ the only way forgejo-mcp reaches Authelia's node.
 
 ## Setup
 
-Authelia first, see [../authelia](../authelia/README.md#setup). Then, on the Pi:
+Authelia first, see [../authelia](../authelia/README.md#setup). The Pi has no checkout: from the
+laptop, `make rsync` here copies this folder to `~/dev/apps/forgejo-mcp`. Then, on the Pi:
 
 ```bash
 cp .env.example .env   # set the tailnet names
@@ -78,8 +79,8 @@ make up                # builds the image on first run
 `make -s forgejo-mcp-authkey` in `pollos/infra`; the sidecar's state volume keeps
 the node after that.
 
-Forgejo must allow this issuer: set `FORGEJO_MCP_HOST` in `../forgejo/.env` and run
-`make up` there. Then check the documents Forgejo will fetch:
+Forgejo must allow this issuer: `make rsync` in `../forgejo` from the laptop, set
+`FORGEJO_MCP_HOST` in its `.env` on the Pi and run `make up` there. Then check the documents Forgejo will fetch:
 
 ```bash
 curl -sS https://forgejo-mcp.<tailnet>.ts.net/issuer/.well-known/openid-configuration
@@ -100,8 +101,8 @@ claude mcp add --transport http --client-id forgejo-mcp-<device> --callback-port
 
 The entries are in `landsman/config`.
 
-Upgrade: Renovate opens the bump; after merging, copy `compose.yml` to the Pi and
-run `make build up`. What to know before that is in [CAVEATS.md](CAVEATS.md).
+Upgrade: Renovate opens the bump; after merging, `make rsync` from the laptop,
+then `make build up` on the Pi. What to know before that is in [CAVEATS.md](CAVEATS.md).
 
 `FORGEJO_MCP_ALLOW_FILE_PATH_UPLOAD` stays unset. It lets attachment tools upload
 files from the server's filesystem, and here that is the Pi.

@@ -34,10 +34,10 @@ A new device: add a client in `configuration.yml`, `make up`, and its entry in
 
 On the Pi, as the `containers` user, in `~/dev/apps/authelia/`, after
 [the tailnet change](../pollos/infra/TAILNET.md) is applied. The steps marked _laptop_ need
-1Password, which is signed in there and not on the Pi; they reach the Pi over ssh, `<pi>` being
-its ssh host.
+1Password, which is signed in there and not on the Pi; they reach the Pi over ssh as
+`containers@nas.local` (`PI=<ssh host>` for another).
 
-0. **The folder**, _laptop_, in `authelia/`: `make rsync PI=<pi>`. The Pi has no checkout; run it
+0. **The folder**, _laptop_, in `authelia/`: `make rsync`. The Pi has no checkout; run it
    again after every change here.
 1. **Bun**, for `make user` and `make integration`, installed the way the pollos boxes get it:
    [`pollos/setup/004-typescript.sh`](../pollos/setup/004-typescript.sh).
@@ -48,14 +48,14 @@ its ssh host.
 
    ```bash
    make secrets                                      # Pi
-   make secrets-backup PI=<pi> VAULT=<vault>          # laptop, in authelia/
+   make secrets-backup VAULT=<vault>                 # laptop, in authelia/
    ```
 
 4. **Your login**, _laptop_: the password goes from 1Password to the Pi on ssh's stdin.
 
    ```bash
    op read 'op://<vault>/<item>/password' \
-     | ssh <pi> 'cd dev/apps/authelia && make user USER=<name> EMAIL=<address>'
+     | ssh containers@nas.local 'cd dev/apps/authelia && make user USER=<name> EMAIL=<address>'
    ```
 
 5. **Start it**, and the nightly backup:
@@ -87,7 +87,7 @@ As readeck's: `make cron-install` once, and `make backup` runs every night at 3:
 the database and `users.yml` into `/home/containers/backup/authelia`, keeps 14 days, and
 pauses Authelia for the second it takes. Copy that folder off the box from there.
 `make restore FILE=…` puts one back. `secrets/` is not in it, it is in 1Password (step 3);
-on a rebuilt Pi, `make secrets-restore PI=<pi> VAULT=<vault>` from the laptop first. See [CAVEATS.md](CAVEATS.md).
+on a rebuilt Pi, `make secrets-restore VAULT=<vault>` from the laptop first. See [CAVEATS.md](CAVEATS.md).
 
 ## Checks
 

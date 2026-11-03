@@ -16,7 +16,7 @@ authentication_backend:
   # hash and the Forgejo audience. Users cannot change it, which is what keeps
   # forgejo_aud admin-only.
   file:
-    path: '/config/users.yml'
+    path: '/config/users/users.yml'
     watch: true
     extra_attributes:
       forgejo_aud:

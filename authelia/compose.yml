@@ -31,7 +31,9 @@ services:
       AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE: /secrets/oidc-hmac
     volumes:
       - ./configuration.yml:/config/configuration.yml:ro
-      - ./users.yml:/config/users.yml:ro
+      # The folder, not the file: Authelia watches the file's folder, and in a
+      # mount of one file it never sees a write to it from the Pi.
+      - ./users:/config/users:ro
       - ./secrets:/secrets:ro
       - data:/data
     network_mode: service:tailscale

@@ -24,7 +24,7 @@ Per device, one public client, `forgejo-mcp-<device>` in
 Login is a password and a second factor, a passkey or TOTP. The first login asks once to
 allow the scopes.
 
-`forgejo_aud` comes from `users.yml`, which lives on the Pi only and which no user can edit.
+`forgejo_aud` comes from `users/users.yml`, which lives on the Pi only and which no user can edit.
 The Forgejo integration's rule `sub = <subject>` makes a wrong `forgejo_aud` useless anyway.
 
 A new device: add a client in `configuration.yml`, `make up`, and its entry in
@@ -76,7 +76,8 @@ On the Pi, as the `containers` user, in `~/dev/apps/authelia/`, after
    make integration USER=<name>   # creates the Forgejo integration, writes forgejo_aud
    ```
 
-Authelia picks the new `forgejo_aud` up by itself; tokens issued after that carry it.
+Authelia reloads `users/users.yml` by itself; tokens issued after that carry the new
+`forgejo_aud`.
 
 The integration gets `read:user`, `write:repository` and `write:issue` on all the user's
 repositories. Widen it (`SCOPES=…`) when a tool actually fails, not in advance.
@@ -84,7 +85,7 @@ repositories. Widen it (`SCOPES=…`) when a tool actually fails, not in advance
 ## Backup
 
 As readeck's: `make cron-install` once, and `make backup` runs every night at 3:30. It tars
-the database and `users.yml` into `/home/containers/backup/authelia`, keeps 14 days, and
+the database and `users/` into `/home/containers/backup/authelia`, keeps 14 days, and
 pauses Authelia for the second it takes. Copy that folder off the box from there.
 `make restore FILE=…` puts one back. `secrets/` is not in it, it is in 1Password (step 3);
 on a rebuilt Pi, `make secrets-restore VAULT=<vault>` from the laptop first. See [CAVEATS.md](CAVEATS.md).

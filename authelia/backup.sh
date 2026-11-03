@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-# The tar holds users.yml's password hashes.
+# The tar holds users/users.yml's password hashes.
 umask 077
 
 BACKUP_DIR="/backup"
@@ -10,7 +10,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 FILE="$BACKUP_DIR/authelia-backup-$DATE.tar.gz"
 
 echo "[$(date)] Starting backup..."
-tar czf "$FILE" -C / data users.yml
+tar czf "$FILE" -C / data users
 echo "[$(date)] Backup saved: $FILE"
 
 find "$BACKUP_DIR" -name "authelia-*.tar.gz" -mtime +$KEEP_DAYS -delete

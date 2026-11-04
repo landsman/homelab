@@ -1,6 +1,6 @@
 services:
   archivebox:
-    image: archivebox/archivebox:0.9.73
+    image: archivebox/archivebox:0.9.77
     container_name: archivebox
     restart: unless-stopped
     ports:

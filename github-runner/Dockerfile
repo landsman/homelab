@@ -1,4 +1,4 @@
-FROM myoung34/github-runner:2.335.1
+FROM myoung34/github-runner:2.338.2
 
 # Add Node.js 22 (for npx / sentry-cli) + postgresql-client (for psql vault upsert) + shellcheck (for shell linting in `make qa`)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \

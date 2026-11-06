@@ -21,6 +21,8 @@ daemon will not choose between them.
 
 The boxes boot into the `powersave` CPU governor; [setup/governor.sh](setup/governor.sh) `install` pins them to `performance` across reboots (`sudo governor powersave` to back off).
 
+A box that went down on its own: [setup/postmortem.sh](setup/postmortem.sh) `install` makes the next crash leave evidence (a panic dump, a heartbeat every minute) and lets the hardware watchdog restart a hung box, and `sudo postmortem` after the restart says whether it was a clean shutdown, a panic, or lost power or a hang.
+
 ## HW
 
 Five mini PCs, each with 32 GB of DDR4 SO-DIMM (2x 16 GB) running at the most its CPU takes.

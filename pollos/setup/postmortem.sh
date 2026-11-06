@@ -20,7 +20,8 @@ set -eu
 #     the last line before a crash is the time of death to the minute, and says
 #     whether it was hot or busy
 #   - journald flushes every 30 s instead of 5 min, so a hang loses less log
-#   - nvme-cli, for the drive's own count of unsafe shutdowns
+#   - smartmontools, for the drive's own count of unsafe shutdowns; it reads
+#     saul's NVMe and the other boxes' SATA SSDs alike
 #
 # What none of it can tell apart: power cut vs a hang the watchdog missed. Both
 # end with no shutdown, no dump and no reset flag. The power LED does — on and
@@ -106,11 +107,14 @@ report() {
         echo "none"
     fi
     echo
-    echo "== drive (unsafe_shutdowns counts every power loss and hard reset, ever)"
-    if command -v nvme >/dev/null; then
-        nvme smart-log /dev/nvme0 | grep -E 'unsafe_shutdowns|power_cycles|temperature' || true
+    echo "== drive (unsafe shutdowns count every power loss and hard reset, ever)"
+    if command -v smartctl >/dev/null; then
+        disk=/dev/$(lsblk -no PKNAME "$(findmnt -no SOURCE /)")
+        echo "$disk"
+        # NVMe says "Unsafe Shutdowns", the SATA A400 "Unsafe_Shutdown_Count"
+        smartctl -A "$disk" | grep -iE 'unsafe|power.cycle|temperature' || true
     else
-        echo "nvme-cli missing"
+        echo "smartmontools missing"
     fi
     echo
     echo "== verdict"
@@ -119,7 +123,7 @@ report() {
 
 install_() {
     [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nvme-cli >/dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq smartmontools >/dev/null
     cmp -s "$0" "$BIN" || install -m 0755 "$0" "$BIN"
 
     cat > /etc/sysctl.d/90-postmortem.conf <<'EOF'

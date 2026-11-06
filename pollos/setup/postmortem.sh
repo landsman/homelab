@@ -130,10 +130,16 @@ install_() {
 # reboot 10 s after a panic instead of freezing; the dump stays in EFI pstore
 kernel.panic = 10
 kernel.panic_on_oops = 1
-kernel.softlockup_panic = 1
 kernel.hardlockup_panic = 1
+# a soft lockup that recovers has already logged its trace; rebooting a node and
+# rescheduling its jobs for every 20 s stall buys nothing, and one that never
+# recovers turns into a hard lockup, which panics above. 0, not absent, so a
+# re-run turns off what the first version of this script turned on
+kernel.softlockup_panic = 0
 EOF
-    sysctl -q --system
+    # this file only: --system reloads every file, and one key this kernel lacks
+    # would stop the install with the panic settings on and the rest not set up
+    sysctl -q -p /etc/sysctl.d/90-postmortem.conf
 
     mkdir -p /etc/systemd/system.conf.d /etc/systemd/journald.conf.d
     cat > /etc/systemd/system.conf.d/watchdog.conf <<'EOF'

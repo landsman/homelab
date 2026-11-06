@@ -5,7 +5,8 @@ set -eu
 # Why did this box go down? Leaves evidence behind before a crash, and reads it
 # after the restart. Run as root.
 #
-#   sudo sh postmortem.sh install   # once per box; safe to re-run
+#   wget -O postmortem.sh https://pollos.cz/postmortem.sh
+#   sudo sh postmortem.sh install   # once per box; safe to re-run; not from a pipe
 #   sudo postmortem                 # after an unexpected restart: evidence + verdict
 #
 # What install changes, so the next crash says what it was:
@@ -122,6 +123,8 @@ report() {
 }
 
 install_() {
+    # it installs a copy of itself, which a pipe has none of
+    [ -f "$0" ] || { echo "download it first: wget -O postmortem.sh https://pollos.cz/postmortem.sh && sudo sh postmortem.sh install" >&2; exit 1; }
     [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
     DEBIAN_FRONTEND=noninteractive apt-get install -y -qq smartmontools >/dev/null
     cmp -s "$0" "$BIN" || install -m 0755 "$0" "$BIN"

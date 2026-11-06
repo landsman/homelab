@@ -42,5 +42,14 @@ says 1 0 0 "clean shutdown" "a shutdown with no dump and no reset is clean"
 says 1 0 32 "hard hang" "a shutdown that hung and was reset by the watchdog is a hang"
 says 1 1 0 "kernel panic" "a panic during shutdown is a panic"
 
+# install copies itself to /usr/local/sbin, so from a pipe ($0 is "sh") it must
+# stop before apt-get rather than halfway through
+if out=$(sh -s install < "$POSTMORTEM" 2>&1); then
+    fail "a piped install stops (it exited 0)"
+else
+    case "$out" in *"wget -O postmortem.sh"*) pass "a piped install stops and says to download it first" ;;
+        *) fail "a piped install stops and says to download it first (got: $out)" ;; esac
+fi
+
 echo "$PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

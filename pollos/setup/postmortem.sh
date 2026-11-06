@@ -45,13 +45,15 @@ ended_clean() {
 
 # CLEAN: 1 if the previous boot ended clean; PANICS: kernel dumps saved since
 # this boot; BOOTSTATUS: the watchdog's flags, 0x20 is "I reset the box".
+# A shutdown that panicked or hung on its way down still logs as clean, so the
+# dump and the reset flag are checked first.
 verdict() {
-    if [ "$1" = 1 ]; then
-        echo "clean shutdown: something asked for it — a person, an upgrade, the power button"
-    elif [ "$2" -gt 0 ]; then
+    if [ "$2" -gt 0 ]; then
         echo "kernel panic: the dump is in $PSTORE"
     elif [ $(($3 & 32)) -ne 0 ]; then
         echo "hard hang: the kernel stopped and the hardware watchdog reset the box"
+    elif [ "$1" = 1 ]; then
+        echo "clean shutdown: something asked for it — a person, an upgrade, the power button"
     else
         echo "power lost: no shutdown, no panic, no watchdog reset — check the socket, the power brick and the BIOS power log"
     fi

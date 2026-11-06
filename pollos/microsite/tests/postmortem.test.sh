@@ -38,7 +38,9 @@ says 0 1 0 "kernel panic" "a saved dump is a panic"
 says 0 0 32 "hard hang" "the watchdog's reset flag is a hang"
 says 0 0 1 "power lost" "a watchdog flag other than the reset one is not a hang"
 says 0 1 32 "kernel panic" "a panic outranks the watchdog — the dump says more"
-says 1 1 32 "clean shutdown" "a clean shutdown outranks a stale dump"
+says 1 0 0 "clean shutdown" "a shutdown with no dump and no reset is clean"
+says 1 0 32 "hard hang" "a shutdown that hung and was reset by the watchdog is a hang"
+says 1 1 0 "kernel panic" "a panic during shutdown is a panic"
 
 echo "$PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

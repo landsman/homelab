@@ -182,5 +182,5 @@ case "${1:-report}" in
     report) report ;;
     ended-clean) ended_clean ;;
     verdict) verdict "$2" "$3" "$4" ;;
-    *) sed -n '3,12p' "$0"; exit 1 ;;
+    *) sed -n '/^# Why did/,/^#   sudo postmortem /p' "$0"; exit 1 ;;
 esac

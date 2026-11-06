@@ -83,7 +83,8 @@ report() {
     journalctl --list-boots --no-pager | tail -3
     echo
     echo "== last lines of the previous boot"
-    journalctl -b -1 -n 15 --no-pager -o short-iso
+    # a volatile or wiped journal has no previous boot; the dump and heartbeats still speak
+    journalctl -b -1 -n 15 --no-pager -o short-iso || echo "no previous boot in the journal"
     clean=0
     journalctl -b -1 -n 50 --no-pager | ended_clean && clean=1
     echo

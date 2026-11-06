@@ -29,18 +29,15 @@ if printf '%s\n' "$CRASH" | sh "$POSTMORTEM" ended-clean; then fail "a log that 
 if printf '' | sh "$POSTMORTEM" ended-clean; then fail "an empty log is not clean"; else pass "an empty log is not clean"; fi
 
 says() {
-    out=$(sh "$POSTMORTEM" verdict "$1" "$2" "$3")
-    case "$out" in "$4"*) pass "$5" ;; *) fail "$5 (got: $out)" ;; esac
+    out=$(sh "$POSTMORTEM" verdict "$1" "$2")
+    case "$out" in "$3"*) pass "$4" ;; *) fail "$4 (got: $out)" ;; esac
 }
 
-says 0 0 0 "power lost" "no evidence at all is a power loss"
-says 0 1 0 "kernel panic" "a saved dump is a panic"
-says 0 0 32 "hard hang" "the watchdog's reset flag is a hang"
-says 0 0 1 "power lost" "a watchdog flag other than the reset one is not a hang"
-says 0 1 32 "kernel panic" "a panic outranks the watchdog — the dump says more"
-says 1 0 0 "clean shutdown" "a shutdown with no dump and no reset is clean"
-says 1 0 32 "hard hang" "a shutdown that hung and was reset by the watchdog is a hang"
-says 1 1 0 "kernel panic" "a panic during shutdown is a panic"
+# iTCO reports no reset flag (it clears it at probe), so no evidence is either
+says 0 0 "power lost, or a hang the watchdog reset" "no evidence names both a power loss and a watchdog reset"
+says 0 1 "kernel panic" "a saved dump is a panic"
+says 1 0 "clean shutdown" "a shutdown with no dump is clean"
+says 1 1 "kernel panic" "a panic during shutdown is a panic"
 
 # install copies itself to /usr/local/sbin, so from a pipe ($0 is "sh") it must
 # stop before apt-get rather than halfway through

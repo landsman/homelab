@@ -15,8 +15,9 @@ set -eu
 #     forever; the kernel's dump survives in EFI pstore and systemd-pstore
 #     archives it to /var/lib/systemd/pstore on the next boot
 #   - systemd feeds the hardware watchdog (Intel iTCO), so a hang the kernel
-#     cannot even panic on is reset by the chipset, and the next boot sees it
-#     in /sys/class/watchdog/watchdog0/bootstatus
+#     cannot even panic on is reset by the chipset instead of waiting for the
+#     button. It leaves no mark: iTCO_wdt clears the chip's timeout bit at
+#     probe and reports bootstatus 0 after every boot
 #   - a heartbeat every minute, fsynced, with the hottest sensor and the load:
 #     the last line before a crash is the time of death to the minute, and says
 #     whether it was hot or busy
@@ -24,14 +25,15 @@ set -eu
 #   - smartmontools, for the drive's own count of unsafe shutdowns; it reads
 #     saul's NVMe and the other boxes' SATA SSDs alike
 #
-# What none of it can tell apart: power cut vs a hang the watchdog missed. Both
-# end with no shutdown, no dump and no reset flag. The power LED does — on and
-# frozen is a hang, off is power.
+# What none of it can tell apart: a power cut vs a hang that did not panic.
+# Both end with no shutdown and no dump. A hang the watchdog reset comes back
+# on its own; one with the button needed, the power LED says — on and frozen is
+# a hang, off is power.
 #
 # Subcommands the tests call (no root, no box):
 #
 #   sh postmortem.sh ended-clean < journal-tail   # exit 0 if it shut down cleanly
-#   sh postmortem.sh verdict CLEAN PANICS BOOTSTATUS
+#   sh postmortem.sh verdict CLEAN PANICS
 #
 
 BIN=/usr/local/sbin/postmortem
@@ -46,18 +48,15 @@ ended_clean() {
 }
 
 # CLEAN: 1 if the previous boot ended clean; PANICS: kernel dumps saved since
-# this boot; BOOTSTATUS: the watchdog's flags, 0x20 is "I reset the box".
-# A shutdown that panicked or hung on its way down still logs as clean, so the
-# dump and the reset flag are checked first.
+# this boot. A shutdown that panicked on its way down still logs as clean, so
+# the dump is checked first.
 verdict() {
     if [ "$2" -gt 0 ]; then
         echo "kernel panic: the dump is in $PSTORE"
-    elif [ $(($3 & 32)) -ne 0 ]; then
-        echo "hard hang: the kernel stopped and the hardware watchdog reset the box"
     elif [ "$1" = 1 ]; then
         echo "clean shutdown: something asked for it — a person, an upgrade, the power button"
     else
-        echo "power lost: no shutdown, no panic, no watchdog reset — check the socket, the power brick and the BIOS power log"
+        echo "power lost, or a hang the watchdog reset: no shutdown, no panic — if it came back on its own it was the watchdog; if it needed the button, a lit power LED means a hang and a dark one the socket, the power brick or the BIOS power log"
     fi
 }
 
@@ -99,11 +98,9 @@ report() {
     fi
     echo "$panics found"
     echo
-    echo "== hardware watchdog"
-    status=0
-    if [ -r "$WATCHDOG/bootstatus" ]; then
-        status=$(cat "$WATCHDOG/bootstatus")
-        echo "$(cat "$WATCHDOG/identity") bootstatus=$status state=$(cat "$WATCHDOG/state")"
+    echo "== hardware watchdog (armed or not; it cannot say whether it fired)"
+    if [ -r "$WATCHDOG/state" ]; then
+        echo "$(cat "$WATCHDOG/identity") state=$(cat "$WATCHDOG/state")"
     else
         echo "none"
     fi
@@ -119,7 +116,7 @@ report() {
     fi
     echo
     echo "== verdict"
-    verdict "$clean" "$panics" "$status"
+    verdict "$clean" "$panics"
 }
 
 install_() {
@@ -181,6 +178,6 @@ case "${1:-report}" in
     heartbeat) heartbeat ;;
     report) report ;;
     ended-clean) ended_clean ;;
-    verdict) verdict "$2" "$3" "$4" ;;
+    verdict) verdict "$2" "$3" ;;
     *) sed -n '/^# Why did/,/^#   sudo postmortem /p' "$0"; exit 1 ;;
 esac

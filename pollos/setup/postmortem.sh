@@ -160,6 +160,8 @@ Description=Write the postmortem heartbeat
 [Service]
 Type=oneshot
 ExecStart=$BIN heartbeat
+# PID 1's Starting/Finished every minute would fill the last lines a report shows
+LogLevelMax=notice
 EOF
     cat > /etc/systemd/system/postmortem-heartbeat.timer <<'EOF'
 [Unit]

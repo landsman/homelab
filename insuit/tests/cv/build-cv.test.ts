@@ -91,7 +91,10 @@ test('a project carries its pictures, its video and its text for the dialog', ()
     video: 'abc-123',
   })
   expect(first.images[0]).not.toHaveProperty('width')
-  expect(first.html).toContain('href="https://example.com/" target="_blank" rel="noopener"')
+  // Through the short link its QR code prints, with no Referer.
+  expect(first.html).toContain(
+    'href="https://link.insuit.cz/ex" target="_blank" rel="nofollow noopener noreferrer"'
+  )
   // A line that opens with a bold label is a list of technologies.
   const labelled = buildCv('#### P\n\n**Technologies:** Go, Bun\n\nNot **this** one.\n', '', wide)
   const [{ html }] = projectsOf(labelled.cv[0])

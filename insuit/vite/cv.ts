@@ -11,13 +11,14 @@ import type { Plugin } from 'vite'
 import type { Cv, CvImage, CvProject, CvQr } from '../src/features/cv/cv.types.ts'
 
 // Links out of the site — every project's website — open in a new tab, so the
-// CV stays open behind them. Links within the site keep the default. Its own
+// CV stays open behind them, and send no Referer, so the CV does not show up in
+// those sites' referral stats. Links within the site keep the default. Its own
 // instance, so the next thing to render markdown does not inherit this.
 const marked = new Marked({
   renderer: {
     link({ href, title, tokens: text }) {
       const external = /^https?:\/\//.test(href)
-      const attrs = external ? ' target="_blank" rel="noopener"' : ''
+      const attrs = external ? ' target="_blank" rel="nofollow noopener noreferrer"' : ''
       const tip = title ? ` title="${title}"` : ''
       // The icon shows in the project dialog only (cv.css); the hidden text
       // tells a screen reader the tab changes wherever the link sits.
@@ -75,8 +76,15 @@ export function buildCv(
 ): { cv: Cv; qrSprite: string } {
   // ponytail: the markdown is ours, so marked's output goes in unsanitised.
   const tokens = marked.lexer(md)
+  // A link with a short code goes through link.insuit.cz, like its printed QR
+  // code, so a click on screen is counted in the same place as a scan.
   const render = (list: Token[]) =>
-    marked.parser(Object.assign(list, { links: tokens.links }) as Token[])
+    marked
+      .parser(Object.assign(list, { links: tokens.links }) as Token[])
+      .replace(/href="(https?:[^"]+)"/g, (attr, href: string) => {
+        const code = shortCodes.get(href)
+        return code ? `href="https://link.insuit.cz/${code}"` : attr
+      })
 
   // Paper cannot be clicked, so a project's links print as QR codes, each with
   // the site's name under it, in place of the line of links. The codes are

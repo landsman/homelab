@@ -1,0 +1,42 @@
+name: Deploy domains
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'domains/**'
+      - '.github/workflows/domains-deploy.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+# Two applies on one state would queue on its lock anyway; this keeps the
+# older one from finishing last.
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    defaults:
+      run:
+        working-directory: domains
+    env:
+      # Its own token: insuit's is also held by the PR preview job, which
+      # should not be able to edit DNS on every zone.
+      TF_VAR_cloudflare_api_token: ${{ secrets.DOMAINS_CF_API_TOKEN }}
+      # State sits in insuit's bucket, under its own key.
+      AWS_ACCESS_KEY_ID: ${{ secrets.INSUIT_CZ_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.INSUIT_CZ_R2_SECRET_ACCESS_KEY }}
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Terraform"
+        uses: hashicorp/setup-terraform@v4
+      - name: "Terraform init"
+        env:
+          ACCOUNT_ID: ${{ vars.INSUIT_CZ_CF_ACCOUNT_ID }}
+        run: terraform init -backend-config="endpoints={s3=\"https://${ACCOUNT_ID}.r2.cloudflarestorage.com\"}"
+      - name: "Terraform apply"
+        run: terraform apply -auto-approve

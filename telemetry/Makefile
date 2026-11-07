@@ -46,7 +46,7 @@ check: ## parse every config the stack loads, with the pinned images (needs dock
 	./check.sh
 
 test: ## run the host scripts' test (on Linux: it uses GNU sed)
-	sh host/test.sh
+	./host/docker-host.test.sh
 
 ##@ Data
 .PHONY: destroy

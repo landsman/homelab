@@ -9,9 +9,16 @@ on:
       - '!**/*.md'
   workflow_dispatch:
 
+# Two applies on one state would queue on its lock anyway; this keeps the
+# older one from finishing last.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   infra:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # insuit's environment: the state shares its R2 bucket (see infra/main.tf)
     environment: production
     defaults:

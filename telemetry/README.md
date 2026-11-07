@@ -1,0 +1,281 @@
+# Telemetry — Prometheus, Loki, Grafana
+
+Hardware metrics, container metrics and logs for the homelab, in one Grafana. The stack runs on the Pi (`nas`) under rootless Docker, as [docker/](../docker/README.md) sets it up; every host reports its own hardware.
+
+- **Node Exporter**, on each host rather than in Docker: CPU, RAM, disks, temperatures, fan, network, SMART and NVMe wear. [host/](host/) installs it.
+- **Telegraf** reads per-container CPU, memory and network from the Docker API
+- **Blackbox Exporter** checks that the other services on the Pi answer, by the ports in [`.docs/PORTS.md`](../.docs/PORTS.md)
+- **Prometheus** stores metrics for 30 days, capped at 10 GB
+- **Loki** stores logs for 14 days
+- **Alloy** ships every container's logs into Loki; a second Alloy on the Pi itself ships the host journal (kernel, systemd, disk errors) without sudo and SSH lines
+- **Grafana** opens on a Homelab overview, with both data sources and the dashboards in place
+
+## How it fits together
+
+```mermaid
+flowchart TB
+  subgraph clients["Who looks"]
+    viewer(["You, away"]) --> access{{"Cloudflare Access<br/>your login AND home IP"}}
+    you(["You, at home<br/>or on Tailscale"])
+  end
+
+  subgraph host["nas — host, root side: touches what is sensitive"]
+    tunnel["cloudflared<br/>main tunnel"]
+    ufw[["ufw<br/>incoming dropped unless allowed"]]
+    journal[("systemd journal<br/>sudo · SSH · kernel")] --> hostalloy["Alloy on the host<br/>drops auth + authpriv"]
+    nodex["node-exporter :9100<br/>Tailscale address only"]
+    sock[/"Docker socket<br/>= being the containers user"/]
+  end
+
+  subgraph rootless["nas — rootless Docker, user containers: assumed breakable, holds nothing worth stealing"]
+    subgraph tnet["network telemetry"]
+      grafana["Grafana :3211<br/>login required"]
+      prom["Prometheus<br/>127.0.0.1 only"]
+      loki["Loki<br/>127.0.0.1 only"]
+      blackbox["Blackbox"]
+      alloy["Alloy<br/>container logs"]
+      telegraf["Telegraf<br/>container stats"]
+    end
+    subgraph dnet["network docker-api, internal"]
+      proxy["socket-proxy<br/>GET list · inspect · logs · stats<br/>no create · exec · archive"]
+    end
+  end
+
+  others["gus · mike · walter · jesse<br/>node-exporter :9100, Tailscale only"]
+
+  access --> tunnel --> grafana
+  you --> ufw --> grafana
+  grafana --> prom & loki
+  prom --> telegraf & blackbox
+  prom -- "tailnet" --> nodex & others
+  blackbox -- "probe nas:port" --> ufw
+  alloy --> loki
+  alloy & telegraf --> proxy --> sock
+  hostalloy -- "no sudo, SSH, PAM" --> loki
+
+  classDef guard fill:#fff4e0,stroke:#d98a00,color:#5a3a00
+  classDef secret fill:#fde8e8,stroke:#c62828,color:#5b0b0b
+  class access,ufw,proxy guard
+  class journal,sock secret
+  style host fill:#eaf2ff,stroke:#2f6fdb,color:#0b2a5b
+  style rootless fill:#f6f6f6,stroke:#777,stroke-dasharray:5 4,color:#333
+  style clients fill:#ffffff,stroke:#bbb,color:#333
+  style tnet fill:#ffffff,stroke:#999,color:#333
+  style dnet fill:#ffffff,stroke:#999,color:#333
+```
+
+- **Blue box** — the host, outside Docker: it touches what is sensitive and hands on only what is safe.
+- **Grey dashed box** — rootless Docker: assumed breakable, so nothing worth stealing is put in it.
+- **Orange** — a gate: Cloudflare Access, the firewall, the socket proxy.
+- **Red** — what a container must never get: the journal (only its non-auth lines reach Loki) and the Docker socket (only the proxy holds it, answering reads).
+- Everything in the rootless box is the `containers` user on the host, so the design assumes any of it can be compromised and keeps anything worth stealing out of it. Prometheus and Loki have no authentication, so they bind loopback only; the only way in from outside is Grafana, behind its login, and from the internet also behind Cloudflare Access.
+
+## Ports
+
+- `3211` — Grafana
+- `3210` — Prometheus, `127.0.0.1` only; OTLP metrics at `/api/v1/otlp/v1/metrics`
+- `3215` — Loki, `127.0.0.1` only; OTLP logs at `/otlp/v1/logs`
+- `9100` — Node Exporter on every host, on its Tailscale address only
+
+Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN: the bind address keeps them off it, whatever the firewall says. Telegraf, Blackbox Exporter and the socket proxy are not published at all; Prometheus scrapes them over the compose network.
+
+## Security
+
+The Pi runs Docker rootless, so every container, whatever it runs as inside, is the `containers` user on the host. The stack keeps what is sensitive off that side, and what is on it from reaching further:
+
+- **Only the socket proxy holds the Docker socket.** Holding it is being the Docker user — `:ro` on a socket restricts nothing — so Alloy and Telegraf ask [socket-proxy](https://github.com/wollomatic/socket-proxy) instead, on an internal network of their own. It answers only reads: list, inspect, logs and stats of containers, and the version handshake. Creating or exec-ing into a container, and reading files out of one (`archive`, `export`), are refused. Inspect does return other containers' environment, so keep secrets out of env where an app allows a file.
+- **The host journal** is shipped from the host, without auth and authpriv (above).
+- **Every container** runs without capabilities, with `no-new-privileges` and a read-only root filesystem, and all but the proxy as an unprivileged user.
+- **Secrets**: `.env` is owner-only. Grafana's admin password is read only when its database is created; change it in the UI after the first login, and the value in `.env` — which inspect can show — is no longer the password.
+
+## Firewall
+
+The Pi runs `ufw` with incoming traffic dropped by default. Under rootless Docker a published port is an ordinary listener of rootlesskit on the host, so `ufw` applies to it like to any other process — unlike rootful Docker, whose published ports go around it.
+
+Only Grafana needs a rule, on the Pi, for the LAN and the tailnet. Follow however the other services are opened (`sudo ufw status numbered`), for example:
+
+```bash
+sudo ufw allow in on tailscale0 to any port 3211 proto tcp
+sudo ufw allow from <LAN>/24 to any port 3211 proto tcp
+```
+
+Nothing else on the Pi needs one. Prometheus and Loki bind `127.0.0.1`; Prometheus scraping the Pi's own node-exporter and the probes to `nas:<port>` stay on the host and arrive over `lo`, which `ufw` accepts; the Cloudflare Tunnel only dials out.
+
+On every other host running node-exporter, the Pi's Prometheus arrives over Tailscale, so if that host runs `ufw`:
+
+```bash
+sudo ufw allow in on tailscale0 to any port 9100 proto tcp
+```
+
+## Reaching Grafana
+
+- **At home** — `http://<pi>:3211`.
+- **Away, on Tailscale** — the same address, over the tailnet.
+- **Public hostname** — on the Pi's Cloudflare Tunnel, behind Cloudflare Access. See [Public hostname](#public-hostname).
+
+Prometheus and Loki are not reachable from outside the Pi; their data is in Grafana. For the raw API, `ssh -L 3210:127.0.0.1:3210 containers@<pi>`.
+
+## First-time setup
+
+Once per host, as an admin with sudo — the Docker user has none:
+
+```bash
+# on the Pi only: memory accounting for rootless containers, then reboot
+sudo sh telemetry/host/docker-host.sh && sudo reboot
+
+# on the Pi only: its journal into Loki, from the host
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/journal.sh | sudo sh
+
+# on every host, the Pi and each pollos box
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh
+```
+
+Then on the Pi, as the Docker user (`containers`), from a login shell so `$XDG_RUNTIME_DIR` points at the rootless socket:
+
+```bash
+install -m 600 .env.example .env   # set the admin user and password; owner-only, it holds the password
+make up
+```
+
+Clone the repo onto the RAID, not the SD card. The data itself is in named volumes, which live under Docker's data-root on the RAID wherever the checkout is.
+
+`make` with no target lists the rest.
+
+The admin password is read only when Grafana creates its database. Changing it in `.env` later does nothing; change it in Grafana under your profile. (`grafana cli admin reset-admin-password` works too, but puts the password on a command line.)
+
+## Host metrics
+
+[`host/node-exporter.sh`](host/node-exporter.sh) installs Debian's `prometheus-node-exporter` and its collectors, bound to the host's Tailscale address on port 9100. Prometheus scrapes every host by MagicDNS name (`job="node"` in `prometheus/prometheus.yml`); a host is added there and nowhere else.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh -s status     # units, and whether metrics are served
+curl -fsSL https://raw.githubusercontent.com/landsman/homelab/main/telemetry/host/node-exporter.sh | sudo sh -s uninstall
+```
+
+- **Updates** come with `apt upgrade`. Package files are never edited: the listen address is a socket unit, the flags a drop-in, so an upgrade does not stop to ask about them.
+- **Tailscale address changed** — re-run the install; it rebinds.
+- **SMART and NVMe wear** come from the collectors package's own timers, every 15 minutes, into `/var/lib/prometheus/node-exporter/`.
+- **More flags** go in `ARGS` in `/etc/default/prometheus-node-exporter`, which the drop-in still passes on.
+
+[`host/docker-host.sh`](host/docker-host.sh) prepares the Pi that runs the stack. The Raspberry Pi kernel ships with the memory cgroup off, so without it no container reports memory. It also delegates cpuset and io to rootless containers, on top of the cpu, memory and pids systemd delegates by default, as Docker documents. Safe to re-run; `make test` checks the `cmdline.txt` edit on a copy.
+
+[`host/journal.sh`](host/journal.sh) ships the Pi's journal. Grafana Alloy runs on the host as a systemd service in the `systemd-journal` group (its package also adds `adm`, which reads `/var/log` on the host; nothing from there is shipped), so no container ever gets the journal files, and pushes to Loki on `127.0.0.1:3215`. Loki is on the rootless side like every container, so it drops the `auth` and `authpriv` facilities first — sudo command lines (with any `VAR=secret` typed on them), SSH logins, PAM sessions. Those stay in `journalctl` on the host; kernel, systemd, disk and USB errors go through. `install` (default), `status` and `uninstall`, the same way as node-exporter; updates come with `apt upgrade` from Grafana's apt repository, which the script adds, pinned so that it can supply `alloy` and nothing else.
+
+## What is where in Grafana
+
+Three committed dashboards, linked to each other in their headers, and Node Exporter Full, all in the Homelab folder. Reboots and container restarts are marked on every graph of the three.
+
+- **Homelab** (home) — is anything wrong right now: services down, hosts not reporting, NVMe warnings, read-only filesystems, RAID, pending reboots, the hottest CPU, the fullest disk, memory, and the latest error lines. Each tile links to the dashboard with the detail.
+- **Hardware** — one table row per host (up, uptime, CPU temperature, CPU, memory, fullest disk, read-only filesystems, NVMe wear and warnings, updates, reboot), coloured only where something needs attention; click a host to show only its row, then expand it. Below, a collapsed row per host: load, memory, swap, every temperature sensor, CPU and I/O wait, disks, disk and network throughput, fan, NVMe health, and how old the 15-minute collector data is. At the bottom, the Pi's kernel and systemd errors.
+- **Applications** — the service probes (up/down over time, response time), then a collapsed row per compose project: memory, CPU as a share of the Pi, network and uptime of each container, error lines and the logs. There are no request metrics yet; an app that pushes OTLP shows up under **Drilldown → Metrics**. Containers started outside compose have no project and do not appear here, and the CPU panel is empty while the Pi's node-exporter is down, since it divides by the Pi's core count.
+- **Node Exporter Full** — every metric of one host, from grafana.com.
+- **Drilldown → Logs / Metrics** — everything, with no query to write.
+
+A few readings that mislead if taken at face value:
+
+- **NVMe critical warning** is a bitmap from the drive, not a counter: anything but 0 is a problem.
+- **NVMe wear, SMART and updates** come from timers every 15 minutes; the Collector age tile says how fresh they are. Temperatures come from the kernel instead and are live.
+- **RAID0** never marks a member as failed: a dying NVMe shows in its health and in the journal before the array goes.
+- **A crashed container** drops out of the container panels rather than showing as down; the probes are what catch it.
+
+### Plugins
+
+The data sources come in the image. The two Drilldown apps the dashboards lean on (Logs and Metrics) are not, so Grafana downloads them on first start — pinned in `compose.yml` (`GF_PLUGINS_PREINSTALL`) and never auto-updated, so a new plugin arrives only through a reviewed change. The three unused apps (traces, profiles, advisor) are disabled.
+
+[Renovate](https://docs.renovatebot.com/) (`renovate.json` at the repo root) bumps those two pins from grafana.com's plugin API, after the same 7-day wait as Dependabot; it touches nothing else, Dependabot keeps the images. It needs the Renovate GitHub app installed on the repository. Neither can see advisories for Grafana plugins — there is no feed for them — so a security release is picked up like any other, once it is 7 days old, or by bumping the pin by hand.
+
+### Changing a dashboard
+
+Homelab, Hardware and Applications are committed JSON in `grafana/dashboards/`; Node Exporter Full is downloaded by `make up`.
+
+A change can be made and saved in the UI. It stays — across restarts too — until that dashboard's JSON file changes, which then overwrites it. The home page is the exception: it always renders `homelab.json` itself, cannot be saved, and shows a UI change only once it is back in the file; edit Homelab under Dashboards → Homelab instead. So to keep a change, put it back into the file. **Not through the UI's export**: Grafana 13 exports the new v2 format, which the file provisioning here refuses to load. The API still returns the classic JSON, including what was saved in the UI:
+
+```bash
+curl -su "<admin user>:<password>" http://localhost:3211/api/dashboards/uid/hardware \
+  | python3 -c 'import json,sys; d=json.load(sys.stdin)["dashboard"]; d.pop("id", None); json.dump(d, sys.stdout, indent=2)' \
+  > grafana/dashboards/hardware.json
+```
+
+Library panels do not work with file provisioning; repeat the panel instead.
+
+## Uptime
+
+Two things watch uptime, for different questions:
+
+- **BetterStack** (`pollos/infra`, status page on status.pollos.cz) polls from outside the home network and sends alerts: each pollos box's health tunnel and the public apps. It keeps working when the whole home is down, which nothing running at home can.
+- **This stack** probes every service on the Pi every 15 seconds, including those with no public address, and keeps the history. It has no alerts yet (see [Limits](#limits)), and it cannot report the Pi being down.
+
+## Adding an application
+
+- **Logs** — nothing to do. Alloy picks up every container on the Pi, labelled `container` and `compose_project`.
+- **Metrics it exposes on `/metrics`** — add a job to `prometheus/prometheus.yml` with the target at `nas:<host port>` over the tailnet.
+- **OpenTelemetry** — not yet. Do not join an app to the `telemetry` network to reach Prometheus and Loki: neither has authentication, so the app could read every log and forge metrics. Pushing needs a write-only path first, such as an OTLP receiver in Alloy on a network of its own.
+
+- **Uptime** — add its URL to the `blackbox` job.
+
+## Data
+
+Metrics, logs, Grafana's database and Alloy's read positions are named volumes (`telemetry_prometheus`, `telemetry_loki`, `telemetry_grafana`, `telemetry_alloy`). No backups, on purpose: metrics keep 30 days and logs 14, and both fill up again on their own. `make destroy CONFIRM=yes` deletes all of it.
+
+## Limits
+
+What this does not do yet, so nobody assumes it does:
+
+- **No alerts.** A full disk, a hot NVMe or the stack itself going down shows on the Homelab dashboard and nowhere else; someone has to look. Grafana alerting can send them once there is somewhere to send them to.
+- **No memory limits** on Prometheus or Loki, and Loki has a time limit (14 days) but no size cap. A noisy app can grow either until the Pi runs short.
+- **No Supabase metrics.** The hosted projects are not scraped; [Supabase's guide](https://supabase.com/docs/guides/telemetry/metrics/grafana-self-hosted) is the way in.
+- **Checked only on the Pi itself**, not before merging: MagicDNS names resolving from a rootless container, the host Alloy reading the journal, container memory after the reboot, and the Pi 5's temperature and fan sensors. [When something is missing](#when-something-is-missing) covers each.
+
+## When something is missing
+
+- **A host is down in "Hosts not reporting"** — `node-exporter.sh status` on that host. Prometheus reaches it by MagicDNS name, so the host has to be on the tailnet under that name, and its firewall has to let 9100 in on `tailscale0` (see [Firewall](#firewall)).
+- **Container memory is zero** — `docker-host.sh` has not run on the Pi, or it has not been rebooted since.
+- **No journal logs** — `journal.sh status` on the Pi. It needs the stack up, since it pushes to Loki on `127.0.0.1:3215`, and the `alloy` user in `systemd-journal` (`id alloy`).
+- **No logs at all** — Loki refuses writes once its disk is over 90 % full. The Homelab dashboard's disk panel shows it.
+- **Every host and service down after a reboot** — the containers started before Tailscale took over DNS, so MagicDNS names do not resolve inside them. `docker compose up -d --force-recreate prometheus blackbox-exporter`, and check with `docker compose exec prometheus wget -qO- nas:9100/metrics | head`.
+- **A service shows down that is running** — the probes go to `nas:<port>` over the tailnet, so the service has to publish on all interfaces, not `127.0.0.1`.
+
+## Public hostname
+
+Grafana can have a public hostname on the Pi's Cloudflare Tunnel, behind [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/). A request passes only when **both** hold:
+
+- the Cloudflare login is the owner's email, and
+- it comes from one of the home public ranges.
+
+That second rule is how "only over Tailscale" is expressed. Cloudflare cannot see Tailscale; it sees the public address a request leaves from. Away from home that is the home address only through a Tailscale **exit node** on the home network, so switch one on before opening the hostname.
+
+The Access rules are Terraform in [`infra/`](infra/), applied by `.github/workflows/telemetry-deploy.yml` on merge — merging is the deploy. `make -C infra ci` checks it locally without credentials. The tunnel itself is not in Terraform; its route is added by hand.
+
+### Credentials
+
+The deploy runs in the **`production`** GitHub environment, insuit's: the state is `telemetry.tfstate` in insuit's R2 bucket, so its R2 keys and account id are reused as they are. A secret that is missing or in another environment arrives as an empty string, and the variable validation then fails the deploy.
+
+Reused, already there: `INSUIT_CZ_R2_ACCESS_KEY_ID`, `INSUIT_CZ_R2_SECRET_ACCESS_KEY`, `INSUIT_CZ_CF_ACCOUNT_ID`. New:
+
+| Name | Kind | Where to get it |
+|------|------|-----------------|
+| `CF_ACCESS_API_TOKEN` | secret | Cloudflare → My Profile → API Tokens. One scope: `Account · Access: Apps and Policies · Edit` |
+| `CF_ACCESS_EMAIL` | secret | the email of the Cloudflare login allowed through |
+| `HOME_IP_RANGES` | secret | home public ranges as a list, IPv4 and IPv6: `["203.0.113.7/32", "2001:db8:1234::/56"]` |
+| `GRAFANA_HOSTNAME` | var | the hostname Grafana gets on the tunnel |
+
+`gh` prompts for the value, so it never lands in shell history:
+
+```bash
+gh secret set CF_ACCESS_API_TOKEN --repo landsman/homelab --env production
+gh variable set GRAFANA_HOSTNAME --repo landsman/homelab --env production
+```
+
+### Order
+
+So the hostname is never public without Access in front of it:
+
+1. Create the API token and set the four new values above.
+2. Merge. The deploy creates the Access application and its policies.
+3. Only then, on the Pi's tunnel (Zero Trust → Networks → Tunnels → **Published application routes**), route the hostname to `http://<pi-host>:3211`.
+4. On that route, under **Additional application settings → Access**, turn on **Protect with Access** (the `originRequest.access` setting: `required`, the team name, and the application's AUD tag from Zero Trust → Access → Applications → grafana → Overview). cloudflared then drops any request without a valid Access token itself, so Grafana stays behind Access even if the Access application were removed or another hostname pointed at the route.
+5. Set `GF_SERVER_ROOT_URL` in `.env` to the hostname and `make up`, which recreates Grafana with it; `make restart` would keep the old environment.
+
+Login is whatever the Zero Trust organization offers; new organizations sign in with the Cloudflare account itself, so no identity provider is created here.
+
+When the home address changes, update `HOME_IP_RANGES` and re-run the deploy (`workflow_dispatch`); until then Access turns every request away.

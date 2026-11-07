@@ -1,0 +1,20 @@
+services:
+  fah:
+    image: lscr.io/linuxserver/foldingathome:8.5.6-ls220
+    container_name: foldingathome
+    restart: unless-stopped
+    environment:
+      PUID: "${PUID:?run make up, not docker compose}"
+      PGID: "${PGID:?run make up, not docker compose}"
+      TZ: Europe/Prague
+      MACHINE_NAME: "${MACHINE_NAME:?run make up, not docker compose}"
+      # Only read on the first start; the link to the account is kept in data/.
+      ACCOUNT_TOKEN: "${ACCOUNT_TOKEN:-}"
+    volumes:
+      - ./data:/config
+    # Lowest CPU weight there is: a CI job (1024) takes the cores whenever it
+    # wants them, folding gets what is left. That is the "only when idle" part.
+    cpu_shares: 2
+    # A job that runs out of memory kills this, not itself.
+    oom_score_adj: 1000
+    mem_limit: 2g

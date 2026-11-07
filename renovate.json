@@ -65,6 +65,16 @@
       ],
       "minimumReleaseAge": "7 days",
       "commitMessagePrefix": "deps(telemetry):"
+    },
+    {
+      "description": "A plugin's major usually needs a newer Grafana than the pinned image (metricsdrilldown 3.x wants 13.3); take those with the Grafana bump, by hand.",
+      "matchDatasources": [
+        "custom.grafana-plugins"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
     }
   ],
   "includePaths": [

@@ -76,6 +76,7 @@ flowchart TB
 - `3210` — Prometheus, `127.0.0.1` only; OTLP metrics at `/api/v1/otlp/v1/metrics`
 - `3215` — Loki, `127.0.0.1` only; OTLP logs at `/otlp/v1/logs`
 - `9100` — Node Exporter on every host, on its Tailscale address only
+- `12345` — Alloy, the journal shipper on the host, `127.0.0.1` only (its own status and metrics)
 
 Prometheus, Loki and Node Exporter have no authentication, which is why none of them is on the LAN: the bind address keeps them off it, whatever the firewall says. Telegraf, Blackbox Exporter and the socket proxy are not published at all; Prometheus scrapes them over the compose network.
 

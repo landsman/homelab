@@ -39,6 +39,7 @@ install() {
   # disks, nvme for NVMe wear and temperature, apt for pending updates. Without
   # recommends: they pull in ipmitool and openipmi, which fail at boot on a box
   # with no BMC. jq is the one the nvme collector needs.
+  apt-get update
   apt-get install -y --no-install-recommends $UNIT prometheus-node-exporter-collectors smartmontools nvme-cli jq
 
   # bound to the Tailscale address only: the metrics are unauthenticated and

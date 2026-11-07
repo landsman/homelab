@@ -11,10 +11,10 @@ test('a project card opens its details in a dialog, and Escape closes it', async
   const dialog = page.getByRole('dialog', { name: 'The Police of the Czech Republic' })
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText('New website for the Police of the Czech Republic.')).toBeVisible()
-  await expect(dialog.getByRole('link', { name: /^policie\.gov\.cz/ })).toHaveAttribute(
-    'target',
-    '_blank'
-  )
+  const site = dialog.getByRole('link', { name: /^policie\.gov\.cz/ })
+  await expect(site).toHaveAttribute('target', '_blank')
+  await expect(site).toHaveAttribute('href', /^https:\/\/link\.insuit\.cz\//)
+  await expect(site).toHaveAttribute('rel', /\bnoreferrer\b/)
 
   await page.keyboard.press('Escape')
   await expect(dialog).toBeHidden()

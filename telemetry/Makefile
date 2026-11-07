@@ -30,9 +30,12 @@ $(NODE_EXPORTER_FULL):
 	curl -fsSL -o $@ https://grafana.com/api/dashboards/1860/revisions/45/download
 
 ##@ Checks
-.PHONY: lint test
-lint: ## shellcheck the host scripts
-	shellcheck host/*.sh
+.PHONY: lint test check
+lint: ## shellcheck the scripts
+	shellcheck *.sh host/*.sh
+
+check: ## parse every config the stack loads, with the pinned images (needs docker)
+	./check.sh
 
 test: ## run the host scripts' test (on Linux: it uses GNU sed)
 	sh host/test.sh

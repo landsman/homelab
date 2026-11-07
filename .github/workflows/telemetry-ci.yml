@@ -3,15 +3,13 @@ name: "telemetry ci"
 on:
   pull_request:
     paths:
-      - 'telemetry/infra/**'
-      - 'telemetry/host/**'
+      - 'telemetry/**'
       - '.github/workflows/telemetry-ci.yml'
       - '!**/*.md'
   push:
     branches: [main]
     paths:
-      - 'telemetry/infra/**'
-      - 'telemetry/host/**'
+      - 'telemetry/**'
       - '.github/workflows/telemetry-ci.yml'
       - '!**/*.md'
   workflow_dispatch:
@@ -45,6 +43,16 @@ jobs:
         run: make lint
       - name: "cmdline.txt edit"
         run: make test
+
+  config:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telemetry
+    steps:
+      - uses: actions/checkout@v7
+      - name: "parse every config with the pinned images"
+        run: make check
 
   # The scan lives in landsman/config and is called, not copied — one place to
   # change the scanner, the image or a default pack for every repo of mine.

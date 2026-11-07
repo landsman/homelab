@@ -6,7 +6,7 @@ everything around it stay with its code (`insuit/infra`, `pollos/infra`).
 
 ```
 main.tf            backend, provider, one module block per zone
-imports.tf         records adopted from the dashboard, deleted once applied
+imports.tf         only while a zone is being adopted, deleted once applied
 modules/
   redirect/        parked zone: every hostname 301s to one URL
   google-mail/     Google Workspace MX
@@ -24,7 +24,9 @@ has lives in that zone's folder.
 3. Records that already exist in the dashboard get an `import` block in
    `imports.tf`. Without one the apply creates duplicates. Record ids come from
    `GET /zones/<id>/dns_records`, and the redirect ruleset from
-   `GET /zones/<id>/rulesets`.
+   `GET /zones/<id>/rulesets`. Delete the file in the next change once the
+   apply has adopted them. [#575](https://github.com/landsman/homelab/pull/575)
+   is a worked example.
 4. Add the zone to the API token's zone list (below).
 
 `redirect` owns the zone's whole `http_request_dynamic_redirect` phase,
@@ -39,14 +41,15 @@ the deploy reads it with insuit's R2 token and account id. See
 
 The Cloudflare token is its own. Create it under My Profile → API Tokens:
 
-| Permission              | For                       |
-| ----------------------- | ------------------------- |
-| Zone · Zone · Read      | finding a zone by name    |
-| Zone · DNS · Edit       | the records               |
-| Zone · Single Redirect · Edit | the redirect rules  |
+| Permission                          | For                    |
+| ----------------------------------- | ---------------------- |
+| Zone · Zone · Read                  | finding a zone by name |
+| Zone · DNS · Edit                   | the records            |
+| Zone · Dynamic URL Redirects · Edit | the redirect rules     |
 
 Scope it to the managed zones only, and widen it when a zone is added.
-Store it as the repo secret `DOMAINS_CF_API_TOKEN`.
+It lives in 1Password as `dev-homelab` / *Cloudflare API token — homelab
+domains*, and in GitHub as the secret `DOMAINS_CF_API_TOKEN`.
 
 ## CI/CD
 

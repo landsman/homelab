@@ -6,8 +6,13 @@ help: ## show this help
 		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
 		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-# grafana.com /api/dashboards/<id>/revisions/<revision>; bump the revision to update it
+# grafana.com /api/dashboards/1860; bump the revision to update it, and the
+# Makefile change alone makes the next make up fetch it again
 NODE_EXPORTER_FULL := grafana/dashboards/node-exporter-full.json
+NODE_EXPORTER_FULL_REVISION := 45
+
+# a recipe cut off halfway leaves no target that make would take as up to date
+.DELETE_ON_ERROR:
 
 ##@ Run
 .PHONY: up down restart logs ps
@@ -26,8 +31,11 @@ logs: ## follow logs from all services
 ps: ## show running containers
 	docker compose ps
 
-$(NODE_EXPORTER_FULL):
-	curl -fsSL -o $@ https://grafana.com/api/dashboards/1860/revisions/45/download
+# tagged homelab too, so the other dashboards' links list it
+$(NODE_EXPORTER_FULL): Makefile
+	curl -fsSL -o $@.tmp https://grafana.com/api/dashboards/1860/revisions/$(NODE_EXPORTER_FULL_REVISION)/download
+	jq '.tags += ["homelab"]' $@.tmp > $@
+	rm $@.tmp
 
 ##@ Checks
 .PHONY: lint test check

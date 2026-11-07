@@ -1,0 +1,30 @@
+name: "domains ci"
+
+on:
+  pull_request:
+    paths:
+      - 'domains/**'
+      - '.github/workflows/domains-ci.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: domains
+    steps:
+      - name: "Check out"
+        uses: actions/checkout@v7
+      - name: "Set up Terraform"
+        uses: hashicorp/setup-terraform@v4
+      - name: "Terraform check"
+        run: make ci
+
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets p/terraform
+      path: domains

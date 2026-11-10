@@ -53,7 +53,7 @@ cache: ## create the job caches (mise toolchains, Gradle) and check the path
 	fi
 
 ##@ Runner
-.PHONY: up restart down logs status register qemu
+.PHONY: up restart cleanup down logs status register qemu
 up: ## start the runner
 	docker compose up -d
 
@@ -73,6 +73,9 @@ restart: ## restart the runner to pick up runner/config.yml changes
 		exit 1; \
 	fi
 	docker compose restart
+
+cleanup: ## free the disk now if under CLEANUP_MIN_FREE % (40 unless .env says) (the cleanup service does it after every job)
+	docker compose exec cleanup cleanup.sh once
 
 down: ## stop the runner
 	docker compose down
@@ -95,9 +98,10 @@ qemu: ## register multiarch binfmt once (for cross-arch image builds)
 ##@ Checks
 .PHONY: test
 test: ## shellcheck the scripts and run their tests (no box needed)
-	@shellcheck runner/git runner/git.test.sh deploy.sh deploy.test.sh
+	@shellcheck runner/git runner/git.test.sh deploy.sh deploy.test.sh cleanup.sh cleanup.test.sh
 	@./runner/git.test.sh
 	@./deploy.test.sh
+	@./cleanup.test.sh
 
 ##@ Deploy
 .PHONY: deploy

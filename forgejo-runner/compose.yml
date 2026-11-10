@@ -15,3 +15,18 @@ services:
     environment:
       FORGEJO_INTERNAL_URL: "${FORGEJO_INTERNAL_URL:-}"
     command: forgejo-runner daemon --config /data/config.yml
+
+  # Prunes unused Docker data after a job when the disk is under CLEANUP_MIN_FREE % free. README: "Disk".
+  cleanup:
+    image: docker:29.9.2-cli@sha256:5e6baf67325a79f64ed3bed6863954d5e05d0f3d4e57cbdb14809346814bbfdb
+    container_name: forgejo-runner-cleanup
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Only to measure the disk Docker writes to; nothing is written through it.
+      - /var/lib/docker:/var/lib/docker:ro
+      - ./cleanup.sh:/usr/local/bin/cleanup.sh:ro
+    environment:
+      MIN_FREE: "${CLEANUP_MIN_FREE:-40}"
+      CRITICAL_FREE: "${CLEANUP_CRITICAL_FREE:-10}"
+    command: cleanup.sh loop

@@ -273,6 +273,43 @@ ssh jesse.pollos 'cd forgejo-runner && make logs'      # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'
 ```
 
+## Disk
+
+The box's disk fills with Docker data jobs leave behind: images pulled or built
+for one run and build cache. On 2026-11-10 `walter` hit 0 bytes free (34 GB of
+unused images, 21 GB of build cache) and every job failed at checkout with
+`No space left on device`.
+
+The `cleanup` service in `compose.yml` runs `cleanup.sh loop`. After every job,
+once no job container runs, it checks the disk Docker writes to:
+
+- under `CLEANUP_MIN_FREE` % free (40 by default, set per box in `.env`): stopped
+  containers, build cache no build has used for a day, and images without a tag.
+  Not images by age: Docker's `until` means *created* for an image, so an image
+  built last week that the previous job ran would go;
+- under `CLEANUP_CRITICAL_FREE` % (10): also every image and all build cache no
+  container uses. The next jobs then start without cache and pull their images
+  again, which is why this waits until a job might not even check out.
+
+Volumes and the job caches (`cache/`, Gradle and mise) are left alone; those are
+directories, not Docker data, and they are what keeps builds fast.
+
+It acts once per job, not on a timer, looking every 10 s. A job shorter than
+that can end unseen; the next one that is seen does the pass. `make cleanup`
+runs one check now, `docker compose logs cleanup` says what each pass freed.
+
+What it does not see or fix:
+
+- **A `self-hosted` job** runs inside the runner container, not in a job
+  container, so the box looks idle while it runs. A build it runs through the
+  socket keeps the cache it is using, as BuildKit does not prune records in use,
+  but may lose the rest. On 2026-11-11 one workflow used that label (a review
+  job in the product repo, no builds).
+- **Data that is not Docker's** on the same disk. On 2026-11-10 a web archive
+  under `/home/ansible` held 97 GB on `walter` and kept it near 30 % free
+  whatever Docker gave back. A box like that needs a lower `CLEANUP_MIN_FREE`,
+  or the gentle pass runs after every job for nothing.
+
 ## Labels
 
 | Label           | Execution              | Where a step actually runs                    |

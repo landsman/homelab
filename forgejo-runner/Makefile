@@ -74,7 +74,7 @@ restart: ## restart the runner to pick up runner/config.yml changes
 	fi
 	docker compose restart
 
-cleanup: ## free the disk now if under 40 % (the cleanup service does it after every job)
+cleanup: ## free the disk now if under CLEANUP_MIN_FREE % (40 unless .env says) (the cleanup service does it after every job)
 	docker compose exec cleanup cleanup.sh once
 
 down: ## stop the runner

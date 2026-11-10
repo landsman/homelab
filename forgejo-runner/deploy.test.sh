@@ -89,7 +89,7 @@ if [ "$status" = 0 ] && grep -q "rsync -a --files-from=- .*/ a.test:forgejo-runn
   grep -qx deploy.sh "$t/log.files" && grep -qx runner/git "$t/log.files" &&
   ! grep -qE '^(runner/config.yml|\.env|data/.*)$' "$t/log.files"; then pass; else fail; fi
 it="each box's runner is recreated, so it mounts the new files"
-if [ "$(grep -c 'force-recreate runner' "$t/log")" = 2 ]; then pass; else fail; fi
+if [ "$(grep -c 'force-recreate runner cleanup' "$t/log")" = 2 ]; then pass; else fail; fi
 
 # A tracked file deleted in the checkout but not yet in git: listed, rsync would fail the box on it.
 mv "$here/CAVEATS.md" "$t/CAVEATS.md"

@@ -32,7 +32,8 @@ restart_when_idle() {
     waited=$((waited + ${IDLE_POLL:-10}))
   done
   # Recreated, not restarted: a new container mounts the files rsync just wrote, and picks up compose.yml too.
-  docker compose up -d --force-recreate runner
+  # The cleanup service with it, which a box deployed before it existed does not run yet.
+  docker compose up -d --force-recreate runner cleanup
 }
 
 deploy() {

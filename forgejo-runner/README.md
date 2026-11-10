@@ -273,6 +273,29 @@ ssh jesse.pollos 'cd forgejo-runner && make logs'      # follow runner logs
 ssh jesse.pollos 'cd forgejo-runner && make status'
 ```
 
+## Disk
+
+The box's disk fills with Docker data jobs leave behind: images pulled or built
+for one run and build cache. On 2026-11-10 `walter` hit 0 bytes free (34 GB of
+unused images, 21 GB of build cache) and every job failed at checkout with
+`No space left on device`.
+
+The `cleanup` service in `compose.yml` runs `cleanup.sh loop`. After every job,
+once no job container runs, it checks the disk Docker writes to; under
+`MIN_FREE` % free (40, `CLEANUP_MIN_FREE` in `.env`) it prunes stopped
+containers, and images and build cache unused for a day, then everything no
+container uses if that was not enough. Volumes and the job caches (`cache/`,
+Gradle and mise) are left alone; those are directories, not Docker data, and
+they are what keeps builds fast.
+
+It acts once per job, not on a timer, so a box that stays under the line for
+reasons that are not Docker's is not pruned every minute. `make cleanup` runs
+one check now. `docker compose logs cleanup` says what each pass freed.
+
+What it cannot fix: data on the same disk that is not Docker's. On `walter`,
+`/home/ansible/mvcr-web-archive/data` held 97 GB on 2026-11-10, which keeps the
+box near 30 % free however much Docker gives back.
+
 ## Labels
 
 | Label           | Execution              | Where a step actually runs                    |

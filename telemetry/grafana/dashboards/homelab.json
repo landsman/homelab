@@ -342,7 +342,7 @@
     {
       "id": 5,
       "type": "stat",
-      "title": "RAID not active",
+      "title": "RAID degraded",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -355,7 +355,7 @@
       },
       "targets": [
         {
-          "expr": "count(node_md_state{state!=\"active\"} == 1) or vector(0)",
+          "expr": "count(node_md_state{state=~\"inactive|recovering\"} == 1 or node_md_disks{state=\"failed\"} > 0) or vector(0)",
           "legendFormat": "",
           "refId": "A",
           "datasource": {

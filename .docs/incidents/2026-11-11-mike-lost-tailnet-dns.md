@@ -6,7 +6,7 @@
 | Affected | mike: every MagicDNS name, the container registry on the NAS included |
 | Detected by | a person, from a failed deploy, about 3 h after it started; nothing alerted |
 | Sources | tailscaled and dhcpcd journals on mike and gus, the deploy job log, `ls -l /etc/resolv.conf` on every box |
-| Status | fix open in [#587](https://github.com/landsman/homelab/pull/587), applied on mike |
+| Status | fixed on every box by [#587](https://github.com/landsman/homelab/pull/587), not merged yet |
 | Written | 2026-11-11 |
 
 ## 1. Summary
@@ -40,6 +40,7 @@ nothing would have put the file back on its own.
 | about 06:45 | cause found: tailscale health check on mike says `/etc/resolv.conf overwritten` | `tailscale status` |
 | 06:53:28 | `005-tailscale.sh` from #587 run on mike: dhcpcd told to leave the file alone, tailscaled writes it | script output, file mtime |
 | 06:54 | registry resolves, image pulls as the deploy user | `getent hosts`, `docker pull` |
+| about 07:03 | the same script run on gus, walter, jesse and saul | script output |
 
 ## 4. Cause and evidence
 
@@ -74,15 +75,16 @@ Limits of the data:
 
 ## 5. Current state
 
-At 2026-11-11 06:55 UTC: mike has `nohook resolv.conf` in `/etc/dhcpcd.conf`, `resolv.conf` is
-tailscaled's, and a forced lease renewal (`dhcpcd -n eno1`) left it alone. The other four boxes
-still fight and win; any of them can lose the same way until #587 is run there.
+At 2026-11-11 07:05 UTC: all five boxes have `nohook resolv.conf` in `/etc/dhcpcd.conf`, their
+`resolv.conf` is tailscaled's, and each still runs the one dhcpcd it had (same pid). On each, a
+forced lease renewal left the file alone. On mike, a real route change at 06:5x UTC passed with no
+`trampled` line, while gus logged five in the ten minutes before it got the fix.
 
 ## 6. Recommendations
 
 | # | What | Owner | By | Done |
 |---|------|-------|----|------|
-| 1 | Merge #587 and run `005-tailscale.sh` on gus, walter, jesse and saul | landsman | 2026-11-12 | mike only |
+| 1 | Run `005-tailscale.sh` from #587 on every box | landsman | 2026-11-12 | 2026-11-11, all five |
 | 2 | Alert when a box cannot resolve a tailnet name, or when tailscale's `resolv-conf-overwritten` health warning stays on; this one was found only by a deploy | landsman | when convenient | |
 | 3 | The deploy script reports "could not pull within four minutes" for a lookup that failed in two seconds; say what failed instead | landsman | with the next change to it | |
 | 4 | The device announcing the flapping IPv6 prefix: do nothing, it is harmless once dhcpcd leaves `resolv.conf` alone | | | |

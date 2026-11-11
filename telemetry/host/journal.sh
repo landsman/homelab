@@ -20,13 +20,14 @@ set -eu
 #   install    (default) install or update, rewrite the config, restart
 #   status     show the unit and how many journal lines it has read and sent
 #   uninstall  remove Alloy, the Grafana apt source and everything this added
+#   config     print the Alloy config install writes (no root needed)
 #
 # Safe to re-run. Package files are left alone: the config and its flags come
 # in through a drop-in's second EnvironmentFile, which wins over
 # /etc/default/alloy, so `apt upgrade` never asks about a changed file.
 #
 
-[ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
+[ "${1:-}" = config ] || [ "$(id -u)" -eq 0 ] || { echo "run as root"; exit 1; }
 
 KEY=/etc/apt/keyrings/grafana.asc
 LIST=/etc/apt/sources.list.d/grafana.list
@@ -35,33 +36,10 @@ CONF=/etc/alloy/journal.alloy
 ENVF=/etc/alloy/journal.env
 DROPIN=/etc/systemd/system/alloy.service.d/telemetry.conf
 
-install() {
-  # Grafana's apt repository, as its docs set it up
-  # (https://grafana.com/docs/alloy/latest/set-up/install/linux/)
-  mkdir -p /etc/apt/keyrings
-  curl -fsSL -o "$KEY" https://apt.grafana.com/gpg-full.key
-  chmod 644 "$KEY"
-  echo "deb [signed-by=$KEY] https://apt.grafana.com stable main" > "$LIST"
-  # the repository may supply alloy and nothing else, whatever it publishes
-  cat > "$PIN" <<'EOF'
-Package: *
-Pin: origin apt.grafana.com
-Pin-Priority: -1
-
-Package: alloy
-Pin: origin apt.grafana.com
-Pin-Priority: 500
-EOF
-  apt-get update
-  apt-get install -y alloy
-
-  # without it loki.source.journal starts without error and reads nothing.
-  # The package's postinst adds alloy to adm as well, on every install and
-  # upgrade, so removing it would not last. adm reads /var/log, which stays on
-  # the host: this config ships the journal and nothing else.
-  usermod -aG systemd-journal alloy
-
-  cat > "$CONF" <<'EOF'
+# The Alloy config install writes. Its own subcommand, so check.sh can
+# validate it without a Pi.
+config() {
+  cat <<'EOF'
 // Written by telemetry/host/journal.sh — re-run it rather than editing.
 loki.relabel "journal" {
   forward_to = []
@@ -98,6 +76,35 @@ loki.write "local" {
   }
 }
 EOF
+}
+
+install() {
+  # Grafana's apt repository, as its docs set it up
+  # (https://grafana.com/docs/alloy/latest/set-up/install/linux/)
+  mkdir -p /etc/apt/keyrings
+  curl -fsSL -o "$KEY" https://apt.grafana.com/gpg-full.key
+  chmod 644 "$KEY"
+  echo "deb [signed-by=$KEY] https://apt.grafana.com stable main" > "$LIST"
+  # the repository may supply alloy and nothing else, whatever it publishes
+  cat > "$PIN" <<'EOF'
+Package: *
+Pin: origin apt.grafana.com
+Pin-Priority: -1
+
+Package: alloy
+Pin: origin apt.grafana.com
+Pin-Priority: 500
+EOF
+  apt-get update
+  apt-get install -y alloy
+
+  # without it loki.source.journal starts without error and reads nothing.
+  # The package's postinst adds alloy to adm as well, on every install and
+  # upgrade, so removing it would not last. adm reads /var/log, which stays on
+  # the host: this config ships the journal and nothing else.
+  usermod -aG systemd-journal alloy
+
+  config > "$CONF"
 
   cat > "$ENVF" <<EOF
 CONFIG_FILE=$CONF
@@ -136,6 +143,6 @@ uninstall() {
 }
 
 case "${1:-install}" in
-  install | status | uninstall) "${1:-install}" ;;
-  *) echo "usage: $0 [install|status|uninstall]"; exit 1 ;;
+  install | status | uninstall | config) "${1:-install}" ;;
+  *) echo "usage: $0 [install|status|uninstall|config]"; exit 1 ;;
 esac

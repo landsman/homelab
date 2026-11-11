@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: "shellcheck"
-        run: make lint
+        run: make lint SHELLCHECK=shellcheck
       - name: "cmdline.txt edit"
         run: make test
 

@@ -39,14 +39,16 @@ $(NODE_EXPORTER_FULL): Makefile
 
 ##@ Checks
 .PHONY: lint test check
-lint: ## shellcheck the scripts
-	shellcheck *.sh host/*.sh
+# CI has no mise and passes SHELLCHECK=shellcheck, the runner's own.
+SHELLCHECK ?= mise exec shellcheck -- shellcheck
+lint: ## shellcheck every script
+	$(SHELLCHECK) $$(git ls-files '*.sh')
 
 check: ## parse every config the stack loads, with the pinned images (needs docker)
 	./check.sh
 
-test: ## run the host scripts' test (on Linux: it uses GNU sed)
-	./host/docker-host.test.sh
+test: ## run every *.test.sh (on Linux: they use GNU sed)
+	@rc=0; for t in $$(git ls-files '*.test.sh'); do echo "== $$t"; "./$$t" || { echo "FAIL $$t"; rc=1; }; done; exit $$rc
 
 ##@ Data
 .PHONY: destroy

@@ -63,10 +63,26 @@ jobs:
   # direct upload, not connected to git. So every PR uploads its build under
   # its branch name and links the alias back on the PR. Fork and Dependabot
   # PRs get no secrets, so they are skipped rather than failed.
+  # A change to a setup script alone still runs ci above (the site serves the scripts), but a
+  # preview of an unchanged page is a link nobody needs on the PR.
+  site-changed:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: git diff --quiet "$BASE" HEAD -- pollos/microsite ':(exclude)*.md' || echo changed=true >> "$GITHUB_OUTPUT"
+
   preview:
-    needs: ci
+    needs: [ci, site-changed]
     if: |
-      github.event_name == 'pull_request' &&
+      needs.site-changed.outputs.changed == 'true' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest

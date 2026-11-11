@@ -1,23 +1,34 @@
 #!/bin/sh
 set -eu
 
-# The one decision in host/ that fails silently: editing cmdline.txt. Runs the
-# real function on a copy, needs no root.
+# The one decision in host/ that fails silently: editing cmdline.txt, where a
+# wrong edit is a Pi that does not boot and a false "changed" a pointless
+# reboot. Runs the real function on copies, needs no root (and GNU sed).
 
-dir="$(dirname "$0")"
-tmp="$(mktemp)"
-trap 'rm -f "$tmp"' EXIT
+s="$(cd "$(dirname "$0")" && pwd)/docker-host.sh"
+t="$(mktemp -d)"
+trap 'chmod -R u+w "$t"; rm -rf "$t"' EXIT
+fail=0
+check() { if eval "$2"; then echo "ok   $1"; else echo "FAIL $1"; fail=1; fi; }
 
-printf 'console=serial0,115200 root=PARTUUID=abc rootwait\n' > "$tmp"
-sh "$dir/docker-host.sh" cmdline "$tmp" | grep -qx changed
-[ "$(sh "$dir/docker-host.sh" cmdline "$tmp")" = "" ] || { echo "FAIL: second run changed it again"; exit 1; }
-[ "$(wc -l < "$tmp")" -eq 1 ] || { echo "FAIL: no longer one line"; exit 1; }
-[ "$(grep -o 'cgroup_enable=memory' "$tmp" | wc -l)" -eq 1 ] || { echo "FAIL: not exactly once"; exit 1; }
-grep -q '^console=serial0,115200 root=PARTUUID=abc rootwait cgroup_enable=memory$' "$tmp" || { echo "FAIL: $(cat "$tmp")"; exit 1; }
+f="$t/cmdline.txt"
+printf 'console=serial0,115200 root=PARTUUID=abc rootwait\n' > "$f"
+check "a first run says it changed the file" '[ "$(sh "$s" cmdline "$f")" = changed ]'
+check "a second run changes nothing" '[ "$(sh "$s" cmdline "$f")" = "" ]'
+check "the file stays one line" '[ "$(wc -l < "$f")" -eq 1 ]'
+check "the flag is appended exactly once, the rest untouched" \
+  'grep -qx "console=serial0,115200 root=PARTUUID=abc rootwait cgroup_enable=memory" "$f"'
 
-printf 'one\ntwo\n' > "$tmp"
-if sh "$dir/docker-host.sh" cmdline "$tmp" >/dev/null 2>&1; then echo "FAIL: edited a two-line file"; exit 1; fi
+printf 'one\ntwo\n' > "$t/two.txt"
+check "a two-line file is refused" '! sh "$s" cmdline "$t/two.txt" >/dev/null 2>&1'
+check "a missing file is refused" '! sh "$s" cmdline "$t/missing.txt" >/dev/null 2>&1'
 
-if sh "$dir/docker-host.sh" cmdline "$tmp.missing" >/dev/null 2>&1; then echo "FAIL: passed on a missing file"; exit 1; fi
+# sed -i writes a temp file beside it, so a read-only directory makes it fail,
+# as a read-only /boot/firmware would
+mkdir "$t/ro"
+printf 'rootwait\n' > "$t/ro/cmdline.txt"
+chmod a-w "$t/ro"
+out="$(sh "$s" cmdline "$t/ro/cmdline.txt" 2>/dev/null)" && rc=0 || rc=$?
+check "a write that fails is an error, not \"changed\"" '[ "$rc" -ne 0 ] && [ "$out" != changed ]'
 
-echo "ok"
+exit $fail

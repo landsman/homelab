@@ -6,10 +6,10 @@ help: ## show this help
 		/^##@/ { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5); next } \
 		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-# grafana.com /api/dashboards/1860; bump the revision to update it, and the
-# Makefile change alone makes the next make up fetch it again
-NODE_EXPORTER_FULL := grafana/dashboards/node-exporter-full.json
+# grafana.com /api/dashboards/1860; bump the revision to update it. The
+# revision is in the file name, so only a new one makes make up fetch again.
 NODE_EXPORTER_FULL_REVISION := 45
+NODE_EXPORTER_FULL := grafana/dashboards/node-exporter-full.$(NODE_EXPORTER_FULL_REVISION).json
 
 # a recipe cut off halfway leaves no target that make would take as up to date
 .DELETE_ON_ERROR:
@@ -31,11 +31,12 @@ logs: ## follow logs from all services
 ps: ## show running containers
 	docker compose ps
 
-# tagged homelab too, so the other dashboards' links list it
-$(NODE_EXPORTER_FULL): Makefile
+# tagged homelab too, so the other dashboards' links list it. The old revision
+# goes: Grafana would load both under one uid.
+$(NODE_EXPORTER_FULL):
 	curl -fsSL -o $@.tmp https://grafana.com/api/dashboards/1860/revisions/$(NODE_EXPORTER_FULL_REVISION)/download
 	jq '.tags += ["homelab"]' $@.tmp > $@
-	rm $@.tmp
+	rm -f $@.tmp $(filter-out $@,$(wildcard grafana/dashboards/node-exporter-full*.json))
 
 ##@ Checks
 .PHONY: lint test check

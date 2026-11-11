@@ -139,7 +139,10 @@ tailscale up "$@"
 # until tailscaled is reconfigured. Keep dhcpcd's hands off it.
 if [ -f /etc/dhcpcd.conf ] && ! grep -qx 'nohook resolv.conf' /etc/dhcpcd.conf; then
   echo 'nohook resolv.conf' >> /etc/dhcpcd.conf
-  dhcpcd -n >/dev/null 2>&1 || true
+  # ifupdown runs one dhcpcd per interface; a bare `dhcpcd -n` finds no
+  # manager and starts a second client, so name the interface.
+  iface="$(ip -4 route show default | awk '{print $5; exit}')"
+  dhcpcd -n "$iface"
 fi
 # already trampled: toggling accept-dns makes tailscaled write it back.
 if ! grep -q '^nameserver 100\.100\.100\.100' /etc/resolv.conf; then

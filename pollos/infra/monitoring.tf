@@ -32,19 +32,17 @@ locals {
   # *.pollos.cz cert covers it — a nested *.health.pollos.cz would not.
   zone_domain = "pollos.cz"
 
-  # Daily maintenance window — the homelab network/router reboots in this hour,
-  # taking every monitored target (nodes, nas AND apps) offline. Shared so the node
-  # and service monitors can't drift; applied to both (see status_page.tf).
-  # In UTC because the router reboots at 03:00 UTC and ignores daylight saving:
-  # 05:00 Prague in summer, 04:00 in winter.
-  daily_maintenance = {
-    maintenance_from = "02:55:00"
-    maintenance_to   = "03:10:00"
-    # BetterStack wants a Rails ActiveSupport::TimeZone friendly name (e.g.
-    # "Prague", "Amsterdam") — NOT an IANA id like "Europe/Prague"; days are the
-    # abbreviated forms. See https://betterstack.com/docs/uptime/api/create-a-new-monitor/
-    maintenance_timezone = "UTC"
-    maintenance_days     = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+  # The one daily window every monitor reads, nodes and apps alike, so they cannot
+  # disagree. In UTC because the router reboots at 03:00 UTC and ignores daylight
+  # saving; Forgejo's backup stops git from 03:00 UTC too (forgejo/Makefile) and
+  # takes longer as the repos grow, hence the end at 03:40.
+  maintenance = {
+    from = "02:55:00"
+    to   = "03:40:00"
+    days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+    # A Rails ActiveSupport::TimeZone name ("Prague"), not an IANA id; see
+    # https://betterstack.com/docs/uptime/api/create-a-new-monitor/
+    timezone = "UTC"
   }
 }
 
@@ -115,11 +113,11 @@ resource "betteruptime_monitor" "health" {
   regions            = ["eu"]
   paused             = contains(local.paused_nodes, each.key)
 
-  # Daily maintenance window — router reboot/update in this hour
-  maintenance_from     = local.daily_maintenance.maintenance_from
-  maintenance_to       = local.daily_maintenance.maintenance_to
-  maintenance_timezone = local.daily_maintenance.maintenance_timezone
-  maintenance_days     = local.daily_maintenance.maintenance_days
+  # The shared daily window, local.maintenance above.
+  maintenance_from     = local.maintenance.from
+  maintenance_to       = local.maintenance.to
+  maintenance_timezone = local.maintenance.timezone
+  maintenance_days     = local.maintenance.days
 }
 
 output "health_tunnel_tokens" {

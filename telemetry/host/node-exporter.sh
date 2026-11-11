@@ -35,13 +35,6 @@ install() {
   ip="$(ts_ip)"
   [ -n "$ip" ] || { echo "no Tailscale IPv4 address — run tailscale up first"; exit 1; }
 
-  # the collectors package adds root timers every 15 min: smartmon for SATA
-  # disks, nvme for NVMe wear and temperature, apt for pending updates. Without
-  # recommends: they pull in ipmitool and openipmi, which fail at boot on a box
-  # with no BMC. jq is the one the nvme collector needs.
-  apt-get update
-  apt-get install -y --no-install-recommends $UNIT prometheus-node-exporter-collectors smartmontools nvme-cli jq
-
   # bound to the Tailscale address only: the metrics are unauthenticated and
   # describe the whole box. FreeBind lets it bind before tailscaled is up.
   cat > "$SOCKET" <<EOF
@@ -69,7 +62,19 @@ ExecStart=/usr/bin/prometheus-node-exporter --web.systemd-socket --collector.fil
 EOF
 
   systemctl daemon-reload
-  # the package started it on 0.0.0.0:9100, which the socket cannot share.
+
+  # after the units above, so the package's own start already comes up on the
+  # socket: installed first, it would serve on 0.0.0.0:9100 until the stop
+  # below, and for good if anything in between failed.
+  # The collectors package adds root timers every 15 min: smartmon for SATA
+  # disks, nvme for NVMe wear and temperature, apt for pending updates. Without
+  # recommends: they pull in ipmitool and openipmi, which fail at boot on a box
+  # with no BMC. jq is the one the nvme collector needs.
+  apt-get update
+  apt-get install -y --no-install-recommends $UNIT prometheus-node-exporter-collectors smartmontools nvme-cli jq
+
+  # one installed by hand before this script still listens on 0.0.0.0:9100,
+  # which the socket cannot share.
   # restart, not start: a socket that is already listening keeps the old
   # address after daemon-reload and hands the service no descriptor
   systemctl stop $UNIT.service

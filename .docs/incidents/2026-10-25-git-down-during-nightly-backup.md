@@ -6,7 +6,7 @@
 | Affected | git.insuit.cz (Forgejo on the Pi): web, API, git over HTTPS and SSH |
 | Detected by | the BetterStack monitor `git.insuit.cz`, an e-mail every night |
 | Sources | public status page data (`status.pollos.cz/index.json`), `forgejo/Makefile`, [#489](https://github.com/landsman/homelab/pull/489) |
-| Status | fix open |
+| Status | fixed in the PR that moves the backup to 03:00 UTC, once `make cron-install` has run on the Pi |
 | Written | 2026-11-10 |
 
 ## 1. Summary
@@ -36,6 +36,8 @@ no person needed, it comes back on its own.
 | 2026-10-31 20:48 | #489 merged; that night 898 s, the upgrade to 17.0.1 the same evening | GitHub, status page |
 | 2026-11-06 onward | most nights 600 s instead of 300 s, the backup growing with the repos | status page history |
 | 2026-11-10 | cause found | this report |
+| 2026-11-11 02:00 to 02:13 | down again, 13 min | BetterStack incident |
+| 2026-11-11 | backup moved to 03:00 UTC, every monitor muted until 03:40 UTC | this PR |
 
 ## 4. Cause and evidence
 
@@ -74,8 +76,8 @@ until the fix lands.
 
 | # | What | Owner | By | Done |
 |---|------|-------|----|------|
-| 1 | Run the backup at 03:00 UTC, inside the router window (hourly cron that checks the UTC hour, as cron reads local time), and mute git until 03:40 UTC, as the backup grows | landsman | 2026-11-14 | |
-| 2 | Make `make cron-install` replace the old entry instead of refusing, so changing the schedule is one command | landsman | with 1 | |
+| 1 | Run the backup at 03:00 UTC, inside the router window (hourly cron that checks the UTC hour, as cron reads local time), and mute git until 03:40 UTC, as the backup grows | landsman | 2026-11-14 | yes |
+| 2 | Make `make cron-install` replace the old entry instead of refusing, so changing the schedule is one command | landsman | with 1 | yes |
 | 3 | Connect the BetterStack MCP to the homelab team too, so the next report reads the incidents themselves | landsman | when convenient | |
 
 Learned: a change that takes a service down on a schedule changes its monitor's maintenance

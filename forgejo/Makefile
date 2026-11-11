@@ -95,11 +95,12 @@ restore: ## restore one: make restore FILE=forgejo-backup-YYYYMMDD_HHMMSS.tar.gz
 		alpine tar xzf /backup/$(FILE) -C /data
 	@echo "Restored. Start it with make up, which recreates the container from compose.yml's version."
 
-cron-install: ## run make backup every day at 3:00
+# Hourly, acting only at 03 UTC: cron reads local time, and 03 UTC is the window the git monitor is
+# muted in (pollos/infra/status_page.tf), in summer and winter alike. Replaces an older entry.
+cron-install: ## run make backup every day at 03:00 UTC
 	@mkdir -p $(BACKUP_DIR)
-	@crontab -l 2>/dev/null | grep -q "forgejo.*make backup" \
-		&& (echo "Cron job already exists. To view: crontab -l | grep forgejo" && exit 1) \
-		|| (crontab -l 2>/dev/null; echo "0 3 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -
-	@echo "Cron job installed."
+	@(crontab -l 2>/dev/null | grep -v "forgejo.*make backup"; \
+		echo '0 * * * * [ "$$(date -u +\%H)" = 03 ] && cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1') | crontab -
+	@crontab -l | grep "make backup"
 
 -include ../pi.mk

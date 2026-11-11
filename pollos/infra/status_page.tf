@@ -53,7 +53,8 @@ resource "betteruptime_status_page_resource" "node" {
 # refuses the 11th mid-apply. Count both lists before adding to either.
 locals {
   status_services = {
-    git   = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300 }
+    # git is also stopped for its backup at 03:00 UTC (forgejo/Makefile), longer as the repos grow
+    git   = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300, maintenance_to = "03:40:00" }
     read  = { url = "https://read.insuit.cz", public_name = "read.insuit.cz", check_frequency = 300 }
     music = { url = "https://music.insuit.cz", public_name = "music.insuit.cz", check_frequency = 1800 }
   }
@@ -77,7 +78,7 @@ resource "betteruptime_monitor" "service" {
   # Same daily window as the node monitors — the apps live on the same homelab
   # network and go down during the morning reboot (see monitoring.tf).
   maintenance_from     = local.daily_maintenance.maintenance_from
-  maintenance_to       = local.daily_maintenance.maintenance_to
+  maintenance_to       = lookup(each.value, "maintenance_to", local.daily_maintenance.maintenance_to)
   maintenance_timezone = local.daily_maintenance.maintenance_timezone
   maintenance_days     = local.daily_maintenance.maintenance_days
 }

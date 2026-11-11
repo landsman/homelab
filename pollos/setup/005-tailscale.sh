@@ -13,6 +13,8 @@ set -eu
 #     The Apple TV stays the exit node; each box is reachable peer-to-peer over
 #     its own MagicDNS name, so there is no 192.168.x.x dependency and no
 #     subnet routes to maintain.
+#   - stops dhcpcd overwriting /etc/resolv.conf, which drops MagicDNS on the
+#     next lease renewal (mike, 2026-11-11: a deploy could not resolve the registry)
 #
 # The node's MagicDNS name = its hostname, so gus/mike/walter/jesse/saul map 1:1.
 # On the home LAN Tailscale connects directly (full LAN speed); elsewhere it
@@ -131,6 +133,19 @@ if [ -n "${TS_AUTHKEY:-}" ]; then
   set -- "$@" --auth-key="file:${keyfile}"
 fi
 tailscale up "$@"
+
+# MagicDNS lives in /etc/resolv.conf, and dhcpcd rewrites that file on every
+# lease renewal: the box then stops resolving *.ts.net (the registry included)
+# until tailscaled is reconfigured. Keep dhcpcd's hands off it.
+if [ -f /etc/dhcpcd.conf ] && ! grep -qx 'nohook resolv.conf' /etc/dhcpcd.conf; then
+  echo 'nohook resolv.conf' >> /etc/dhcpcd.conf
+  dhcpcd -n >/dev/null 2>&1 || true
+fi
+# already trampled: toggling accept-dns makes tailscaled write it back.
+if ! grep -q '^nameserver 100\.100\.100\.100' /etc/resolv.conf; then
+  tailscale set --accept-dns=false
+  tailscale set --accept-dns=true
+fi
 
 echo
 echo "tailscale up. node=$(hostname -s) ip=$(tailscale ip -4 2>/dev/null | head -n1)"

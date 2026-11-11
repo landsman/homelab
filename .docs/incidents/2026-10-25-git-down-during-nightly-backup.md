@@ -37,7 +37,7 @@ no person needed, it comes back on its own.
 | 2026-11-06 onward | most nights 600 s instead of 300 s, the backup growing with the repos | status page history |
 | 2026-11-10 | cause found | this report |
 | 2026-11-11 02:00 to 02:13 | down again, 13 min | BetterStack incident |
-| 2026-11-11 | backup moved to 03:00 UTC, git muted until 03:40 UTC | this PR |
+| 2026-11-11 | backup moved to 03:00 UTC, every monitor muted until 03:40 UTC | this PR |
 
 ## 4. Cause and evidence
 

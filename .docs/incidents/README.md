@@ -35,3 +35,4 @@ A repeat of an incident already filed gets a line in that report's timeline, not
 | Date | Incident | State |
 |------|----------|-------|
 | 2026-10-25 | [git.insuit.cz down every night during the Forgejo backup](2026-10-25-git-down-during-nightly-backup.md) | fix open |
+| 2026-11-11 | [mike stopped resolving tailnet names, and a deploy could not pull its image](2026-11-11-mike-lost-tailnet-dns.md) | fixed, PR open |

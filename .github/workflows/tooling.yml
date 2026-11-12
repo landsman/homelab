@@ -1,0 +1,32 @@
+name: "tooling"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # The tools in .cli/, the migrations and their runner among them.
+    paths:
+      - '.cli/**'
+
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  qa:
+    name: "lint and test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The version in the root package.json's packageManager, the one the Pi runs.
+      - name: "Set up Bun"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      # The test runs migrate.ts on throwaway migrations in a temp folder, no box needed.
+      # Type-checking loads every migration, so one that breaks the interface fails here.
+      - name: "Format-check, lint, type-check and test the scripts"
+        run: make qa

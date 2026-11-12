@@ -2,7 +2,7 @@
 
 # The scripts that are not an app of their own. The apps (dashboard, insuit, ip-service)
 # have their own Makefile, package.json and checks; .oxfmtrc.json here is shared by all.
-SCRIPTS := authelia
+SCRIPTS := authelia migrations
 
 .PHONY: help
 help: ## show this help
@@ -31,3 +31,12 @@ test: install ## run the scripts' tests
 	@bun test $(SCRIPTS)
 
 qa: format-check lint typecheck test ## everything CI runs on the scripts
+
+##@ Migrations on the boxes
+.PHONY: migrate
+# The Pi unless told otherwise. Every box gets every migration; each says which boxes run it.
+BOX ?= containers@nas.local
+
+migrate: ## copy migrations/ to BOX (default the Pi) and run the ones it has not run yet
+	git ls-files -z migrations | rsync -a --from0 --files-from=- ./ $(BOX):
+	ssh $(BOX) 'bun migrations/migrate.ts run'

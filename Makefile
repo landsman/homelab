@@ -38,5 +38,5 @@ qa: format-check lint typecheck test ## everything CI runs on the scripts
 BOX ?= containers@nas.local
 
 migrate: ## copy the migrations to BOX (default the Pi) and run the ones it has not run yet
-	git ls-files -z .cli/migrate.ts .cli/migrations | rsync -a --from0 --files-from=- ./ $(BOX):
-	ssh $(BOX) 'bun .cli/migrate.ts run'
+	git ls-files -z .cli/migrations ':!*.test.ts' | rsync -a --from0 --files-from=- ./ $(BOX):
+	ssh $(BOX) 'bun .cli/migrations/tool/migrate.ts run'

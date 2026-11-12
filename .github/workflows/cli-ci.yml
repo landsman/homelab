@@ -3,9 +3,9 @@ name: "cli ci"
 on:
   workflow_dispatch:
   pull_request:
-    # The tools in cli/, the migrations and their runner among them.
+    # The tools in .cli/, the migrations and their runner among them.
     paths:
-      - 'cli/**'
+      - '.cli/**'
 
 # A new push to the same PR cancels the run still going for the previous one.
 # Everything else runs to the end.

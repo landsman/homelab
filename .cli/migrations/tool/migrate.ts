@@ -6,7 +6,7 @@
 //   bun migrate.ts pending   list the migrations this box has not run yet
 //   bun migrate.ts run       run them in name order, stopping at the first that fails
 //
-// On the box, ../.applied lists which ran, one name per line, so `cat` shows it and
+// On the box, ../applied.txt lists which ran, one name per line, so `cat` shows it and
 // deleting a line runs that one again; ../migrations.log is the history of every run.
 // rsync sends tracked files only, so it never overwrites either. ../.lock keeps two
 // runs apart; a run killed hard leaves it, to delete by hand.
@@ -37,7 +37,7 @@ export interface Migration {
 }
 
 const dir = join(import.meta.dir, '..')
-const applied = join(dir, '.applied')
+const applied = join(dir, 'applied.txt')
 const lock = join(dir, '.lock')
 const history = join(dir, 'migrations.log')
 const host = process.env.MIGRATE_HOST ?? hostname()

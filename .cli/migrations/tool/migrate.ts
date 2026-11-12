@@ -1,6 +1,11 @@
 #!/usr/bin/env bun
 // One-off changes to the boxes, the files in the folder above this one, each run once per box.
-// `make migrate BOX=<ssh host>` at the root sends that folder to the box and runs this there; every box gets every migration, and each names the boxes it is for.
+// `make migrate BOX=<user>@<host>` at the root sends that folder to the box and runs this there;
+// every box gets every migration, and each names the boxes it is for.
+//
+// It lands in the ssh user's home, ~/.cli/migrations, and nothing here names a fixed path. So
+// each box has one user for migrations, or a second one keeps its own record and runs them
+// all again: containers on the Pi (the only login there), root on the pollos boxes.
 //
 // usage:
 //   bun migrate.ts pending   list the migrations this box has not run yet

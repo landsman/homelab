@@ -35,6 +35,8 @@ qa: format-check lint typecheck test ## everything CI runs on the scripts
 ##@ Migrations on the boxes
 .PHONY: migrate
 # The Pi unless told otherwise. Every box gets every migration; each says which boxes run it.
+# They land in the ssh user's home, so always the same user per box: containers on the Pi,
+# root on the pollos boxes. Another user would keep its own record and run them all again.
 BOX ?= containers@nas.local
 
 migrate: ## copy the migrations to BOX (default the Pi) and run the ones it has not run yet

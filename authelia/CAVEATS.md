@@ -9,11 +9,16 @@ refreshes after that get `500` instead of `400 invalid_grant`
 ([authelia#13390](https://github.com/authelia/authelia/issues/13390), open). A client takes
 a 500 as transient and retries rather than logging in again.
 
-Claude Code does not present one twice: it refreshes under a file lock shared by its
-sessions on a device, and re-reads the stored token first (read from 2.1.312). Each device
-has its own client and its own grant. A client without such a lock — opencode was not
-checked — could trip it. The sign is a device that keeps failing until it logs in again;
-deleting its stored token in the client and logging in fixes it.
+Claude Code refreshes under a file lock shared by its sessions on a device, and re-reads
+the stored token first (read from 2.1.312), yet a grant still got revoked on 2026-11-12,
+with some fifty sessions open on one laptop. Three of them still ran 2.1.310: a running
+session keeps the binary it started with, whatever has been installed since. The likely
+culprit, not proven. Its sessions then retried the dead token all day. Each device has its own client and its own grant, so the others were unaffected.
+
+The fix is logging in again (`/mcp`, authenticate). That used to fail too: the retries
+tripped the token endpoint's rate limit, which is per IP, and the fresh login's code
+exchange got `429` for up to an hour. The limit is off for that endpoint now; it guarded
+no secret, since every client is public with PKCE.
 
 ## Deleting a client is the way to cut a device off
 

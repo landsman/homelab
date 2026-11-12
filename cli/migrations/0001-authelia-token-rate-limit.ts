@@ -1,7 +1,7 @@
 import { $ } from 'bun'
 import { readFileSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
-import type { Migration } from './migrate'
+import type { Migration } from '#cli/migrate'
 
 const app = `${homedir()}/dev/apps/authelia`
 const config = `${app}/configuration.yml`

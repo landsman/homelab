@@ -1,14 +1,16 @@
 #!/usr/bin/env bun
-// One-off changes to the boxes, each run once per box. This folder goes to every box as it is
-// (`make migrate BOX=<ssh host>` at the root), and each migration names the boxes it is for.
+// One-off changes to the boxes, the files in migrations/ beside this one, each run once per box.
+// `make migrate BOX=<ssh host>` at the root sends this file and that folder to the box and runs
+// it; every box gets every migration, and each names the boxes it is for.
 //
 // usage:
 //   bun migrate.ts pending   list the migrations this box has not run yet
 //   bun migrate.ts run       run them in name order, stopping at the first that fails
 //
-// Run in this folder on the box. Which ones ran is .applied here, one name per line, so `cat`
-// shows it and deleting a line runs that one again; migrations.log beside it is the history of
-// every run. rsync sends tracked files only, so it never overwrites either. .lock keeps two runs apart; a run killed hard leaves it, to delete by hand.
+// On the box, migrations/.applied lists which ran, one name per line, so `cat` shows it and
+// deleting a line runs that one again; migrations/migrations.log is the history of every run.
+// rsync sends tracked files only, so it never overwrites either. migrations/.lock keeps two
+// runs apart; a run killed hard leaves it, to delete by hand.
 import {
   appendFileSync,
   closeSync,
@@ -22,7 +24,7 @@ import { hostname } from 'node:os'
 import { join } from 'node:path'
 
 // What a migration file exports, as `export default { … } satisfies Migration`, in a file named
-// NNNN-what-it-does.ts here. A run can die half way, so a migration says whether its change is
+// migrations/NNNN-what-it-does.ts. A run can die half way, so a migration says whether its change is
 // already in place: `done` is asked before `up`, which is skipped when the change is there,
 // and again after, and a migration whose `up` did not make `done` true fails, unrecorded.
 export interface Migration {
@@ -35,7 +37,7 @@ export interface Migration {
   up(): void | Promise<void>
 }
 
-const dir = import.meta.dir
+const dir = join(import.meta.dir, 'migrations')
 const applied = join(dir, '.applied')
 const lock = join(dir, '.lock')
 const history = join(dir, 'migrations.log')

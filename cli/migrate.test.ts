@@ -3,19 +3,29 @@
 // every later run, a second run started while one holds the lock, another box's migration, and
 // a run missing from the log.
 //
-// A copy of migrate.ts in a throwaway folder, as on a box, with real migrations beside it. Each
+// A copy of migrate.ts in a throwaway folder, as on a box, with real migrations in migrations/. Each
 // one's change is a file named after it, so `done` is "that file exists", and `up` also appends
 // to `ran`, which the test reads.
 import { beforeEach, expect, test } from 'bun:test'
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-let dir = ''
+let root = ''
+let dir = '' // root/migrations, where the migrations, .applied and the log live
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'migrate-'))
-  copyFileSync(join(import.meta.dir, 'migrate.ts'), join(dir, 'migrate.ts'))
+  root = mkdtempSync(join(tmpdir(), 'migrate-'))
+  dir = join(root, 'migrations')
+  mkdirSync(dir)
+  copyFileSync(join(import.meta.dir, 'migrate.ts'), join(root, 'migrate.ts'))
 })
 
 function migration(name: string, { up = 'works', hosts = "'nas'" } = {}) {
@@ -37,8 +47,8 @@ export default {
 }
 
 function migrate(command = 'run') {
-  return Bun.spawnSync(['bun', 'migrate.ts', command], {
-    cwd: dir,
+  return Bun.spawnSync(['bun', join(root, 'migrate.ts'), command], {
+    cwd: dir, // where the test's migrations write, so their `done` and `ran` find it
     env: { ...process.env, MIGRATE_HOST: 'nas' },
   })
 }

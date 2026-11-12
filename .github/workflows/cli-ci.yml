@@ -1,11 +1,11 @@
-name: "migrations ci"
+name: "cli ci"
 
 on:
   workflow_dispatch:
   pull_request:
-    # The runner and the migrations it loads.
+    # The tools in cli/, the migrations and their runner among them.
     paths:
-      - 'migrations/**'
+      - 'cli/**'
 
 # A new push to the same PR cancels the run still going for the previous one.
 # Everything else runs to the end.

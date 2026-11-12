@@ -18,7 +18,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-let dir = '' // where the migrations, applied.txt and the log live; the tool sits in dir/tool
+let dir = '' // where the migrations, migrations.txt and the log live; the tool sits in dir/tool
 
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'migrate-'))
@@ -52,7 +52,7 @@ function migrate(command = 'run') {
 }
 
 const ran = () => (existsSync(join(dir, 'ran')) ? readFileSync(join(dir, 'ran'), 'utf8') : '')
-const recorded = () => readFileSync(join(dir, 'applied.txt'), 'utf8')
+const recorded = () => readFileSync(join(dir, 'migrations.txt'), 'utf8')
 
 test('runs each migration once, in name order', () => {
   migration('0002-b.ts')
@@ -89,7 +89,7 @@ test('an up that does not make done true fails, unrecorded', () => {
   const result = migrate()
   expect(result.exitCode).toBe(1)
   expect(result.stderr.toString()).toContain('0001-noop.ts failed: up ran, but done is still false')
-  expect(existsSync(join(dir, 'applied.txt'))).toBe(false)
+  expect(existsSync(join(dir, 'migrations.txt'))).toBe(false)
 })
 
 test('the next run picks up at the migration that failed', () => {
@@ -122,7 +122,7 @@ test('pending lists what this box has not run, and runs nothing', () => {
   migration('0001-a.ts')
   migration('0002-b.ts')
   migration('0003-other.ts', { hosts: "'other'" })
-  writeFileSync(join(dir, 'applied.txt'), '0001-a.ts\n')
+  writeFileSync(join(dir, 'migrations.txt'), '0001-a.ts\n')
   expect(migrate('pending').stdout.toString()).toBe('0002-b.ts\n')
   expect(ran()).toBe('')
 })

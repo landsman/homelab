@@ -1,6 +1,6 @@
 # 2026-11-11: mike stopped resolving tailnet names, and a deploy could not pull its image
 
-| | |
+| Item | Value |
 |---|---|
 | Window | 2026-11-11 03:25 to 06:53 UTC (04:25 to 07:53 Prague) |
 | Affected | mike: every MagicDNS name, the container registry on the NAS included |

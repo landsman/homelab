@@ -1,6 +1,6 @@
 # 2026-10-25: git.insuit.cz down every night during the Forgejo backup
 
-| | |
+| Item | Value |
 |---|---|
 | Window | daily since 2026-10-25, about 02:00 UTC (03:00 Prague, winter time), 5 to 10 min |
 | Affected | git.insuit.cz (Forgejo on the Pi): web, API, git over HTTPS and SSH |

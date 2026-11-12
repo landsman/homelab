@@ -1,6 +1,6 @@
 # 2026-11-12: forgejo-mcp unusable on the laptop, and logging in again was refused
 
-| | |
+| Item | Value |
 |---|---|
 | Window | 2026-11-12 09:27 UTC to the Authelia restart that deploys the fix |
 | Affected | the forgejo MCP in every Claude Code session on one laptop; other devices not |

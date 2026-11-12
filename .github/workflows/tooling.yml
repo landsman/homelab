@@ -1,4 +1,4 @@
-name: "cli ci"
+name: "tooling"
 
 on:
   workflow_dispatch:
@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test:
+  qa:
+    name: "lint and test"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

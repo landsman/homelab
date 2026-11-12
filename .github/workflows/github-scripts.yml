@@ -1,0 +1,23 @@
+name: "github scripts"
+
+# The scripts beside the workflows, used by dependabot-title, dashboard-ci and insuit-ci.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/*.sh'
+
+# A new push to the same PR cancels the run still going for the previous one.
+# Everything else runs to the end.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: "shellcheck and test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: "shellcheck + script tests"
+        run: shellcheck .github/*.sh && .github/dependabot-title.test.sh && .github/report-comment.test.sh

@@ -3,6 +3,13 @@
 # template filter, because this repository is public.
 server:
   address: 'tcp://127.0.0.1:9091/'
+  # The limit is per IP, so one device's sessions looping on authelia#13390 (CAVEATS.md)
+  # also refused its fresh login, for an hour. Every client is public with PKCE, so there
+  # is no secret here to guess, and only the tailnet reaches it.
+  endpoints:
+    rate_limits:
+      openid_connect_token:
+        enable: false
 
 theme: 'auto'
 

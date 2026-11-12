@@ -1,6 +1,6 @@
 # YYYY-MM-DD: <what broke, in words>
 
-| | |
+| Item | Value |
 |---|---|
 | Window | <start> to <end> UTC (<local time>), or "daily at ..." for a repeat |
 | Affected | <services, hosts> |

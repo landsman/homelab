@@ -1,0 +1,169 @@
+# Written for rootless Docker, as the Pi runs it (docker/README.md): no docker0
+# on the host, the socket in $XDG_RUNTIME_DIR, container root = the host user.
+# Host metrics come from node-exporter on each host, see host/.
+#
+# Only socket-proxy holds the Docker socket. Holding it is being the Docker
+# user (':ro' on a socket restricts nothing), so everything else asks the
+# proxy, which answers the few read-only calls log shipping and container
+# stats need and refuses the rest.
+
+# every service: no capabilities, no privilege gain, a read-only root
+x-hardened: &hardened
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  read_only: true
+
+services:
+  # GET-only allowlist: list, inspect, logs and stats of containers, plus the
+  # version handshake. No create, exec, archive or export, so a compromised
+  # Alloy or Telegraf cannot start a container that mounts the host.
+  socket-proxy:
+    <<: *hardened
+    image: wollomatic/socket-proxy:1.13.1
+    container_name: socket-proxy
+    restart: unless-stopped
+    # the socket belongs to root inside the user namespace (the Docker user)
+    user: "0:0"
+    volumes:
+      - ${DOCKER_SOCKET:-${XDG_RUNTIME_DIR:?run from a login shell of the Docker user}/docker.sock}:/var/run/docker.sock:ro
+    command:
+      - "-listenip=0.0.0.0"
+      - "-allowfrom=alloy,telegraf"
+      - "-allowGET=^/(v[0-9.]+/)?(_ping|version|info|networks|containers/json|containers/[a-zA-Z0-9_.-]+/(json|stats|logs))$"
+      - "-allowHEAD=^/(v[0-9.]+/)?_ping$"
+      - "-watchdoginterval=300"
+      - "-stoponwatchdog"
+    networks: [docker-api]
+
+  prometheus:
+    <<: *hardened
+    image: prom/prometheus:v3.14.0
+    container_name: prometheus
+    restart: unless-stopped
+    # no auth and an open OTLP receiver, so loopback only
+    ports:
+      - "127.0.0.1:3210:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=10GB"
+      - "--web.enable-otlp-receiver"
+
+  # per-container CPU, memory and network from the Docker stats API. cAdvisor
+  # reads host cgroups instead, and under rootless it crashes on other users'
+  # slices (google/cadvisor#3728)
+  telegraf:
+    <<: *hardened
+    image: telegraf:1.40.1
+    container_name: telegraf
+    restart: unless-stopped
+    # its own unprivileged user, not the entrypoint's root-then-drop
+    user: "999:999"
+    entrypoint: ["telegraf"]
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    networks: [default, docker-api]
+    depends_on:
+      - socket-proxy
+
+  blackbox-exporter:
+    <<: *hardened
+    image: prom/blackbox-exporter:v0.28.0
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    user: "65534:65534"
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+
+  loki:
+    <<: *hardened
+    image: grafana/loki:3.7.8
+    container_name: loki
+    restart: unless-stopped
+    # no auth, anyone who reaches it reads every log; loopback only, as prometheus
+    ports:
+      - "127.0.0.1:3215:3100"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki:/loki
+
+  alloy:
+    <<: *hardened
+    image: grafana/alloy:v1.19.2
+    container_name: alloy
+    restart: unless-stopped
+    # the image's own alloy user, which owns /var/lib/alloy/data
+    user: "473:473"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      # read positions; without them a recreated container re-ships every log file
+      - alloy:/var/lib/alloy/data
+    command:
+      - "run"
+      - "--disable-reporting"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--storage.path=/var/lib/alloy/data"
+      - "/etc/alloy/config.alloy"
+    networks: [default, docker-api]
+    depends_on:
+      - loki
+      - socket-proxy
+
+  grafana:
+    <<: *hardened
+    image: grafana/grafana:13.2.2
+    container_name: grafana
+    restart: unless-stopped
+    # backend plugins, the Prometheus and Loki data sources included, unpack
+    # into /tmp; with a read-only root and no tmpfs every query fails
+    tmpfs:
+      - /tmp:noexec,nosuid,nodev
+    ports:
+      - "3211:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    # any other GF_* in .env, such as GF_SERVER_ROOT_URL
+    env_file: .env
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:?set it in .env}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:?set it in .env}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      # /metrics is unauthenticated by default, and Grafana is on the LAN
+      - GF_METRICS_ENABLED=false
+      # the plugins this image ships with, not whatever is newest at start: on a
+      # read-only root the update fails halfway and unregisters the data source
+      - GF_PLUGINS_PREINSTALL_AUTO_UPDATE=false
+      # the two Drilldown apps the stack uses, pinned: they are not in the image
+      # and would otherwise download whatever is newest on first start.
+      # Renovate bumps them (renovate.json); the three unused apps are off
+      - GF_PLUGINS_PREINSTALL=grafana-lokiexplore-app@2.5.2,grafana-metricsdrilldown-app@2.5.1
+      - GF_PLUGINS_DISABLE_PLUGINS=grafana-pyroscope-app,grafana-exploretraces-app,grafana-advisor-app
+      # both publish without a login: a snapshot to snapshots.raintank.io, log
+      # lines included, and a public dashboard to anyone who reaches the LAN
+      - GF_SNAPSHOTS_EXTERNAL_ENABLED=false
+      - GF_PUBLIC_DASHBOARDS_ENABLED=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/homelab.json
+    depends_on:
+      - prometheus
+      - loki
+
+networks:
+  default:
+    name: telemetry
+  # only the proxy and its two clients; internal, so nothing on it leaves the host
+  docker-api:
+    internal: true
+
+# named volumes live under Docker's data-root (the RAID, not the SD card), and
+# Docker copies each image's directory ownership into a new one: no chown
+volumes:
+  prometheus:
+  loki:
+  alloy:
+  grafana:

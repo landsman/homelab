@@ -51,9 +51,10 @@ resource "betteruptime_status_page_resource" "node" {
 # insuit.cz apps shown in the "apps" section. Each gets its own monitor.
 # BetterStack's free plan caps the account at 10 monitors, nodes included, and
 # refuses the 11th mid-apply. Count both lists before adding to either.
+# git checks /api/healthz: a browser page there gets a Cloudflare challenge (insuit/infra).
 locals {
   status_services = {
-    git   = { url = "https://git.insuit.cz", public_name = "git.insuit.cz", check_frequency = 300 }
+    git   = { url = "https://git.insuit.cz/api/healthz", public_name = "git.insuit.cz", check_frequency = 300 }
     read  = { url = "https://read.insuit.cz", public_name = "read.insuit.cz", check_frequency = 300 }
     music = { url = "https://music.insuit.cz", public_name = "music.insuit.cz", check_frequency = 1800 }
   }

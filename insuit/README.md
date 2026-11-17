@@ -291,12 +291,13 @@ would count an in-app navigation twice.
 
 3. Create an API token — My Profile → API Tokens — with:
 
-   | Scope                | Permission                     | For                      |
-   | -------------------- | ------------------------------ | ------------------------ |
-   | Account              | Cloudflare Pages · Edit        | deploying the sites      |
-   | Account              | Account Settings · Read + Edit | the Web Analytics site   |
-   | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation        |
-   | Zone: insuit.cz only | DNS · Edit                     | the link.insuit.cz CNAME |
+   | Scope                | Permission                     | For                        |
+   | -------------------- | ------------------------------ | -------------------------- |
+   | Account              | Cloudflare Pages · Edit        | deploying the sites        |
+   | Account              | Account Settings · Read + Edit | the Web Analytics site     |
+   | Zone: insuit.cz only | Zone Settings · Edit           | email obfuscation          |
+   | Zone: insuit.cz only | DNS · Edit                     | the link.insuit.cz CNAME   |
+   | Zone: insuit.cz only | Zone WAF · Edit                | the rules on git.insuit.cz |
 
    Tick **both** Read and Edit on Account Settings. Unlike most Cloudflare
    permissions, Edit does not include Read here: Edit alone creates the site but

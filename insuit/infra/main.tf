@@ -136,6 +136,8 @@ locals {
   eu_countries = [
     "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU",
     "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+    # Territories Cloudflare locates under a code of their own, and counts as the EU too.
+    "AX", "GF", "GP", "MF", "MQ", "RE", "YT",
   ]
 }
 
@@ -151,9 +153,11 @@ resource "cloudflare_ruleset" "firewall" {
       description = "git: EU only"
       action      = "block"
       enabled     = true
-      # The 27 member states, not the continent: no UK, Switzerland or Norway. Listed because
-      # ip.src.is_in_european_union needs a Business plan. From elsewhere, a tailnet exit node
-      # in the EU gets through.
+      # The member states, not the continent: no UK, Switzerland or Norway. Listed because
+      # ip.src.is_in_european_union needs a Business plan. No exception for the API, the
+      # registry or git: in the week before, nothing but crawlers used them from outside
+      # (Cloudflare's analytics, 2026-11-10 to 17). From elsewhere, a tailnet exit node in the
+      # EU gets through.
       expression = "(http.host eq \"git.insuit.cz\" and not (ip.src.country in {${join(" ", formatlist("\"%s\"", local.eu_countries))}}))"
     },
     {
@@ -161,21 +165,31 @@ resource "cloudflare_ruleset" "firewall" {
       description = "git: challenge browsing"
       action      = "managed_challenge"
       enabled     = true
-      # A browser passes once and keeps a cookie; a crawler does not. Whatever is not a browser
-      # is left alone, since it cannot answer a challenge: the API (runners, forgejo-mcp, the
-      # uptime check on /api/healthz), the registry, git and LFS over HTTP, raw files and
-      # release downloads a script fetches.
+      # A browser passes and keeps a cookie (challenge_ttl below); a crawler does not. Whatever
+      # is not a browser is left alone, since it cannot answer a challenge: the API (runners,
+      # Renovate, forgejo-mcp, the uptime check on /api/healthz), /twirp/ (a job uploading an
+      # artifact), the registry, git and LFS over HTTP, release downloads. Not /raw/: only
+      # browsers and the crawler asked for it.
       expression = join(" and ", [
         "(http.host eq \"git.insuit.cz\"",
         "not starts_with(http.request.uri.path, \"/api/\")",
         "not starts_with(http.request.uri.path, \"/v2/\")",
+        "not starts_with(http.request.uri.path, \"/twirp/\")",
         "not ends_with(http.request.uri.path, \"/info/refs\")",
         "not ends_with(http.request.uri.path, \"/git-upload-pack\")",
         "not ends_with(http.request.uri.path, \"/git-receive-pack\")",
         "not http.request.uri.path contains \"/info/lfs/\"",
-        "not http.request.uri.path contains \"/raw/\"",
         "not http.request.uri.path contains \"/releases/download/\")",
       ])
     },
   ]
+}
+
+# How long a passed challenge holds. The default is 30 minutes, after which a comment sent from
+# a page left open gets the challenge instead of an answer. Zone-wide, but git.insuit.cz is the
+# only hostname with a challenge rule.
+resource "cloudflare_zone_setting" "challenge_ttl" {
+  zone_id    = var.cloudflare_zone_id
+  setting_id = "challenge_ttl"
+  value      = 604800 # a week
 }

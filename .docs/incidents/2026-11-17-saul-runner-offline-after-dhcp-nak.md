@@ -6,7 +6,7 @@
 | Affected | the Forgejo runner on saul, the only one with the `deploy` label |
 | Detected by | a person, from Forgejo showing the runner offline, about 15 min after it started; nothing alerted |
 | Sources | BetterStack incidents, the runner's container log, dhcpcd, tailscaled and cloudflared journals on all five boxes, `ss` inside the runner's network namespace |
-| Status | runner restarted; the cause (no DHCP reservation for saul) is still open |
+| Status | fixed: DHCP reservation for saul saved on 2026-11-17 |
 | Written | 2026-11-17 |
 
 ## 1. Summary
@@ -48,6 +48,7 @@ about the same moment (see limits).
 | 18:16:57 | runner: `failed to fetch task: deadline exceeded`, then every 30 s | runner log on saul |
 | about 18:30 | found: the runner's single connection to the forge has 3625 bytes unacknowledged in its send queue; the forge answers from the same container with a fresh connection | `ss -tnp`, `wget` in the container |
 | 18:32:01 | runner container restarted, registers and polls without errors | runner log on saul |
+| 22:19:22 | reservation saved on the router; saul renews its address `for infinity` instead of for 7200 s | dhcpcd journal on saul |
 
 ## 4. Cause and evidence
 
@@ -90,14 +91,14 @@ Limits of the data:
 
 At 18:40 UTC: the runner on saul polls without errors. saul was redeployed with `./deploy.sh
 saul.pollos` from `main`, so it now runs the `cleanup` service as well; it had been set up before
-that service existed. saul still has no DHCP reservation, so the next router restart will move it
-again.
+that service existed. Since 22:19 UTC saul's address is reserved on the router; the boxes' reservations are listed in
+[pollos/README.md](../../pollos/README.md#router).
 
 ## 6. Recommendations
 
 | # | What | Owner | By | Done |
 |---|------|-------|----|------|
-| 1 | Add a DHCP reservation for saul on the router, from `000-info.sh` on the box | landsman | 2026-11-18 | |
+| 1 | Add a DHCP reservation for saul on the router, from `000-info.sh` on the box | landsman | 2026-11-18 | 2026-11-17, at its current address; the renewal after it: `leased <address> for infinity` |
 | 2 | Put the reservation into the setup steps at <https://www.pollos.cz/setup/>, which do not mention it since #520 | landsman | with the next change to them | |
 | 3 | A runner that stops polling alerts nobody; Forgejo shows it only on the runners page | landsman | when convenient | |
 | 4 | A watchdog that restarts the runner on repeated `deadline exceeded`: do nothing for now, the reservation removes the trigger and the kernel drops the connection within about 15 minutes | | | |

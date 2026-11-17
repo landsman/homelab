@@ -55,7 +55,7 @@ gus also has an 8 TB Seagate disk on USB; its setup, checks and failed self-test
 #  cafe — it can succeed against a stranger's box and trip host-key verification.
 #  If Tailscale is ever off, the boxes are still reachable on the home LAN by raw
 #  IP: gus 192.168.0.115, mike 192.168.0.113, walter 192.168.0.116,
-#  jesse 192.168.0.117, saul 192.168.0.114.)
+#  jesse 192.168.0.117, saul 192.168.0.111 (reserved on the router, see "Router").)
 
 Host gus.pollos
   HostName gus
@@ -84,6 +84,25 @@ Host *.pollos
 | Port | Service        | Notes                                              |
 |------|----------------|----------------------------------------------------|
 | 8004 | whisper-server | speech-to-text API, 127.0.0.1 only — SSH tunnel in |
+
+## Router
+
+Every box has a DHCP reservation on the home router, set by hand in its web interface. A box
+without one is refused (NAK) at its first renewal after the router restarts, which it does nightly
+at 03:00 UTC, and comes back on another address with its long-lived connections dead
+([incident](../.docs/incidents/2026-11-17-saul-runner-offline-after-dhcp-nak.md)). On a new router,
+or for a new box, enter these; `setup/000-info.sh` on a box prints its line.
+
+| Box | MAC | IPv4 |
+|---|---|---|
+| gus | `ac:e2:d3:05:b1:89` | `192.168.0.115` |
+| mike | `ac:e2:d3:05:b0:90` | `192.168.0.113` |
+| walter | `ac:e2:d3:05:b2:0e` | `192.168.0.116` |
+| jesse | `ac:e2:d3:05:b1:b4` | `192.168.0.117` |
+| saul | `00:4e:01:a3:cb:bd` | `192.168.0.111` |
+
+Read from the boxes on 2026-11-17 (default-route interface). Nothing checks this table against
+the router; after a change there, update it here.
 
 ## Apps
 

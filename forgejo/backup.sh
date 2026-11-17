@@ -8,7 +8,9 @@ DATE=$(date +%Y%m%d_%H%M%S)
 FILE="$BACKUP_DIR/forgejo-backup-$DATE.tar.gz"
 
 echo "[$(date)] Starting backup..."
-tar czf "$FILE" -C /data .
+# repo-archive is a cache of source downloads Forgejo rebuilds on request; a crawler grew it
+# to 38 GB in two days, and the backups of it filled the disk.
+tar czf "$FILE" --exclude=./gitea/repo-archive -C /data .
 echo "[$(date)] Backup saved: $FILE"
 
 find "$BACKUP_DIR" -name "forgejo-backup-*.tar.gz" -mtime +$KEEP_DAYS -delete

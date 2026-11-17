@@ -111,6 +111,14 @@ locals {
       hosts   = ["tag:pollos"]
       reach   = ["autogroup:admin"]
     }
+    # A web UI over the Garage object store on a pollos box, on https://garage.<tailnet>/.
+    garage = {
+      comment = "Garage web UI on a pollos box"
+      ports   = [443]
+      hosts   = ["tag:pollos"]
+      # Admins only: signed in, it can delete buckets and keys.
+      reach = ["autogroup:admin"]
+    }
     # MeTube on the NAS, on https://yt-archive.<tailnet>/ instead of a path under the NAS's name.
     yt-archive = {
       comment = "MeTube on the NAS"

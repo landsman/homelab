@@ -117,7 +117,7 @@ Removing one: `forgejo admin user delete --username <name>`, also inside the con
 ## Backup
 
 Backups are stored in `/home/containers/backup/forgejo` as `forgejo-backup-YYYYMMDD_HHMMSS.tar.gz`.
-The last 14 days are retained; older files are deleted automatically. `gitea/repo-archive`, the
+The last 7 days are retained; older files are deleted automatically. `gitea/repo-archive`, the
 cache of source downloads, is left out: Forgejo builds an archive again when one is asked for.
 
 ### Cron (daily at 3am)

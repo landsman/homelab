@@ -2,7 +2,7 @@
 set -e
 
 BACKUP_DIR="/backup"
-KEEP_DAYS=14
+KEEP_DAYS=7
 
 DATE=$(date +%Y%m%d_%H%M%S)
 FILE="$BACKUP_DIR/forgejo-backup-$DATE.tar.gz"

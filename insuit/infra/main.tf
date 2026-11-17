@@ -31,8 +31,8 @@ provider "cloudflare" {
 
 # ---------------------------------------------------------------------------
 # Deliberately narrow: this manages the Pages projects, their analytics, the
-# link.insuit.cz record, and one zone setting (email obfuscation, at the
-# bottom) — nothing else.
+# link.insuit.cz record, one zone setting (email obfuscation) and the firewall
+# rules on git.insuit.cz, both at the bottom — nothing else.
 #
 # insuit.cz is a hand-curated, live zone — Google Workspace MX, nine Tunnel
 # CNAMEs (git, read, eat, archive, ip, welcome, t1, ...), a GitHub Pages
@@ -127,4 +127,55 @@ resource "cloudflare_zone_setting" "email_obfuscation" {
   zone_id    = var.cloudflare_zone_id
   setting_id = "email_obfuscation"
   value      = "on"
+}
+
+# git.insuit.cz: Forgejo is public, and a crawler spread over thousands of cloud addresses
+# followed every link in it (2026-11-17, it filled the NAS). The zone had no custom rules
+# before this, so the one ruleset this phase allows is safe to own here.
+locals {
+  eu_countries = [
+    "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU",
+    "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+  ]
+}
+
+resource "cloudflare_ruleset" "firewall" {
+  zone_id = var.cloudflare_zone_id
+  name    = "default"
+  kind    = "zone"
+  phase   = "http_request_firewall_custom"
+
+  rules = [
+    {
+      ref         = "git_eu_only"
+      description = "git: EU only"
+      action      = "block"
+      enabled     = true
+      # The 27 member states, not the continent: no UK, Switzerland or Norway. Listed because
+      # ip.src.is_in_european_union needs a Business plan. From elsewhere, a tailnet exit node
+      # in the EU gets through.
+      expression = "(http.host eq \"git.insuit.cz\" and not (ip.src.country in {${join(" ", formatlist("\"%s\"", local.eu_countries))}}))"
+    },
+    {
+      ref         = "git_challenge_browsing"
+      description = "git: challenge browsing"
+      action      = "managed_challenge"
+      enabled     = true
+      # A browser passes once and keeps a cookie; a crawler does not. Whatever is not a browser
+      # is left alone, since it cannot answer a challenge: the API (runners, forgejo-mcp, the
+      # uptime check on /api/healthz), the registry, git and LFS over HTTP, raw files and
+      # release downloads a script fetches.
+      expression = join(" and ", [
+        "(http.host eq \"git.insuit.cz\"",
+        "not starts_with(http.request.uri.path, \"/api/\")",
+        "not starts_with(http.request.uri.path, \"/v2/\")",
+        "not ends_with(http.request.uri.path, \"/info/refs\")",
+        "not ends_with(http.request.uri.path, \"/git-upload-pack\")",
+        "not ends_with(http.request.uri.path, \"/git-receive-pack\")",
+        "not http.request.uri.path contains \"/info/lfs/\"",
+        "not http.request.uri.path contains \"/raw/\"",
+        "not http.request.uri.path contains \"/releases/download/\")",
+      ])
+    },
+  ]
 }

@@ -1,0 +1,79 @@
+global:
+  scrape_interval: 15s
+
+# OTLP exporters batch, so their samples can arrive out of order
+storage:
+  tsdb:
+    out_of_order_time_window: 30m
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # node-exporter on each host, over the tailnet by MagicDNS name; installed
+  # and bound to the host's Tailscale address by host/node-exporter.sh
+  - job_name: "node"
+    static_configs:
+      - targets: ["nas:9100", "gus:9100", "mike:9100", "walter:9100", "jesse:9100"]
+    # instance="nas", not "nas:9100": the dashboards group by device name
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: "([^:]+):\\d+"
+        target_label: instance
+
+  - job_name: "telegraf"
+    static_configs:
+      - targets: ["telegraf:9273"]
+
+  - job_name: "loki"
+    static_configs:
+      - targets: ["loki:3100"]
+
+  - job_name: "alloy"
+    static_configs:
+      - targets: ["alloy:12345"]
+
+  # the other services on the Pi, by the host port in .docs/PORTS.md, over the
+  # tailnet: rootless has no host-gateway that reaches published ports
+  - job_name: "blackbox"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://nas:3000"]
+        labels: { service: forgejo }
+      - targets: ["http://nas:3001"]
+        labels: { service: ip-service }
+      - targets: ["http://nas:3031/health"]
+        labels: { service: gotenberg }
+      - targets: ["http://nas:8000"]
+        labels: { service: adminer }
+      - targets: ["http://nas:8001"]
+        labels: { service: readeck }
+      - targets: ["http://nas:8002"]
+        labels: { service: archivebox }
+      - targets: ["http://nas:8003"]
+        labels: { service: yt-archive }
+      - targets: ["http://nas:8080"]
+        labels: { service: dashboard }
+      - targets: ["http://nas:9925"]
+        labels: { service: mealie }
+    relabel_configs: &blackbox_relabel
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: "blackbox-tcp"
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets: ["nas:222"]
+        labels: { service: forgejo-ssh }
+      - targets: ["nas:5432"]
+        labels: { service: postgres }
+    relabel_configs: *blackbox_relabel

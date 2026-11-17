@@ -1,0 +1,64 @@
+name: "telemetry ci"
+
+on:
+  pull_request:
+    paths:
+      - 'telemetry/**'
+      - '.github/workflows/telemetry-ci.yml'
+      - '!**/*.md'
+  push:
+    branches: [main]
+    paths:
+      - 'telemetry/**'
+      - '.github/workflows/telemetry-ci.yml'
+      - '!**/*.md'
+  workflow_dispatch:
+
+# A new push to a pull request cancels that PR's run still going: only the newest commit's result counts.
+# A push to main or a scheduled scan is never cancelled, so every merged commit and every Monday get a result.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  infra:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telemetry/infra
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - name: "Format check + validate"
+        run: make ci
+
+  host:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telemetry
+    steps:
+      - uses: actions/checkout@v7
+      - name: "shellcheck"
+        run: make lint SHELLCHECK=shellcheck
+      - name: "cmdline.txt edit"
+        run: make test
+
+  config:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telemetry
+    steps:
+      - uses: actions/checkout@v7
+      - name: "parse every config with the pinned images"
+        run: make check
+
+  # The scan lives in landsman/config and is called, not copied — one place to
+  # change the scanner, the image or a default pack for every repo of mine.
+  # Its own job so a finding reads as a finding rather than as a broken build.
+  security:
+    uses: landsman/config/.github/workflows/semgrep.yml@main
+    with:
+      packs: p/secrets p/terraform
+      path: telemetry

@@ -8,8 +8,8 @@
     "format:fix": "oxfmt ."
   },
   "devDependencies": {
-    "eslint-plugin-jsdoc": "^65.4.3",
-    "oxfmt": "^0.76.0",
-    "oxlint": "^1.91.0"
+    "eslint-plugin-jsdoc": "^65.4.5",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0"
   }
 }

@@ -164,20 +164,6 @@ updates:
       prefix: deps(database)
 
   - package-ecosystem: docker-compose
-    directory: /gotenberg
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      all:
-        patterns:
-          - "*"
-    cooldown:
-      default-days: 7
-    commit-message:
-      prefix: deps(gotenberg)
-
-  - package-ecosystem: docker-compose
     directory: /forgejo-runner
     schedule:
       interval: weekly

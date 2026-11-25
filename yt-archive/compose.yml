@@ -1,6 +1,6 @@
 services:
   metube:
-    image: alexta69/metube:2026.11.10
+    image: alexta69/metube:2026.11.14
     container_name: yt-archive
     restart: unless-stopped
     ports:

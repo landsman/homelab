@@ -22,12 +22,15 @@ logs: ## follow the logs
 
 ##@ Backup
 .PHONY: backup restore cron-install
-backup: ## tar the data volume into BACKUP_DIR
+# Readeck is stopped for the copy: a tar of a live SQLite file can catch it mid-write.
+# It starts again even when the copy fails.
+backup: ## stop Readeck, tar its volume into BACKUP_DIR, start it again
+	docker compose stop readeck
 	docker run --rm \
 		-v $(VOLUME):/data:ro \
 		-v $(BACKUP_DIR):/backup \
 		-v $(PWD)/backup.sh:/backup.sh:ro \
-		alpine sh /backup.sh
+		alpine sh /backup.sh; status=$$?; docker compose start readeck; exit $$status
 
 restore: ## restore one: make restore FILE=readeck-backup-YYYYMMDD_HHMMSS.tar.gz
 	@test -n "$(FILE)" || (echo "Usage: make restore FILE=readeck-backup-YYYYMMDD_HHMMSS.tar.gz" && exit 1)
@@ -43,3 +46,5 @@ cron-install: ## run make backup every day at 2:00
 		&& (echo "Cron job already exists. To view: crontab -l | grep readeck" && exit 1) \
 		|| (crontab -l 2>/dev/null; echo "0 2 * * * cd $(PWD) && make backup >> $(BACKUP_DIR)/backup.log 2>&1") | crontab -
 	@echo "Cron job installed."
+
+-include ../pi.mk

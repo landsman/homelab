@@ -106,5 +106,9 @@ export default defineConfig({
     // tests/e2e and tests/smoke belong to Playwright; vitest would otherwise
     // pick the specs up.
     exclude: [...configDefaults.exclude, 'tests/e2e/**', 'tests/smoke/**'],
+    // Workers as threads, not child processes: since vitest 5.1.1 the forks
+    // pool calls child.channel.unref(), which Bun's child process lacks, and
+    // every test file failed to start.
+    pool: 'threads',
   },
 })

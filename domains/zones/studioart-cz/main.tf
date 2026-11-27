@@ -49,6 +49,15 @@ resource "cloudflare_dns_record" "github_pages_challenge" {
   ttl     = 1
 }
 
+# Proves to Maven Central that the cz.studioart namespace is mine.
+resource "cloudflare_dns_record" "maven_central_namespace" {
+  zone_id = data.cloudflare_zone.this.id
+  name    = local.zone
+  type    = "TXT"
+  content = "\"mo9fotiggd\""
+  ttl     = 1
+}
+
 output "zone_id" {
   value = data.cloudflare_zone.this.id
 }

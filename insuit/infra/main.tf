@@ -103,6 +103,17 @@ resource "cloudflare_dns_record" "links" {
   ttl     = 1
 }
 
+# Proves to Maven Central that the cz.insuit namespace is mine, so the Java
+# libraries can publish under it. A TXT record sits beside the apex's A and
+# AAAA without colliding.
+resource "cloudflare_dns_record" "maven_central_namespace" {
+  zone_id = var.cloudflare_zone_id
+  name    = "insuit.cz"
+  type    = "TXT"
+  content = "\"9bjnjjqyme\""
+  ttl     = 1
+}
+
 # Web Analytics for www.insuit.cz. Host-based with the snippet in the HTML,
 # not zone-based: auto_install on the zone would inject the beacon into every
 # proxied hostname on insuit.cz (git, read, eat, ...), and this config stays
